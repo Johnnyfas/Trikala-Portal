@@ -132,6 +132,43 @@ button.login-btn:hover{opacity:.9;}
 button.logout-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 12px;border-radius:7px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;}
 
 
+
+/* ===== Team Ziele ===== */
+.tz-section{margin-bottom:28px;}
+.tz-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
+.tz-table{width:100%;border-collapse:collapse;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);}
+.tz-table td,.tz-table th{padding:9px 12px;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;text-align:center;border:1px solid rgba(255,255,255,0.15);}
+.tz-table td.tz-label{text-align:left;font-family:'Inter',sans-serif;font-size:13px;}
+.tz-table td input{width:100%;background:transparent;border:none;outline:none;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;text-align:center;color:inherit;-moz-appearance:textfield;}
+.tz-table td input::-webkit-outer-spin-button,.tz-table td input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.tz-table td input:focus{background:rgba(255,255,255,0.3);border-radius:4px;}
+.tz-row-header{background:#1C2733;color:#fff;}
+.tz-row-header td{font-family:'Inter',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#9FC5C4;}
+.tz-row-date{background:#F8F9FA;color:var(--muted);}
+.tz-row-soll{background:#E8F5E9;color:#2E7D32;}
+.tz-row-ist{background:#FFF3E0;color:#E65100;}
+.tz-row-noch{background:#F3E5F5;color:#6A1B9A;}
+.tz-row-cr{background:#CE93D8;color:#4A148C;}
+.tz-row-crziel1{background:#81C784;color:#1B5E20;}
+.tz-row-crziel2{background:#4CAF50;color:#fff;}
+.tz-row-crziel3{background:#1B5E20;color:#fff;}
+.tz-row-storno{background:#FFD54F;color:#E65100;}
+.tz-row-gesamt{background:#29B6F6;color:#01579B;}
+
+
+/* Gesamt CR Kasten */
+.tz-team-layout{display:flex;gap:20px;align-items:flex-start;}
+.tz-table-wrap{flex:1;min-width:0;}
+.cr-sidebar{display:flex;flex-direction:column;gap:12px;min-width:160px;}
+.cr-box{border-radius:16px;padding:16px 20px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.10);position:relative;overflow:hidden;}
+.cr-box::before{content:'';position:absolute;top:-20px;right:-20px;width:70px;height:70px;border-radius:50%;opacity:.15;background:currentColor;}
+.cr-box .cr-box-label{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;opacity:.75;}
+.cr-box .cr-box-val{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;line-height:1;}
+.cr-box .cr-box-val input{background:transparent;border:none;outline:none;font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;width:100%;text-align:center;color:inherit;}
+.cr-box.gestern{background:linear-gradient(135deg,#FFF8E1,#FFE082);color:#E65100;}
+.cr-box.monat{background:linear-gradient(135deg,#E8F5E9,#A5D6A7);color:#1B5E20;}
+.cr-box.ziel{background:linear-gradient(135deg,#E3F2FD,#90CAF9);color:#0D47A1;}
+
 /* ===== Coaching Plan view ===== */
 .cp-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
 .cp-card-header{display:flex;align-items:center;gap:12px;}
@@ -150,27 +187,26 @@ button.logout-btn{background:transparent;border:1px solid var(--border);color:va
 .ov-team-head{background:linear-gradient(135deg,#2C4A5A 0%,#1C3545 100%);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
 .ov-team-head .name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;letter-spacing:-.01em;}
 .ov-team-head .targets{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#9FC5C4;}
-table.ov-table{width:100%;border-collapse:collapse;background:#fff;}
-table.ov-table th{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;text-align:center;padding:10px 8px;letter-spacing:.06em;border-bottom:1px solid #EEF1F4;}
-table.ov-table th:first-child{text-align:left;padding-left:20px;}
-table.ov-table th.qual-col{background:#F2FAF9;color:#0A7C70;min-width:75px;white-space:nowrap;border-bottom:2px solid #B8E0DC;}
-table.ov-table th.sales-col{background:#FDF9F4;color:#B87030;min-width:50px;white-space:nowrap;border-bottom:2px solid #F0D5B0;}
-table.ov-table th.cr-col{background:#F2FAF9;color:#0A7C70;min-width:80px;white-space:nowrap;border-bottom:2px solid #B8E0DC;}
-table.ov-table td{padding:9px 8px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;border-bottom:1px solid #F5F7F9;}
-table.ov-table td.ov-name{text-align:left;padding-left:20px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;color:var(--text);}
-table.ov-table tr:last-child td{border-bottom:none;}
-table.ov-table tr:hover td{background:#FAFBFC;}
-table.ov-table td.qual-val{background:#FAFEFE;padding:7px 5px;}
-table.ov-table td.sales-val{background:#FEFCF8;padding:7px 5px;}
-table.ov-table td.cr-val{background:#FAFEFE;padding:7px 5px;}
-.ov-val{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
-.ov-val.good{background:#E6F7F4;color:#0A7C70;}
-.ov-val.mid{background:#FEF3E8;color:#B87030;}
-.ov-val.zero{background:#FEF0EF;color:#B4423A;}
-.ov-pill{display:inline-block;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
-.ov-pill.good{background:#E6F7F4;color:#0A7C70;}
-.ov-pill.mid{background:#FEF3E8;color:#B87030;}
-.ov-pill.zero{background:#FEF0EF;color:#B4423A;}
+.ov-grid{width:100%;background:#fff;font-size:0;}
+.ov-header-row,.ov-data-row{display:flex;align-items:stretch;}
+.ov-header-row{border-bottom:2px solid #EEF1F4;}
+.ov-data-row{border-bottom:1px solid #F5F7F9;}
+.ov-data-row:last-child{border-bottom:none;}
+.ov-data-row:hover{background:#FAFBFC;}
+.ov-cell{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;padding:9px 6px;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;}
+.ov-cell.head{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.05em;padding:10px 6px;flex-direction:column;gap:2px;}
+.ov-cell.name-cell{font-family:'Inter',sans-serif;font-weight:600;font-size:13px;color:var(--text);text-align:left;justify-content:flex-start;padding-left:18px;flex:2;min-width:0;}
+.ov-cell.name-cell.head{flex:2;justify-content:flex-start;padding-left:18px;}
+.ov-cell.qual-cell{flex:1;background:#F8FEFE;min-width:72px;}
+.ov-cell.qual-cell.head{background:#F2FAF9;color:#0A7C70;border-bottom:2px solid #B8E0DC;}
+.ov-cell.sales-cell{flex:0 0 58px;background:#FEFCF8;}
+.ov-cell.sales-cell.head{background:#FDF9F4;color:#B87030;border-bottom:2px solid #F0D5B0;}
+.ov-cell.cr-cell{flex:0 0 90px;background:#F8FEFE;}
+.ov-cell.cr-cell.head{background:#F2FAF9;color:#0A7C70;border-bottom:2px solid #B8E0DC;}
+.ov-badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
+.ov-badge.good{background:#E6F7F4;color:#0A7C70;}
+.ov-badge.mid{background:#FEF3E8;color:#B87030;}
+.ov-badge.zero{background:#FEF0EF;color:#B4423A;}
 .ov-foot{font-family:'Inter',sans-serif;font-size:11.5px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:12px;}
 </style>
 </head>
@@ -197,6 +233,7 @@ table.ov-table td.cr-val{background:#FAFEFE;padding:7px 5px;}
   <div class="tabs">
     <button class="tab-btn active" id="tab-coaching">Mitarbeiter Ziele</button>
     <button class="tab-btn" id="tab-coachplan">Coaching Plan</button>
+    <button class="tab-btn" id="tab-teamziele">Team Ziele</button>
     <button class="tab-btn" id="tab-overview">Übersicht (WhatsApp)</button>
   </div>
 
@@ -215,6 +252,10 @@ table.ov-table td.cr-val{background:#FAFEFE;padding:7px 5px;}
     <div id="coachplan-container"></div>
   </div>
 
+  <div id="view-teamziele" style="display:none;">
+    <div id="teamziele-container"></div>
+  </div>
+
   <div id="view-overview" style="display:none;">
     <div class="toolbar">
       <span class="count" id="ov-count"></span>
@@ -226,13 +267,34 @@ table.ov-table td.cr-val{background:#FAFEFE;padding:7px 5px;}
 </div>
 
 <script>
-const STORAGE_KEY = 'coaching-board-data-v35';
+const STORAGE_KEY = 'coaching-board-data-v46';
 const TEAM_CONFIGS = {"Trikala01": {"label": "Trikala01", "project": "Mobilfunk PK", "products": ["MF", "SU", "BB", "TV", "VVM+BOJ"], "targets": {"regular": [24, 3, 4, 3, 5], "6h": [19, 2, 3, 2, 3], "helpline": [12, 2, 2, 2, 2]}, "crTarget": 7, "npsTarget": 70, "lqTarget": 78}, "Trikala06": {"label": "Trikala06", "project": "Festnetz PK", "products": ["MF", "SU", "BB", "TV", "VVM+NVM"], "targets": {"regular": [2, 16, 17, 9, 20], "6h": [1, 12, 13, 6, 15], "helpline": [1, 8, 9, 5, 10]}, "crTarget": 11, "npsTarget": 68, "lqTarget": 74}};
 const SEED_AGENTS = [{"name": "Mitsiou", "team": "Trikala01", "category": "6h", "calls": 286, "nps": 0, "lq": 0, "sales": {"MF": 3, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Evangelou", "team": "Trikala01", "category": "regular", "calls": 536, "nps": 0, "lq": 0, "sales": {"MF": 6, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Karatzoulis", "team": "Trikala01", "category": "regular", "calls": 429, "nps": 0, "lq": 0, "sales": {"MF": 22, "SU": 7, "BB": 3, "TV": 3, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Chatzikyriakou", "team": "Trikala01", "category": "6h", "calls": 432, "nps": 0, "lq": 0, "sales": {"MF": 25, "SU": 1, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Gkantela", "team": "Trikala01", "category": "6h", "calls": 130, "nps": 0, "lq": 0, "sales": {"MF": 3, "SU": 0, "BB": 1, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Ntaiakas", "team": "Trikala01", "category": "regular", "calls": 354, "nps": 0, "lq": 0, "sales": {"MF": 25, "SU": 1, "BB": 7, "TV": 2, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kapsali", "team": "Trikala01", "category": "regular", "calls": 806, "nps": 0, "lq": 0, "sales": {"MF": 23, "SU": 0, "BB": 2, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tziani", "team": "Trikala01", "category": "6h", "calls": 417, "nps": 0, "lq": 0, "sales": {"MF": 3, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Antoniou I.", "team": "Trikala01", "category": "regular", "calls": 776, "nps": 0, "lq": 0, "sales": {"MF": 18, "SU": 0, "BB": 1, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tasika", "team": "Trikala01", "category": "6h", "calls": 221, "nps": 0, "lq": 0, "sales": {"MF": 7, "SU": 5, "BB": 2, "TV": 0, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Koutouza", "team": "Trikala01", "category": "regular", "calls": 539, "nps": 0, "lq": 0, "sales": {"MF": 9, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Thoma-Lehmann", "team": "Trikala01", "category": "regular", "calls": 662, "nps": 0, "lq": 0, "sales": {"MF": 27, "SU": 0, "BB": 4, "TV": 0, "VVM+BOJ": 4}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Karamitsiou", "team": "Trikala01", "category": "regular", "calls": 541, "nps": 0, "lq": 0, "sales": {"MF": 41, "SU": 3, "BB": 6, "TV": 2, "VVM+BOJ": 2}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Rizou", "team": "Trikala01", "category": "regular", "calls": 387, "nps": 0, "lq": 0, "sales": {"MF": 55, "SU": 6, "BB": 7, "TV": 4, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Sakellaris", "team": "Trikala01", "category": "regular", "calls": 327, "nps": 0, "lq": 0, "sales": {"MF": 11, "SU": 3, "BB": 1, "TV": 2, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Papadopoulou", "team": "Trikala01", "category": "regular", "calls": 360, "nps": 0, "lq": 0, "sales": {"MF": 37, "SU": 3, "BB": 8, "TV": 7, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tzitzos", "team": "Trikala01", "category": "6h", "calls": 369, "nps": 0, "lq": 0, "sales": {"MF": 16, "SU": 4, "BB": 5, "TV": 3, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Stefanopoulou", "team": "Trikala01", "category": "helpline", "calls": 364, "nps": 0, "lq": 0, "sales": {"MF": 10, "SU": 0, "BB": 1, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Koumpoura", "team": "Trikala01", "category": "helpline", "calls": 220, "nps": 0, "lq": 0, "sales": {"MF": 18, "SU": 2, "BB": 2, "TV": 4, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Mitsios", "team": "Trikala01", "category": "regular", "calls": 477, "nps": 0, "lq": 0, "sales": {"MF": 19, "SU": 0, "BB": 3, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tsekoura", "team": "Trikala01", "category": "regular", "calls": 590, "nps": 0, "lq": 0, "sales": {"MF": 25, "SU": 3, "BB": 3, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Aggelis", "team": "Trikala01", "category": "regular", "calls": 466, "nps": 0, "lq": 0, "sales": {"MF": 10, "SU": 0, "BB": 3, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tsiakalou", "team": "Trikala01", "category": "6h", "calls": 267, "nps": 0, "lq": 0, "sales": {"MF": 7, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Ztoupis", "team": "Trikala01", "category": "regular", "calls": 396, "nps": 0, "lq": 0, "sales": {"MF": 24, "SU": 2, "BB": 7, "TV": 6, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Plavos", "team": "Trikala01", "category": "regular", "calls": 489, "nps": 0, "lq": 0, "sales": {"MF": 20, "SU": 0, "BB": 1, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Zisi", "team": "Trikala01", "category": "regular", "calls": 356, "nps": 0, "lq": 0, "sales": {"MF": 10, "SU": 0, "BB": 3, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Skotra", "team": "Trikala01", "category": "regular", "calls": 1200, "nps": 0, "lq": 0, "sales": {"MF": 19, "SU": 1, "BB": 3, "TV": 0, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Ioannou", "team": "Trikala01", "category": "regular", "calls": 258, "nps": 0, "lq": 0, "sales": {"MF": 5, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Manakou", "team": "Trikala01", "category": "regular", "calls": 432, "nps": 0, "lq": 0, "sales": {"MF": 16, "SU": 0, "BB": 2, "TV": 1, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Varelis", "team": "Trikala01", "category": "regular", "calls": 374, "nps": 0, "lq": 0, "sales": {"MF": 12, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kantziou", "team": "Trikala01", "category": "regular", "calls": 512, "nps": 0, "lq": 0, "sales": {"MF": 19, "SU": 0, "BB": 4, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kotoulas", "team": "Trikala01", "category": "regular", "calls": 543, "nps": 0, "lq": 0, "sales": {"MF": 8, "SU": 1, "BB": 0, "TV": 0, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Makrygianni", "team": "Trikala01", "category": "regular", "calls": 299, "nps": 0, "lq": 0, "sales": {"MF": 8, "SU": 1, "BB": 0, "TV": 0, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Koutelida", "team": "Trikala01", "category": "regular", "calls": 312, "nps": 0, "lq": 0, "sales": {"MF": 12, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Antoniou P", "team": "Trikala01", "category": "6h", "calls": 563, "nps": 0, "lq": 0, "sales": {"MF": 12, "SU": 0, "BB": 3, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Megarchiotis", "team": "Trikala01", "category": "6h", "calls": 515, "nps": 0, "lq": 0, "sales": {"MF": 12, "SU": 0, "BB": 2, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Karanikas", "team": "Trikala01", "category": "regular", "calls": 634, "nps": 0, "lq": 0, "sales": {"MF": 12, "SU": 0, "BB": 1, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Ntintis", "team": "Trikala01", "category": "regular", "calls": 191, "nps": 0, "lq": 0, "sales": {"MF": 5, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kostakopoulou", "team": "Trikala06", "category": "regular", "calls": 271, "nps": 0, "lq": 0, "sales": {"MF": 4, "SU": 6, "BB": 4, "TV": 5, "VVM+NVM": 12}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Dadakou", "team": "Trikala06", "category": "regular", "calls": 380, "nps": 0, "lq": 0, "sales": {"MF": 10, "SU": 15, "BB": 11, "TV": 6, "VVM+NVM": 7}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Papachristos", "team": "Trikala06", "category": "regular", "calls": 362, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 3, "BB": 5, "TV": 5, "VVM+NVM": 11}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kantzoura K", "team": "Trikala06", "category": "regular", "calls": 539, "nps": 0, "lq": 0, "sales": {"MF": 1, "SU": 23, "BB": 7, "TV": 12, "VVM+NVM": 22}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tzifou", "team": "Trikala06", "category": "regular", "calls": 431, "nps": 0, "lq": 0, "sales": {"MF": 1, "SU": 4, "BB": 4, "TV": 2, "VVM+NVM": 6}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Christodoulou", "team": "Trikala06", "category": "regular", "calls": 253, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 4, "BB": 5, "TV": 1, "VVM+NVM": 5}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Toula", "team": "Trikala06", "category": "regular", "calls": 616, "nps": 0, "lq": 0, "sales": {"MF": 1, "SU": 13, "BB": 19, "TV": 10, "VVM+NVM": 13}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Koutoumpa", "team": "Trikala06", "category": "6h", "calls": 210, "nps": 0, "lq": 0, "sales": {"MF": 2, "SU": 2, "BB": 10, "TV": 4, "VVM+NVM": 6}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Lazogiannis", "team": "Trikala06", "category": "regular", "calls": 377, "nps": 0, "lq": 0, "sales": {"MF": 7, "SU": 6, "BB": 8, "TV": 5, "VVM+NVM": 12}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Karadima", "team": "Trikala06", "category": "regular", "calls": 447, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 3, "BB": 8, "TV": 5, "VVM+NVM": 4}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Christanas", "team": "Trikala06", "category": "regular", "calls": 451, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 1, "BB": 6, "TV": 2, "VVM+NVM": 4}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Ioannou", "team": "Trikala06", "category": "regular", "calls": 29, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 0, "BB": 1, "TV": 0, "VVM+NVM": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tseliou", "team": "Trikala06", "category": "regular", "calls": 50, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 0, "BB": 2, "TV": 2, "VVM+NVM": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kostarelos", "team": "Trikala06", "category": "regular", "calls": 62, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 3, "BB": 1, "TV": 1, "VVM+NVM": 2}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Bousda", "team": "Trikala06", "category": "regular", "calls": 496, "nps": 0, "lq": 0, "sales": {"MF": 2, "SU": 9, "BB": 23, "TV": 11, "VVM+NVM": 18}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Papavasileiou", "team": "Trikala06", "category": "regular", "calls": 624, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 15, "BB": 37, "TV": 18, "VVM+NVM": 25}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tsergoulas", "team": "Trikala06", "category": "helpline", "calls": 341, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 5, "BB": 3, "TV": 2, "VVM+NVM": 12}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tsitsoula", "team": "Trikala06", "category": "regular", "calls": 518, "nps": 0, "lq": 0, "sales": {"MF": 1, "SU": 11, "BB": 15, "TV": 10, "VVM+NVM": 14}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kantzoura Chr.", "team": "Trikala06", "category": "6h", "calls": 428, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 3, "BB": 11, "TV": 3, "VVM+NVM": 4}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Papanagiotou", "team": "Trikala06", "category": "regular", "calls": 617, "nps": 0, "lq": 0, "sales": {"MF": 1, "SU": 7, "BB": 15, "TV": 6, "VVM+NVM": 10}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Papapostolou", "team": "Trikala06", "category": "6h", "calls": 354, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 4, "BB": 3, "TV": 4, "VVM+NVM": 9}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Charchantis", "team": "Trikala06", "category": "regular", "calls": 934, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 7, "BB": 11, "TV": 3, "VVM+NVM": 33}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}];
 const CATEGORY_LABELS = { regular: 'Standard', '6h': '6-Stündler', helpline: 'Helpline' };
 const CATEGORY_CSS = { regular: 'regular', '6h': 'sixh', helpline: 'helpline' };
 
-let state = { agents: [] };
+let state = { agents: [], teamziele: {
+  mf: {
+    datum: '', monat: 'Juli', nps: 69, cht: 600, na: 1,
+    soll: {MF:770, BB:109, SU:67, TV:52, BOJ:17},
+    ist: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
+    crGestern: 4.15, crMonat: 3.79, crZiel: 6.20,
+    crZiel1: {MF:2.94, BB:0.40, SU:0.21, TV:0.19, BOJ:0.05},
+    crZiel2: {MF:3.30, BB:0.50, SU:0.40, TV:0.30, BOJ:0.10},
+    crZiel3: {MF:4.00, BB:0.80, SU:0.70, TV:0.60, BOJ:0.30},
+    crZiel4MF: 4.5,
+    storno: {MF:25.29, BB:31.07, SU:23.40, TV:23.26, BOJ:61.90}
+  },
+  fn: {
+    datum: '', monat: 'Juli', nps: 68,
+    soll: {BB:271, SU:318, BOJ:155, VVM:0, TV:153, MF:20},
+    ist: {BB:0, SU:0, BOJ:0, VVM:0, TV:0, MF:0},
+    crGestern: 10.40, crMonat: 8.16, crZiel: 12.00,
+    crZiel1: {BB:2.80, SU:3.00, BOJ:1.40, VVM:3.50, TV:1.60, MF:0.40},
+    crZiel2: {BB:3.40, SU:3.50, BOJ:2.40, VVM:4.50, TV:2.00, MF:0.60},
+    storno: {BB:22.26, SU:16.67, BOJ:26.43, VVM:30.03, TV:21.19, MF:4.35}
+  }
+} };
 let saveTimer = null;
 let currentTab = 'coaching';
 
@@ -647,19 +709,23 @@ function switchTab(tab){
   currentTab = tab;
   document.getElementById('tab-coaching').classList.toggle('active', tab==='coaching');
   document.getElementById('tab-coachplan').classList.toggle('active', tab==='coachplan');
+  document.getElementById('tab-teamziele').classList.toggle('active', tab==='teamziele');
   document.getElementById('tab-overview').classList.toggle('active', tab==='overview');
   document.getElementById('view-coaching').style.display = tab==='coaching' ? '' : 'none';
   document.getElementById('view-coachplan').style.display = tab==='coachplan' ? '' : 'none';
+  document.getElementById('view-teamziele').style.display = tab==='teamziele' ? '' : 'none';
   document.getElementById('view-overview').style.display = tab==='overview' ? '' : 'none';
   renderAll();
 }
 document.getElementById('tab-coaching').addEventListener('click', ()=>switchTab('coaching'));
 document.getElementById('tab-coachplan').addEventListener('click', ()=>switchTab('coachplan'));
+document.getElementById('tab-teamziele').addEventListener('click', ()=>switchTab('teamziele'));
 document.getElementById('tab-overview').addEventListener('click', ()=>switchTab('overview'));
 
 function renderAll(){
   if(currentTab === 'coaching') renderCoaching();
   else if(currentTab === 'coachplan') renderCoachPlan();
+  else if(currentTab === 'teamziele') renderTeamZiele();
   else renderOverview();
 }
 
@@ -877,6 +943,207 @@ function renderCoachPlan(){
   });
 }
 
+
+function renderTeamZiele(){
+  const container = document.getElementById('teamziele-container');
+  container.innerHTML = '';
+
+  function mkInput(val, onChange){
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.inputMode = 'decimal';
+    inp.value = val;
+    inp.style.cssText = 'width:100%;background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:700;text-align:center;color:inherit;';
+    inp.addEventListener('focus', e=>e.target.select());
+    inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); scheduleSave(); renderTeamZiele(); });
+    return inp;
+  }
+  function cell(content, cls, colspan, rowspan){
+    const td = document.createElement('td');
+    if(cls) td.className = cls;
+    if(colspan) td.colSpan = colspan;
+    if(rowspan) td.rowSpan = rowspan;
+    if(typeof content === 'string' || typeof content === 'number') td.textContent = content;
+    else if(content && content.nodeType) td.appendChild(content);
+    return td;
+  }
+
+  function crStuffeStyle(val, tz){
+    const v = parseFloat(val)||0;
+    // Stufe 3 (höchste) - nur MF
+    if(tz.crZiel3 && v >= parseFloat(Object.values(tz.crZiel3)[0]||0)) return 'background:#1B5E20;color:#fff;';
+    // Stufe 2
+    if(tz.crZiel2 && v >= parseFloat(Object.values(tz.crZiel2)[0]||0)) return 'background:#4CAF50;color:#fff;';
+    // Stufe 1
+    if(tz.crZiel1 && v >= parseFloat(Object.values(tz.crZiel1)[0]||0)) return 'background:#81C784;color:#1B5E20;';
+    // Unter Stufe 1
+    return 'background:#CE93D8;color:#4A148C;';
+  }
+
+  function crStuffeProd(p, val, tz){
+    const v = parseFloat(val)||0;
+    const s1 = (tz.crZiel1[p]||0)*100;
+    const s2 = (tz.crZiel2[p]||0)*100;
+    const s3 = tz.crZiel3 ? (tz.crZiel3[p]||0)*100 : null;
+    if(s3 !== null && v >= s3) return 'background:#1B5E20;color:#fff;border-radius:6px;';
+    if(v >= s2) return 'background:#4CAF50;color:#fff;border-radius:6px;';
+    if(v >= s1) return 'background:#81C784;color:#1B5E20;border-radius:6px;';
+    return 'background:#CE93D8;color:#4A148C;border-radius:6px;';
+  }
+
+  function addRow(t, rowCls, labelTxt, leftCells, prodCells){
+    const tr = document.createElement('tr');
+    tr.className = rowCls;
+    tr.appendChild(cell(labelTxt, 'tz-label'));
+    leftCells.forEach(c => tr.appendChild(c));
+    prodCells.forEach(c => tr.appendChild(c));
+    t.appendChild(tr);
+    return tr;
+  }
+
+  const heute = new Date().toLocaleDateString('de-DE');
+
+  const renderTeam = (key, label, cols, colLabels) => {
+    const tz = state.teamziele[key];
+    const section = document.createElement('div');
+    section.className = 'tz-section';
+    section.innerHTML = `<div class="tz-title">${label}</div>`;
+    const t = document.createElement('table');
+    t.className = 'tz-table';
+    t.style.cssText = 'width:100%;border-collapse:collapse;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);';
+
+    // === HEADER ===
+    const hRow = document.createElement('tr');
+    hRow.className = 'tz-row-header';
+    hRow.appendChild(cell(heute, 'tz-label'));
+    hRow.appendChild(cell('Monat'));
+    hRow.appendChild(cell(tz.monat));
+
+    cols.forEach(p => hRow.appendChild(cell(colLabels[p]||p)));
+    t.appendChild(hRow);
+
+    // === NPS Zeile ===
+    const npsRow = document.createElement('tr');
+    npsRow.className = 'tz-row-date';
+    npsRow.appendChild(cell(label.split('—')[0].trim(), 'tz-label'));
+    npsRow.appendChild(cell('NPS'));
+    npsRow.appendChild(cell(mkInput((tz.nps*100).toFixed(0), v=>{ tz.nps=v/100; })));
+    // CR Box Labels
+    const crL1 = cell('Gestern'); crL1.style.cssText='background:#CE93D8;color:#4A148C;font-family:"Inter",sans-serif;font-size:11px;';
+    const crL2 = cell('Monat'); crL2.style.cssText='background:#81C784;color:#1B5E20;font-family:"Inter",sans-serif;font-size:11px;';
+    const crL3 = cell('Ziel'); crL3.style.cssText='background:#4CAF50;color:#fff;font-family:"Inter",sans-serif;font-size:11px;font-weight:700;';
+    npsRow.appendChild(crL1); npsRow.appendChild(crL2); npsRow.appendChild(crL3);
+    cols.forEach(()=>npsRow.appendChild(cell('')));
+    t.appendChild(npsRow);
+
+    // === SOLL NETTO ===
+    const sollRow = document.createElement('tr'); sollRow.className = 'tz-row-soll';
+    sollRow.appendChild(cell('Soll Netto', 'tz-label'));
+    sollRow.appendChild(cell('')); sollRow.appendChild(cell(''));
+
+    cols.forEach(p => sollRow.appendChild(cell(mkInput(tz.soll[p]||0, v=>{ tz.soll[p]=v; }))));
+    t.appendChild(sollRow);
+
+    // === IST NETTO ===
+    const istRow = document.createElement('tr'); istRow.className = 'tz-row-ist';
+    istRow.appendChild(cell('Ist Netto', 'tz-label'));
+    istRow.appendChild(cell('')); istRow.appendChild(cell(''));
+    cols.forEach(p => istRow.appendChild(cell(mkInput(tz.ist[p]||0, v=>{ tz.ist[p]=v; }))));
+    t.appendChild(istRow);
+
+    // === NOCH NETTO (berechnet) ===
+    const nochRow = document.createElement('tr'); nochRow.className = 'tz-row-noch';
+    nochRow.appendChild(cell('Noch Netto', 'tz-label'));
+    nochRow.appendChild(cell('')); nochRow.appendChild(cell(''));
+    cols.forEach(p => {
+      const noch = (tz.soll[p]||0)-(tz.ist[p]||0);
+      const td = cell(noch);
+      if(noch < 0) td.style.color='#B71C1C';
+      nochRow.appendChild(td);
+    });
+    t.appendChild(nochRow);
+
+    // === CR Zeilen (mit Produkt-CRs) ===
+    // Stufen: MF hat 3, FN hat 2
+    const stufenMF = [
+      {cls:'tz-row-cr',      label:'CR',           dataKey:'crAktuell'},
+      {cls:'tz-row-crziel1', label:'CR Ziel St.1', dataKey:'crZiel1'},
+      {cls:'tz-row-crziel2', label:'CR Ziel St.2', dataKey:'crZiel2'},
+      {cls:'tz-row-crziel3', label:'CR Ziel St.3', dataKey:'crZiel3'},
+    ];
+    const stufenFN = [
+      {cls:'tz-row-cr',      label:'CR',           dataKey:'crAktuell'},
+      {cls:'tz-row-crziel1', label:'CR Ziel St.1', dataKey:'crZiel1'},
+      {cls:'tz-row-crziel2', label:'CR Ziel St.2', dataKey:'crZiel2'},
+    ];
+    const stufen = key==='mf' ? stufenMF : stufenFN;
+
+    // Sicherstellen dass crAktuell im State vorhanden ist
+    if(!tz.crAktuell){
+      tz.crAktuell = {};
+      cols.forEach(p => tz.crAktuell[p] = 0);
+    }
+
+    stufen.forEach(({cls, label:lbl, dataKey}) => {
+      const r = document.createElement('tr'); r.className = cls;
+      r.appendChild(cell(lbl, 'tz-label'));
+      r.appendChild(cell('')); r.appendChild(cell(''));
+
+      cols.forEach(p => {
+        const val = (tz[dataKey] && tz[dataKey][p] !== undefined) ? (tz[dataKey][p]*100) : 0;
+        const isCR = dataKey === 'crAktuell';
+
+        const td = document.createElement('td');
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.inputMode = 'decimal';
+        inp.value = val.toFixed(2) + '%';
+        inp.style.cssText = 'width:100%;background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:700;text-align:center;color:inherit;';
+        inp.addEventListener('focus', e => e.target.select());
+        inp.addEventListener('change', e => {
+          const v = (parseFloat(e.target.value.replace(',','.').replace('%',''))||0)/100;
+          if(!tz[dataKey]) tz[dataKey] = {};
+          tz[dataKey][p] = v;
+          scheduleSave();
+          renderTeamZiele();
+        });
+        td.appendChild(inp);
+
+        // Farbe basierend auf erreichter Stufe (nur für CR-Zeile)
+        if(isCR){
+          td.style.cssText = crStuffeProd(p, val, tz);
+          inp.style.color = 'inherit';
+        }
+        r.appendChild(td);
+      });
+      t.appendChild(r);
+    });
+
+    // === STORNO ===
+    const stRow = document.createElement('tr'); stRow.className = 'tz-row-storno';
+    stRow.appendChild(cell('Storno', 'tz-label'));
+    stRow.appendChild(cell('')); stRow.appendChild(cell(''));
+    cols.forEach(p => stRow.appendChild(cell(mkInput(((tz.storno[p]||0)*100).toFixed(2)+'%', v=>{ tz.storno[p]=(parseFloat(v)||0)/100; }))));
+    t.appendChild(stRow);
+
+    tableWrap.appendChild(t);
+    teamLayout.appendChild(tableWrap);
+    teamLayout.appendChild(sidebar);
+    section.appendChild(teamLayout);
+    container.appendChild(section);
+  };
+
+  renderTeam('mf', 'MF Trikala — Mobilfunk PK',
+    ['MF','BB','SU','TV','BOJ'],
+    {MF:'MF',BB:'BB',SU:'SU',TV:'TV',BOJ:'BOJ'}
+  );
+  renderTeam('fn', 'FN Team — Festnetz PK',
+    ['BB','SU','BOJ','VVM','TV','MF'],
+    {BB:'BB',SU:'SU',BOJ:'BOJ',VVM:'VVM Gesamt',TV:'TV',MF:'MF'}
+  );
+}
+
+
 function renderOverview(){
   document.getElementById('ov-count').textContent = state.agents.length + ' Mitarbeiter';
   const container = document.getElementById('overview-capture');
@@ -902,41 +1169,48 @@ function renderOverview(){
         <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--helpline);">Helpline: ${legendLine('helpline')}</div>
       </div>`;
 
-    const table = document.createElement('table');
-    table.className = 'ov-table';
-    const thead = document.createElement('tr');
-    thead.innerHTML = `<th>Mitarbeiter</th><th class="qual-col">NPS<br><span style="font-weight:400;font-size:9px;">Ziel ${cfg.npsTarget}%</span></th><th class="qual-col">LQ<br><span style="font-weight:400;font-size:9px;">Ziel ${cfg.lqTarget}%</span></th>` + cfg.products.map(p=>`<th class="sales-col">${p}</th>`).join('') + '<th class="cr-col">Gesamt-CR</th>';
-    table.appendChild(thead);
+    const grid = document.createElement('div');
+    grid.className = 'ov-grid';
+
+    // Header row
+    const headerRow = document.createElement('div');
+    headerRow.className = 'ov-header-row';
+    headerRow.innerHTML =
+      `<div class="ov-cell name-cell head">Mitarbeiter</div>` +
+      `<div class="ov-cell qual-cell head">NPS<span style="font-size:9px;font-weight:400;">Ziel ${cfg.npsTarget}%</span></div>` +
+      `<div class="ov-cell qual-cell head">LQ<span style="font-size:9px;font-weight:400;">Ziel ${cfg.lqTarget}%</span></div>` +
+      cfg.products.map(p=>`<div class="ov-cell sales-cell head">${p}</div>`).join('') +
+      `<div class="ov-cell cr-cell head">CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>`;
+    grid.appendChild(headerRow);
 
     teamAgents.forEach(agent=>{
-      const tr = document.createElement('tr');
+      const row = document.createElement('div');
+      row.className = 'ov-data-row';
       const myTargets = agentTargets(agent);
       const dotHtml = (agent.category && agent.category !== 'regular') ? `<span class="cat-dot ${CATEGORY_CSS[agent.category]}"></span>` : '';
-      let rowHtml = `<td class="ov-name">${dotHtml}${agent.name}</td>`;
-      // NPS: nur grün/rot (kein orange), Ziel je Team
       const npsTarget = cfg.npsTarget || 70;
       const lqTarget  = cfg.lqTarget  || 75;
       const npsVal = agent.nps || 0;
       const npsClass = npsVal >= npsTarget ? 'good' : 'zero';
-      rowHtml += `<td class="ov-val qual-val ${npsClass}">${npsVal.toFixed(2)}%</td>`;
-      // LQ: nur grün/rot (kein orange)
       const lqVal = agent.lq || 0;
       const lqClass = lqVal >= lqTarget ? 'good' : 'zero';
-      rowHtml += `<td class="ov-val qual-val ${lqClass}">${lqVal.toFixed(2)}%</td>`;
-      // Produkte: Ampel (rot/orange/grün)
+      const cr = totalCr(agent);
+      const crStatus = trafficStatus(parseFloat(cr.toFixed(2)), cfg.crTarget);
+
+      let html = `<div class="ov-cell name-cell">${dotHtml}${agent.name}</div>`;
+      html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal.toFixed(2)}%</span></div>`;
+      html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal.toFixed(2)}%</span></div>`;
       cfg.products.forEach((p,i)=>{
         const val = agent.sales[p]||0;
         const status = trafficStatus(val, myTargets[i]);
-        rowHtml += `<td class="ov-val sales-val ${status}">${Math.round(val)}</td>`;
+        html += `<div class="ov-cell sales-cell"><span class="ov-badge ${status}">${Math.round(val)}</span></div>`;
       });
-      const cr = totalCr(agent);
-      const crStatus = trafficStatus(parseFloat(cr.toFixed(2)), cfg.crTarget);
-      rowHtml += `<td class="ov-val qual-val cr-val ${crStatus}">${cr.toFixed(2)}%</td>`;
-      tr.innerHTML = rowHtml;
-      table.appendChild(tr);
+      html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(2)}%</span></div>`;
+      row.innerHTML = html;
+      grid.appendChild(row);
     });
 
-    teamDiv.appendChild(table);
+    teamDiv.appendChild(grid);
     container.appendChild(teamDiv);
   });
 
