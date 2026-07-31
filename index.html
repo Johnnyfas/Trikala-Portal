@@ -821,8 +821,8 @@ async function loadFromExcel(){
         if(row[8] !== null && row[8] !== '') agent.sales['TV']  = parseFloat(row[8]) || 0;
         const vvmKey = agent.team === 'Trikala06' ? 'VVM+NVM' : 'VVM+BOJ';
         if(row[10] !== null && row[10] !== '') agent.sales[vvmKey] = parseFloat(row[10]) || 0;
-        if(row[17] !== null && row[17] !== '') agent.nps = parseFloat(row[17]) || 0;
-        if(row[18] !== null && row[18] !== '') agent.lq  = parseFloat(row[18]) || 0;
+        if(row[17] !== null && row[17] !== '' && parseFloat(row[17]) > 0) agent.nps = parseFloat(row[17]);
+        if(row[18] !== null && row[18] !== '' && parseFloat(row[18]) > 0) agent.lq  = parseFloat(row[18]);
         totalUpdated++;
       });
     } catch(e){
