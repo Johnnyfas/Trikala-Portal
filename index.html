@@ -232,6 +232,16 @@ button.logout-btn{background:transparent;border:1px solid var(--border);color:va
 .vl-no-data{color:var(--muted);font-style:italic;font-size:13px;padding:20px 0;}
 canvas.vl-canvas{width:100%;max-height:280px;}
 
+
+/* Diagramm Zoom Popup */
+.chart-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.chart-popup{background:#fff;border-radius:20px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.3);width:90vw;max-width:900px;position:relative;}
+.chart-popup-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 16px;color:var(--text);}
+.chart-popup canvas{width:100% !important;height:400px !important;}
+.chart-popup-close{position:absolute;top:16px;right:16px;background:var(--tmg);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.vl-chart-wrap{cursor:zoom-in;transition:box-shadow 0.2s;}
+.vl-chart-wrap:hover{box-shadow:0 6px 24px rgba(0,0,0,0.14);}
+
 /* ===== Coaching Plan view ===== */
 .cp-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
 .cp-card-header{display:flex;align-items:center;gap:12px;}
@@ -1109,6 +1119,40 @@ function renderCoachPlan(){
 }
 
 
+function showChartPopup(title, drawFn){
+  const overlay = document.createElement('div');
+  overlay.className = 'chart-overlay';
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  const popup = document.createElement('div');
+  popup.className = 'chart-popup';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'chart-popup-close';
+  closeBtn.innerHTML = '×';
+  closeBtn.addEventListener('click', ()=>overlay.remove());
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'chart-popup-title';
+  titleEl.textContent = title;
+
+  const canvas = document.createElement('canvas');
+  canvas.height = 400;
+
+  popup.appendChild(closeBtn);
+  popup.appendChild(titleEl);
+  popup.appendChild(canvas);
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+
+  setTimeout(()=>{
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 400;
+    drawFn(canvas);
+  }, 50);
+}
+
+
 const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 let vlSelectedAgent = {};
 
@@ -1219,6 +1263,7 @@ function renderVerlauf(){
     chartWrap1.style.flex = '1';
     chartWrap1.style.minWidth = '280px';
     chartWrap1.innerHTML = `<div class="vl-chart-title">${agentData.name} — Gesamt Stückzahl</div>`;
+    chartWrap1.addEventListener('click', ()=>showChartPopup(agentData.name+' — Gesamt Stückzahl', c=>drawStkChart(c, monate, stkValues, stkZiel, agentData, cfg)));
     const canvas1 = document.createElement('canvas');
     canvas1.height = 200;
     chartWrap1.appendChild(canvas1);
@@ -1230,6 +1275,7 @@ function renderVerlauf(){
     chartWrap.style.flex = '1';
     chartWrap.style.minWidth = '280px';
     chartWrap.innerHTML = `<div class="vl-chart-title">${agentData.name} — Gesamt-CR Entwicklung</div>`;
+    chartWrap.addEventListener('click', ()=>showChartPopup(agentData.name+' — Gesamt-CR Entwicklung', c=>drawCRChart(c, monate, crValues, cfg, agentData)));
     const canvas = document.createElement('canvas');
     canvas.height = 200;
     chartWrap.appendChild(canvas);
@@ -1241,6 +1287,7 @@ function renderVerlauf(){
     chartWrapNPS.style.flex = '1';
     chartWrapNPS.style.minWidth = '280px';
     chartWrapNPS.innerHTML = `<div class="vl-chart-title">${agentData.name} — NPS Entwicklung</div>`;
+    chartWrapNPS.addEventListener('click', ()=>showChartPopup(agentData.name+' — NPS Entwicklung', c=>drawNPSChart(c, monate, npsValues, cfg, agentData)));
     const canvasNPS = document.createElement('canvas');
     canvasNPS.height = 200;
     chartWrapNPS.appendChild(canvasNPS);
@@ -1248,18 +1295,21 @@ function renderVerlauf(){
     teamBlock.appendChild(chartsRow);
 
     // Chart mit Canvas zeichnen
+    const crValues = monate.map(m => agentData.monate[m].cr || 0);
+    const npsValues = monate.map(m => agentData.monate[m].nps || 0);
+
     // Stückzahl-Diagramm
-    setTimeout(() => {
-      const ctx1 = canvas1.getContext('2d');
-      const w1 = canvas1.offsetWidth || 400; const h1 = 200;
-      canvas1.width = w1; canvas1.height = h1;
-      const stkValues = monate.map(m => {
-        const md = agentData.monate[m];
-        return Object.values(md.sales||{}).reduce((s,v)=>s+v,0);
-      });
-      const cfg1 = TEAM_CONFIGS[teamId];
-      const myTargets = agentTargets({team:teamId,category:'regular'});
-      const stkZiel = myTargets.reduce((s,v)=>s+v,0);
+    const stkValues = monate.map(m => {
+      const md = agentData.monate[m];
+      return Object.values(md.sales||{}).reduce((s,v)=>s+v,0);
+    });
+    const stkZiel = agentTargets({team:teamId,category:'regular'}).reduce((s,v)=>s+v,0);
+
+    function drawStkChart(cnv, monate, stkValues, stkZiel, agentData, cfg){
+      const ctx1 = cnv.getContext('2d');
+      const w1 = cnv.width||cnv.offsetWidth||400; const h1 = cnv.height||200;
+      cnv.width = w1; cnv.height = h1;
+      const cfg1 = cfg;
       const maxStk = Math.max(...stkValues, stkZiel * 1.2, 1);
       const pad1 = {l:40,r:20,t:20,b:30};
       const cw1 = w1-pad1.l-pad1.r; const ch1 = h1-pad1.t-pad1.b;
@@ -1298,14 +1348,12 @@ function renderVerlauf(){
         ctx1.fillText(val,pad1.l-4,y+3);
         ctx1.strokeStyle='#F5F5F5'; ctx1.beginPath(); ctx1.moveTo(pad1.l,y); ctx1.lineTo(pad1.l+cw1,y); ctx1.stroke();
       }
-    }, 50);
+    }
 
-    // CR-Diagramm
-    setTimeout(() => {
-      const ctx = canvas.getContext('2d');
-      const w = canvas.offsetWidth; const h = 200;
-      canvas.width = w; canvas.height = h;
-      const crValues = monate.map(m => agentData.monate[m].cr || 0);
+    function drawCRChart(cnv, monate, crValues, cfg, agentData){
+      const ctx = cnv.getContext('2d');
+      const w = cnv.width||cnv.offsetWidth||400; const h = cnv.height||200;
+      cnv.width = w;
       const maxCR = Math.max(...crValues, cfg.crTarget * 1.5);
       const pad = {l:40, r:20, t:20, b:30};
       const chartW = w - pad.l - pad.r;
@@ -1378,14 +1426,11 @@ function renderVerlauf(){
         ctx.lineTo(pad.l + chartW, y);
         ctx.stroke();
       }
-    }, 50);
+    }
 
-    // NPS Diagramm
-    setTimeout(() => {
-      const ctxN = canvasNPS.getContext('2d');
-      const wN = canvasNPS.offsetWidth || 400; const hN = 200;
-      canvasNPS.width = wN; canvasNPS.height = hN;
-      const npsValues = monate.map(m => agentData.monate[m].nps || 0);
+    function drawNPSChart(cnv, monate, npsValues, cfg, agentData){
+      const ctxN = cnv.getContext('2d');
+      const wN = cnv.width||cnv.offsetWidth || 400; const hN = cnv.height||200;
       const npsZiel = cfg.npsTarget || 70;
       const maxNPS = 100;
       const padN = {l:40,r:20,t:20,b:30};
@@ -1430,7 +1475,12 @@ function renderVerlauf(){
         ctxN.fillText(val+'%',padN.l-4,y+3);
         ctxN.strokeStyle='#F5F5F5'; ctxN.beginPath(); ctxN.moveTo(padN.l,y); ctxN.lineTo(padN.l+cwN,y); ctxN.stroke();
       }
-    }, 50);
+    }
+
+    // Charts zeichnen
+    setTimeout(()=>{ drawStkChart(canvas1, monate, stkValues, stkZiel, agentData, cfg); }, 50);
+    setTimeout(()=>{ drawCRChart(canvas, monate, crValues, cfg, agentData); }, 50);
+    setTimeout(()=>{ drawNPSChart(canvasNPS, monate, npsValues, cfg, agentData); }, 50);
 
     // Tabelle mit allen Monaten
     const t = document.createElement('table');
