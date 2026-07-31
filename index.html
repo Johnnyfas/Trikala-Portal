@@ -921,8 +921,9 @@ function numField(labelText, value, onChange, step){
   label.textContent = labelText;
   const input = document.createElement('input');
   input.type = 'number';
-  input.value = parseFloat(value).toFixed(step ? 2 : 0);
-  if(step) input.step = '0.01';
+  input.step = step ? '0.01' : '1';
+  const parsed = parseFloat(value) || 0;
+  input.value = step ? parsed.toFixed(2) : Math.round(parsed).toString();
   input.addEventListener('input', e=>{ onChange(parseFloat(e.target.value)||0); scheduleSave(); renderAll(); });
   wrap.appendChild(label); wrap.appendChild(input);
   return wrap;
