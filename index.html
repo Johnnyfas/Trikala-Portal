@@ -920,11 +920,11 @@ function numField(labelText, value, onChange, step){
   const label = document.createElement('label');
   label.textContent = labelText;
   const input = document.createElement('input');
-  input.type = 'number';
-  input.step = step ? '0.01' : '1';
+  input.type = 'text';
+  input.inputMode = step ? 'decimal' : 'numeric';
   const parsed = parseFloat(value) || 0;
   input.value = step ? parsed.toFixed(2) : Math.round(parsed).toString();
-  input.addEventListener('input', e=>{ onChange(parseFloat(e.target.value)||0); scheduleSave(); renderAll(); });
+  input.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); scheduleSave(); renderAll(); });
   wrap.appendChild(label); wrap.appendChild(input);
   return wrap;
 }
