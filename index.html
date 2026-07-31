@@ -1159,7 +1159,18 @@ function renderVerlauf(){
     const agentData = state.verlauf[agentKey];
     if(!agentData){ container.appendChild(teamBlock); return; }
 
-    const monate = MONATE_ORDER.filter(m => agentData.monate[m]);
+    const MONATE_NAMEN = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    // Keys können "April" oder "2024-April" sein
+    const alleMonatKeys = Object.keys(agentData.monate);
+    const monate = alleMonatKeys.sort((a, b) => {
+      // Sortierung: Jahr-Monat Format
+      const parseKey = k => {
+        const parts = k.split('-');
+        if(parts.length === 2){ const [j,m] = parts; return parseInt(j)*100 + MONATE_NAMEN.indexOf(m); }
+        return 2024*100 + MONATE_NAMEN.indexOf(k);
+      };
+      return parseKey(a) - parseKey(b);
+    });
     if(!monate.length){
       teamBlock.innerHTML += '<div class="vl-no-data">Keine Monatsdaten für diesen Mitarbeiter.</div>';
       container.appendChild(teamBlock);
@@ -1231,7 +1242,7 @@ function renderVerlauf(){
         ctx.fillText(crValues[i].toFixed(1)+'%', x, y - 10);
         ctx.fillStyle = '#64748B';
         ctx.font = '9px Inter';
-        ctx.fillText(m.substring(0,3), x, h - 5);
+        ctx.fillText(m.includes('-') ? m.split('-')[1].substring(0,3)+' '+m.split('-')[0].slice(2) : m.substring(0,3), x, h - 5);
       });
 
       // Y-Achse
@@ -1266,7 +1277,7 @@ function renderVerlauf(){
       const cr = md.cr || 0;
       const crOk = cr >= cfg.crTarget;
       const tr = document.createElement('tr');
-      let html = `<td>${m}</td>`;
+      let html = `<td>${m.includes('-') ? m.split('-')[1]+' '+m.split('-')[0] : m}</td>`;
       prods.forEach((p,i) => {
         const val = md.sales[p]||0;
         const tgt = agentTargets({team:teamId, category:'regular'})[i];
