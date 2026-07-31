@@ -523,10 +523,26 @@ async function loadFromSharePoint(){
           });
         }
         if(data.verlauf && Object.keys(data.verlauf).length > 0){
-          // Gespeicherte Verlauf-Snapshots mit Seed zusammenführen
+          // Gespeicherte Verlauf-Snapshots mit Seed zusammenführen (Seed bleibt Basis)
           Object.keys(data.verlauf).forEach(k=>{
             if(!state.verlauf[k]) state.verlauf[k] = { name: data.verlauf[k].name, team: data.verlauf[k].team, monate: {} };
-            Object.assign(state.verlauf[k].monate, data.verlauf[k].monate);
+            // Monat für Monat zusammenführen - Seed-Werte (NPS etc.) bleiben erhalten
+            Object.keys(data.verlauf[k].monate||{}).forEach(m=>{
+              if(!state.verlauf[k].monate[m]){
+                state.verlauf[k].monate[m] = data.verlauf[k].monate[m];
+              } else {
+                // Nur Felder übernehmen die im Seed 0 sind
+                const saved = data.verlauf[k].monate[m];
+                const seed = state.verlauf[k].monate[m];
+                if(saved.calls > 0) seed.calls = saved.calls;
+                if(saved.cr > 0) seed.cr = saved.cr;
+                if(saved.lq > 0) seed.lq = saved.lq;
+                if(saved.nps > 0 && seed.nps === 0) seed.nps = saved.nps;
+                Object.keys(saved.sales||{}).forEach(p=>{
+                  if(saved.sales[p] > 0) seed.sales[p] = saved.sales[p];
+                });
+              }
+            });
           });
         }
         if(data.monatsabschluss){
@@ -620,10 +636,26 @@ async function loadFromSharePoint(){
           });
         }
         if(data.verlauf && Object.keys(data.verlauf).length > 0){
-          // Gespeicherte Verlauf-Snapshots mit Seed zusammenführen
+          // Gespeicherte Verlauf-Snapshots mit Seed zusammenführen (Seed bleibt Basis)
           Object.keys(data.verlauf).forEach(k=>{
             if(!state.verlauf[k]) state.verlauf[k] = { name: data.verlauf[k].name, team: data.verlauf[k].team, monate: {} };
-            Object.assign(state.verlauf[k].monate, data.verlauf[k].monate);
+            // Monat für Monat zusammenführen - Seed-Werte (NPS etc.) bleiben erhalten
+            Object.keys(data.verlauf[k].monate||{}).forEach(m=>{
+              if(!state.verlauf[k].monate[m]){
+                state.verlauf[k].monate[m] = data.verlauf[k].monate[m];
+              } else {
+                // Nur Felder übernehmen die im Seed 0 sind
+                const saved = data.verlauf[k].monate[m];
+                const seed = state.verlauf[k].monate[m];
+                if(saved.calls > 0) seed.calls = saved.calls;
+                if(saved.cr > 0) seed.cr = saved.cr;
+                if(saved.lq > 0) seed.lq = saved.lq;
+                if(saved.nps > 0 && seed.nps === 0) seed.nps = saved.nps;
+                Object.keys(saved.sales||{}).forEach(p=>{
+                  if(saved.sales[p] > 0) seed.sales[p] = saved.sales[p];
+                });
+              }
+            });
           });
         }
         if(data.monatsabschluss){
