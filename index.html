@@ -242,6 +242,25 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 .vl-chart-wrap{cursor:zoom-in;transition:box-shadow 0.2s;}
 .vl-chart-wrap:hover{box-shadow:0 6px 24px rgba(0,0,0,0.14);}
 
+
+/* ===== Neue Features ===== */
+.ranking-wrap{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;}
+.ranking-box{flex:1;min-width:240px;background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 2px 12px rgba(0,0,0,0.07);}
+.ranking-box .rb-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
+.ranking-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F5F7F9;font-family:'IBM Plex Mono',monospace;font-size:12.5px;}
+.ranking-row:last-child{border-bottom:none;}
+.ranking-row .rr-rank{color:var(--muted);font-size:11px;width:20px;}
+.ranking-row .rr-name{font-family:'Inter',sans-serif;font-weight:600;font-size:13px;flex:1;}
+.ranking-row .rr-val{font-weight:700;}
+.trend-up{color:#4CAF50;}
+.trend-down{color:#E20074;}
+.trend-flat{color:#64748B;}
+.coaching-freq-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;font-family:'Inter',sans-serif;}
+.freq-ok{background:#E6F7F4;color:#0A7C70;}
+.freq-warn{background:#FEF3E8;color:#B87030;}
+.freq-late{background:#FEF0EF;color:#B4423A;}
+.avg-line-label{font-size:9px;font-family:Inter,sans-serif;fill:#64748B;}
+
 /* ===== Coaching Plan view ===== */
 .cp-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
 .cp-card-header{display:flex;align-items:center;gap:12px;}
@@ -1237,6 +1256,83 @@ function renderVerlauf(){
   const container = document.getElementById('verlauf-container');
   container.innerHTML = '';
 
+  // ===== TOP 5 / BOTTOM 5 =====
+  const rankWrap = document.createElement('div');
+  rankWrap.className = 'ranking-wrap';
+
+  Object.keys(TEAM_CONFIGS).forEach(teamId => {
+    const cfg = TEAM_CONFIGS[teamId];
+    const teamAgents = state.agents.filter(a => a.team === teamId);
+    if(!teamAgents.length) return;
+
+    // Top 5 CR
+    const sorted = [...teamAgents].filter(a=>totalCr(a)>0).sort((a,b)=>totalCr(b)-totalCr(a));
+    const top5 = sorted.slice(0,5);
+    const bot5 = sorted.slice(-5).reverse();
+
+    const mkRankBox = (title, emoji, agents, valFn, colorFn) => {
+      const box = document.createElement('div');
+      box.className = 'ranking-box';
+      box.innerHTML = `<div class="rb-title">${emoji} ${title} — ${cfg.label}</div>`;
+      agents.forEach((a,i) => {
+        const row = document.createElement('div');
+        row.className = 'ranking-row';
+        const val = valFn(a);
+        row.innerHTML = `<span class="rr-rank">${i+1}.</span><span class="rr-name">${a.name}</span><span class="rr-val" style="color:${colorFn(val)}">${val}</span>`;
+        box.appendChild(row);
+      });
+      return box;
+    };
+
+    rankWrap.appendChild(mkRankBox('Top 5 CR', '🏆', top5,
+      a => totalCr(a).toFixed(2)+'%',
+      v => '#0A7C70'
+    ));
+    rankWrap.appendChild(mkRankBox('Coaching Bedarf', '⚠️', bot5,
+      a => totalCr(a).toFixed(2)+'%',
+      v => '#B4423A'
+    ));
+  });
+  container.appendChild(rankWrap);
+
+  // ===== COACHING FREQUENZ =====
+  const freqWrap = document.createElement('div');
+  freqWrap.className = 'ranking-wrap';
+  freqWrap.style.marginBottom = '24px';
+
+  Object.keys(TEAM_CONFIGS).forEach(teamId => {
+    const cfg = TEAM_CONFIGS[teamId];
+    const box = document.createElement('div');
+    box.className = 'ranking-box';
+    box.style.flex = '2';
+    box.innerHTML = `<div class="rb-title">📋 Coaching Frequenz — ${cfg.label}</div>`;
+
+    const teamAgents = state.agents.filter(a=>a.team===teamId).sort((a,b)=>{
+      const da = a.coachingDatum ? new Date(a.coachingDatum.split('.').reverse().join('-')) : new Date(0);
+      const db = b.coachingDatum ? new Date(b.coachingDatum.split('.').reverse().join('-')) : new Date(0);
+      return da - db; // älteste zuerst
+    });
+
+    teamAgents.forEach(a => {
+      const row = document.createElement('div');
+      row.className = 'ranking-row';
+      let badge, days;
+      if(!a.coachingDatum){
+        badge = '<span class="coaching-freq-badge freq-late">⚠ Noch nie</span>';
+        days = 999;
+      } else {
+        days = Math.floor((new Date()-new Date(a.coachingDatum.split('.').reverse().join('-')))/(1000*60*60*24));
+        const cls = days<=7?'freq-ok':days<=14?'freq-warn':'freq-late';
+        const icon = days<=7?'✓':days<=14?'~':'!';
+        badge = `<span class="coaching-freq-badge ${cls}">${icon} ${a.coachingDatum} (${days}d)</span>`;
+      }
+      row.innerHTML = `<span class="rr-name">${a.name}</span>${badge}`;
+      box.appendChild(row);
+    });
+    freqWrap.appendChild(box);
+  });
+  container.appendChild(freqWrap);
+
   // Toolbar
   const toolbar = document.createElement('div');
   toolbar.className = 'vl-toolbar';
@@ -1543,7 +1639,7 @@ function renderVerlauf(){
     const t = document.createElement('table');
     t.className = 'vl-table';
     const prods = cfg.products;
-    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>CR</th><th>NPS</th><th>LQ</th></tr>`;
+    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>CR</th><th>NPS</th><th>Trend</th></tr>`;
     monate.forEach(m => {
       const md = agentData.monate[m];
       const cr = md.cr || 0;
@@ -1558,7 +1654,19 @@ function renderVerlauf(){
       });
       html += `<td><span class="vl-badge ${crOk?'ok':'bad'}">${cr.toFixed(2)}%</span></td>`;
       html += `<td><span class="vl-badge ${(md.nps||0)>=cfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
-      html += `<td><span class="vl-badge ${(md.lq||0)>=cfg.lqTarget?'ok':'bad'}">${(md.lq||0).toFixed(1)}%</span></td>`;
+      // Trend: Vergleich mit Vormonat
+      const prevM = monate[monate.indexOf(m)-1];
+      let trendHtml = '<span class="trend-flat">—</span>';
+      if(prevM){
+        const prevCr = agentData.monate[prevM].cr||0;
+        const diff = cr - prevCr;
+        if(Math.abs(diff) >= 0.1){
+          const cls = diff>0?'trend-up':'trend-down';
+          const arrow = diff>0?'▲':'▼';
+          trendHtml = `<span class="${cls}">${arrow} ${Math.abs(diff).toFixed(2)}%</span>`;
+        }
+      }
+      html += `<td>${trendHtml}</td>`;
       tr.innerHTML = html;
       t.appendChild(tr);
     });
