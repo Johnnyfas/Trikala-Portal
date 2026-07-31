@@ -195,12 +195,12 @@ button.logout-btn{background:transparent;border:1px solid var(--border);color:va
 .ov-data-row:hover{background:#FAFBFC;}
 .ov-cell{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;padding:9px 6px;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;}
 .ov-cell.head{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.05em;padding:10px 6px;flex-direction:column;gap:2px;}
-.ov-cell.name-cell{font-family:'Inter',sans-serif;font-weight:600;font-size:13px;color:var(--text);text-align:left;justify-content:flex-start;padding-left:18px;flex:2;min-width:0;}
+.ov-cell.name-cell{font-family:'Inter',sans-serif;font-weight:600;font-size:13px;color:var(--text);text-align:left;justify-content:flex-start;padding-left:18px;flex:0 1 auto;white-space:nowrap;}
 .ov-cell.name-cell.head{flex:2;justify-content:flex-start;padding-left:18px;}
-.ov-cell.qual-cell{flex:1;background:#F8FEFE;min-width:72px;}
+.ov-cell.qual-cell{flex:0 0 78px;background:#F8FEFE;min-width:78px;}
 .ov-cell.qual-cell.head{background:#F2FAF9;color:#0A7C70;border-bottom:2px solid #B8E0DC;}
-.ov-cell.sales-cell{flex:0 0 58px;background:#FEFCF8;}
-.ov-cell.sales-cell.head{background:#FDF9F4;color:#B87030;border-bottom:2px solid #F0D5B0;}
+.ov-cell.sales-cell{flex:0 0 80px;background:#FEFCF8;}
+.ov-cell.sales-cell.head{background:#FDF9F4;color:#B87030;border-bottom:2px solid #F0D5B0;font-size:13px;font-weight:700;}
 .ov-cell.cr-cell{flex:0 0 90px;background:#F8FEFE;}
 .ov-cell.cr-cell.head{background:#F2FAF9;color:#0A7C70;border-bottom:2px solid #B8E0DC;}
 .ov-badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
@@ -267,7 +267,7 @@ button.logout-btn{background:transparent;border:1px solid var(--border);color:va
 </div>
 
 <script>
-const STORAGE_KEY = 'coaching-board-data-v46';
+const STORAGE_KEY = 'coaching-board-data-v51';
 const TEAM_CONFIGS = {"Trikala01": {"label": "Trikala01", "project": "Mobilfunk PK", "products": ["MF", "SU", "BB", "TV", "VVM+BOJ"], "targets": {"regular": [24, 3, 4, 3, 5], "6h": [19, 2, 3, 2, 3], "helpline": [12, 2, 2, 2, 2]}, "crTarget": 7, "npsTarget": 70, "lqTarget": 78}, "Trikala06": {"label": "Trikala06", "project": "Festnetz PK", "products": ["MF", "SU", "BB", "TV", "VVM+NVM"], "targets": {"regular": [2, 16, 17, 9, 20], "6h": [1, 12, 13, 6, 15], "helpline": [1, 8, 9, 5, 10]}, "crTarget": 11, "npsTarget": 68, "lqTarget": 74}};
 const SEED_AGENTS = [{"name": "Mitsiou", "team": "Trikala01", "category": "6h", "calls": 286, "nps": 0, "lq": 0, "sales": {"MF": 3, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Evangelou", "team": "Trikala01", "category": "regular", "calls": 536, "nps": 0, "lq": 0, "sales": {"MF": 6, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Karatzoulis", "team": "Trikala01", "category": "regular", "calls": 429, "nps": 0, "lq": 0, "sales": {"MF": 22, "SU": 7, "BB": 3, "TV": 3, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Chatzikyriakou", "team": "Trikala01", "category": "6h", "calls": 432, "nps": 0, "lq": 0, "sales": {"MF": 25, "SU": 1, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Gkantela", "team": "Trikala01", "category": "6h", "calls": 130, "nps": 0, "lq": 0, "sales": {"MF": 3, "SU": 0, "BB": 1, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Ntaiakas", "team": "Trikala01", "category": "regular", "calls": 354, "nps": 0, "lq": 0, "sales": {"MF": 25, "SU": 1, "BB": 7, "TV": 2, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kapsali", "team": "Trikala01", "category": "regular", "calls": 806, "nps": 0, "lq": 0, "sales": {"MF": 23, "SU": 0, "BB": 2, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tziani", "team": "Trikala01", "category": "6h", "calls": 417, "nps": 0, "lq": 0, "sales": {"MF": 3, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Antoniou I.", "team": "Trikala01", "category": "regular", "calls": 776, "nps": 0, "lq": 0, "sales": {"MF": 18, "SU": 0, "BB": 1, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tasika", "team": "Trikala01", "category": "6h", "calls": 221, "nps": 0, "lq": 0, "sales": {"MF": 7, "SU": 5, "BB": 2, "TV": 0, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Koutouza", "team": "Trikala01", "category": "regular", "calls": 539, "nps": 0, "lq": 0, "sales": {"MF": 9, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Thoma-Lehmann", "team": "Trikala01", "category": "regular", "calls": 662, "nps": 0, "lq": 0, "sales": {"MF": 27, "SU": 0, "BB": 4, "TV": 0, "VVM+BOJ": 4}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Karamitsiou", "team": "Trikala01", "category": "regular", "calls": 541, "nps": 0, "lq": 0, "sales": {"MF": 41, "SU": 3, "BB": 6, "TV": 2, "VVM+BOJ": 2}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Rizou", "team": "Trikala01", "category": "regular", "calls": 387, "nps": 0, "lq": 0, "sales": {"MF": 55, "SU": 6, "BB": 7, "TV": 4, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Sakellaris", "team": "Trikala01", "category": "regular", "calls": 327, "nps": 0, "lq": 0, "sales": {"MF": 11, "SU": 3, "BB": 1, "TV": 2, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Papadopoulou", "team": "Trikala01", "category": "regular", "calls": 360, "nps": 0, "lq": 0, "sales": {"MF": 37, "SU": 3, "BB": 8, "TV": 7, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tzitzos", "team": "Trikala01", "category": "6h", "calls": 369, "nps": 0, "lq": 0, "sales": {"MF": 16, "SU": 4, "BB": 5, "TV": 3, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Stefanopoulou", "team": "Trikala01", "category": "helpline", "calls": 364, "nps": 0, "lq": 0, "sales": {"MF": 10, "SU": 0, "BB": 1, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Koumpoura", "team": "Trikala01", "category": "helpline", "calls": 220, "nps": 0, "lq": 0, "sales": {"MF": 18, "SU": 2, "BB": 2, "TV": 4, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Mitsios", "team": "Trikala01", "category": "regular", "calls": 477, "nps": 0, "lq": 0, "sales": {"MF": 19, "SU": 0, "BB": 3, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tsekoura", "team": "Trikala01", "category": "regular", "calls": 590, "nps": 0, "lq": 0, "sales": {"MF": 25, "SU": 3, "BB": 3, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Aggelis", "team": "Trikala01", "category": "regular", "calls": 466, "nps": 0, "lq": 0, "sales": {"MF": 10, "SU": 0, "BB": 3, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tsiakalou", "team": "Trikala01", "category": "6h", "calls": 267, "nps": 0, "lq": 0, "sales": {"MF": 7, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Ztoupis", "team": "Trikala01", "category": "regular", "calls": 396, "nps": 0, "lq": 0, "sales": {"MF": 24, "SU": 2, "BB": 7, "TV": 6, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Plavos", "team": "Trikala01", "category": "regular", "calls": 489, "nps": 0, "lq": 0, "sales": {"MF": 20, "SU": 0, "BB": 1, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Zisi", "team": "Trikala01", "category": "regular", "calls": 356, "nps": 0, "lq": 0, "sales": {"MF": 10, "SU": 0, "BB": 3, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Skotra", "team": "Trikala01", "category": "regular", "calls": 1200, "nps": 0, "lq": 0, "sales": {"MF": 19, "SU": 1, "BB": 3, "TV": 0, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Ioannou", "team": "Trikala01", "category": "regular", "calls": 258, "nps": 0, "lq": 0, "sales": {"MF": 5, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Manakou", "team": "Trikala01", "category": "regular", "calls": 432, "nps": 0, "lq": 0, "sales": {"MF": 16, "SU": 0, "BB": 2, "TV": 1, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Varelis", "team": "Trikala01", "category": "regular", "calls": 374, "nps": 0, "lq": 0, "sales": {"MF": 12, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kantziou", "team": "Trikala01", "category": "regular", "calls": 512, "nps": 0, "lq": 0, "sales": {"MF": 19, "SU": 0, "BB": 4, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kotoulas", "team": "Trikala01", "category": "regular", "calls": 543, "nps": 0, "lq": 0, "sales": {"MF": 8, "SU": 1, "BB": 0, "TV": 0, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Makrygianni", "team": "Trikala01", "category": "regular", "calls": 299, "nps": 0, "lq": 0, "sales": {"MF": 8, "SU": 1, "BB": 0, "TV": 0, "VVM+BOJ": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Koutelida", "team": "Trikala01", "category": "regular", "calls": 312, "nps": 0, "lq": 0, "sales": {"MF": 12, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Antoniou P", "team": "Trikala01", "category": "6h", "calls": 563, "nps": 0, "lq": 0, "sales": {"MF": 12, "SU": 0, "BB": 3, "TV": 1, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Megarchiotis", "team": "Trikala01", "category": "6h", "calls": 515, "nps": 0, "lq": 0, "sales": {"MF": 12, "SU": 0, "BB": 2, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Karanikas", "team": "Trikala01", "category": "regular", "calls": 634, "nps": 0, "lq": 0, "sales": {"MF": 12, "SU": 0, "BB": 1, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Ntintis", "team": "Trikala01", "category": "regular", "calls": 191, "nps": 0, "lq": 0, "sales": {"MF": 5, "SU": 0, "BB": 0, "TV": 0, "VVM+BOJ": 0}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kostakopoulou", "team": "Trikala06", "category": "regular", "calls": 271, "nps": 0, "lq": 0, "sales": {"MF": 4, "SU": 6, "BB": 4, "TV": 5, "VVM+NVM": 12}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Dadakou", "team": "Trikala06", "category": "regular", "calls": 380, "nps": 0, "lq": 0, "sales": {"MF": 10, "SU": 15, "BB": 11, "TV": 6, "VVM+NVM": 7}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Papachristos", "team": "Trikala06", "category": "regular", "calls": 362, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 3, "BB": 5, "TV": 5, "VVM+NVM": 11}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kantzoura K", "team": "Trikala06", "category": "regular", "calls": 539, "nps": 0, "lq": 0, "sales": {"MF": 1, "SU": 23, "BB": 7, "TV": 12, "VVM+NVM": 22}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tzifou", "team": "Trikala06", "category": "regular", "calls": 431, "nps": 0, "lq": 0, "sales": {"MF": 1, "SU": 4, "BB": 4, "TV": 2, "VVM+NVM": 6}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Christodoulou", "team": "Trikala06", "category": "regular", "calls": 253, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 4, "BB": 5, "TV": 1, "VVM+NVM": 5}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Toula", "team": "Trikala06", "category": "regular", "calls": 616, "nps": 0, "lq": 0, "sales": {"MF": 1, "SU": 13, "BB": 19, "TV": 10, "VVM+NVM": 13}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Koutoumpa", "team": "Trikala06", "category": "6h", "calls": 210, "nps": 0, "lq": 0, "sales": {"MF": 2, "SU": 2, "BB": 10, "TV": 4, "VVM+NVM": 6}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Lazogiannis", "team": "Trikala06", "category": "regular", "calls": 377, "nps": 0, "lq": 0, "sales": {"MF": 7, "SU": 6, "BB": 8, "TV": 5, "VVM+NVM": 12}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Karadima", "team": "Trikala06", "category": "regular", "calls": 447, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 3, "BB": 8, "TV": 5, "VVM+NVM": 4}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Christanas", "team": "Trikala06", "category": "regular", "calls": 451, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 1, "BB": 6, "TV": 2, "VVM+NVM": 4}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Ioannou", "team": "Trikala06", "category": "regular", "calls": 29, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 0, "BB": 1, "TV": 0, "VVM+NVM": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tseliou", "team": "Trikala06", "category": "regular", "calls": 50, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 0, "BB": 2, "TV": 2, "VVM+NVM": 1}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kostarelos", "team": "Trikala06", "category": "regular", "calls": 62, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 3, "BB": 1, "TV": 1, "VVM+NVM": 2}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Bousda", "team": "Trikala06", "category": "regular", "calls": 496, "nps": 0, "lq": 0, "sales": {"MF": 2, "SU": 9, "BB": 23, "TV": 11, "VVM+NVM": 18}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Papavasileiou", "team": "Trikala06", "category": "regular", "calls": 624, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 15, "BB": 37, "TV": 18, "VVM+NVM": 25}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tsergoulas", "team": "Trikala06", "category": "helpline", "calls": 341, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 5, "BB": 3, "TV": 2, "VVM+NVM": 12}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Tsitsoula", "team": "Trikala06", "category": "regular", "calls": 518, "nps": 0, "lq": 0, "sales": {"MF": 1, "SU": 11, "BB": 15, "TV": 10, "VVM+NVM": 14}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Kantzoura Chr.", "team": "Trikala06", "category": "6h", "calls": 428, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 3, "BB": 11, "TV": 3, "VVM+NVM": 4}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Papanagiotou", "team": "Trikala06", "category": "regular", "calls": 617, "nps": 0, "lq": 0, "sales": {"MF": 1, "SU": 7, "BB": 15, "TV": 6, "VVM+NVM": 10}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Papapostolou", "team": "Trikala06", "category": "6h", "calls": 354, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 4, "BB": 3, "TV": 4, "VVM+NVM": 9}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}, {"name": "Charchantis", "team": "Trikala06", "category": "regular", "calls": 934, "nps": 0, "lq": 0, "sales": {"MF": 0, "SU": 7, "BB": 11, "TV": 3, "VVM+NVM": 33}, "kpiName": "", "kpiWert": 0, "kpiZiel": 0, "coachingplan": ""}];
 const CATEGORY_LABELS = { regular: 'Standard', '6h': '6-Stündler', helpline: 'Helpline' };
@@ -1008,6 +1008,44 @@ function renderTeamZiele(){
     const section = document.createElement('div');
     section.className = 'tz-section';
     section.innerHTML = `<div class="tz-title">${label}</div>`;
+    // Layout: Tabelle links, CR-Sidebar rechts
+    const teamLayout = document.createElement('div');
+    teamLayout.className = 'tz-team-layout';
+    const tableWrap = document.createElement('div');
+    tableWrap.className = 'tz-table-wrap';
+    const sidebar = document.createElement('div');
+    sidebar.className = 'cr-sidebar';
+
+    const mkCrSideBox = (cls, labelTxt, val, onChange, isCalc) => {
+      const box = document.createElement('div');
+      box.className = 'cr-box ' + cls;
+      const lbl = document.createElement('div'); lbl.className = 'cr-box-label'; lbl.textContent = labelTxt;
+      const valDiv = document.createElement('div'); valDiv.className = 'cr-box-val';
+      if(isCalc){
+        valDiv.textContent = parseFloat(val||0).toFixed(2) + '%';
+      } else {
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.inputMode = 'decimal';
+        inp.value = parseFloat(val||0).toFixed(2) + '%';
+        inp.addEventListener('focus', e=>e.target.select());
+        inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.').replace('%',''))||0); scheduleSave(); renderTeamZiele(); });
+        valDiv.appendChild(inp);
+      }
+      box.appendChild(lbl); box.appendChild(valDiv);
+      return box;
+    };
+
+    sidebar.appendChild(mkCrSideBox('gestern', 'CR Gestern', tz.crGestern||0, v=>{ tz.crGestern=v; }, false));
+    const crAktSide = tz.crAktuell || {};
+    let crMonatSide;
+    if(key === 'fn'){
+      crMonatSide = cols.filter(p=>p!=='BOJ').reduce((s,p)=>s+(parseFloat(crAktSide[p]||0)),0)*100;
+    } else {
+      crMonatSide = cols.reduce((s,p)=>s+(parseFloat(crAktSide[p]||0)),0)*100;
+    }
+    sidebar.appendChild(mkCrSideBox('monat', 'CR Monat', crMonatSide, null, true));
+    sidebar.appendChild(mkCrSideBox('ziel', 'CR Ziel', tz.crZiel||0, v=>{ tz.crZiel=v; }, false));
+
     const t = document.createElement('table');
     t.className = 'tz-table';
     t.style.cssText = 'width:100%;border-collapse:collapse;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);';
@@ -1021,20 +1059,6 @@ function renderTeamZiele(){
 
     cols.forEach(p => hRow.appendChild(cell(colLabels[p]||p)));
     t.appendChild(hRow);
-
-    // === NPS Zeile ===
-    const npsRow = document.createElement('tr');
-    npsRow.className = 'tz-row-date';
-    npsRow.appendChild(cell(label.split('—')[0].trim(), 'tz-label'));
-    npsRow.appendChild(cell('NPS'));
-    npsRow.appendChild(cell(mkInput((tz.nps*100).toFixed(0), v=>{ tz.nps=v/100; })));
-    // CR Box Labels
-    const crL1 = cell('Gestern'); crL1.style.cssText='background:#CE93D8;color:#4A148C;font-family:"Inter",sans-serif;font-size:11px;';
-    const crL2 = cell('Monat'); crL2.style.cssText='background:#81C784;color:#1B5E20;font-family:"Inter",sans-serif;font-size:11px;';
-    const crL3 = cell('Ziel'); crL3.style.cssText='background:#4CAF50;color:#fff;font-family:"Inter",sans-serif;font-size:11px;font-weight:700;';
-    npsRow.appendChild(crL1); npsRow.appendChild(crL2); npsRow.appendChild(crL3);
-    cols.forEach(()=>npsRow.appendChild(cell('')));
-    t.appendChild(npsRow);
 
     // === SOLL NETTO ===
     const sollRow = document.createElement('tr'); sollRow.className = 'tz-row-soll';
@@ -1171,10 +1195,16 @@ function renderOverview(){
 
     const grid = document.createElement('div');
     grid.className = 'ov-grid';
+    // Grid: Name | NPS | LQ | Produkte... | CR
+    // Name bekommt 2fr, alle anderen 1fr
+    const totalCols = 1 + 2 + cfg.products.length + 1; // name + NPS + LQ + produkte + CR
+    const gridCols = `2fr repeat(${totalCols - 1}, 1fr)`;
+    grid.style.setProperty('--ov-cols', gridCols);
 
     // Header row
     const headerRow = document.createElement('div');
     headerRow.className = 'ov-header-row';
+    headerRow.style.gridTemplateColumns = gridCols;
     headerRow.innerHTML =
       `<div class="ov-cell name-cell head">Mitarbeiter</div>` +
       `<div class="ov-cell qual-cell head">NPS<span style="font-size:9px;font-weight:400;">Ziel ${cfg.npsTarget}%</span></div>` +
@@ -1186,6 +1216,7 @@ function renderOverview(){
     teamAgents.forEach(agent=>{
       const row = document.createElement('div');
       row.className = 'ov-data-row';
+      row.style.gridTemplateColumns = gridCols;
       const myTargets = agentTargets(agent);
       const dotHtml = (agent.category && agent.category !== 'regular') ? `<span class="cat-dot ${CATEGORY_CSS[agent.category]}"></span>` : '';
       const npsTarget = cfg.npsTarget || 70;
@@ -1203,7 +1234,7 @@ function renderOverview(){
       cfg.products.forEach((p,i)=>{
         const val = agent.sales[p]||0;
         const status = trafficStatus(val, myTargets[i]);
-        html += `<div class="ov-cell sales-cell"><span class="ov-badge ${status}">${Math.round(val)}</span></div>`;
+        html += `<div class="ov-cell sales-cell"><span class="ov-badge ${status}" style="font-size:14px;padding:4px 10px;">${Math.round(val)}</span></div>`;
       });
       html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(2)}%</span></div>`;
       row.innerHTML = html;
