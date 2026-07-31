@@ -484,7 +484,21 @@ async function loadFromSharePoint(){
     if(resp.ok){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
-        state = data;
+        state.agents = data.agents;
+        if(data.teamziele){
+          Object.keys(data.teamziele).forEach(k=>{
+            if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
+          });
+        }
+        if(data.monatsabschluss){
+          Object.keys(data.monatsabschluss).forEach(team=>{
+            if(state.monatsabschluss[team]){
+              Object.keys(data.monatsabschluss[team]).forEach(monat=>{
+                state.monatsabschluss[team][monat] = data.monatsabschluss[team][monat];
+              });
+            }
+          });
+        }
         renderAll();
         setSyncStatus('ok');
         return;
