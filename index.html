@@ -1187,6 +1187,35 @@ function renderCoachPlan(){
       planArea.addEventListener('input', e=>{ agent.coachingplan = e.target.value; scheduleSave(); });
       card.appendChild(planArea);
 
+      // Coaching-Datum Bereich
+      const coachFooter = document.createElement('div');
+      coachFooter.style.cssText = 'display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:4px;';
+
+      // Datum anzeigen
+      const datumEl = document.createElement('div');
+      datumEl.style.cssText = 'font-family:"Inter",sans-serif;font-size:11px;';
+      if(agent.coachingDatum){
+        const days = Math.floor((new Date()-new Date(agent.coachingDatum.split('.').reverse().join('-')))/(1000*60*60*24));
+        const col = days<=7?'#0A7C70':days<=14?'#C2792B':'#B4423A';
+        datumEl.innerHTML = `<span style="color:${col};">● Letztes Coaching: <strong>${agent.coachingDatum}</strong> (${days} Tage)</span>`;
+      } else {
+        datumEl.innerHTML = '<span style="color:#B4423A;">● Noch kein Coaching eingetragen</span>';
+      }
+
+      // Button
+      const coachBtn = document.createElement('button');
+      coachBtn.style.cssText = 'background:var(--tmg);color:#fff;border:none;padding:6px 14px;border-radius:8px;font-family:"Inter",sans-serif;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;';
+      coachBtn.textContent = '✓ Coaching heute';
+      coachBtn.addEventListener('click', ()=>{
+        agent.coachingDatum = new Date().toLocaleDateString('de-DE');
+        scheduleSave();
+        renderAll();
+      });
+
+      coachFooter.appendChild(datumEl);
+      coachFooter.appendChild(coachBtn);
+      card.appendChild(coachFooter);
+
       block.appendChild(card);
     });
 
