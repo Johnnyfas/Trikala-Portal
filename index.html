@@ -346,11 +346,23 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <span id="excel-sync-label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);"></span>
   </div>
   <div class="tabs">
+    <button class="tab-btn" id="tab-coachdash">Coaching Dashboard</button>
     <button class="tab-btn active" id="tab-coaching">Mitarbeiter Ziele</button>
     <button class="tab-btn" id="tab-teamziele">Team Ziele</button>
     <button class="tab-btn" id="tab-monatsabschluss">Monatsabschluss</button>
     <button class="tab-btn" id="tab-verlauf">Mitarbeiter Verlauf</button>
     <button class="tab-btn" id="tab-overview">MA Stand</button>
+  </div>
+
+  <div id="view-coachdash" style="display:none;">
+    <div style="flex-direction:column;">
+      <div id="coachdash-subtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;">
+        <button class="tab-btn active" id="sub-coachplan" style="font-size:13px;padding:7px 16px;">📝 Coaching Plan</button>
+        <button class="tab-btn" id="sub-coachverlauf" style="font-size:13px;padding:7px 16px;">📋 Coaching Verlauf</button>
+      </div>
+      <div id="coachplan-container"></div>
+      <div id="coachverlauf-container" style="display:none;"></div>
+    </div>
   </div>
 
   <div id="view-coaching">
