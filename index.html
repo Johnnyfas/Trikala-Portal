@@ -2093,17 +2093,69 @@ function renderMonatsabschluss(){
       return box;
     };
 
-    npsBox.appendChild(mkNpsBox('ziel', 'NPS Ziel', md.nps_plan, v=>{ md.nps_plan=v; }));
-    npsBox.appendChild(mkNpsBox('ist', 'NPS Erreicht', md.nps_ist, v=>{ md.nps_ist=v; }));
+    // CR Gesamt Ziel und Erreicht (über NPS)
+    if(!md.crGesamtZiel) md.crGesamtZiel = 0;
+    if(!md.crGesamtErreicht) md.crGesamtErreicht = 0;
 
-    // Layout: Tabelle links, NPS Kasten rechts
+    const mkCrGesamtBox = (cls, labelTxt, val, onChange, compareVal) => {
+      const box = document.createElement('div');
+      box.style.cssText = `border-radius:16px;padding:14px 18px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.09);`;
+      if(cls === 'ziel') box.style.background = 'linear-gradient(135deg,#E3F2FD,#90CAF9)';
+      else if(compareVal !== undefined && val >= compareVal && val > 0)
+        box.style.background = 'linear-gradient(135deg,#E8F5E9,#A5D6A7)';
+      else
+        box.style.background = 'linear-gradient(135deg,#FFF8E1,#FFE082)';
+
+      const lbl = document.createElement('div');
+      lbl.style.cssText = 'font-family:"Inter",sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;opacity:.75;';
+      lbl.textContent = labelTxt;
+
+      const valDiv = document.createElement('div');
+      valDiv.style.cssText = 'display:flex;align-items:center;justify-content:center;';
+
+      const isReached = compareVal !== undefined && val >= compareVal && val > 0;
+      if(isReached && cls !== 'ziel'){
+        // Grüner Kreis
+        const circle = document.createElement('div');
+        circle.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:#4CAF50;color:#fff;font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:700;cursor:pointer;';
+        circle.textContent = parseFloat(val||0).toFixed(2) + '%';
+        circle.addEventListener('click', ()=>{ valDiv.innerHTML=''; valDiv.appendChild(inp); inp.focus(); inp.select(); });
+        valDiv.appendChild(circle);
+      } else {
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.inputMode = 'decimal';
+        inp.style.cssText = 'background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;width:100%;text-align:center;color:inherit;';
+        inp.value = parseFloat(val||0).toFixed(2) + '%';
+        inp.addEventListener('focus', e=>e.target.select());
+        inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.').replace('%',''))||0); scheduleSave(); renderMonatsabschluss(); });
+        valDiv.appendChild(inp);
+      }
+
+      box.appendChild(lbl); box.appendChild(valDiv);
+      return box;
+    };
+
+    // NPS Box links
+    const npsLeftBox = document.createElement('div');
+    npsLeftBox.style.cssText = 'display:flex;flex-direction:column;gap:12px;min-width:150px;';
+    npsLeftBox.appendChild(mkNpsBox('ziel', 'NPS Ziel', md.nps_plan, v=>{ md.nps_plan=v; }));
+    npsLeftBox.appendChild(mkNpsBox('ist', 'NPS Erreicht', md.nps_ist, v=>{ md.nps_ist=v; }));
+
+    // CR Box rechts
+    const crRightBox = document.createElement('div');
+    crRightBox.style.cssText = 'display:flex;flex-direction:column;gap:12px;min-width:150px;';
+    crRightBox.appendChild(mkCrGesamtBox('ziel', 'CR Gesamt Ziel', md.crGesamtZiel, v=>{ md.crGesamtZiel=v; }, undefined));
+    crRightBox.appendChild(mkCrGesamtBox('ist', 'CR Gesamt Erreicht', md.crGesamtErreicht, v=>{ md.crGesamtErreicht=v; }, md.crGesamtZiel));
+
+    // Layout: NPS links | Tabelle mitte | CR rechts
     const maLayout = document.createElement('div');
     maLayout.style.cssText = 'display:flex;gap:20px;align-items:flex-start;';
     const tableWrapMA = document.createElement('div');
     tableWrapMA.style.cssText = 'flex:1;min-width:0;';
     tableWrapMA.appendChild(t);
+    maLayout.appendChild(npsLeftBox);
     maLayout.appendChild(tableWrapMA);
-    maLayout.appendChild(npsBox);
+    maLayout.appendChild(crRightBox);
     section.appendChild(maLayout);
     container.appendChild(section);
   };
