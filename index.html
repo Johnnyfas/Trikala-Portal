@@ -713,8 +713,8 @@ async function loadFromSharePoint(){
             ['crZiel','crZielText'].forEach(f=>{
               if(seed[f]) { md[f] = md[f]||{}; Object.assign(md[f], seed[f]); }
             });
-            if(seed.nps_plan > 0 && !md.nps_plan) md.nps_plan = seed.nps_plan;
-            if(seed.nps_ist > 0 && !md.nps_ist) md.nps_ist = seed.nps_ist;
+            if(seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
+            if(seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
             if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
             if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
             // Plan immer aus Seed
@@ -923,8 +923,8 @@ async function loadFromSharePoint(){
             ['crZiel','crZielText'].forEach(f=>{
               if(seed[f]) { md[f] = md[f]||{}; Object.assign(md[f], seed[f]); }
             });
-            if(seed.nps_plan > 0 && !md.nps_plan) md.nps_plan = seed.nps_plan;
-            if(seed.nps_ist > 0 && !md.nps_ist) md.nps_ist = seed.nps_ist;
+            if(seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
+            if(seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
             if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
             if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
             // Plan immer aus Seed
