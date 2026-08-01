@@ -2078,6 +2078,93 @@ function renderMonatsabschluss(){
   container.innerHTML = '';
   const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
+  // ===== VERLAUFS-DIAGRAMME =====
+  const chartsWrap = document.createElement('div');
+  chartsWrap.className = 'ma-charts-wrap';
+
+  const drawMAChart = (cnv, datasets, isPercent) => {
+    const w = cnv.width = cnv.offsetWidth || 480;
+    const h = cnv.height = 200;
+    const ctx = cnv.getContext('2d');
+    ctx.clearRect(0,0,w,h);
+    const pad = {l:44,r:20,t:24,b:32};
+    const cw = w-pad.l-pad.r; const ch = h-pad.t-pad.b;
+    const allVals = datasets.flatMap(d=>d.values.filter(v=>v>0));
+    const maxVal = allVals.length ? Math.max(...allVals)*1.2 : 10;
+    // Grid
+    ctx.strokeStyle='#F0F0F0'; ctx.lineWidth=1;
+    for(let i=0;i<=4;i++){
+      const y = pad.t+ch-(i/4)*ch;
+      ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+      ctx.fillStyle='#94A3B8'; ctx.font='9px Inter'; ctx.textAlign='right';
+      ctx.fillText((maxVal*i/4).toFixed(isPercent?1:0)+(isPercent?'%':''), pad.l-3, y+3);
+    }
+    // X Labels
+    const labels = datasets[0].labels;
+    labels.forEach((m,i)=>{
+      const x = pad.l+(labels.length>1?(i/(labels.length-1))*cw:cw/2);
+      ctx.fillStyle='#94A3B8'; ctx.font='9px Inter'; ctx.textAlign='center';
+      ctx.fillText(m.substring(0,3), x, h-4);
+    });
+    ctx.strokeStyle='#E0E0E0'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,pad.t+ch); ctx.stroke();
+    // Linien + Punkte
+    datasets.forEach(ds=>{
+      if(!ds.values.some(v=>v>0)) return;
+      ctx.strokeStyle=ds.color; ctx.lineWidth=2.5; ctx.setLineDash([]);
+      ctx.beginPath(); let first=true;
+      ds.values.forEach((v,i)=>{
+        if(!v) return;
+        const x=pad.l+(labels.length>1?(i/(labels.length-1))*cw:cw/2);
+        const y=pad.t+ch-(v/maxVal)*ch;
+        first?ctx.moveTo(x,y):ctx.lineTo(x,y); first=false;
+      }); ctx.stroke();
+      ds.values.forEach((v,i)=>{
+        if(!v) return;
+        const x=pad.l+(labels.length>1?(i/(labels.length-1))*cw:cw/2);
+        const y=pad.t+ch-(v/maxVal)*ch;
+        ctx.fillStyle=ds.color; ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill();
+        ctx.fillStyle='#1C2733'; ctx.font='bold 8px IBM Plex Mono'; ctx.textAlign='center';
+        ctx.fillText(v.toFixed(isPercent?1:0)+(isPercent?'%':''), x, y-8);
+      });
+    });
+    // Legende
+    let lx=pad.l;
+    datasets.forEach(ds=>{
+      ctx.fillStyle=ds.color; ctx.fillRect(lx,4,10,7);
+      ctx.fillStyle='#1C2733'; ctx.font='9px Inter'; ctx.textAlign='left';
+      ctx.fillText(ds.label, lx+13, 11); lx+=ctx.measureText(ds.label).width+28;
+    });
+  };
+
+  const availMonate = MONATE.filter(m=>state.monatsabschluss.mf[m]||state.monatsabschluss.fn[m]);
+
+  const mkBox = (title, buildFn, isPercent) => {
+    const box = document.createElement('div');
+    box.className = 'ma-chart-box';
+    box.innerHTML = `<div class="ma-chart-box-title">${title}</div>`;
+    const cnv = document.createElement('canvas');
+    box.appendChild(cnv); chartsWrap.appendChild(box);
+    setTimeout(()=>{ cnv.width=cnv.offsetWidth||480; drawMAChart(cnv,buildFn(),isPercent); },80);
+  };
+
+  mkBox('Gesamt CR — Monatsverlauf', ()=>[
+    { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; if(!md) return 0; return md.crGesamtErreicht||Object.values(md.cr||{}).reduce((s,v)=>s+v,0); }) },
+    { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; if(!md) return 0; return md.crGesamtErreicht||Object.entries(md.cr||{}).filter(([k])=>k!=='BOJ').reduce((s,[,v])=>s+v,0); }) }
+  ], true);
+
+  mkBox('Gesamt Stückzahl — Monatsverlauf', ()=>[
+    { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; return md&&md.erreicht?Object.values(md.erreicht).reduce((s,v)=>s+v,0):0; }) },
+    { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; return md&&md.erreicht?Object.values(md.erreicht).reduce((s,v)=>s+v,0):0; }) }
+  ], false);
+
+  mkBox('NPS — Monatsverlauf', ()=>[
+    { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; return md?md.nps_ist||0:0; }) },
+    { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; return md?md.nps_ist||0:0; }) }
+  ], true);
+
+  container.appendChild(chartsWrap);
+
   const renderTeamMA = (teamKey, label) => {
     const data = state.monatsabschluss[teamKey];
     const section = document.createElement('div');
