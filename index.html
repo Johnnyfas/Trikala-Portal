@@ -1409,7 +1409,7 @@ function renderHallOfFame(){
     <div class="hof-title">Hall of Fame</div>
     <div class="hof-sub">Mitarbeiter die NPS-Ziel erreicht haben UND mindestens 4 von 5 Produktzielen erfüllt haben.</div>
     <div class="hof-criteria">
-      <strong>Kriterien:</strong> NPS ≥ Ziel &nbsp;+&nbsp; mindestens 4 von 5 Produkten ≥ Ziel &nbsp;·&nbsp;
+      <strong>Kriterien:</strong> NPS ≥ Ziel &nbsp;+&nbsp; CR ≥ Ziel (MF: 7%, FN: 11%) &nbsp;+&nbsp; mindestens 4 von 5 Produkten ≥ Ziel &nbsp;·&nbsp;
       <strong>MF Ziele:</strong> MF 24, SU 3, BB 4, TV 3, VVM+BOJ 5 &nbsp;·&nbsp;
       <strong>FN Ziele:</strong> SU 16, BB 17, TV 9, VVM+NVM 20, MF 2
     </div>
@@ -1431,6 +1431,10 @@ function renderHallOfFame(){
     // NPS Ziel prüfen
     const npsOk = (md.nps || 0) >= cfg.npsTarget;
     if(!npsOk) return null;
+
+    // CR Ziel prüfen
+    const crOk = (md.cr || 0) >= cfg.crTarget;
+    if(!crOk) return null;
 
     // Produkt-Ziele prüfen
     const targets = agentTargets({team: agent.team, category: agent.category || 'regular'});
