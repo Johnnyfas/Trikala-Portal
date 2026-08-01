@@ -2361,7 +2361,7 @@ function renderMonatsabschluss(){
     const cw = w-pad.l-pad.r; const ch = h-pad.t-pad.b;
     const allVals = datasets.flatMap(d=>d.values.filter(v=>v>0));
     const maxVal = isPercent
-      ? Math.min(Math.max(...allVals, 1)*1.15, 20)
+      ? (Math.max(...allVals, 1) > 25 ? Math.min(Math.max(...allVals)*1.1, 100) : Math.min(Math.max(...allVals, 1)*1.15, 20))
       : (allVals.length ? Math.max(...allVals)*1.15 : 10);
     const labels = datasets[0].labels;
     const xPos = (i) => pad.l + (labels.length>1 ? (i/(labels.length-1))*cw : cw/2);
