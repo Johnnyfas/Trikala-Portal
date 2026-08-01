@@ -1589,8 +1589,15 @@ function showChartPopup(title, drawFn){
   document.body.appendChild(overlay);
 
   setTimeout(()=>{
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 400;
+    const dpr = window.devicePixelRatio || 1;
+    const dw = canvas.offsetWidth;
+    const dh = 400;
+    canvas.width = dw * dpr;
+    canvas.height = dh * dpr;
+    canvas.style.width = dw + 'px';
+    canvas.style.height = dh + 'px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
     drawFn(canvas);
   }, 50);
 }
@@ -1855,8 +1862,9 @@ function renderVerlauf(){
 
     function drawStkChart(cnv, monate, stkValues, stkZiel, agentData, cfg){
       const ctx1 = cnv.getContext('2d');
-      const w1 = cnv.width||cnv.offsetWidth||400; const h1 = cnv.height||200;
-      cnv.width = w1; cnv.height = h1;
+      const dpr1=window.devicePixelRatio||1; const w1=(cnv.offsetWidth||400); const h1=200;
+      cnv.width=w1*dpr1; cnv.height=h1*dpr1; cnv.style.width=w1+'px'; cnv.style.height=h1+'px';
+      cnv.getContext('2d').scale(dpr1,dpr1);
       const cfg1 = cfg;
       const maxStk = Math.max(...stkValues, stkZiel * 1.2, 1);
       const pad1 = {l:40,r:20,t:20,b:30};
@@ -1900,8 +1908,9 @@ function renderVerlauf(){
 
     function drawCRChart(cnv, monate, crValues, cfg, agentData){
       const ctx = cnv.getContext('2d');
-      const w = cnv.width||cnv.offsetWidth||400; const h = cnv.height||200;
-      cnv.width = w;
+      const dprC=window.devicePixelRatio||1; const w=(cnv.offsetWidth||400); const h=200;
+      cnv.width=w*dprC; cnv.height=h*dprC; cnv.style.width=w+'px'; cnv.style.height=h+'px';
+      cnv.getContext('2d').scale(dprC,dprC);
       const maxCR = Math.max(...crValues, cfg.crTarget * 1.5);
       const pad = {l:40, r:20, t:20, b:30};
       const chartW = w - pad.l - pad.r;
@@ -1978,7 +1987,9 @@ function renderVerlauf(){
 
     function drawNPSChart(cnv, monate, npsValues, cfg, agentData){
       const ctxN = cnv.getContext('2d');
-      const wN = cnv.width||cnv.offsetWidth || 400; const hN = cnv.height||200;
+      const dprN=window.devicePixelRatio||1; const wN=(cnv.offsetWidth||400); const hN=200;
+      cnv.width=wN*dprN; cnv.height=hN*dprN; cnv.style.width=wN+'px'; cnv.style.height=hN+'px';
+      cnv.getContext('2d').scale(dprN,dprN);
       const npsZiel = cfg.npsTarget || 70;
       const maxNPS = 100;
       const padN = {l:40,r:20,t:20,b:30};
@@ -2083,10 +2094,16 @@ function renderMonatsabschluss(){
   chartsWrap.className = 'ma-charts-wrap';
 
   const drawMAChart = (cnv, datasets, isPercent) => {
-    const w = cnv.width = cnv.offsetWidth || 480;
-    const h = cnv.height = 200;
+    const dpr = window.devicePixelRatio || 1;
+    const displayW = cnv.offsetWidth || 480;
+    const displayH = 200;
+    cnv.width = displayW * dpr;
+    cnv.height = displayH * dpr;
+    cnv.style.width = displayW + 'px';
+    cnv.style.height = displayH + 'px';
     const ctx = cnv.getContext('2d');
-    ctx.clearRect(0,0,w,h);
+    ctx.scale(dpr, dpr);
+    const w = displayW; const h = displayH;
     const pad = {l:44,r:20,t:24,b:32};
     const cw = w-pad.l-pad.r; const ch = h-pad.t-pad.b;
     const allVals = datasets.flatMap(d=>d.values.filter(v=>v>0));
@@ -2388,6 +2405,14 @@ function renderMonatsabschluss(){
       const valDiv = document.createElement('div');
       valDiv.style.cssText = 'display:flex;align-items:center;justify-content:center;';
 
+      // Input immer erstellen
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.inputMode = 'decimal';
+      inp.style.cssText = 'background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;width:100%;text-align:center;color:inherit;';
+      inp.value = parseFloat(val||0).toFixed(2) + '%';
+      inp.addEventListener('focus', e=>e.target.select());
+      inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.').replace('%',''))||0); scheduleSave(); renderMonatsabschluss(); });
+
       const isReached = compareVal !== undefined && val >= compareVal && val > 0;
       if(isReached && cls !== 'ziel'){
         // Grüner Kreis
@@ -2397,12 +2422,6 @@ function renderMonatsabschluss(){
         circle.addEventListener('click', ()=>{ valDiv.innerHTML=''; valDiv.appendChild(inp); inp.focus(); inp.select(); });
         valDiv.appendChild(circle);
       } else {
-        const inp = document.createElement('input');
-        inp.type = 'text'; inp.inputMode = 'decimal';
-        inp.style.cssText = 'background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;width:100%;text-align:center;color:inherit;';
-        inp.value = parseFloat(val||0).toFixed(2) + '%';
-        inp.addEventListener('focus', e=>e.target.select());
-        inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.').replace('%',''))||0); scheduleSave(); renderMonatsabschluss(); });
         valDiv.appendChild(inp);
       }
 
