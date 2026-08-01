@@ -1445,13 +1445,21 @@ const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','Au
 let vlSelectedAgent = {};
 
 function saveMonatSnapshot(){
-  const monat = new Date().toLocaleString('de-DE', {month:'long'});
+  const now = new Date();
+  const monatName = now.toLocaleString('de-DE', {month:'long'});
+  const jahr = now.getFullYear();
+  const periode = `${jahr}-${monatName}`;
+
+  if(!confirm(`Monat "${monatName} ${jahr}" speichern?
+
+Die aktuellen Daten aus der Übersicht werden in den Mitarbeiter Verlauf übertragen.`)) return;
+
   if(!state.verlauf) state.verlauf = {};
   state.agents.forEach(agent => {
     if(!agent.name.trim()) return;
     const key = agent.name + '_' + agent.team;
     if(!state.verlauf[key]) state.verlauf[key] = { name: agent.name, team: agent.team, monate: {} };
-    state.verlauf[key].monate[monat] = {
+    state.verlauf[key].monate[periode] = {
       sales: JSON.parse(JSON.stringify(agent.sales)),
       calls: agent.calls,
       nps: agent.nps,
@@ -1460,7 +1468,7 @@ function saveMonatSnapshot(){
     };
   });
   scheduleSave();
-  alert(`Snapshot für ${monat} gespeichert!`);
+  alert(`✓ Snapshot für ${monatName} ${jahr} gespeichert!`);
   renderVerlauf();
 }
 
