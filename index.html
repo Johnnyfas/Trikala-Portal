@@ -629,7 +629,20 @@ async function loadFromSharePoint(){
           Object.keys(data.monatsabschluss).forEach(team=>{
             if(state.monatsabschluss[team]){
               Object.keys(data.monatsabschluss[team]).forEach(monat=>{
-                state.monatsabschluss[team][monat] = data.monatsabschluss[team][monat];
+                const saved = data.monatsabschluss[team][monat];
+                if(!state.monatsabschluss[team][monat]){
+                  state.monatsabschluss[team][monat] = saved;
+                } else {
+                  const md = state.monatsabschluss[team][monat];
+                  if(saved.erreicht) Object.assign(md.erreicht, saved.erreicht);
+                  if(saved.cr) Object.assign(md.cr, saved.cr);
+                  if(saved.crZiel) { md.crZiel = md.crZiel||{}; Object.assign(md.crZiel, saved.crZiel); }
+                  if(saved.crZielText) { md.crZielText = md.crZielText||{}; Object.assign(md.crZielText, saved.crZielText); }
+                  if(saved.storno) { md.storno = md.storno||{}; Object.assign(md.storno, saved.storno); }
+                  if(saved.nps_plan !== undefined) md.nps_plan = saved.nps_plan;
+                  if(saved.nps_ist !== undefined) md.nps_ist = saved.nps_ist;
+                  if(saved.plan) Object.assign(md.plan, saved.plan);
+                }
               });
             }
           });
@@ -770,7 +783,20 @@ async function loadFromSharePoint(){
           Object.keys(data.monatsabschluss).forEach(team=>{
             if(state.monatsabschluss[team]){
               Object.keys(data.monatsabschluss[team]).forEach(monat=>{
-                state.monatsabschluss[team][monat] = data.monatsabschluss[team][monat];
+                const saved = data.monatsabschluss[team][monat];
+                if(!state.monatsabschluss[team][monat]){
+                  state.monatsabschluss[team][monat] = saved;
+                } else {
+                  const md = state.monatsabschluss[team][monat];
+                  if(saved.erreicht) Object.assign(md.erreicht, saved.erreicht);
+                  if(saved.cr) Object.assign(md.cr, saved.cr);
+                  if(saved.crZiel) { md.crZiel = md.crZiel||{}; Object.assign(md.crZiel, saved.crZiel); }
+                  if(saved.crZielText) { md.crZielText = md.crZielText||{}; Object.assign(md.crZielText, saved.crZielText); }
+                  if(saved.storno) { md.storno = md.storno||{}; Object.assign(md.storno, saved.storno); }
+                  if(saved.nps_plan !== undefined) md.nps_plan = saved.nps_plan;
+                  if(saved.nps_ist !== undefined) md.nps_ist = saved.nps_ist;
+                  if(saved.plan) Object.assign(md.plan, saved.plan);
+                }
               });
             }
           });
@@ -1879,11 +1905,12 @@ function renderMonatsabschluss(){
     const md = data[monat];
     if(!md){ container.appendChild(section); return; }
 
-    // Feste Reihenfolge: BB, SU, BOJ, VVM, TV, MF (NA ausgeschlossen)
-    const PROD_ORDER = ['BB','NG (BB)','MF NG','SU','BOJ','VVM','TV','MF'];
-    const allProds = Object.keys(md.plan).filter(p => p !== 'NA');
+    // Feste Reihenfolge: BB, SU, BOJ, VVM, TV, MF (NA und andere ausgeschlossen)
+    const PROD_ORDER = ['BB','NG (BB)','SU','BOJ','VVM','TV','MF NG','MF'];
+    const EXCLUDE = ['NA'];
+    const allProds = Object.keys(md.plan).filter(p => !EXCLUDE.includes(p));
     const produkte = PROD_ORDER.filter(p => allProds.includes(p))
-      .concat(allProds.filter(p => !PROD_ORDER.includes(p)));
+      .concat(allProds.filter(p => !PROD_ORDER.includes(p) && !EXCLUDE.includes(p)));
 
     const t = document.createElement('table');
     t.className = 'ma-table';
