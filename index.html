@@ -56,13 +56,13 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 /* ===== Coaching view (cards) ===== */
 .team-block{margin-bottom:26px;}
 .team-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;margin:0 0 8px;}
-.targets-legend{display:flex;flex-direction:column;gap:3px;margin-bottom:10px;}
-.targets-legend .line{font-family:'IBM Plex Mono',monospace;font-size:11px;}
-.targets-legend .cat-label{display:inline-block;min-width:82px;font-weight:700;}
+.targets-legend{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.targets-legend .line{font-family:'IBM Plex Mono',monospace;font-size:13px;}
+.targets-legend .cat-label{display:inline-block;min-width:90px;font-weight:700;font-size:13px;}
 .targets-legend .cat-label.standard{color:var(--tmg-gray);}
 .targets-legend .cat-label.sixh{color:var(--sixh);}
 .targets-legend .cat-label.helpline{color:var(--helpline);}
-.targets-legend .vals{color:var(--muted);}
+.targets-legend .vals{color:var(--muted);font-size:13px;}
 
 .cat-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;font-weight:700;}
 .cat-badge.regular{background:#EEF1F4;color:var(--muted);}
@@ -345,7 +345,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <button class="tab-btn" id="tab-teamziele">Team Ziele</button>
     <button class="tab-btn" id="tab-monatsabschluss">Monatsabschluss</button>
     <button class="tab-btn" id="tab-verlauf">Mitarbeiter Verlauf</button>
-    <button class="tab-btn" id="tab-overview">Übersicht (WhatsApp)</button>
+    <button class="tab-btn" id="tab-overview">MA Stand</button>
   </div>
 
   <div id="view-coaching">
@@ -382,7 +382,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
   <div id="view-overview" style="display:none;">
     <div class="toolbar">
       <span class="count" id="ov-count"></span>
-      <button class="primary" id="export-png-btn">Als Bild speichern (WhatsApp)</button>
+      <button class="primary" id="export-png-btn">Als Bild speichern</button>
     </div>
     <div id="overview-capture"></div>
   </div>
@@ -2570,7 +2570,7 @@ function renderOverview(){
       row.className = 'ov-data-row';
       row.style.gridTemplateColumns = gridCols;
       const myTargets = agentTargets(agent);
-      const dotHtml = (agent.category && agent.category !== 'regular') ? `<span class="cat-dot ${CATEGORY_CSS[agent.category]}"></span>` : '';
+      // Kein Punkt mehr - Hintergrundfarbe der Name-Zelle
       const npsTarget = cfg.npsTarget || 70;
       const lqTarget  = cfg.lqTarget  || 75;
       const npsVal = agent.nps || 0;
@@ -2580,7 +2580,9 @@ function renderOverview(){
       const cr = totalCr(agent);
       const crStatus = trafficStatus(parseFloat(cr.toFixed(2)), cfg.crTarget);
 
-      let html = `<div class="ov-cell name-cell">${dotHtml}${agent.name}</div>`;
+      const catBg = agent.category === '6h' ? 'background:#E4ECF5;color:var(--sixh);' :
+                   agent.category === 'helpline' ? 'background:#EFE9F7;color:var(--helpline);' : '';
+      let html = `<div class="ov-cell name-cell" style="${catBg}">${agent.name}</div>`;
       html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal.toFixed(2)}%</span></div>`;
       html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal.toFixed(2)}%</span></div>`;
       cfg.products.forEach((p,i)=>{
@@ -2599,7 +2601,7 @@ function renderOverview(){
 
   const foot = document.createElement('div');
   foot.className = 'ov-foot';
-  foot.innerHTML = 'Grün = Ziel erreicht · Rot = unter Ziel &nbsp;·&nbsp; <span class="cat-dot sixh"></span>6-Stündler &nbsp; <span class="cat-dot helpline"></span>Helpline';
+  foot.innerHTML = 'Grün = Ziel erreicht · Rot = unter Ziel &nbsp;·&nbsp; <span style="background:#E4ECF5;color:var(--sixh);padding:1px 6px;border-radius:4px;font-size:11px;">6-Stündler</span> &nbsp; <span style="background:#EFE9F7;color:var(--helpline);padding:1px 6px;border-radius:4px;font-size:11px;">Helpline</span>';
   container.appendChild(foot);
 }
 
