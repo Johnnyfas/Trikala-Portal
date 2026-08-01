@@ -682,15 +682,25 @@ async function loadFromSharePoint(){
 }
 
 async function saveToSharePoint(){
-  if(!graphToken) return;
+  if(!graphToken){
+    const ok = await getToken();
+    if(!ok) return;
+  }
   setSyncStatus('syncing');
   try {
-    await graphFetch(`/me/drive/root:/${GRAPH_FOLDER}/${GRAPH_FILE}:/content`, {
+    const body = JSON.stringify(state);
+    const resp = await graphFetch(`/me/drive/root:/${GRAPH_FOLDER}/${GRAPH_FILE}:/content`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(state)
+      body: body
     });
-    setSyncStatus('ok');
+    if(resp && resp.ok){
+      setSyncStatus('ok');
+      console.log('SharePoint gespeichert:', new Date().toLocaleTimeString());
+    } else {
+      console.error('SharePoint save failed:', resp?.status);
+      setSyncStatus('error');
+    }
   } catch(e){
     console.error('SharePoint save error', e);
     setSyncStatus('error');
@@ -842,15 +852,25 @@ async function loadFromSharePoint(){
 }
 
 async function saveToSharePoint(){
-  if(!graphToken) return;
+  if(!graphToken){
+    const ok = await getToken();
+    if(!ok) return;
+  }
   setSyncStatus('syncing');
   try {
-    await graphFetch(`/me/drive/root:/${GRAPH_FOLDER}/${GRAPH_FILE}:/content`, {
+    const body = JSON.stringify(state);
+    const resp = await graphFetch(`/me/drive/root:/${GRAPH_FOLDER}/${GRAPH_FILE}:/content`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(state)
+      body: body
     });
-    setSyncStatus('ok');
+    if(resp && resp.ok){
+      setSyncStatus('ok');
+      console.log('SharePoint gespeichert:', new Date().toLocaleTimeString());
+    } else {
+      console.error('SharePoint save failed:', resp?.status);
+      setSyncStatus('error');
+    }
   } catch(e){
     console.error('SharePoint save error', e);
     setSyncStatus('error');
