@@ -645,19 +645,16 @@ async function loadFromSharePoint(){
             if(state.monatsabschluss[team]){
               Object.keys(data.monatsabschluss[team]).forEach(monat=>{
                 const saved = data.monatsabschluss[team][monat];
+                // Gespeicherte Daten komplett übernehmen
+                // Fehlende Felder aus Seed ergänzen
                 if(!state.monatsabschluss[team][monat]){
                   state.monatsabschluss[team][monat] = saved;
                 } else {
                   const md = state.monatsabschluss[team][monat];
-                  // Gespeicherte Werte übernehmen - haben immer Vorrang über Seed
-                  ['erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
-                    if(saved[f]) { md[f] = md[f]||{}; Object.assign(md[f], saved[f]); }
-                  });
-                  if(saved.nps_plan > 0) md.nps_plan = saved.nps_plan;
-                  if(saved.nps_ist !== undefined) md.nps_ist = saved.nps_ist;
-                  if(saved.crGesamtZiel !== undefined) md.crGesamtZiel = saved.crGesamtZiel;
-                  if(saved.crGesamtErreicht !== undefined) md.crGesamtErreicht = saved.crGesamtErreicht;
-                  if(saved.plan) Object.assign(md.plan, saved.plan);
+                  // Alles aus SharePoint übernehmen
+                  Object.assign(md, saved);
+                  // Planenmenge aus Seed falls in saved nicht vorhanden
+                  if(!saved.plan) md.plan = state.monatsabschluss[team][monat].plan;
                   // BOJ sicherstellen
                   ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
                 }
@@ -808,19 +805,16 @@ async function loadFromSharePoint(){
             if(state.monatsabschluss[team]){
               Object.keys(data.monatsabschluss[team]).forEach(monat=>{
                 const saved = data.monatsabschluss[team][monat];
+                // Gespeicherte Daten komplett übernehmen
+                // Fehlende Felder aus Seed ergänzen
                 if(!state.monatsabschluss[team][monat]){
                   state.monatsabschluss[team][monat] = saved;
                 } else {
                   const md = state.monatsabschluss[team][monat];
-                  // Gespeicherte Werte übernehmen - haben immer Vorrang über Seed
-                  ['erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
-                    if(saved[f]) { md[f] = md[f]||{}; Object.assign(md[f], saved[f]); }
-                  });
-                  if(saved.nps_plan > 0) md.nps_plan = saved.nps_plan;
-                  if(saved.nps_ist !== undefined) md.nps_ist = saved.nps_ist;
-                  if(saved.crGesamtZiel !== undefined) md.crGesamtZiel = saved.crGesamtZiel;
-                  if(saved.crGesamtErreicht !== undefined) md.crGesamtErreicht = saved.crGesamtErreicht;
-                  if(saved.plan) Object.assign(md.plan, saved.plan);
+                  // Alles aus SharePoint übernehmen
+                  Object.assign(md, saved);
+                  // Planenmenge aus Seed falls in saved nicht vorhanden
+                  if(!saved.plan) md.plan = state.monatsabschluss[team][monat].plan;
                   // BOJ sicherstellen
                   ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
                 }
