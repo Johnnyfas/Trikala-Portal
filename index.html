@@ -651,10 +651,19 @@ async function loadFromSharePoint(){
                   state.monatsabschluss[team][monat] = saved;
                 } else {
                   const md = state.monatsabschluss[team][monat];
-                  // Alles aus SharePoint übernehmen
-                  Object.assign(md, saved);
-                  // Planenmenge aus Seed falls in saved nicht vorhanden
-                  if(!saved.plan) md.plan = state.monatsabschluss[team][monat].plan;
+                  // Plan IMMER aus Seed behalten (hat echte Werte)
+                  const seedPlan = JSON.parse(JSON.stringify(md.plan));
+                  // Editierbare Felder aus SharePoint übernehmen
+                  ['erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
+                    if(saved[f]) { md[f] = md[f]||{}; Object.assign(md[f], saved[f]); }
+                  });
+                  if(saved.nps_ist !== undefined) md.nps_ist = saved.nps_ist;
+                  if(saved.nps_plan > 0) md.nps_plan = saved.nps_plan;
+                  if(saved.crGesamtZiel !== undefined) md.crGesamtZiel = saved.crGesamtZiel;
+                  if(saved.crGesamtErreicht !== undefined) md.crGesamtErreicht = saved.crGesamtErreicht;
+                  // Plan aus Seed wiederherstellen (nie überschreiben)
+                  md.plan = seedPlan;
+                  if(saved.plan) Object.keys(saved.plan).forEach(p=>{ if(saved.plan[p]>0) md.plan[p]=saved.plan[p]; });
                   // BOJ sicherstellen
                   ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
                 }
@@ -821,10 +830,19 @@ async function loadFromSharePoint(){
                   state.monatsabschluss[team][monat] = saved;
                 } else {
                   const md = state.monatsabschluss[team][monat];
-                  // Alles aus SharePoint übernehmen
-                  Object.assign(md, saved);
-                  // Planenmenge aus Seed falls in saved nicht vorhanden
-                  if(!saved.plan) md.plan = state.monatsabschluss[team][monat].plan;
+                  // Plan IMMER aus Seed behalten (hat echte Werte)
+                  const seedPlan = JSON.parse(JSON.stringify(md.plan));
+                  // Editierbare Felder aus SharePoint übernehmen
+                  ['erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
+                    if(saved[f]) { md[f] = md[f]||{}; Object.assign(md[f], saved[f]); }
+                  });
+                  if(saved.nps_ist !== undefined) md.nps_ist = saved.nps_ist;
+                  if(saved.nps_plan > 0) md.nps_plan = saved.nps_plan;
+                  if(saved.crGesamtZiel !== undefined) md.crGesamtZiel = saved.crGesamtZiel;
+                  if(saved.crGesamtErreicht !== undefined) md.crGesamtErreicht = saved.crGesamtErreicht;
+                  // Plan aus Seed wiederherstellen (nie überschreiben)
+                  md.plan = seedPlan;
+                  if(saved.plan) Object.keys(saved.plan).forEach(p=>{ if(saved.plan[p]>0) md.plan[p]=saved.plan[p]; });
                   // BOJ sicherstellen
                   ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
                 }
