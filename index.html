@@ -2142,10 +2142,15 @@ function renderMonatsabschluss(){
   const mkBox = (title, buildFn, isPercent) => {
     const box = document.createElement('div');
     box.className = 'ma-chart-box';
+    box.style.cursor = 'zoom-in';
     box.innerHTML = `<div class="ma-chart-box-title">${title}</div>`;
     const cnv = document.createElement('canvas');
     box.appendChild(cnv); chartsWrap.appendChild(box);
-    setTimeout(()=>{ cnv.width=cnv.offsetWidth||480; drawMAChart(cnv,buildFn(),isPercent); },80);
+    setTimeout(()=>{
+      cnv.width=cnv.offsetWidth||480;
+      drawMAChart(cnv,buildFn(),isPercent);
+      box.addEventListener('click',()=>showChartPopup(title, c=>drawMAChart(c,buildFn(),isPercent)));
+    },80);
   };
 
   mkBox('Gesamt CR — Monatsverlauf', ()=>[
