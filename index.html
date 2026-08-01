@@ -1285,6 +1285,47 @@ function renderCoachVerlauf(){
   });
 
   countEl.textContent = `${entries.length} Mitarbeiter · ${totalEntries} Einträge`;
+
+  // ===== COACHING FREQUENZ =====
+  const freqTitle = document.createElement('div');
+  freqTitle.style.cssText = 'font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:18px;margin:24px 0 12px;color:var(--text);';
+  freqTitle.textContent = '📋 Coaching Frequenz';
+  container.appendChild(freqTitle);
+
+  const freqWrap = document.createElement('div');
+  freqWrap.className = 'ranking-wrap';
+
+  Object.keys(TEAM_CONFIGS).forEach(teamId => {
+    const cfg = TEAM_CONFIGS[teamId];
+    const box = document.createElement('div');
+    box.className = 'ranking-box';
+    box.style.flex = '1';
+    box.innerHTML = `<div class="rb-title">📋 ${cfg.label}</div>`;
+
+    const teamAgents = state.agents.filter(a=>a.team===teamId).sort((a,b)=>{
+      const da = a.coachingDatum ? new Date(a.coachingDatum.split('.').reverse().join('-')) : new Date(0);
+      const db = b.coachingDatum ? new Date(b.coachingDatum.split('.').reverse().join('-')) : new Date(0);
+      return da - db;
+    });
+
+    teamAgents.forEach(a => {
+      const row = document.createElement('div');
+      row.className = 'ranking-row';
+      let badge;
+      if(!a.coachingDatum){
+        badge = '<span class="coaching-freq-badge freq-late">⚠ Noch nie</span>';
+      } else {
+        const days = Math.floor((new Date()-new Date(a.coachingDatum.split('.').reverse().join('-')))/(1000*60*60*24));
+        const cls = days<=7?'freq-ok':days<=14?'freq-warn':'freq-late';
+        const icon = days<=7?'✓':days<=14?'~':'!';
+        badge = `<span class="coaching-freq-badge ${cls}">${icon} ${a.coachingDatum} (${days}d)</span>`;
+      }
+      row.innerHTML = `<span class="rr-name">${a.name}</span>${badge}`;
+      box.appendChild(row);
+    });
+    freqWrap.appendChild(box);
+  });
+  container.appendChild(freqWrap);
 }
 
 
@@ -1445,31 +1486,89 @@ const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','Au
 let vlSelectedAgent = {};
 
 function saveMonatSnapshot(){
+  const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const now = new Date();
-  const monatName = now.toLocaleString('de-DE', {month:'long'});
+  const aktuellerMonat = now.toLocaleString('de-DE', {month:'long'});
   const jahr = now.getFullYear();
-  const periode = `${jahr}-${monatName}`;
 
-  if(!confirm(`Monat "${monatName} ${jahr}" speichern?
+  // Overlay mit Monats-Auswahl
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;display:flex;align-items:center;justify-content:center;';
 
-Die aktuellen Daten aus der Übersicht werden in den Mitarbeiter Verlauf übertragen.`)) return;
+  const popup = document.createElement('div');
+  popup.style.cssText = 'background:#fff;border-radius:20px;padding:28px;min-width:300px;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
 
-  if(!state.verlauf) state.verlauf = {};
-  state.agents.forEach(agent => {
-    if(!agent.name.trim()) return;
-    const key = agent.name + '_' + agent.team;
-    if(!state.verlauf[key]) state.verlauf[key] = { name: agent.name, team: agent.team, monate: {} };
-    state.verlauf[key].monate[periode] = {
-      sales: JSON.parse(JSON.stringify(agent.sales)),
-      calls: agent.calls,
-      nps: agent.nps,
-      lq: agent.lq,
-      cr: totalCr(agent)
-    };
+  popup.innerHTML = `<div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin-bottom:16px;">📸 Monat speichern</div>
+    <div style="font-family:'Inter',sans-serif;font-size:13px;color:#64748B;margin-bottom:16px;">Für welchen Monat sollen die aktuellen Übersichts-Daten gespeichert werden?</div>`;
+
+  const selWrap = document.createElement('div');
+  selWrap.style.cssText = 'display:flex;gap:10px;margin-bottom:20px;';
+
+  const monatSel = document.createElement('select');
+  monatSel.style.cssText = 'flex:1;padding:10px;border-radius:8px;border:1px solid #E0E0E0;font-family:"Inter",sans-serif;font-size:14px;outline:none;';
+  MONATE.forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = m;
+    if(m === aktuellerMonat) opt.selected = true;
+    monatSel.appendChild(opt);
   });
-  scheduleSave();
-  alert(`✓ Snapshot für ${monatName} ${jahr} gespeichert!`);
-  renderVerlauf();
+
+  const jahrSel = document.createElement('select');
+  jahrSel.style.cssText = 'width:100px;padding:10px;border-radius:8px;border:1px solid #E0E0E0;font-family:"Inter",sans-serif;font-size:14px;outline:none;';
+  [jahr-1, jahr, jahr+1].forEach(j => {
+    const opt = document.createElement('option');
+    opt.value = j;
+    opt.textContent = j;
+    if(j === jahr) opt.selected = true;
+    jahrSel.appendChild(opt);
+  });
+
+  selWrap.appendChild(monatSel);
+  selWrap.appendChild(jahrSel);
+  popup.appendChild(selWrap);
+
+  const btnWrap = document.createElement('div');
+  btnWrap.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Abbrechen';
+  cancelBtn.style.cssText = 'padding:9px 18px;border-radius:8px;border:1px solid #E0E0E0;background:#fff;font-family:"Inter",sans-serif;font-weight:600;font-size:13px;cursor:pointer;';
+  cancelBtn.addEventListener('click', ()=>overlay.remove());
+
+  const saveBtn = document.createElement('button');
+  saveBtn.textContent = '✓ Speichern';
+  saveBtn.style.cssText = 'padding:9px 18px;border-radius:8px;border:none;background:var(--tmg);color:#fff;font-family:"Inter",sans-serif;font-weight:600;font-size:13px;cursor:pointer;';
+  saveBtn.addEventListener('click', ()=>{
+    const gewaehlterMonat = monatSel.value;
+    const gewaehlterJahr = jahrSel.value;
+    const periode = `${gewaehlterJahr}-${gewaehlterMonat}`;
+
+    if(!state.verlauf) state.verlauf = {};
+    state.agents.forEach(agent => {
+      if(!agent.name.trim()) return;
+      const key = agent.name + '_' + agent.team;
+      if(!state.verlauf[key]) state.verlauf[key] = { name: agent.name, team: agent.team, monate: {} };
+      state.verlauf[key].monate[periode] = {
+        sales: JSON.parse(JSON.stringify(agent.sales)),
+        calls: agent.calls,
+        nps: agent.nps,
+        lq: agent.lq,
+        cr: totalCr(agent)
+      };
+    });
+    scheduleSave();
+    overlay.remove();
+    alert(`✓ Snapshot für ${gewaehlterMonat} ${gewaehlterJahr} gespeichert!`);
+    renderVerlauf();
+  });
+
+  btnWrap.appendChild(cancelBtn);
+  btnWrap.appendChild(saveBtn);
+  popup.appendChild(btnWrap);
+  overlay.appendChild(popup);
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
 }
 
 function renderVerlauf(){
@@ -1514,44 +1613,6 @@ function renderVerlauf(){
     ));
   });
   container.appendChild(rankWrap);
-
-  // ===== COACHING FREQUENZ =====
-  const freqWrap = document.createElement('div');
-  freqWrap.className = 'ranking-wrap';
-  freqWrap.style.marginBottom = '24px';
-
-  Object.keys(TEAM_CONFIGS).forEach(teamId => {
-    const cfg = TEAM_CONFIGS[teamId];
-    const box = document.createElement('div');
-    box.className = 'ranking-box';
-    box.style.flex = '2';
-    box.innerHTML = `<div class="rb-title">📋 Coaching Frequenz — ${cfg.label}</div>`;
-
-    const teamAgents = state.agents.filter(a=>a.team===teamId).sort((a,b)=>{
-      const da = a.coachingDatum ? new Date(a.coachingDatum.split('.').reverse().join('-')) : new Date(0);
-      const db = b.coachingDatum ? new Date(b.coachingDatum.split('.').reverse().join('-')) : new Date(0);
-      return da - db; // älteste zuerst
-    });
-
-    teamAgents.forEach(a => {
-      const row = document.createElement('div');
-      row.className = 'ranking-row';
-      let badge, days;
-      if(!a.coachingDatum){
-        badge = '<span class="coaching-freq-badge freq-late">⚠ Noch nie</span>';
-        days = 999;
-      } else {
-        days = Math.floor((new Date()-new Date(a.coachingDatum.split('.').reverse().join('-')))/(1000*60*60*24));
-        const cls = days<=7?'freq-ok':days<=14?'freq-warn':'freq-late';
-        const icon = days<=7?'✓':days<=14?'~':'!';
-        badge = `<span class="coaching-freq-badge ${cls}">${icon} ${a.coachingDatum} (${days}d)</span>`;
-      }
-      row.innerHTML = `<span class="rr-name">${a.name}</span>${badge}`;
-      box.appendChild(row);
-    });
-    freqWrap.appendChild(box);
-  });
-  container.appendChild(freqWrap);
 
   // Toolbar
   const toolbar = document.createElement('div');
