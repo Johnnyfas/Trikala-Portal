@@ -671,12 +671,34 @@ async function loadFromSharePoint(){
             }
           });
         }
-        // BOJ global
+        // BOJ global sicherstellen
         Object.keys(state.monatsabschluss||{}).forEach(team=>{
           Object.values(state.monatsabschluss[team]||{}).forEach(md=>{
             ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
           });
         });
+        // Seed-Werte für leere Felder übernehmen
+        Object.keys(MA_SEED).forEach(team=>{
+          Object.keys(MA_SEED[team]).forEach(monat=>{
+            const seed = MA_SEED[team][monat];
+            const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
+            if(!md) return;
+            ['erreicht','cr','storno','crZiel','crZielText'].forEach(f=>{
+              if(seed[f]){
+                if(!md[f]) md[f] = {};
+                Object.keys(seed[f]).forEach(p=>{
+                  if(seed[f][p] !== 0 && !md[f][p]) md[f][p] = seed[f][p];
+                });
+              }
+            });
+            if(seed.nps_plan && !md.nps_plan) md.nps_plan = seed.nps_plan;
+            if(seed.nps_ist && !md.nps_ist) md.nps_ist = seed.nps_ist;
+            if(seed.crGesamtErreicht && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
+            if(seed.crGesamtZiel && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
+          });
+        });
+        // Daten nach Merge sofort speichern
+        saveToSharePoint();
         renderAll();
         setSyncStatus('ok');
         return;
@@ -850,12 +872,34 @@ async function loadFromSharePoint(){
             }
           });
         }
-        // BOJ global
+        // BOJ global sicherstellen
         Object.keys(state.monatsabschluss||{}).forEach(team=>{
           Object.values(state.monatsabschluss[team]||{}).forEach(md=>{
             ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
           });
         });
+        // Seed-Werte für leere Felder übernehmen
+        Object.keys(MA_SEED).forEach(team=>{
+          Object.keys(MA_SEED[team]).forEach(monat=>{
+            const seed = MA_SEED[team][monat];
+            const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
+            if(!md) return;
+            ['erreicht','cr','storno','crZiel','crZielText'].forEach(f=>{
+              if(seed[f]){
+                if(!md[f]) md[f] = {};
+                Object.keys(seed[f]).forEach(p=>{
+                  if(seed[f][p] !== 0 && !md[f][p]) md[f][p] = seed[f][p];
+                });
+              }
+            });
+            if(seed.nps_plan && !md.nps_plan) md.nps_plan = seed.nps_plan;
+            if(seed.nps_ist && !md.nps_ist) md.nps_ist = seed.nps_ist;
+            if(seed.crGesamtErreicht && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
+            if(seed.crGesamtZiel && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
+          });
+        });
+        // Daten nach Merge sofort speichern
+        saveToSharePoint();
         renderAll();
         setSyncStatus('ok');
         return;
