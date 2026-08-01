@@ -2532,6 +2532,7 @@ function renderOverview(){
     if(!teamAgents.length) return;
     const teamDiv = document.createElement('div');
     teamDiv.className = 'ov-team';
+    teamDiv.id = 'ov-team-' + teamId;
     const legendLine = (catKey) => cfg.products.map((p,i)=>`${p} ${cfg.targets[catKey][i]}`).join(' · ') + (catKey==='regular' ? ` · CR ${cfg.crTarget}%` : '');
     teamDiv.innerHTML = `
       <div class="ov-team-head">
@@ -2612,14 +2613,23 @@ document.getElementById('add-agent-btn').addEventListener('click', ()=>{
   renderAll();
 });
 
-document.getElementById('export-png-btn').addEventListener('click', ()=>{
-  const target = document.getElementById('overview-capture');
-  html2canvas(target, { backgroundColor: '#EDF1F4', scale: 2 }).then(canvas=>{
-    const link = document.createElement('a');
-    link.download = 'team-uebersicht.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
-  });
+document.getElementById('export-png-btn').addEventListener('click', async ()=>{
+  const teams = Object.keys(TEAM_CONFIGS);
+  for(const teamId of teams){
+    const teamEl = document.getElementById('ov-team-' + teamId);
+    if(!teamEl) continue;
+    const cfg = TEAM_CONFIGS[teamId];
+    await new Promise(resolve=>{
+      html2canvas(teamEl, { backgroundColor: '#EDF1F4', scale: 2 }).then(canvas=>{
+        const link = document.createElement('a');
+        const datum = new Date().toLocaleDateString('de-DE').replace(/\./g,'-');
+        link.download = `MA-Stand_${cfg.label}_${datum}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+        setTimeout(resolve, 500);
+      });
+    });
+  }
 });
 
 loadState();
