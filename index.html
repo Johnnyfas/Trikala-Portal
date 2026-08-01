@@ -443,7 +443,7 @@ let state = { agents: [], coachverlauf: {}, verlauf: JSON.parse(JSON.stringify(V
   }
 } };
 let saveTimer = null;
-let currentTab = 'coaching';
+let currentTab = 'coachdash';
 
 
 // ============================================================
@@ -1130,15 +1130,13 @@ function numField(labelText, value, onChange, step){
 function switchTab(tab){
   currentTab = tab;
   document.getElementById('tab-coaching').classList.toggle('active', tab==='coaching');
-  document.getElementById('tab-coachplan').classList.toggle('active', tab==='coachplan');
-  document.getElementById('tab-coachverlauf').classList.toggle('active', tab==='coachverlauf');
+  document.getElementById('tab-coachdash').classList.toggle('active', tab==='coachdash');
   document.getElementById('tab-teamziele').classList.toggle('active', tab==='teamziele');
   document.getElementById('tab-monatsabschluss').classList.toggle('active', tab==='monatsabschluss');
   document.getElementById('tab-verlauf').classList.toggle('active', tab==='verlauf');
   document.getElementById('tab-overview').classList.toggle('active', tab==='overview');
   document.getElementById('view-coaching').style.display = tab==='coaching' ? '' : 'none';
-  document.getElementById('view-coachplan').style.display = tab==='coachplan' ? '' : 'none';
-  document.getElementById('view-coachverlauf').style.display = tab==='coachverlauf' ? '' : 'none';
+  document.getElementById('view-coachdash').style.display = tab==='coachdash' ? '' : 'none';
   document.getElementById('view-teamziele').style.display = tab==='teamziele' ? '' : 'none';
   document.getElementById('view-monatsabschluss').style.display = tab==='monatsabschluss' ? '' : 'none';
   document.getElementById('view-verlauf').style.display = tab==='verlauf' ? '' : 'none';
@@ -1146,8 +1144,30 @@ function switchTab(tab){
   renderAll();
 }
 document.getElementById('tab-coaching').addEventListener('click', ()=>switchTab('coaching'));
-document.getElementById('tab-coachplan').addEventListener('click', ()=>switchTab('coachplan'));
-document.getElementById('tab-coachverlauf').addEventListener('click', ()=>switchTab('coachverlauf'));
+document.getElementById('tab-coachdash').addEventListener('click', ()=>switchTab('coachdash'));
+
+// Sub-Tab Listener für Coaching Dashboard
+function initCoachDashSubTabs(){
+  const planBtn = document.getElementById('sub-coachplan');
+  const verlaufBtn = document.getElementById('sub-coachverlauf');
+  if(!planBtn || !verlaufBtn) return;
+  planBtn.addEventListener('click', ()=>{
+    planBtn.classList.add('active'); verlaufBtn.classList.remove('active');
+    document.getElementById('coachplan-container').style.display='';
+    document.getElementById('coachverlauf-container').style.display='none';
+    renderCoachPlan();
+  });
+  verlaufBtn.addEventListener('click', ()=>{
+    verlaufBtn.classList.add('active'); planBtn.classList.remove('active');
+    document.getElementById('coachverlauf-container').style.display='';
+    document.getElementById('coachplan-container').style.display='none';
+    renderCoachVerlauf();
+  });
+}
+// Initialisieren wenn Tab geöffnet wird
+document.getElementById('tab-coachdash').addEventListener('click', ()=>{
+  setTimeout(initCoachDashSubTabs, 50);
+});
 document.getElementById('tab-teamziele').addEventListener('click', ()=>switchTab('teamziele'));
 document.getElementById('tab-monatsabschluss').addEventListener('click', ()=>switchTab('monatsabschluss'));
 document.getElementById('tab-verlauf').addEventListener('click', ()=>switchTab('verlauf'));
@@ -1155,8 +1175,10 @@ document.getElementById('tab-overview').addEventListener('click', ()=>switchTab(
 
 function renderAll(){
   if(currentTab === 'coaching') renderCoaching();
-  else if(currentTab === 'coachplan') renderCoachPlan();
-  else if(currentTab === 'coachverlauf') renderCoachVerlauf();
+  else if(currentTab === 'coachdash'){
+    const activeSub = document.getElementById('sub-coachplan')?.classList.contains('active') ? 'plan' : 'verlauf';
+    if(activeSub==='plan') renderCoachPlan(); else renderCoachVerlauf();
+  }
   else if(currentTab === 'teamziele') renderTeamZiele();
   else if(currentTab === 'monatsabschluss') renderMonatsabschluss();
   else if(currentTab === 'verlauf') renderVerlauf();
@@ -2093,70 +2115,79 @@ function renderMonatsabschluss(){
   const chartsWrap = document.createElement('div');
   chartsWrap.className = 'ma-charts-wrap';
 
-  const drawMAChart = (cnv, datasets, isPercent) => {
-    const dpr = window.devicePixelRatio || 1;
-    const displayW = cnv.offsetWidth || 480;
-    const displayH = 200;
-    cnv.width = displayW * dpr;
-    cnv.height = displayH * dpr;
-    cnv.style.width = displayW + 'px';
-    cnv.style.height = displayH + 'px';
-    const ctx = cnv.getContext('2d');
-    ctx.setTransform(1,0,0,1,0,0); // Reset vor scale
-    ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, displayW, displayH);
-    const w = displayW; const h = displayH;
-    const pad = {l:44,r:20,t:24,b:32};
+  const makeSVGChart = (datasets, isPercent, w, h) => {
+    const pad = {l:48,r:20,t:30,b:36};
     const cw = w-pad.l-pad.r; const ch = h-pad.t-pad.b;
     const allVals = datasets.flatMap(d=>d.values.filter(v=>v>0));
-    // CR max 20%, Stückzahl und NPS dynamisch
     const maxVal = isPercent
-      ? (datasets[0].label==='MF'||datasets[0].label==='FN' ? Math.min(Math.max(...allVals, 1)*1.15, 20) : 100)
+      ? Math.min(Math.max(...allVals, 1)*1.15, 20)
       : (allVals.length ? Math.max(...allVals)*1.15 : 10);
-    // Grid
-    ctx.strokeStyle='#F0F0F0'; ctx.lineWidth=1;
-    for(let i=0;i<=4;i++){
-      const y = pad.t+ch-(i/4)*ch;
-      ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
-      ctx.fillStyle='#94A3B8'; ctx.font='9px Inter'; ctx.textAlign='right';
-      ctx.fillText((maxVal*i/4).toFixed(isPercent?1:0)+(isPercent?'%':''), pad.l-3, y+3);
-    }
-    // X Labels
     const labels = datasets[0].labels;
+    const xPos = (i) => pad.l + (labels.length>1 ? (i/(labels.length-1))*cw : cw/2);
+    const yPos = (v) => pad.t + ch - (v/maxVal)*ch;
+
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" style="width:100%;height:100%;">`;
+
+    // Grid
+    for(let i=0;i<=4;i++){
+      const y = pad.t + ch - (i/4)*ch;
+      const val = (maxVal*i/4).toFixed(isPercent?1:0)+(isPercent?'%':'');
+      svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" stroke="#F0F0F0" stroke-width="1"/>`;
+      svg += `<text x="${pad.l-6}" y="${y+4}" text-anchor="end" font-size="10" fill="#94A3B8" font-family="IBM Plex Mono,monospace">${val}</text>`;
+    }
+
+    // X Labels
     labels.forEach((m,i)=>{
-      const x = pad.l+(labels.length>1?(i/(labels.length-1))*cw:cw/2);
-      ctx.fillStyle='#94A3B8'; ctx.font='9px Inter'; ctx.textAlign='center';
-      ctx.fillText(m.substring(0,3), x, h-4);
+      const x = xPos(i);
+      svg += `<text x="${x}" y="${h-6}" text-anchor="middle" font-size="10" fill="#94A3B8" font-family="Inter,sans-serif">${m.substring(0,3)}</text>`;
+      // Vertikale Hilfslinien
+      svg += `<line x1="${x}" y1="${pad.t}" x2="${x}" y2="${pad.t+ch}" stroke="#F5F5F5" stroke-width="1"/>`;
     });
-    ctx.strokeStyle='#E0E0E0'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(pad.l,pad.t); ctx.lineTo(pad.l,pad.t+ch); ctx.stroke();
+
+    // Y-Achse
+    svg += `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t+ch}" stroke="#E0E0E0" stroke-width="1"/>`;
+
     // Linien + Punkte
     datasets.forEach(ds=>{
-      if(!ds.values.some(v=>v>0)) return;
-      ctx.strokeStyle=ds.color; ctx.lineWidth=2.5; ctx.setLineDash([]);
-      ctx.beginPath(); let first=true;
-      ds.values.forEach((v,i)=>{
-        if(!v) return;
-        const x=pad.l+(labels.length>1?(i/(labels.length-1))*cw:cw/2);
-        const y=pad.t+ch-(v/maxVal)*ch;
-        first?ctx.moveTo(x,y):ctx.lineTo(x,y); first=false;
-      }); ctx.stroke();
-      ds.values.forEach((v,i)=>{
-        if(!v) return;
-        const x=pad.l+(labels.length>1?(i/(labels.length-1))*cw:cw/2);
-        const y=pad.t+ch-(v/maxVal)*ch;
-        ctx.fillStyle=ds.color; ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle='#1C2733'; ctx.font='bold 8px IBM Plex Mono'; ctx.textAlign='center';
-        ctx.fillText(v.toFixed(isPercent?1:0)+(isPercent?'%':''), x, y-8);
+      const pts = ds.values.map((v,i)=>({v,i,x:xPos(i),y:yPos(v)})).filter(p=>p.v>0);
+      if(!pts.length) return;
+      // Linie
+      const path = pts.map((p,j)=>`${j===0?'M':'L'}${p.x},${p.y}`).join(' ');
+      svg += `<path d="${path}" stroke="${ds.color}" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`;
+      // Punkte + Labels
+      pts.forEach(p=>{
+        svg += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="${ds.color}"/>`;
+        svg += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="white"/>`;
+        const label = p.v.toFixed(isPercent?1:0)+(isPercent?'%':'');
+        svg += `<text x="${p.x}" y="${p.y-9}" text-anchor="middle" font-size="10" font-weight="700" fill="#1C2733" font-family="IBM Plex Mono,monospace">${label}</text>`;
       });
     });
+
     // Legende
-    let lx=pad.l;
+    let lx = pad.l;
     datasets.forEach(ds=>{
-      ctx.fillStyle=ds.color; ctx.fillRect(lx,4,10,7);
-      ctx.fillStyle='#1C2733'; ctx.font='9px Inter'; ctx.textAlign='left';
-      ctx.fillText(ds.label, lx+13, 11); lx+=ctx.measureText(ds.label).width+28;
+      svg += `<rect x="${lx}" y="8" width="12" height="8" rx="2" fill="${ds.color}"/>`;
+      svg += `<text x="${lx+16}" y="16" font-size="11" fill="#1C2733" font-family="Inter,sans-serif">${ds.label}</text>`;
+      lx += ds.label.length * 7 + 28;
     });
+
+    svg += '</svg>';
+    return svg;
+  };
+
+  // Wrapper: SVG in div einbetten statt Canvas
+  const drawMAChart = (cnv, datasets, isPercent) => {
+    // cnv kann Canvas oder div sein - wir ersetzen es durch SVG
+    const parent = cnv.parentElement;
+    if(!parent) return;
+    const w = parent.offsetWidth || 480;
+    const h = 200;
+    const svgEl = document.createElement('div');
+    svgEl.style.cssText = 'width:100%;';
+    svgEl.innerHTML = makeSVGChart(datasets, isPercent, w, h);
+    // Canvas durch SVG-div ersetzen
+    if(parent.contains(cnv)) parent.replaceChild(svgEl, cnv);
+    else parent.appendChild(svgEl);
   };
 
   const availMonate = MONATE.filter(m=>state.monatsabschluss.mf[m]||state.monatsabschluss.fn[m]);
@@ -2166,12 +2197,30 @@ function renderMonatsabschluss(){
     box.className = 'ma-chart-box';
     box.style.cursor = 'zoom-in';
     box.innerHTML = `<div class="ma-chart-box-title">${title}</div>`;
-    const cnv = document.createElement('canvas');
-    box.appendChild(cnv); chartsWrap.appendChild(box);
+    const chartDiv = document.createElement('div');
+    chartDiv.style.cssText = 'width:100%;';
+    box.appendChild(chartDiv); chartsWrap.appendChild(box);
     setTimeout(()=>{
-      cnv.width=cnv.offsetWidth||480;
-      drawMAChart(cnv,buildFn(),isPercent);
-      box.addEventListener('click',()=>showChartPopup(title, c=>drawMAChart(c,buildFn(),isPercent)));
+      const w = box.offsetWidth-40 || 440;
+      chartDiv.innerHTML = makeSVGChart(buildFn(), isPercent, w, 200);
+      // Popup: größeres SVG
+      box.addEventListener('click',()=>{
+        const overlay = document.createElement('div');
+        overlay.className = 'chart-overlay';
+        overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+        const popup = document.createElement('div');
+        popup.className = 'chart-popup';
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'chart-popup-close'; closeBtn.innerHTML = '×';
+        closeBtn.addEventListener('click', ()=>overlay.remove());
+        const titleEl = document.createElement('div');
+        titleEl.className = 'chart-popup-title'; titleEl.textContent = title;
+        const svgWrap = document.createElement('div');
+        svgWrap.style.cssText = 'width:100%;';
+        svgWrap.innerHTML = makeSVGChart(buildFn(), isPercent, 820, 400);
+        popup.appendChild(closeBtn); popup.appendChild(titleEl); popup.appendChild(svgWrap);
+        overlay.appendChild(popup); document.body.appendChild(overlay);
+      });
     },80);
   };
 
