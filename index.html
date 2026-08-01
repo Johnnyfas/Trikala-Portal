@@ -2102,12 +2102,17 @@ function renderMonatsabschluss(){
     cnv.style.width = displayW + 'px';
     cnv.style.height = displayH + 'px';
     const ctx = cnv.getContext('2d');
+    ctx.setTransform(1,0,0,1,0,0); // Reset vor scale
     ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, displayW, displayH);
     const w = displayW; const h = displayH;
     const pad = {l:44,r:20,t:24,b:32};
     const cw = w-pad.l-pad.r; const ch = h-pad.t-pad.b;
     const allVals = datasets.flatMap(d=>d.values.filter(v=>v>0));
-    const maxVal = allVals.length ? Math.max(...allVals)*1.2 : 10;
+    // CR max 20%, Stückzahl und NPS dynamisch
+    const maxVal = isPercent
+      ? (datasets[0].label==='MF'||datasets[0].label==='FN' ? Math.min(Math.max(...allVals, 1)*1.15, 20) : 100)
+      : (allVals.length ? Math.max(...allVals)*1.15 : 10);
     // Grid
     ctx.strokeStyle='#F0F0F0'; ctx.lineWidth=1;
     for(let i=0;i<=4;i++){
