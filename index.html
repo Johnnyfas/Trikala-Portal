@@ -306,6 +306,28 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 .ki-badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
 .ki-badge{background:#F1F4F7;border-radius:8px;padding:5px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
 
+
+/* ===== Hall of Fame ===== */
+.hof-wrap{max-width:1100px;}
+.hof-title{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:26px;margin:0 0 4px;color:var(--text);}
+.hof-sub{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);margin:0 0 24px;}
+.hof-months{display:flex;flex-wrap:wrap;gap:20px;}
+.hof-month-card{background:#fff;border-radius:20px;padding:20px 24px;box-shadow:0 2px 16px rgba(0,0,0,0.08);flex:1;min-width:260px;}
+.hof-month-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;margin:0 0 14px;display:flex;align-items:center;gap:8px;color:var(--text);}
+.hof-team-label{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:10px 0 6px;}
+.hof-entry{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F5F7F9;}
+.hof-entry:last-child{border-bottom:none;}
+.hof-medal{font-size:20px;width:28px;text-align:center;}
+.hof-name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:14px;flex:1;}
+.hof-stats{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+.hof-stat{font-family:'IBM Plex Mono',monospace;font-size:10.5px;}
+.hof-stat.good{color:#0A7C70;}
+.hof-stat.ok{color:#C2792B;}
+.hof-empty{color:var(--muted);font-style:italic;font-size:13px;padding:8px 0;}
+.hof-trophy{font-size:40px;text-align:center;margin-bottom:8px;}
+.hof-criteria{background:#F7F9FA;border-radius:12px;padding:12px 16px;margin-bottom:20px;font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);}
+.hof-criteria strong{color:var(--text);}
+
 /* ===== Coaching Plan view ===== */
 .cp-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
 .cp-card-header{display:flex;align-items:center;gap:12px;}
@@ -374,6 +396,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <button class="tab-btn" id="tab-monatsabschluss">Monatsabschluss</button>
     <button class="tab-btn" id="tab-verlauf">Mitarbeiter Verlauf</button>
     <button class="tab-btn" id="tab-overview">MA Stand</button>
+    <button class="tab-btn" id="tab-halloffame">🏆 Hall of Fame</button>
     <button class="tab-btn" id="tab-kianalyse">🤖 KI Analyse</button>
   </div>
 
@@ -417,6 +440,10 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 
   <div id="view-verlauf" style="display:none;">
     <div id="verlauf-container"></div>
+  </div>
+
+  <div id="view-halloffame" style="display:none;">
+    <div id="halloffame-container"></div>
   </div>
 
   <div id="view-kianalyse" style="display:none;">
@@ -1173,6 +1200,7 @@ function switchTab(tab){
   document.getElementById('tab-monatsabschluss').classList.toggle('active', tab==='monatsabschluss');
   document.getElementById('tab-verlauf').classList.toggle('active', tab==='verlauf');
   document.getElementById('tab-overview').classList.toggle('active', tab==='overview');
+  document.getElementById('tab-halloffame').classList.toggle('active', tab==='halloffame');
   document.getElementById('tab-kianalyse').classList.toggle('active', tab==='kianalyse');
   document.getElementById('view-coaching').style.display = tab==='coaching' ? '' : 'none';
   document.getElementById('view-coachdash').style.display = tab==='coachdash' ? '' : 'none';
@@ -1180,6 +1208,7 @@ function switchTab(tab){
   document.getElementById('view-monatsabschluss').style.display = tab==='monatsabschluss' ? '' : 'none';
   document.getElementById('view-verlauf').style.display = tab==='verlauf' ? '' : 'none';
   document.getElementById('view-overview').style.display = tab==='overview' ? '' : 'none';
+  document.getElementById('view-halloffame').style.display = tab==='halloffame' ? '' : 'none';
   document.getElementById('view-kianalyse').style.display = tab==='kianalyse' ? '' : 'none';
   renderAll();
 }
@@ -1212,6 +1241,7 @@ document.getElementById('tab-teamziele').addEventListener('click', ()=>switchTab
 document.getElementById('tab-monatsabschluss').addEventListener('click', ()=>switchTab('monatsabschluss'));
 document.getElementById('tab-verlauf').addEventListener('click', ()=>switchTab('verlauf'));
 document.getElementById('tab-overview').addEventListener('click', ()=>switchTab('overview'));
+document.getElementById('tab-halloffame').addEventListener('click', ()=>switchTab('halloffame'));
 document.getElementById('tab-kianalyse').addEventListener('click', ()=>switchTab('kianalyse'));
 
 function renderAll(){
@@ -1223,6 +1253,7 @@ function renderAll(){
   else if(currentTab === 'teamziele') renderTeamZiele();
   else if(currentTab === 'monatsabschluss') renderMonatsabschluss();
   else if(currentTab === 'verlauf') renderVerlauf();
+  else if(currentTab === 'halloffame') renderHallOfFame();
   else if(currentTab === 'kianalyse') renderKIAnalyse();
   else renderOverview();
 }
@@ -1366,6 +1397,130 @@ function renderCoaching(){
     container.appendChild(block);
   });
 }
+
+function renderHallOfFame(){
+  const container = document.getElementById('halloffame-container');
+  container.innerHTML = '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'hof-wrap';
+  wrap.innerHTML = `
+    <div class="hof-trophy">🏆</div>
+    <div class="hof-title">Hall of Fame</div>
+    <div class="hof-sub">Mitarbeiter die NPS-Ziel erreicht haben UND mindestens 4 von 5 Produktzielen erfüllt haben.</div>
+    <div class="hof-criteria">
+      <strong>Kriterien:</strong> NPS ≥ Ziel &nbsp;+&nbsp; mindestens 4 von 5 Produkten ≥ Ziel &nbsp;·&nbsp;
+      <strong>MF Ziele:</strong> MF 24, SU 3, BB 4, TV 3, VVM+BOJ 5 &nbsp;·&nbsp;
+      <strong>FN Ziele:</strong> SU 16, BB 17, TV 9, VVM+NVM 20, MF 2
+    </div>
+  `;
+  container.appendChild(wrap);
+
+  const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli'];
+  const MEDALS = ['🥇','🥈','🥉','🎖️','🎖️','🎖️','🎖️','🎖️','🎖️','🎖️'];
+
+  // Prüfe ob ein MA die Hall of Fame Kriterien erfüllt
+  function checkHOF(agent, monatKey){
+    const vl = state.verlauf[agent.name + '_' + agent.team];
+    if(!vl || !vl.monate[monatKey]) return null;
+
+    const md = vl.monate[monatKey];
+    const cfg = TEAM_CONFIGS[agent.team];
+    if(!cfg) return null;
+
+    // NPS Ziel prüfen
+    const npsOk = (md.nps || 0) >= cfg.npsTarget;
+    if(!npsOk) return null;
+
+    // Produkt-Ziele prüfen
+    const targets = agentTargets({team: agent.team, category: agent.category || 'regular'});
+    const prods = cfg.products;
+    let goalsHit = 0;
+    prods.forEach((p, i) => {
+      const val = (md.sales && md.sales[p]) || 0;
+      if(val >= targets[i]) goalsHit++;
+    });
+
+    if(goalsHit < 4) return null;
+
+    return {
+      name: agent.name,
+      team: agent.team,
+      nps: md.nps,
+      npsTarget: cfg.npsTarget,
+      goalsHit,
+      totalGoals: prods.length,
+      cr: md.cr || 0,
+    };
+  }
+
+  const monthsWrap = document.createElement('div');
+  monthsWrap.className = 'hof-months';
+
+  // Für jeden Monat eine Karte
+  MONATE.forEach(monat => {
+    const periode = '2026-' + monat;
+
+    // Prüfe alle MA
+    const winners = { Trikala01: [], Trikala06: [] };
+
+    state.agents.forEach(agent => {
+      const result = checkHOF(agent, periode);
+      if(result) winners[agent.team]?.push(result);
+    });
+
+    const hasAny = winners.Trikala01.length > 0 || winners.Trikala06.length > 0;
+
+    // Karte erstellen
+    const card = document.createElement('div');
+    card.className = 'hof-month-card';
+
+    const title = document.createElement('div');
+    title.className = 'hof-month-title';
+    title.innerHTML = `🗓️ ${monat} 2026`;
+    card.appendChild(title);
+
+    if(!hasAny){
+      const empty = document.createElement('div');
+      empty.className = 'hof-empty';
+      empty.textContent = 'Keine Einträge';
+      card.appendChild(empty);
+    } else {
+      Object.entries(winners).forEach(([teamId, list]) => {
+        if(!list.length) return;
+        const cfg = TEAM_CONFIGS[teamId];
+
+        const teamLbl = document.createElement('div');
+        teamLbl.className = 'hof-team-label';
+        teamLbl.textContent = cfg.label;
+        card.appendChild(teamLbl);
+
+        // Sortieren: meiste Ziele zuerst, dann NPS
+        list.sort((a,b) => b.goalsHit - a.goalsHit || b.nps - a.nps);
+
+        list.forEach((w, i) => {
+          const entry = document.createElement('div');
+          entry.className = 'hof-entry';
+          entry.innerHTML = `
+            <span class="hof-medal">${MEDALS[i]||'⭐'}</span>
+            <span class="hof-name">${w.name}</span>
+            <div class="hof-stats">
+              <span class="hof-stat good">NPS ${w.nps.toFixed(1)}%</span>
+              <span class="hof-stat good">${w.goalsHit}/${w.totalGoals} Ziele</span>
+              ${w.cr > 0 ? `<span class="hof-stat ok">CR ${w.cr.toFixed(2)}%</span>` : ''}
+            </div>
+          `;
+          card.appendChild(entry);
+        });
+      });
+    }
+
+    monthsWrap.appendChild(card);
+  });
+
+  wrap.appendChild(monthsWrap);
+}
+
 
 let kiHistory = [];
 
