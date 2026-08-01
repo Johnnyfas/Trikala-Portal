@@ -347,8 +347,6 @@ canvas.vl-canvas{width:100%;max-height:280px;}
   </div>
   <div class="tabs">
     <button class="tab-btn active" id="tab-coaching">Mitarbeiter Ziele</button>
-    <button class="tab-btn" id="tab-coachplan">Coaching Plan</button>
-    <button class="tab-btn" id="tab-coachverlauf">Coaching Verlauf</button>
     <button class="tab-btn" id="tab-teamziele">Team Ziele</button>
     <button class="tab-btn" id="tab-monatsabschluss">Monatsabschluss</button>
     <button class="tab-btn" id="tab-verlauf">Mitarbeiter Verlauf</button>
@@ -1054,7 +1052,8 @@ async function loadState(){
   if(!state.agents.length){
     state.agents = SEED_AGENTS.map(a => ({ id: uid(), ...JSON.parse(JSON.stringify(a)) }));
   }
-  renderAll();
+  // Standard-Tab: Coaching Dashboard
+  switchTab('coachdash');
   // Microsoft Login - SharePoint Daten werden nach Login automatisch geladen
   initMsal();
 }
