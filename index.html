@@ -943,27 +943,23 @@ setInterval(() => { if(graphToken) loadFromExcel(); }, 5 * 60 * 1000);
 function uid(){ return 'a' + Math.random().toString(36).slice(2,9); }
 
 async function loadState(){
-  try{
-    const res = await window.storage.get(STORAGE_KEY, false);
-    if(res && res.value){
-      const parsed = JSON.parse(res.value);
-      if(parsed && parsed.agents && parsed.agents.length){ state = parsed; }
-    }
-  }catch(e){ /* kein gespeicherter Stand */ }
-  initMsal();
+  // Agents mit Seed initialisieren
   if(!state.agents.length){
     state.agents = SEED_AGENTS.map(a => ({ id: uid(), ...JSON.parse(JSON.stringify(a)) }));
-    scheduleSave();
   }
   renderAll();
+  // Microsoft Login - SharePoint Daten werden nach Login automatisch geladen
+  initMsal();
 }
 
 function scheduleSave(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async ()=>{
+    // Lokales Speichern versuchen (kann auf GitHub Pages fehlschlagen)
     try{ await window.storage.set(STORAGE_KEY, JSON.stringify(state), false); }
-    catch(e){ console.error('Lokales Speichern fehlgeschlagen', e); }
-    if(graphToken) saveToSharePoint();
+    catch(e){ /* Lokaler Speicher nicht verfügbar - nur SharePoint */ }
+    // SharePoint IMMER speichern wenn eingeloggt
+    if(graphToken) await saveToSharePoint();
   }, 400);
 }
 
