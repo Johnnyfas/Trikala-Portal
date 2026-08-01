@@ -284,6 +284,28 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 .ma-chart-box-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin:0 0 10px;color:var(--text);}
 .ma-chart-box canvas{width:100%;}
 
+
+/* ===== KI Analyse ===== */
+.ki-wrap{max-width:860px;margin:0 auto;}
+.ki-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;margin:0 0 6px;color:var(--text);}
+.ki-sub{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);margin:0 0 20px;}
+.ki-suggestions{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.ki-chip{background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:12.5px;cursor:pointer;transition:all .15s;color:var(--text);}
+.ki-chip:hover{border-color:var(--tmg);color:var(--tmg);background:#FCE4F1;}
+.ki-input-row{display:flex;gap:10px;margin-bottom:20px;}
+.ki-input{flex:1;padding:12px 16px;border-radius:10px;border:1.5px solid var(--border);font-family:'Inter',sans-serif;font-size:14px;outline:none;}
+.ki-input:focus{border-color:var(--tmg);}
+.ki-send{background:var(--tmg);color:#fff;border:none;padding:12px 22px;border-radius:10px;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;}
+.ki-send:hover{background:var(--tmg-dark);}
+.ki-send:disabled{opacity:.5;cursor:not-allowed;}
+.ki-history{display:flex;flex-direction:column;gap:14px;}
+.ki-msg{padding:14px 18px;border-radius:14px;font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.6;}
+.ki-msg.user{background:linear-gradient(135deg,var(--tmg),var(--tmg-dark));color:#fff;align-self:flex-end;max-width:80%;}
+.ki-msg.assistant{background:#fff;border:1px solid var(--border);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.ki-msg.loading{background:#f8f9fa;color:var(--muted);font-style:italic;}
+.ki-badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.ki-badge{background:#F1F4F7;border-radius:8px;padding:5px 10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
+
 /* ===== Coaching Plan view ===== */
 .cp-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
 .cp-card-header{display:flex;align-items:center;gap:12px;}
@@ -352,6 +374,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <button class="tab-btn" id="tab-monatsabschluss">Monatsabschluss</button>
     <button class="tab-btn" id="tab-verlauf">Mitarbeiter Verlauf</button>
     <button class="tab-btn" id="tab-overview">MA Stand</button>
+    <button class="tab-btn" id="tab-kianalyse">🤖 KI Analyse</button>
   </div>
 
   <div id="view-coachdash" style="display:none;">
@@ -394,6 +417,10 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 
   <div id="view-verlauf" style="display:none;">
     <div id="verlauf-container"></div>
+  </div>
+
+  <div id="view-kianalyse" style="display:none;">
+    <div id="kianalyse-container"></div>
   </div>
 
   <div id="view-overview" style="display:none;">
@@ -1146,12 +1173,14 @@ function switchTab(tab){
   document.getElementById('tab-monatsabschluss').classList.toggle('active', tab==='monatsabschluss');
   document.getElementById('tab-verlauf').classList.toggle('active', tab==='verlauf');
   document.getElementById('tab-overview').classList.toggle('active', tab==='overview');
+  document.getElementById('tab-kianalyse').classList.toggle('active', tab==='kianalyse');
   document.getElementById('view-coaching').style.display = tab==='coaching' ? '' : 'none';
   document.getElementById('view-coachdash').style.display = tab==='coachdash' ? '' : 'none';
   document.getElementById('view-teamziele').style.display = tab==='teamziele' ? '' : 'none';
   document.getElementById('view-monatsabschluss').style.display = tab==='monatsabschluss' ? '' : 'none';
   document.getElementById('view-verlauf').style.display = tab==='verlauf' ? '' : 'none';
   document.getElementById('view-overview').style.display = tab==='overview' ? '' : 'none';
+  document.getElementById('view-kianalyse').style.display = tab==='kianalyse' ? '' : 'none';
   renderAll();
 }
 document.getElementById('tab-coaching').addEventListener('click', ()=>switchTab('coaching'));
@@ -1183,6 +1212,7 @@ document.getElementById('tab-teamziele').addEventListener('click', ()=>switchTab
 document.getElementById('tab-monatsabschluss').addEventListener('click', ()=>switchTab('monatsabschluss'));
 document.getElementById('tab-verlauf').addEventListener('click', ()=>switchTab('verlauf'));
 document.getElementById('tab-overview').addEventListener('click', ()=>switchTab('overview'));
+document.getElementById('tab-kianalyse').addEventListener('click', ()=>switchTab('kianalyse'));
 
 function renderAll(){
   if(currentTab === 'coaching') renderCoaching();
@@ -1193,6 +1223,7 @@ function renderAll(){
   else if(currentTab === 'teamziele') renderTeamZiele();
   else if(currentTab === 'monatsabschluss') renderMonatsabschluss();
   else if(currentTab === 'verlauf') renderVerlauf();
+  else if(currentTab === 'kianalyse') renderKIAnalyse();
   else renderOverview();
 }
 
@@ -1335,6 +1366,205 @@ function renderCoaching(){
     container.appendChild(block);
   });
 }
+
+let kiHistory = [];
+
+function buildKIContext(){
+  // Kompakte Datensammlung für Claude
+  const ctx = { teams: {} };
+
+  Object.keys(TEAM_CONFIGS).forEach(teamId=>{
+    const cfg = TEAM_CONFIGS[teamId];
+    const agents = state.agents.filter(a=>a.team===teamId);
+    const teamCtx = {
+      name: cfg.label + ' — ' + cfg.project,
+      ziele: { cr: cfg.crTarget, nps: cfg.npsTarget, lq: cfg.lqTarget },
+      mitarbeiter: agents.map(a=>({
+        name: a.name,
+        kategorie: CATEGORY_LABELS[a.category]||a.category,
+        calls: a.calls,
+        nps: a.nps,
+        lq: a.lq,
+        cr: parseFloat(totalCr(a).toFixed(2)),
+        sales: a.sales,
+        letztes_coaching: a.coachingDatum || 'nie',
+      })),
+      monatsabschluss: {}
+    };
+
+    // Monatsverlauf (nur verfügbare Monate)
+    const maData = state.monatsabschluss[teamId==='Trikala01'?'mf':'fn'] || {};
+    ['Januar','Februar','März','April','Mai','Juni','Juli'].forEach(m=>{
+      const md = maData[m];
+      if(md && md.crGesamtErreicht){
+        teamCtx.monatsabschluss[m] = {
+          cr_gesamt: md.crGesamtErreicht,
+          cr_ziel: md.crGesamtZiel,
+          nps_ist: md.nps_ist,
+          nps_plan: md.nps_plan
+        };
+      }
+    });
+
+    ctx.teams[teamId] = teamCtx;
+  });
+
+  return ctx;
+}
+
+function renderKIAnalyse(){
+  const container = document.getElementById('kianalyse-container');
+  container.innerHTML = '';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'ki-wrap';
+
+  wrap.innerHTML = `
+    <div class="ki-title">🤖 KI Analyse</div>
+    <div class="ki-sub">Stelle Fragen zu deinen Teams und Mitarbeitern — die KI analysiert deine echten Daten.</div>
+  `;
+
+  // Daten-Übersicht Badges
+  const badgeRow = document.createElement('div');
+  badgeRow.className = 'ki-badge-row';
+  const t01 = state.agents.filter(a=>a.team==='Trikala01').length;
+  const t06 = state.agents.filter(a=>a.team==='Trikala06').length;
+  badgeRow.innerHTML = `
+    <span class="ki-badge">👥 ${t01} MF Mitarbeiter</span>
+    <span class="ki-badge">👥 ${t06} FN Mitarbeiter</span>
+    <span class="ki-badge">📅 Jan–Jul 2026</span>
+    <span class="ki-badge">📊 Verlaufsdaten verfügbar</span>
+  `;
+  wrap.appendChild(badgeRow);
+
+  // Vorschläge
+  const suggestions = [
+    'Welche 5 Mitarbeiter brauchen am dringendsten Coaching?',
+    'Wer hat sich dieses Jahr am meisten verbessert?',
+    'Wie entwickelt sich das Festnetz Team?',
+    'Welche Mitarbeiter haben die beste CR?',
+    'Wer hat lange kein Coaching gehabt?',
+    'Vergleiche MF und FN Team',
+    'Welche Mitarbeiter erreichen ihr NPS Ziel nicht?',
+    'Zusammenfassung Juli 2026',
+  ];
+
+  const chipWrap = document.createElement('div');
+  chipWrap.className = 'ki-suggestions';
+  suggestions.forEach(s=>{
+    const chip = document.createElement('button');
+    chip.className = 'ki-chip';
+    chip.textContent = s;
+    chip.addEventListener('click', ()=>{ inputEl.value=s; sendMessage(); });
+    chipWrap.appendChild(chip);
+  });
+  wrap.appendChild(chipWrap);
+
+  // Input
+  const inputRow = document.createElement('div');
+  inputRow.className = 'ki-input-row';
+  const inputEl = document.createElement('input');
+  inputEl.className = 'ki-input';
+  inputEl.type = 'text';
+  inputEl.placeholder = 'Frage stellen, z.B. "Welche Mitarbeiter brauchen Coaching?"';
+  const sendBtn = document.createElement('button');
+  sendBtn.className = 'ki-send';
+  sendBtn.textContent = 'Analysieren';
+  inputRow.appendChild(inputEl);
+  inputRow.appendChild(sendBtn);
+  wrap.appendChild(inputRow);
+
+  // Chat-Verlauf
+  const historyEl = document.createElement('div');
+  historyEl.className = 'ki-history';
+  wrap.appendChild(historyEl);
+  container.appendChild(wrap);
+
+  // Bestehende History anzeigen
+  kiHistory.forEach(msg=>addMsgBubble(msg.role, msg.content, historyEl));
+
+  function addMsgBubble(role, text, parent){
+    const el = document.createElement('div');
+    el.className = 'ki-msg ' + role;
+    el.innerHTML = text.split(String.fromCharCode(10)).join('<br>');
+    parent.appendChild(el);
+    el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    return el;
+  }
+
+  async function sendMessage(){
+    const question = inputEl.value.trim();
+    if(!question) return;
+    inputEl.value = '';
+    sendBtn.disabled = true;
+    sendBtn.textContent = '⏳ Analysiere...';
+
+    addMsgBubble('user', question, historyEl);
+    kiHistory.push({role:'user', content:question});
+
+    const loadingEl = addMsgBubble('loading', '🤔 Analysiere deine Daten...', historyEl);
+
+    // Kontext aufbauen
+    const ctx = buildKIContext();
+    const systemPrompt = `Du bist ein erfahrener Salescoach-Assistent für ein Telekom Callcenter.
+Du analysierst die echten Daten von Ioannis Fasoulas, Salescoach bei CHO Group.
+
+DEINE AUFGABE:
+- Analysiere die Mitarbeiterdaten präzise und konkret
+- Nenne immer echte Namen aus den Daten
+- Gib praktische Coaching-Empfehlungen
+- Vergleiche mit Zielen (CR-Ziel, NPS-Ziel, LQ-Ziel)
+- Antworte auf Deutsch, klar und strukturiert
+
+AKTUELLE TEAMDATEN:
+${JSON.stringify(ctx, null, 2)}
+
+Beachte:
+- Trikala01 = Mobilfunk PK (CR-Ziel: 7%, NPS-Ziel: 70%, LQ-Ziel: 78%)
+- Trikala06 = Festnetz PK (CR-Ziel: 11%, NPS-Ziel: 68%, LQ-Ziel: 74%)
+- Kategorien: Standard, 6-Stündler, Helpline (unterschiedliche Ziele)`;
+
+    try {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: kiHistory.slice(-6) // Letzte 6 Nachrichten als Kontext
+        })
+      });
+
+      const data = await response.json();
+      const answer = data.content?.[0]?.text || 'Keine Antwort erhalten.';
+
+      loadingEl.remove();
+      addMsgBubble('assistant', answer, historyEl);
+      kiHistory.push({role:'assistant', content:answer});
+
+    } catch(e){
+      loadingEl.className = 'ki-msg assistant';
+      loadingEl.textContent = 'Fehler bei der Analyse: ' + e.message;
+    }
+
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Analysieren';
+  }
+
+  sendBtn.addEventListener('click', sendMessage);
+  inputEl.addEventListener('keydown', e=>{ if(e.key==='Enter') sendMessage(); });
+
+  // Löschen-Button
+  if(kiHistory.length > 0){
+    const clearBtn = document.createElement('button');
+    clearBtn.style.cssText = 'background:none;border:1px solid var(--border);padding:6px 12px;border-radius:8px;font-size:12px;color:var(--muted);cursor:pointer;margin-top:8px;';
+    clearBtn.textContent = '🗑 Verlauf löschen';
+    clearBtn.addEventListener('click', ()=>{ kiHistory=[]; renderKIAnalyse(); });
+    wrap.appendChild(clearBtn);
+  }
+}
+
 
 let cvSelectedTeam = 'all';
 let cvSearchText = '';
