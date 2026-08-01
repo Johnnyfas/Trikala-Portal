@@ -642,11 +642,19 @@ async function loadFromSharePoint(){
                   if(saved.nps_plan !== undefined) md.nps_plan = saved.nps_plan;
                   if(saved.nps_ist !== undefined) md.nps_ist = saved.nps_ist;
                   if(saved.plan) Object.assign(md.plan, saved.plan);
+                  // BOJ sicherstellen
+                  ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
                 }
               });
             }
           });
         }
+        // BOJ global
+        Object.keys(state.monatsabschluss||{}).forEach(team=>{
+          Object.values(state.monatsabschluss[team]||{}).forEach(md=>{
+            ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
+          });
+        });
         renderAll();
         setSyncStatus('ok');
         return;
@@ -796,11 +804,19 @@ async function loadFromSharePoint(){
                   if(saved.nps_plan !== undefined) md.nps_plan = saved.nps_plan;
                   if(saved.nps_ist !== undefined) md.nps_ist = saved.nps_ist;
                   if(saved.plan) Object.assign(md.plan, saved.plan);
+                  // BOJ sicherstellen
+                  ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
                 }
               });
             }
           });
         }
+        // BOJ global
+        Object.keys(state.monatsabschluss||{}).forEach(team=>{
+          Object.values(state.monatsabschluss[team]||{}).forEach(md=>{
+            ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
+          });
+        });
         renderAll();
         setSyncStatus('ok');
         return;
