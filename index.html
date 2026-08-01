@@ -2438,8 +2438,38 @@ function renderMonatsabschluss(){
     // CR Box rechts
     const crRightBox = document.createElement('div');
     crRightBox.style.cssText = 'display:flex;flex-direction:column;gap:12px;min-width:130px;max-width:130px;';
+    // CR Gesamt automatisch berechnen aus Produkt-CRs
+    const EXCL_CR = teamKey === 'fn' ? ['BOJ'] : [];
+    const crGesamtCalc = Object.entries(md.cr||{})
+      .filter(([k])=>!EXCL_CR.includes(k))
+      .reduce((s,[,v])=>s+(parseFloat(v)||0), 0);
+    // Gerundeter Wert (2 Dezimalstellen)
+    const crGesamtDisplay = Math.round(crGesamtCalc * 100) / 100;
+
     crRightBox.appendChild(mkCrGesamtBox('ziel', 'CR Gesamt Ziel', md.crGesamtZiel, v=>{ md.crGesamtZiel=v; }, undefined));
-    crRightBox.appendChild(mkCrGesamtBox('ist', 'CR Gesamt Erreicht', md.crGesamtErreicht, v=>{ md.crGesamtErreicht=v; }, md.crGesamtZiel));
+
+    // CR Gesamt Erreicht: berechnet, nicht editierbar
+    const crErrBox = document.createElement('div');
+    crErrBox.style.cssText = `border-radius:16px;padding:14px 18px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.09);`;
+    const isGreen = md.crGesamtZiel > 0 && crGesamtDisplay >= md.crGesamtZiel;
+    crErrBox.style.background = isGreen
+      ? 'linear-gradient(135deg,#E8F5E9,#A5D6A7)'
+      : 'linear-gradient(135deg,#FFF8E1,#FFE082)';
+    const crErrLbl = document.createElement('div');
+    crErrLbl.style.cssText = 'font-family:"Inter",sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;opacity:.75;';
+    crErrLbl.textContent = 'CR Gesamt Erreicht';
+    const crErrVal = document.createElement('div');
+    crErrVal.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;text-align:center;';
+    if(isGreen){
+      const circle = document.createElement('div');
+      circle.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:#4CAF50;color:#fff;font-family:"IBM Plex Mono",monospace;font-size:16px;font-weight:700;';
+      circle.textContent = crGesamtDisplay.toFixed(2) + '%';
+      crErrVal.appendChild(circle);
+    } else {
+      crErrVal.textContent = crGesamtDisplay.toFixed(2) + '%';
+    }
+    crErrBox.appendChild(crErrLbl); crErrBox.appendChild(crErrVal);
+    crRightBox.appendChild(crErrBox);
 
     // Layout: NPS links | Tabelle mitte | CR rechts
     const maLayout = document.createElement('div');
