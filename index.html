@@ -57,12 +57,12 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .team-block{margin-bottom:26px;}
 .team-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;margin:0 0 8px;}
 .targets-legend{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
-.targets-legend .line{font-family:'IBM Plex Mono',monospace;font-size:13px;}
-.targets-legend .cat-label{display:inline-block;min-width:90px;font-weight:700;font-size:13px;}
+.targets-legend .line{font-family:'IBM Plex Mono',monospace;font-size:15px;}
+.targets-legend .cat-label{display:inline-block;min-width:100px;font-weight:700;font-size:15px;}
 .targets-legend .cat-label.standard{color:var(--tmg-gray);}
 .targets-legend .cat-label.sixh{color:var(--sixh);}
 .targets-legend .cat-label.helpline{color:var(--helpline);}
-.targets-legend .vals{color:var(--muted);font-size:13px;}
+.targets-legend .vals{color:var(--muted);font-size:15px;}
 
 .cat-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;font-weight:700;}
 .cat-badge.regular{background:#EEF1F4;color:var(--muted);}
@@ -2581,7 +2581,8 @@ function renderOverview(){
       const crStatus = trafficStatus(parseFloat(cr.toFixed(2)), cfg.crTarget);
 
       const catBg = agent.category === '6h' ? 'background:#E4ECF5;color:var(--sixh);' :
-                   agent.category === 'helpline' ? 'background:#EFE9F7;color:var(--helpline);' : '';
+                   agent.category === 'helpline' ? 'background:#EFE9F7;color:var(--helpline);' :
+                   'background:#F1F4F7;color:var(--text);';
       let html = `<div class="ov-cell name-cell" style="${catBg}">${agent.name}</div>`;
       html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal.toFixed(2)}%</span></div>`;
       html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal.toFixed(2)}%</span></div>`;
