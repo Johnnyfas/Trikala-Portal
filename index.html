@@ -328,6 +328,30 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 .hof-criteria{background:#F7F9FA;border-radius:12px;padding:12px 16px;margin-bottom:20px;font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);}
 .hof-criteria strong{color:var(--text);}
 
+
+/* ===== Mitarbeiter Ziele Panel ===== */
+.card-wrap{display:flex;gap:12px;margin-bottom:12px;}
+.card-wrap .card{flex:1;margin-bottom:0;}
+.agent-panel{width:240px;min-width:240px;background:#fff;border-radius:16px;border:1px solid var(--border);padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.panel-section{font-family:'Inter',sans-serif;}
+.panel-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;}
+.panel-avg-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;}
+.panel-avg-label{font-size:12px;color:var(--text);}
+.panel-avg-vals{display:flex;gap:6px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;}
+.panel-avg-agent{color:var(--text);}
+.panel-avg-team{color:var(--muted);}
+.panel-avg-arrow{font-size:12px;}
+.panel-avg-arrow.up{color:#4CAF50;}
+.panel-avg-arrow.down{color:#E20074;}
+.panel-avg-arrow.eq{color:#94A3B8;}
+.panel-coaching{background:#F7F9FA;border-radius:10px;padding:10px 12px;}
+.panel-coaching-date{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;margin-bottom:4px;}
+.panel-coaching-date.green{color:#0A7C70;}
+.panel-coaching-date.orange{color:#C2792B;}
+.panel-coaching-date.red{color:#B4423A;}
+.panel-coaching-text{font-size:12px;color:var(--text);line-height:1.4;max-height:80px;overflow:auto;}
+.panel-coaching-none{font-size:12px;color:var(--muted);font-style:italic;}
+
 /* ===== Coaching Plan view ===== */
 .cp-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
 .cp-card-header{display:flex;align-items:center;gap:12px;}
@@ -1390,7 +1414,99 @@ function renderCoaching(){
         });
       }
       card.appendChild(tagsDiv);
-      cardsWrap.appendChild(card);
+
+      // === Rechtes Panel: Teamdurchschnitt + letztes Coaching ===
+      const panel = document.createElement('div');
+      panel.className = 'agent-panel';
+
+      // Team-Durchschnitt Vergleich
+      const avgSection = document.createElement('div');
+      avgSection.className = 'panel-section';
+      const avgTitle = document.createElement('div');
+      avgTitle.className = 'panel-section-title';
+      avgTitle.textContent = '📊 vs. Teamdurchschnitt';
+      avgSection.appendChild(avgTitle);
+
+      // Berechne Teamdurchschnitt
+      const teamAgentsAll = state.agents.filter(a=>a.team===agent.team && a.name.trim());
+      const avgCr = teamAgentsAll.reduce((s,a)=>s+totalCr(a),0)/teamAgentsAll.length;
+      const avgNps = teamAgentsAll.filter(a=>a.nps>0).reduce((s,a)=>s+a.nps,0)/Math.max(1,teamAgentsAll.filter(a=>a.nps>0).length);
+      const avgLq = teamAgentsAll.filter(a=>a.lq>0).reduce((s,a)=>s+a.lq,0)/Math.max(1,teamAgentsAll.filter(a=>a.lq>0).length);
+      const agentCr = totalCr(agent);
+
+      const mkAvgRow = (label, agentVal, teamVal, suffix) => {
+        const row = document.createElement('div');
+        row.className = 'panel-avg-row';
+        const diff = agentVal - teamVal;
+        const arrowCls = diff > 0.1 ? 'up' : diff < -0.1 ? 'down' : 'eq';
+        const arrow = diff > 0.1 ? '▲' : diff < -0.1 ? '▼' : '—';
+        row.innerHTML = `
+          <span class="panel-avg-label">${label}</span>
+          <div class="panel-avg-vals">
+            <span class="panel-avg-agent">${agentVal.toFixed(1)}${suffix}</span>
+            <span class="panel-avg-arrow ${arrowCls}">${arrow}</span>
+            <span class="panel-avg-team">Ø${teamVal.toFixed(1)}${suffix}</span>
+          </div>`;
+        return row;
+      };
+
+      avgSection.appendChild(mkAvgRow('CR', agentCr, avgCr, '%'));
+      if(agent.nps > 0) avgSection.appendChild(mkAvgRow('NPS', agent.nps, avgNps, '%'));
+      if(agent.lq > 0) avgSection.appendChild(mkAvgRow('LQ', agent.lq, avgLq, '%'));
+
+      // Produkt-Stückzahl vs Teamdurchschnitt
+      cfg.products.forEach(p=>{
+        const agentStk = agent.sales[p]||0;
+        const avgStk = teamAgentsAll.reduce((s,a)=>s+(a.sales[p]||0),0)/teamAgentsAll.length;
+        if(agentStk > 0 || avgStk > 0) avgSection.appendChild(mkAvgRow(p, agentStk, avgStk, ''));
+      });
+
+      panel.appendChild(avgSection);
+
+      // Letztes Coaching
+      const coachSection = document.createElement('div');
+      coachSection.className = 'panel-section';
+      const coachTitle = document.createElement('div');
+      coachTitle.className = 'panel-section-title';
+      coachTitle.textContent = '📝 Letztes Coaching';
+      coachSection.appendChild(coachTitle);
+
+      const coachBox = document.createElement('div');
+      coachBox.className = 'panel-coaching';
+
+      if(agent.coachingDatum){
+        const days = Math.floor((new Date()-new Date(agent.coachingDatum.split('.').reverse().join('-')))/(1000*60*60*24));
+        const col = days<=7?'green':days<=14?'orange':'red';
+        const dateEl = document.createElement('div');
+        dateEl.className = 'panel-coaching-date ' + col;
+        dateEl.textContent = agent.coachingDatum + ' (' + days + 'd)';
+        coachBox.appendChild(dateEl);
+
+        // Letzte Coaching-Notiz aus Coaching Verlauf
+        const cvKey = agent.id || agent.name + '_' + agent.team;
+        const cvData = state.coachverlauf && state.coachverlauf[cvKey];
+        const lastEntry = cvData && cvData.eintraege && cvData.eintraege[0];
+        if(lastEntry && lastEntry.text && lastEntry.text !== '(Coaching ohne Notiz)'){
+          const textEl = document.createElement('div');
+          textEl.className = 'panel-coaching-text';
+          textEl.textContent = lastEntry.text;
+          coachBox.appendChild(textEl);
+        }
+      } else {
+        const noneEl = document.createElement('div');
+        noneEl.className = 'panel-coaching-none';
+        noneEl.textContent = 'Kein Coaching eingetragen';
+        coachBox.appendChild(noneEl);
+      }
+      coachSection.appendChild(coachBox);
+      panel.appendChild(coachSection);
+
+      // Card + Panel zusammen in wrap
+      const cardWrap = document.createElement('div');
+      cardWrap.className = 'card-wrap';
+      cardWrap.appendChild(card);
+      cardWrap.appendChild(panel);
+      cardsWrap.appendChild(cardWrap);
     });
 
     block.appendChild(cardsWrap);
