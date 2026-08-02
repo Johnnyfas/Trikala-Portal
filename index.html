@@ -2520,11 +2520,11 @@ function renderMonatsabschluss(){
   const chartsWrap = document.createElement('div');
   chartsWrap.className = 'ma-charts-wrap';
 
-  const makeSVGChart = (datasets, isPercent, w, h) => {
+  const makeSVGChart = (datasets, isPercent, w, h, fixedMax) => {
     const pad = {l:48,r:20,t:30,b:36};
     const cw = w-pad.l-pad.r; const ch = h-pad.t-pad.b;
     const allVals = datasets.flatMap(d=>d.values.filter(v=>v>0));
-    const maxVal = isPercent
+    const maxVal = fixedMax ? fixedMax : isPercent
       ? (Math.max(...allVals, 1) > 25 ? Math.min(Math.max(...allVals)*1.1, 100) : 20)
       : (allVals.length ? Math.max(...allVals)*1.15 : 10);
     const labels = datasets[0].labels;
@@ -2597,7 +2597,7 @@ function renderMonatsabschluss(){
 
   const availMonate = MONATE.filter(m=>state.monatsabschluss.mf[m]||state.monatsabschluss.fn[m]);
 
-  const mkBox = (title, buildFn, isPercent) => {
+  const mkBox = (title, buildFn, isPercent, fixedMax) => {
     const box = document.createElement('div');
     box.className = 'ma-chart-box';
     box.style.cursor = 'zoom-in';
@@ -2607,8 +2607,7 @@ function renderMonatsabschluss(){
     box.appendChild(chartDiv); chartsWrap.appendChild(box);
     setTimeout(()=>{
       const w = box.offsetWidth-40 || 440;
-      chartDiv.innerHTML = makeSVGChart(buildFn(), isPercent, w, 200);
-      // Popup: größeres SVG
+      chartDiv.innerHTML = makeSVGChart(buildFn(), isPercent, w, 200, fixedMax);
       box.addEventListener('click',()=>{
         const overlay = document.createElement('div');
         overlay.className = 'chart-overlay';
@@ -2622,7 +2621,7 @@ function renderMonatsabschluss(){
         titleEl.className = 'chart-popup-title'; titleEl.textContent = title;
         const svgWrap = document.createElement('div');
         svgWrap.style.cssText = 'width:100%;';
-        svgWrap.innerHTML = makeSVGChart(buildFn(), isPercent, 820, 400);
+        svgWrap.innerHTML = makeSVGChart(buildFn(), isPercent, 820, 400, fixedMax);
         popup.appendChild(closeBtn); popup.appendChild(titleEl); popup.appendChild(svgWrap);
         overlay.appendChild(popup); document.body.appendChild(overlay);
       });
@@ -2632,7 +2631,7 @@ function renderMonatsabschluss(){
   mkBox('Gesamt CR — Monatsverlauf', ()=>[
     { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; if(!md) return 0; return md.crGesamtErreicht||Object.values(md.cr||{}).reduce((s,v)=>s+v,0); }) },
     { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; if(!md) return 0; return md.crGesamtErreicht||Object.entries(md.cr||{}).filter(([k])=>k!=='BOJ').reduce((s,[,v])=>s+v,0); }) }
-  ], true);
+  ], true, 20);
 
   mkBox('Gesamt Stückzahl — Monatsverlauf', ()=>[
     { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; return md&&md.erreicht?Object.values(md.erreicht).reduce((s,v)=>s+v,0):0; }) },
@@ -2642,7 +2641,7 @@ function renderMonatsabschluss(){
   mkBox('NPS — Monatsverlauf', ()=>[
     { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; return md?md.nps_ist||0:0; }) },
     { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; return md?md.nps_ist||0:0; }) }
-  ], true);
+  ], true, 100);
 
   container.appendChild(chartsWrap);
 
