@@ -1507,23 +1507,20 @@ function renderHallOfFame(){
         teamLbl.textContent = cfg.label;
         card.appendChild(teamLbl);
 
-        // Sortieren: 60% Sales+CR, 40% NPS
+        // Sortieren: 50% CR + 30% Stückzahl + 20% NPS
         list.sort((a,b) => {
           // Sales-Score: erreichte Ziele % (0-100)
           const salesScoreA = (a.goalsHit / a.totalGoals) * 100;
           const salesScoreB = (b.goalsHit / b.totalGoals) * 100;
-          // CR-Score: CR / CRZiel * 100 (max 150)
-          const crScoreA = a.crTarget > 0 ? Math.min((a.cr / a.crTarget) * 100, 150) : 50;
-          const crScoreB = b.crTarget > 0 ? Math.min((b.cr / b.crTarget) * 100, 150) : 50;
-          // Kombinierter Sales+CR Score
-          const combinedA = (salesScoreA + crScoreA) / 2;
-          const combinedB = (salesScoreB + crScoreB) / 2;
+          // CR-Score: CR / CRZiel * 100 (max 200)
+          const crScoreA = a.crTarget > 0 ? Math.min((a.cr / a.crTarget) * 100, 200) : 50;
+          const crScoreB = b.crTarget > 0 ? Math.min((b.cr / b.crTarget) * 100, 200) : 50;
           // NPS-Score: NPS / NPSZiel * 100
           const npsScoreA = a.npsTarget > 0 ? (a.nps / a.npsTarget) * 100 : 0;
           const npsScoreB = b.npsTarget > 0 ? (b.nps / b.npsTarget) * 100 : 0;
-          // Gesamtpunktzahl: 60% Sales+CR, 40% NPS
-          const totalA = combinedA * 0.6 + npsScoreA * 0.4;
-          const totalB = combinedB * 0.6 + npsScoreB * 0.4;
+          // Gesamtpunktzahl: 50% CR + 30% Stückzahl + 20% NPS
+          const totalA = crScoreA * 0.5 + salesScoreA * 0.3 + npsScoreA * 0.2;
+          const totalB = crScoreB * 0.5 + salesScoreB * 0.3 + npsScoreB * 0.2;
           return totalB - totalA;
         });
 
