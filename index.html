@@ -1437,9 +1437,11 @@ function renderHallOfFame(){
     const npsOk = (md.nps || 0) >= npsZielMonat;
     if(!npsOk) return null;
 
-    // CR Ziel prüfen
-    const crOk = (md.cr || 0) >= cfg.crTarget;
-    if(!crOk) return null;
+    // CR Ziel prüfen (nur wenn CR-Daten vorhanden)
+    if(md.cr && md.cr > 0){
+      const crOk = md.cr >= cfg.crTarget;
+      if(!crOk) return null;
+    }
 
     // Produkt-Ziele prüfen
     const targets = agentTargets({team: agent.team, category: agent.category || 'regular'});
