@@ -1666,6 +1666,17 @@ function renderHallOfFame(){
 
 let kiHistory = [];
 
+// >>> Nach dem Deployment deines Cloudflare Workers hier die Worker-URL eintragen: <<<
+const KI_PROXY_URL = 'https://coaching-proxy.g-fasoulas1989.workers.dev';
+
+function getKIAppToken(){
+  return localStorage.getItem('ki_app_token') || '';
+}
+function setKIAppToken(token){
+  if(token) localStorage.setItem('ki_app_token', token);
+  else localStorage.removeItem('ki_app_token');
+}
+
 function buildKIContext(){
   // Kompakte Datensammlung für Claude
   const ctx = { teams: {} };
@@ -1734,6 +1745,28 @@ function renderKIAnalyse(){
   `;
   wrap.appendChild(badgeRow);
 
+  // Zugangs-Passwort (gemeinsam für alle Führungskräfte, kein echter API-Key)
+  const keyRow = document.createElement('div');
+  keyRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;';
+  const savedToken = getKIAppToken();
+  keyRow.innerHTML = savedToken
+    ? `<span class="ki-badge" style="background:var(--teal-soft);color:var(--teal);">🔑 Zugang aktiv</span>
+       <button id="ki-key-change" style="background:none;border:1px solid var(--border);padding:5px 10px;border-radius:6px;font-size:11px;color:var(--muted);cursor:pointer;">Passwort ändern</button>`
+    : `<input id="ki-key-input" type="password" placeholder="Zugangs-Passwort eingeben" style="flex:1;min-width:240px;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;">
+       <button id="ki-key-save" style="background:var(--tmg);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer;">Speichern</button>`;
+  wrap.appendChild(keyRow);
+  if(!savedToken){
+    keyRow.querySelector('#ki-key-save').addEventListener('click', ()=>{
+      const val = keyRow.querySelector('#ki-key-input').value.trim();
+      if(val){ setKIAppToken(val); renderKIAnalyse(); }
+    });
+  } else {
+    keyRow.querySelector('#ki-key-change').addEventListener('click', ()=>{
+      setKIAppToken('');
+      renderKIAnalyse();
+    });
+  }
+
   // Vorschläge
   const suggestions = [
     'Welche 5 Mitarbeiter brauchen am dringendsten Coaching?',
@@ -1796,6 +1829,14 @@ function renderKIAnalyse(){
     sendBtn.disabled = true;
     sendBtn.textContent = '⏳ Analysiere...';
 
+    const appToken = getKIAppToken();
+    if(!appToken){
+      addMsgBubble('assistant', '⚠️ Bitte zuerst oben das Zugangs-Passwort eingeben.', historyEl);
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'Analysieren';
+      return;
+    }
+
     addMsgBubble('user', question, historyEl);
     kiHistory.push({role:'user', content:question});
 
@@ -1822,16 +1863,22 @@ Beachte:
 - Kategorien: Standard, 6-Stündler, Helpline (unterschiedliche Ziele)`;
 
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch(KI_PROXY_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-app-token': appToken
+        },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1000,
           system: systemPrompt,
           messages: kiHistory.slice(-6) // Letzte 6 Nachrichten als Kontext
         })
       });
+
+      if(!response.ok){
+        const errData = await response.json().catch(()=>({}));
+        throw new Error(errData.error?.message || ('HTTP ' + response.status));
+      }
 
       const data = await response.json();
       const answer = data.content?.[0]?.text || 'Keine Antwort erhalten.';
