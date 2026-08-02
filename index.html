@@ -486,7 +486,7 @@ let state = { agents: [], coachverlauf: {}, verlauf: JSON.parse(JSON.stringify(V
     return ms;
   })(), teamziele: {
   mf: {
-    datum: '', monat: 'Juli', nps: 69, cht: 600, na: 1,
+    datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 69, cht: 600, na: 1,
     soll: {MF:770, BB:109, SU:67, TV:52, BOJ:17},
     ist: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
     crGestern: 4.15, crMonat: 3.79, crZiel: 6.20,
@@ -497,7 +497,7 @@ let state = { agents: [], coachverlauf: {}, verlauf: JSON.parse(JSON.stringify(V
     storno: {MF:25.29, BB:31.07, SU:23.40, TV:23.26, BOJ:61.90}
   },
   fn: {
-    datum: '', monat: 'Juli', nps: 68,
+    datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 68,
     soll: {BB:271, SU:318, BOJ:155, VVM:0, TV:153, MF:20},
     ist: {BB:0, SU:0, BOJ:0, VVM:0, TV:0, MF:0},
     crGestern: 10.40, crMonat: 8.16, crZiel: 12.00,
