@@ -175,6 +175,19 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .cf-next-btn:hover{background:var(--teal-soft);}
 .cf-quickplan{background:#FAFBFC;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
 .cf-btn-row{display:flex;gap:10px;margin-top:16px;}
+.cal-header{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:16px;}
+.cal-nav-btn{background:#fff;border:1px solid var(--border);border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:14px;color:var(--text);}
+.cal-nav-btn:hover{border-color:var(--tmg);color:var(--tmg);}
+.cal-month-label{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;min-width:170px;text-align:center;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:24px;}
+.cal-weekday{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--muted);text-align:center;padding-bottom:6px;text-transform:uppercase;letter-spacing:.06em;}
+.cal-cell{background:#fff;border:1px solid var(--border);border-radius:8px;min-height:76px;padding:6px;display:flex;flex-direction:column;gap:3px;cursor:pointer;transition:border-color .15s;}
+.cal-cell:hover{border-color:var(--teal);}
+.cal-cell-empty{background:transparent;border:none;cursor:default;}
+.cal-cell-today{border-color:var(--tmg);border-width:2px;}
+.cal-cell-selected{background:var(--teal-soft);border-color:var(--teal);}
+.cal-day-num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--muted);}
+.cal-chip{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;padding:2px 6px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cp-add-btn{background:var(--tmg);color:#fff;border:none;border-radius:999px;padding:11px 22px;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(226,0,116,.35);transition:background .15s;}
 .cp-add-btn:hover{background:var(--tmg-dark);}
 .cp-add-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.25);font-size:14px;line-height:1;}
@@ -318,12 +331,20 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 .cv-agent-block{background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(0,0,0,0.07);margin-bottom:16px;overflow:hidden;}
 .cv-agent-head{background:linear-gradient(135deg,var(--tmg),var(--tmg-dark));color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
 .cv-agent-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;}
-.cv-entry{padding:14px 18px;border-bottom:1px solid #F5F7F9;display:flex;gap:14px;}
+.cv-entry{padding:14px 18px;border-bottom:1px solid #F5F7F9;display:flex;flex-direction:column;gap:8px;}
 .cv-entry:last-child{border-bottom:none;}
-.cv-entry-date{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--muted);min-width:90px;padding-top:2px;}
-.cv-entry-text{font-family:'Inter',sans-serif;font-size:13px;color:var(--text);line-height:1.5;flex:1;white-space:pre-wrap;}
-.cv-entry-delete{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 4px;opacity:.5;}
+.cv-entry-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;}
+.cv-entry-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.cv-entry-date{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--muted);}
+.cv-meta-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;font-weight:700;background:#EEF1F4;color:var(--muted);}
+.cv-entry-text{font-family:'Inter',sans-serif;font-size:13px;color:var(--text);line-height:1.5;white-space:pre-wrap;}
+.cv-entry-delete{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 4px;opacity:.5;flex-shrink:0;}
 .cv-entry-delete:hover{opacity:1;color:var(--red);}
+.cv-checklist-mini{display:flex;flex-wrap:wrap;gap:6px;}
+.cv-check-chip{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 8px;border-radius:5px;background:#F5F7F9;color:var(--muted);}
+.cv-check-chip.ok{background:var(--teal-soft);color:var(--teal);}
+.cv-check-chip.nok{background:var(--red-soft);color:var(--red);}
+.cv-check-chip.na{background:#EEF1F4;color:var(--muted);}
 .cv-empty{color:var(--muted);font-style:italic;font-size:13px;padding:16px 18px;}
 .cv-filter{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
 .cv-filter select{padding:8px 12px;border-radius:8px;border:1px solid var(--border);font-family:'Inter',sans-serif;font-size:13px;outline:none;}
@@ -481,9 +502,11 @@ canvas.vl-canvas{width:100%;max-height:280px;}
       <div id="coachdash-subtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;">
         <button class="tab-btn active" id="sub-coachplan" style="font-size:13px;padding:7px 16px;">📝 Coaching Plan</button>
         <button class="tab-btn" id="sub-coachverlauf" style="font-size:13px;padding:7px 16px;">📋 Coaching Verlauf</button>
+        <button class="tab-btn" id="sub-termine" style="font-size:13px;padding:7px 16px;">📅 Termin Kalender</button>
       </div>
       <div id="coachplan-container"></div>
       <div id="coachverlauf-container" style="display:none;"></div>
+      <div id="termine-container" style="display:none;"></div>
     </div>
   </div>
 
@@ -1293,22 +1316,29 @@ function switchTab(tab){
 document.getElementById('tab-coaching').addEventListener('click', ()=>switchTab('coaching'));
 document.getElementById('tab-coachdash').addEventListener('click', ()=>switchTab('coachdash'));
 
-// Sub-Tab Listener für Coaching Dashboard
-function initCoachDashSubTabs(){
-  const planBtn = document.getElementById('sub-coachplan');
-  const verlaufBtn = document.getElementById('sub-coachverlauf');
-  if(!planBtn || !verlaufBtn) return;
-  planBtn.addEventListener('click', ()=>{
-    planBtn.classList.add('active'); verlaufBtn.classList.remove('active');
-    document.getElementById('coachplan-container').style.display='';
-    document.getElementById('coachverlauf-container').style.display='none';
-    renderCoachPlan();
+// Sub-Tab Steuerung für Coaching Dashboard (Coaching Plan / Coaching Verlauf / Termin Kalender)
+const COACHDASH_SUBS = {
+  coachplan:    { btn: 'sub-coachplan',    container: 'coachplan-container',    render: ()=>renderCoachPlan() },
+  coachverlauf: { btn: 'sub-coachverlauf', container: 'coachverlauf-container', render: ()=>renderCoachVerlauf() },
+  termine:      { btn: 'sub-termine',      container: 'termine-container',      render: ()=>renderTermineKalender() }
+};
+function switchCoachDashSub(sub){
+  Object.keys(COACHDASH_SUBS).forEach(key=>{
+    const cfg = COACHDASH_SUBS[key];
+    const btn = document.getElementById(cfg.btn);
+    const cont = document.getElementById(cfg.container);
+    if(!btn || !cont) return;
+    btn.classList.toggle('active', key===sub);
+    cont.style.display = key===sub ? '' : 'none';
   });
-  verlaufBtn.addEventListener('click', ()=>{
-    verlaufBtn.classList.add('active'); planBtn.classList.remove('active');
-    document.getElementById('coachverlauf-container').style.display='';
-    document.getElementById('coachplan-container').style.display='none';
-    renderCoachVerlauf();
+  COACHDASH_SUBS[sub].render();
+}
+function initCoachDashSubTabs(){
+  Object.keys(COACHDASH_SUBS).forEach(key=>{
+    const btn = document.getElementById(COACHDASH_SUBS[key].btn);
+    if(!btn || btn.dataset.wired) return;
+    btn.dataset.wired = '1';
+    btn.addEventListener('click', ()=>switchCoachDashSub(key));
   });
 }
 // Initialisieren wenn Tab geöffnet wird
@@ -1325,8 +1355,11 @@ document.getElementById('tab-kianalyse').addEventListener('click', ()=>switchTab
 function renderAll(){
   if(currentTab === 'coaching') renderCoaching();
   else if(currentTab === 'coachdash'){
-    const activeSub = document.getElementById('sub-coachplan')?.classList.contains('active') ? 'plan' : 'verlauf';
-    if(activeSub==='plan') renderCoachPlan(); else renderCoachVerlauf();
+    const activeSub = Object.keys(COACHDASH_SUBS).find(key=>{
+      const btn = document.getElementById(COACHDASH_SUBS[key].btn);
+      return btn && btn.classList.contains('active');
+    }) || 'coachplan';
+    COACHDASH_SUBS[activeSub].render();
   }
   else if(currentTab === 'teamziele') renderTeamZiele();
   else if(currentTab === 'monatsabschluss') renderMonatsabschluss();
@@ -2031,13 +2064,52 @@ function renderCoachVerlauf(){
       const row = document.createElement('div');
       row.className = 'cv-entry';
 
-      const dateEl = document.createElement('div');
+      const top = document.createElement('div');
+      top.className = 'cv-entry-top';
+
+      const dateEl = document.createElement('span');
       dateEl.className = 'cv-entry-date';
       dateEl.textContent = entry.datum;
 
-      const textEl = document.createElement('div');
-      textEl.className = 'cv-entry-text';
-      textEl.textContent = entry.text;
+      const meta = document.createElement('div');
+      meta.className = 'cv-entry-meta';
+      meta.appendChild(dateEl);
+      if(entry.thema){
+        const themeColor = COACH_THEMEN_COLORS[entry.thema] || '#888';
+        const b = document.createElement('span');
+        b.className = 'cv-meta-badge';
+        b.style.cssText = `background:${themeColor}22;color:${themeColor};`;
+        b.textContent = entry.thema;
+        meta.appendChild(b);
+      }
+      if(entry.stil){
+        const b = document.createElement('span');
+        b.className = 'cv-meta-badge';
+        b.textContent = entry.stil;
+        meta.appendChild(b);
+      }
+      if(entry.tcapId){
+        const b = document.createElement('span');
+        b.className = 'cv-meta-badge';
+        b.textContent = 'T-CAP ID: ' + entry.tcapId;
+        meta.appendChild(b);
+      }
+      if(entry.dauer){
+        const b = document.createElement('span');
+        b.className = 'cv-meta-badge';
+        b.textContent = entry.dauer + ' Min';
+        meta.appendChild(b);
+      }
+      if(entry.performance !== undefined && entry.performance !== null){
+        const p = entry.performance;
+        const col = p>=8 ? '#0E7C7B' : p>=5 ? '#C2792B' : '#B4423A';
+        const b = document.createElement('span');
+        b.className = 'cv-meta-badge';
+        b.style.cssText = `background:${col}22;color:${col};`;
+        b.textContent = '⭐ ' + p + '/10';
+        meta.appendChild(b);
+      }
+      top.appendChild(meta);
 
       const delBtn = document.createElement('button');
       delBtn.className = 'cv-entry-delete';
@@ -2049,10 +2121,28 @@ function renderCoachVerlauf(){
         scheduleSave();
         renderCoachVerlauf();
       });
+      top.appendChild(delBtn);
+      row.appendChild(top);
 
-      row.appendChild(dateEl);
+      const textEl = document.createElement('div');
+      textEl.className = 'cv-entry-text';
+      textEl.textContent = entry.text;
       row.appendChild(textEl);
-      row.appendChild(delBtn);
+
+      if(entry.checkliste && Object.keys(entry.checkliste).length){
+        const checkWrap = document.createElement('div');
+        checkWrap.className = 'cv-checklist-mini';
+        CHECKLIST_ITEMS.forEach(item=>{
+          const v = entry.checkliste[item];
+          if(!v) return;
+          const chip = document.createElement('span');
+          chip.className = 'cv-check-chip ' + v;
+          chip.textContent = (v==='ok'?'✓ ':v==='nok'?'✕ ':'? ') + item;
+          checkWrap.appendChild(chip);
+        });
+        if(checkWrap.children.length) row.appendChild(checkWrap);
+      }
+
       block.appendChild(row);
     });
 
@@ -2457,57 +2547,126 @@ function renderCoachPlan(){
   chartsRow.appendChild(buildBarChart('Gesamte Coaching-Dauer / Team', dauerByTeam, teamColorsByLabel, ' Min'));
   chartsRow.appendChild(buildPieChart('Coaching-Themen', themen, COACH_THEMEN_COLORS));
   container.appendChild(chartsRow);
+}
 
-  // ===== Geplante Coachings =====
-  const listTitle = document.createElement('div');
-  listTitle.className = 'cp-list-title';
-  listTitle.textContent = '📅 Geplante Coachings';
-  container.appendChild(listTitle);
+function buildPlanRow(p){
+  const row = document.createElement('div');
+  row.className = 'cp-plan-row';
+  const teamLabel = TEAM_CONFIGS[p.team]?.label || p.team;
+  const dateDisplay = p.datum ? new Date(p.datum).toLocaleDateString('de-DE') : '–';
+  const themeColor = COACH_THEMEN_COLORS[p.thema] || '#888';
+  row.innerHTML = `
+    <div class="cp-plan-row-main">
+      <div class="cp-plan-row-name">${p.name}</div>
+      <div class="cp-plan-row-meta">
+        <span class="cat-badge regular">${teamLabel}</span>
+        <span class="cp-theme-badge" style="background:${themeColor}22;color:${themeColor};">${p.thema}</span>
+        <span class="cp-plan-date">📅 ${dateDisplay} · ${p.dauerGeplant||0} Min</span>
+      </div>
+      ${p.ziel ? `<div class="cp-plan-row-ziel">${p.ziel}</div>` : ''}
+    </div>
+    <div class="cp-plan-row-actions">
+      <button class="secondary cp-done-btn">✓ Abschließen</button>
+      <button class="remove-btn cp-del-btn" title="Löschen">🗑</button>
+    </div>`;
+  row.querySelector('.cp-done-btn').addEventListener('click', ()=>{
+    cpShowForm = true;
+    cpPrefill = { agentId: p.agentId, thema: p.thema, planId: p.id };
+    switchCoachDashSub('coachplan');
+  });
+  row.querySelector('.cp-del-btn').addEventListener('click', ()=>{
+    state.coachingPlan = state.coachingPlan.filter(x=>x.id!==p.id);
+    scheduleSave();
+    renderTermineKalender();
+  });
+  return row;
+}
 
-  const planned = (state.coachingPlan||[]).slice().sort((a,b)=>(a.datum||'').localeCompare(b.datum||''));
+let calMonth = new Date().getMonth();
+let calYear = new Date().getFullYear();
+let calSelectedDate = null;
 
-  if(!planned.length){
+function renderTermineKalender(){
+  const container = document.getElementById('termine-container');
+  container.innerHTML = '';
+
+  const header = document.createElement('div');
+  header.className = 'cal-header';
+  const prevBtn = document.createElement('button'); prevBtn.className = 'cal-nav-btn'; prevBtn.textContent = '◀';
+  const nextBtn = document.createElement('button'); nextBtn.className = 'cal-nav-btn'; nextBtn.textContent = '▶';
+  const MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const monthLabel = document.createElement('div');
+  monthLabel.className = 'cal-month-label';
+  monthLabel.textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+  prevBtn.addEventListener('click', ()=>{ calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderTermineKalender(); });
+  nextBtn.addEventListener('click', ()=>{ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderTermineKalender(); });
+  header.appendChild(prevBtn); header.appendChild(monthLabel); header.appendChild(nextBtn);
+  container.appendChild(header);
+
+  const grid = document.createElement('div');
+  grid.className = 'cal-grid';
+  ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(d=>{
+    const wd = document.createElement('div'); wd.className = 'cal-weekday'; wd.textContent = d;
+    grid.appendChild(wd);
+  });
+
+  const firstOfMonth = new Date(calYear, calMonth, 1);
+  const startWeekday = (firstOfMonth.getDay()+6)%7;
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const todayStr = new Date().toISOString().slice(0,10);
+
+  const byDate = {};
+  (state.coachingPlan||[]).forEach(p=>{
+    if(!p.datum) return;
+    (byDate[p.datum] = byDate[p.datum]||[]).push(p);
+  });
+
+  for(let i=0;i<startWeekday;i++){
+    const empty = document.createElement('div'); empty.className = 'cal-cell cal-cell-empty'; grid.appendChild(empty);
+  }
+  for(let day=1; day<=daysInMonth; day++){
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell';
+    if(dateStr === todayStr) cell.classList.add('cal-cell-today');
+    if(dateStr === calSelectedDate) cell.classList.add('cal-cell-selected');
+    const dayNum = document.createElement('div'); dayNum.className = 'cal-day-num'; dayNum.textContent = day;
+    cell.appendChild(dayNum);
+    (byDate[dateStr]||[]).forEach(p=>{
+      const chip = document.createElement('div');
+      chip.className = 'cal-chip';
+      const themeColor = COACH_THEMEN_COLORS[p.thema] || '#888';
+      chip.style.cssText = `background:${themeColor}22;color:${themeColor};`;
+      chip.textContent = p.name;
+      cell.appendChild(chip);
+    });
+    cell.addEventListener('click', ()=>{ calSelectedDate = (calSelectedDate===dateStr) ? null : dateStr; renderTermineKalender(); });
+    grid.appendChild(cell);
+  }
+  container.appendChild(grid);
+
+  // Detailliste für ausgewählten Tag (oder alle, wenn kein Tag ausgewählt ist)
+  const detailTitle = document.createElement('div');
+  detailTitle.className = 'cp-list-title';
+  const selLabel = calSelectedDate ? new Date(calSelectedDate).toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'long', year:'numeric'}) : null;
+  detailTitle.textContent = calSelectedDate ? `📅 Termine am ${selLabel}` : '📅 Alle geplanten Termine';
+  container.appendChild(detailTitle);
+
+  const relevant = calSelectedDate
+    ? (byDate[calSelectedDate] || [])
+    : (state.coachingPlan||[]).slice().sort((a,b)=>(a.datum||'').localeCompare(b.datum||''));
+
+  if(!relevant.length){
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.textContent = 'Keine geplanten Coachings.';
+    empty.textContent = calSelectedDate ? 'Keine Termine an diesem Tag.' : 'Keine geplanten Coachings.';
     container.appendChild(empty);
     return;
   }
 
   const list = document.createElement('div');
   list.className = 'cp-plan-list';
-  planned.forEach(p=>{
-    const row = document.createElement('div');
-    row.className = 'cp-plan-row';
-    const teamLabel = TEAM_CONFIGS[p.team]?.label || p.team;
-    const dateDisplay = p.datum ? new Date(p.datum).toLocaleDateString('de-DE') : '–';
-    const themeColor = COACH_THEMEN_COLORS[p.thema] || '#888';
-    row.innerHTML = `
-      <div class="cp-plan-row-main">
-        <div class="cp-plan-row-name">${p.name}</div>
-        <div class="cp-plan-row-meta">
-          <span class="cat-badge regular">${teamLabel}</span>
-          <span class="cp-theme-badge" style="background:${themeColor}22;color:${themeColor};">${p.thema}</span>
-          <span class="cp-plan-date">📅 ${dateDisplay} · ${p.dauerGeplant||0} Min</span>
-        </div>
-        ${p.ziel ? `<div class="cp-plan-row-ziel">${p.ziel}</div>` : ''}
-      </div>
-      <div class="cp-plan-row-actions">
-        <button class="secondary cp-done-btn">✓ Abschließen</button>
-        <button class="remove-btn cp-del-btn" title="Löschen">🗑</button>
-      </div>`;
-    row.querySelector('.cp-done-btn').addEventListener('click', ()=>{
-      cpShowForm = true;
-      cpPrefill = { agentId: p.agentId, thema: p.thema, planId: p.id };
-      renderCoachPlan();
-    });
-    row.querySelector('.cp-del-btn').addEventListener('click', ()=>{
-      state.coachingPlan = state.coachingPlan.filter(x=>x.id!==p.id);
-      scheduleSave();
-      renderCoachPlan();
-    });
-    list.appendChild(row);
-  });
+  relevant.forEach(p=>list.appendChild(buildPlanRow(p)));
   container.appendChild(list);
 }
 
