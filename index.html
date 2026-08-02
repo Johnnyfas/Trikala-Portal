@@ -159,6 +159,22 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .cp-plan-row-ziel{font-family:'Inter',sans-serif;font-size:13px;color:var(--text);max-width:560px;}
 .cp-plan-row-actions{display:flex;gap:8px;flex-shrink:0;}
 .cp-plan-row-actions button.secondary{padding:6px 12px;font-size:12px;}
+.cf-wrap{max-width:720px;}
+.cf-section-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin:6px 0 4px;}
+.cf-checklist{background:#FAFBFC;border:1px solid var(--border);border-radius:10px;padding:4px 14px;}
+.cf-check-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);gap:10px;}
+.cf-check-row:last-child{border-bottom:none;}
+.cf-check-label{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;flex:1;}
+.cf-check-btn{width:30px;height:30px;border-radius:50%;border:2px solid var(--border);background:#fff;cursor:pointer;font-weight:700;font-size:14px;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;margin-left:6px;transition:all .15s;flex-shrink:0;}
+.cf-check-btn.cf-check-ok.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+.cf-check-btn.cf-check-nok.active{background:var(--red);border-color:var(--red);color:#fff;}
+.cf-check-btn.cf-check-na.active{background:var(--muted);border-color:var(--muted);color:#fff;}
+.cf-slider{flex:1;accent-color:var(--tmg);}
+.cf-slider-val{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;min-width:44px;}
+.cf-next-btn{background:#fff;color:var(--teal);border:1px solid var(--teal);border-radius:8px;padding:10px 16px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;width:100%;margin:14px 0 4px;}
+.cf-next-btn:hover{background:var(--teal-soft);}
+.cf-quickplan{background:#FAFBFC;border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+.cf-btn-row{display:flex;gap:10px;margin-top:16px;}
 .cp-add-btn{background:var(--tmg);color:#fff;border:none;border-radius:999px;padding:11px 22px;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(226,0,116,.35);transition:background .15s;}
 .cp-add-btn:hover{background:var(--tmg-dark);}
 .cp-add-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.25);font-size:14px;line-height:1;}
@@ -2088,7 +2104,7 @@ function renderCoachVerlauf(){
 }
 
 
-const COACH_THEMEN = ['Allgemein','Qualität','Sales','Second Nature'];
+const COACH_THEMEN = ['Sales','Qualität','Allgemein','Second Nature'];
 const COACH_THEMEN_COLORS = { 'Allgemein':'#E20074', 'Qualität':'#3B6FA0', 'Sales':'#C2792B', 'Second Nature':'#7C5CBF' };
 let cpShowForm = false;
 
@@ -2168,10 +2184,42 @@ function labeledField(label, el){
   return wrap;
 }
 
-function buildCoachPlanForm(){
-  const form = document.createElement('div');
-  form.className = 'cp-form';
+const COACH_STYLES = ['Side-by-Side', 'TCAP'];
+const CHECKLIST_ITEMS = ['Begrüßung','Positive Einstellung','Anliegen wiederholt','Legitimierung','PKA','Ansprache App','KEK','Bestandscheck','Angebot','Anliegen gelöst Frage','Zusammenfassung','KZB'];
+let cpPrefill = null;
 
+function buildChecklistRow(label, checklistState){
+  const row = document.createElement('div');
+  row.className = 'cf-check-row';
+  const lbl = document.createElement('span');
+  lbl.className = 'cf-check-label';
+  lbl.textContent = label;
+  const btnOk = document.createElement('button');
+  btnOk.type = 'button'; btnOk.className = 'cf-check-btn cf-check-ok'; btnOk.innerHTML = '✓'; btnOk.title = 'Erfüllt';
+  const btnNok = document.createElement('button');
+  btnNok.type = 'button'; btnNok.className = 'cf-check-btn cf-check-nok'; btnNok.innerHTML = '✕'; btnNok.title = 'Nicht erfüllt';
+  const btnNa = document.createElement('button');
+  btnNa.type = 'button'; btnNa.className = 'cf-check-btn cf-check-na'; btnNa.innerHTML = '?'; btnNa.title = 'Nicht bewertet';
+
+  function refresh(){
+    [btnOk,btnNok,btnNa].forEach(b=>b.classList.remove('active'));
+    const v = checklistState[label];
+    if(v==='ok') btnOk.classList.add('active');
+    else if(v==='nok') btnNok.classList.add('active');
+    else if(v==='na') btnNa.classList.add('active');
+  }
+  btnOk.addEventListener('click', ()=>{ checklistState[label] = checklistState[label]==='ok' ? null : 'ok'; refresh(); });
+  btnNok.addEventListener('click', ()=>{ checklistState[label] = checklistState[label]==='nok' ? null : 'nok'; refresh(); });
+  btnNa.addEventListener('click', ()=>{ checklistState[label] = checklistState[label]==='na' ? null : 'na'; refresh(); });
+  refresh();
+
+  row.appendChild(lbl); row.appendChild(btnOk); row.appendChild(btnNok); row.appendChild(btnNa);
+  return row;
+}
+
+function buildQuickPlanForm(defaultAgentId){
+  const box = document.createElement('div');
+  box.className = 'cf-quickplan';
   const allAgents = state.agents.filter(a=>a.name.trim()!=='');
   const agentSel = document.createElement('select');
   agentSel.className = 'cp-form-select';
@@ -2179,103 +2227,222 @@ function buildCoachPlanForm(){
     const teamAgents = allAgents.filter(a=>a.team===teamId);
     if(!teamAgents.length) return '';
     return `<optgroup label="${TEAM_CONFIGS[teamId].label}">` +
-      teamAgents.map(a=>`<option value="${a.id}">${a.name}</option>`).join('') +
+      teamAgents.map(a=>`<option value="${a.id}" ${defaultAgentId===a.id?'selected':''}>${a.name}</option>`).join('') +
       `</optgroup>`;
   }).join('');
-
   const dateInput = document.createElement('input');
   dateInput.type = 'date';
   dateInput.className = 'cp-form-input';
   dateInput.value = new Date().toISOString().slice(0,10);
 
-  const themaSel = document.createElement('select');
-  themaSel.className = 'cp-form-select';
-  themaSel.innerHTML = COACH_THEMEN.map(t=>`<option value="${t}">${t}</option>`).join('');
-
-  const dauerInput = document.createElement('input');
-  dauerInput.type = 'number';
-  dauerInput.className = 'cp-form-input';
-  dauerInput.value = 30;
-  dauerInput.min = 0;
-
-  const zielInput = document.createElement('textarea');
-  zielInput.className = 'cp-form-textarea';
-  zielInput.placeholder = 'Ziel / Thema des Coachings...';
-
-  const row1 = document.createElement('div');
-  row1.className = 'cp-form-row';
-  row1.appendChild(labeledField('Mitarbeiter', agentSel));
-  row1.appendChild(labeledField('Datum', dateInput));
-  row1.appendChild(labeledField('Thema', themaSel));
-  row1.appendChild(labeledField('Dauer (Min)', dauerInput));
-  form.appendChild(row1);
-  form.appendChild(labeledField('Ziel', zielInput));
+  const row = document.createElement('div');
+  row.className = 'cp-form-row';
+  row.appendChild(labeledField('Mitarbeiter', agentSel));
+  row.appendChild(labeledField('Datum', dateInput));
 
   const saveBtn = document.createElement('button');
   saveBtn.className = 'primary';
-  saveBtn.style.marginTop = '10px';
-  saveBtn.textContent = 'Speichern';
+  saveBtn.style.marginTop = '8px';
+  saveBtn.textContent = 'Termin speichern';
+  const doneMsg = document.createElement('div');
+  doneMsg.style.cssText = 'color:var(--teal);font-family:"Inter",sans-serif;font-size:12px;margin-top:6px;';
+  doneMsg.textContent = '✓ Termin geplant.';
+  doneMsg.style.display = 'none';
+
   saveBtn.addEventListener('click', ()=>{
     const agent = allAgents.find(a=>a.id===agentSel.value);
     if(!agent) return;
     state.coachingPlan = state.coachingPlan || [];
     state.coachingPlan.push({
-      id: uid(),
-      agentId: agent.id,
-      name: agent.name,
-      team: agent.team,
-      datum: dateInput.value,
-      thema: themaSel.value,
-      dauerGeplant: parseInt(dauerInput.value)||0,
-      ziel: zielInput.value.trim()
+      id: uid(), agentId: agent.id, name: agent.name, team: agent.team,
+      datum: dateInput.value, thema: 'Allgemein', dauerGeplant: 30, ziel: ''
     });
     scheduleSave();
-    cpShowForm = false;
-    renderCoachPlan();
+    row.style.display = 'none';
+    saveBtn.style.display = 'none';
+    doneMsg.style.display = '';
   });
-  form.appendChild(saveBtn);
 
-  return form;
+  box.appendChild(row);
+  box.appendChild(saveBtn);
+  box.appendChild(doneMsg);
+  return box;
 }
 
-function completeCoachingPlan(planId){
-  const plan = (state.coachingPlan||[]).find(p=>p.id===planId);
-  if(!plan) return;
-  const agent = state.agents.find(a=>a.id===plan.agentId) || state.agents.find(a=>a.name===plan.name && a.team===plan.team);
-  const datum = new Date().toLocaleDateString('de-DE');
-  const agentKey = (agent && agent.id) || (plan.name + '_' + plan.team);
-  if(!state.coachverlauf[agentKey]){
-    state.coachverlauf[agentKey] = { name: plan.name, team: plan.team, eintraege: [] };
-  }
-  state.coachverlauf[agentKey].eintraege.unshift({
-    datum: datum,
-    text: plan.ziel || '(Coaching ohne Notiz)',
-    thema: plan.thema,
-    dauer: plan.dauerGeplant || 0,
-    id: uid()
+function buildCoachingRecordForm(prefill){
+  prefill = prefill || {};
+  const wrap = document.createElement('div');
+  wrap.className = 'cp-form cf-wrap';
+  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
+
+  const agentSel = document.createElement('select');
+  agentSel.className = 'cp-form-select';
+  agentSel.innerHTML = Object.keys(TEAM_CONFIGS).map(teamId=>{
+    const teamAgents = allAgents.filter(a=>a.team===teamId);
+    if(!teamAgents.length) return '';
+    return `<optgroup label="${TEAM_CONFIGS[teamId].label}">` +
+      teamAgents.map(a=>`<option value="${a.id}" ${prefill.agentId===a.id?'selected':''}>${a.name}</option>`).join('') +
+      `</optgroup>`;
+  }).join('');
+
+  const stilSel = document.createElement('select');
+  stilSel.className = 'cp-form-select';
+  stilSel.innerHTML = COACH_STYLES.map(s=>`<option value="${s}">${s}</option>`).join('');
+
+  const themaSel = document.createElement('select');
+  themaSel.className = 'cp-form-select';
+  themaSel.innerHTML = COACH_THEMEN.map(t=>`<option value="${t}" ${prefill.thema===t?'selected':''}>${t}</option>`).join('');
+
+  const tcapInput = document.createElement('input');
+  tcapInput.type = 'text';
+  tcapInput.className = 'cp-form-input';
+  const tcapField = labeledField('T-CAP ID (Pflichtfeld bei Stil „TCAP“)', tcapInput);
+  tcapField.style.display = 'none';
+  stilSel.addEventListener('change', ()=>{
+    tcapField.style.display = stilSel.value === 'TCAP' ? '' : 'none';
   });
-  if(agent) agent.coachingDatum = datum;
-  state.coachingPlan = (state.coachingPlan||[]).filter(p=>p.id!==planId);
-  scheduleSave();
-  renderAll();
+
+  const row1 = document.createElement('div');
+  row1.className = 'cp-form-row';
+  row1.appendChild(labeledField('Teammitglied', agentSel));
+  row1.appendChild(labeledField('Coaching Stil', stilSel));
+  row1.appendChild(labeledField('Coaching Thema', themaSel));
+  wrap.appendChild(row1);
+  wrap.appendChild(tcapField);
+
+  const checkTitle = document.createElement('div');
+  checkTitle.className = 'cf-section-title';
+  checkTitle.textContent = '✅ Leitfaden-Checkliste';
+  wrap.appendChild(checkTitle);
+  const checklistState = {};
+  const checkBox = document.createElement('div');
+  checkBox.className = 'cf-checklist';
+  CHECKLIST_ITEMS.forEach(item=>{ checkBox.appendChild(buildChecklistRow(item, checklistState)); });
+  wrap.appendChild(checkBox);
+
+  const evalTitle = document.createElement('div');
+  evalTitle.className = 'cf-section-title';
+  evalTitle.textContent = '⭐ Bewertung & Zeitaufwand';
+  wrap.appendChild(evalTitle);
+  const evalRow = document.createElement('div');
+  evalRow.className = 'cp-form-row';
+
+  const sliderWrap = document.createElement('div');
+  sliderWrap.className = 'cp-form-field';
+  sliderWrap.style.flex = '2';
+  const sliderLabel = document.createElement('label');
+  sliderLabel.textContent = 'Performance-Note';
+  const sliderRow = document.createElement('div');
+  sliderRow.style.cssText = 'display:flex;align-items:center;gap:10px;';
+  const slider = document.createElement('input');
+  slider.type = 'range'; slider.min = 0; slider.max = 10; slider.step = 1; slider.value = 5;
+  slider.className = 'cf-slider';
+  const sliderVal = document.createElement('span');
+  sliderVal.className = 'cf-slider-val';
+  sliderVal.textContent = '5 / 10';
+  slider.addEventListener('input', ()=>{ sliderVal.textContent = slider.value + ' / 10'; });
+  sliderRow.appendChild(slider); sliderRow.appendChild(sliderVal);
+  sliderWrap.appendChild(sliderLabel); sliderWrap.appendChild(sliderRow);
+
+  const dauerInput = document.createElement('input');
+  dauerInput.type = 'number'; dauerInput.className = 'cp-form-input'; dauerInput.value = 30; dauerInput.min = 0;
+
+  evalRow.appendChild(sliderWrap);
+  evalRow.appendChild(labeledField('Zeitaufwand (Minuten)', dauerInput));
+  wrap.appendChild(evalRow);
+
+  const notesTitle = document.createElement('div');
+  notesTitle.className = 'cf-section-title';
+  notesTitle.textContent = '📝 Notizen';
+  wrap.appendChild(notesTitle);
+  const notesArea = document.createElement('textarea');
+  notesArea.className = 'cp-form-textarea';
+  notesArea.placeholder = 'Hier können Sie weitere Anmerkungen zum Coaching hinterlegen...';
+  wrap.appendChild(notesArea);
+
+  const nextBtn = document.createElement('button');
+  nextBtn.type = 'button';
+  nextBtn.className = 'cf-next-btn';
+  nextBtn.textContent = '📅 Nächstes Coaching planen';
+  const nextFormHolder = document.createElement('div');
+  nextBtn.addEventListener('click', ()=>{
+    nextFormHolder.innerHTML = '';
+    nextFormHolder.appendChild(buildQuickPlanForm(agentSel.value));
+  });
+  wrap.appendChild(nextBtn);
+  wrap.appendChild(nextFormHolder);
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'cf-btn-row';
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'primary';
+  saveBtn.textContent = '💾 Coaching speichern';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'secondary';
+  cancelBtn.textContent = '✕ Abbrechen';
+
+  saveBtn.addEventListener('click', ()=>{
+    const agent = allAgents.find(a=>a.id===agentSel.value);
+    if(!agent) return;
+    if(stilSel.value === 'TCAP' && !tcapInput.value.trim()){
+      tcapInput.style.borderColor = 'var(--red)';
+      tcapInput.focus();
+      return;
+    }
+    const datum = new Date().toLocaleDateString('de-DE');
+    const agentKey = agent.id;
+    if(!state.coachverlauf[agentKey]){
+      state.coachverlauf[agentKey] = { name: agent.name, team: agent.team, eintraege: [] };
+    }
+    state.coachverlauf[agentKey].eintraege.unshift({
+      id: uid(),
+      datum: datum,
+      text: notesArea.value.trim() || '(Coaching ohne Notiz)',
+      thema: themaSel.value,
+      dauer: parseInt(dauerInput.value)||0,
+      stil: stilSel.value,
+      tcapId: stilSel.value === 'TCAP' ? tcapInput.value.trim() : '',
+      checkliste: Object.assign({}, checklistState),
+      performance: parseInt(slider.value)
+    });
+    agent.coachingDatum = datum;
+    if(prefill.planId){
+      state.coachingPlan = (state.coachingPlan||[]).filter(p=>p.id!==prefill.planId);
+    }
+    scheduleSave();
+    cpShowForm = false;
+    cpPrefill = null;
+    renderAll();
+  });
+  cancelBtn.addEventListener('click', ()=>{ cpShowForm = false; cpPrefill = null; renderCoachPlan(); });
+
+  btnRow.appendChild(saveBtn);
+  btnRow.appendChild(cancelBtn);
+  wrap.appendChild(btnRow);
+
+  return wrap;
 }
 
 function renderCoachPlan(){
   const container = document.getElementById('coachplan-container');
   container.innerHTML = '';
 
-  // ===== Neues Coaching planen (oben) =====
+  // ===== Neues Coaching (oben) =====
   const actionRow = document.createElement('div');
   actionRow.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:18px;';
   const addBtn = document.createElement('button');
   addBtn.className = 'cp-add-btn';
   addBtn.innerHTML = cpShowForm ? '✕ Abbrechen' : '<span class="cp-add-icon">+</span> Neues Coaching';
-  addBtn.addEventListener('click', ()=>{ cpShowForm = !cpShowForm; renderCoachPlan(); });
+  addBtn.addEventListener('click', ()=>{
+    cpShowForm = !cpShowForm;
+    if(cpShowForm) cpPrefill = null;
+    renderCoachPlan();
+  });
   actionRow.appendChild(addBtn);
   container.appendChild(actionRow);
 
   if(cpShowForm){
-    container.appendChild(buildCoachPlanForm());
+    container.appendChild(buildCoachingRecordForm(cpPrefill));
   }
 
   // ===== Diagramme =====
@@ -2329,7 +2496,11 @@ function renderCoachPlan(){
         <button class="secondary cp-done-btn">✓ Abschließen</button>
         <button class="remove-btn cp-del-btn" title="Löschen">🗑</button>
       </div>`;
-    row.querySelector('.cp-done-btn').addEventListener('click', ()=>completeCoachingPlan(p.id));
+    row.querySelector('.cp-done-btn').addEventListener('click', ()=>{
+      cpShowForm = true;
+      cpPrefill = { agentId: p.agentId, thema: p.thema, planId: p.id };
+      renderCoachPlan();
+    });
     row.querySelector('.cp-del-btn').addEventListener('click', ()=>{
       state.coachingPlan = state.coachingPlan.filter(x=>x.id!==p.id);
       scheduleSave();
