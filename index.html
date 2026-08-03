@@ -4032,11 +4032,11 @@ function renderOverview(){
     headerRow.style.gridTemplateColumns = gridCols;
     headerRow.innerHTML =
       `<div class="ov-cell name-cell head">Mitarbeiter</div>` +
-      `<div class="ov-cell qual-cell head">Calls</div>` +
       `<div class="ov-cell qual-cell head">NPS<span style="font-size:9px;font-weight:400;">Ziel ${cfg.npsTarget}%</span></div>` +
       `<div class="ov-cell qual-cell head">LQ<span style="font-size:9px;font-weight:400;">Ziel ${cfg.lqTarget}%</span></div>` +
       cfg.products.map(p=>`<div class="ov-cell sales-cell head">${p}</div>`).join('') +
-      `<div class="ov-cell cr-cell head">CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>`;
+      `<div class="ov-cell cr-cell head">CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>` +
+      `<div class="ov-cell qual-cell head">Calls</div>`;
     grid.appendChild(headerRow);
 
     teamAgents.forEach(agent=>{
@@ -4058,7 +4058,6 @@ function renderOverview(){
                    agent.category === 'helpline' ? 'background:#EFE9F7;color:var(--helpline);' :
                    'background:#F1F4F7;color:var(--text);';
       let html = `<div class="ov-cell name-cell" style="${catBg}">${agent.name}</div>`;
-      html += `<div class="ov-cell qual-cell"><span class="ov-badge good">${Math.round(agent.calls||0)}</span></div>`;
       html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal.toFixed(2)}%</span></div>`;
       html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal.toFixed(2)}%</span></div>`;
       cfg.products.forEach((p,i)=>{
@@ -4067,6 +4066,7 @@ function renderOverview(){
         html += `<div class="ov-cell sales-cell"><span class="ov-badge ${status}" style="font-size:14px;padding:4px 10px;">${Math.round(val)}</span></div>`;
       });
       html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(2)}%</span></div>`;
+      html += `<div class="ov-cell qual-cell"><span class="ov-badge good">${Math.round(agent.calls||0)}</span></div>`;
       row.innerHTML = html;
       grid.appendChild(row);
     });
