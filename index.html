@@ -482,7 +482,17 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 .todo-modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:2px 4px;}
 .todo-modal-close:hover{color:var(--red);}
 .todo-modal-body{padding:16px 20px 20px;overflow-y:auto;flex:1;}
-.todo-input-row{display:flex;gap:8px;margin-bottom:16px;}
+.todo-input-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.todo-date-input,.todo-time-input{border:1px solid var(--border);border-radius:8px;padding:9px 8px;font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;color:var(--text);}
+.todo-date-input:focus,.todo-time-input:focus{border-color:var(--tmg);}
+.todo-text-wrap{flex:1;display:flex;flex-direction:column;gap:2px;}
+.todo-item-datetime{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--tmg);}
+.todo-ticker{position:fixed;top:60px;right:16px;z-index:999;width:280px;max-width:60vw;height:30px;overflow:hidden;background:#fff;border:1px solid var(--border);border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.08);cursor:pointer;}
+.todo-ticker-inner{position:absolute;top:50%;left:-100%;white-space:nowrap;transform:translateY(-50%);font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--tmg);animation:todoTickerScroll 16s linear infinite;}
+@keyframes todoTickerScroll{
+  0%{ left:-100%; }
+  100%{ left:100%; }
+}
 .todo-input{flex:1;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-family:'Inter',sans-serif;font-size:13px;outline:none;}
 .todo-input:focus{border-color:var(--tmg);}
 .todo-add-btn{background:var(--tmg);color:#fff;border:none;border-radius:8px;padding:9px 16px;font-weight:700;cursor:pointer;font-size:13px;white-space:nowrap;}
@@ -4106,6 +4116,7 @@ async function fetchCurrentUser(){
       }
       loadTodos();
       updateTodoFabBadge();
+      updateTodoTicker();
       const overlay = document.getElementById('todo-modal-overlay');
       if(overlay) renderTodoBody();
     }
@@ -4136,6 +4147,31 @@ function updateTodoFabBadge(){
   badge.textContent = openCount;
   badge.style.display = openCount > 0 ? '' : 'none';
 }
+function updateTodoTicker(){
+  let ticker = document.getElementById('todo-ticker');
+  const openTodos = personalTodos.filter(t=>!t.done);
+  if(!openTodos.length){
+    if(ticker) ticker.remove();
+    return;
+  }
+  const content = openTodos.map(t=>{
+    let label = t.text;
+    if(t.datum || t.uhrzeit){
+      const dateLabel = t.datum ? new Date(t.datum).toLocaleDateString('de-DE') : '';
+      label += ' (' + [dateLabel, t.uhrzeit].filter(Boolean).join(' · ') + ')';
+    }
+    return label;
+  }).join('   •   ');
+  if(!ticker){
+    ticker = document.createElement('div');
+    ticker.id = 'todo-ticker';
+    ticker.className = 'todo-ticker';
+    ticker.addEventListener('click', openTodoModal);
+    ticker.innerHTML = '<div class="todo-ticker-inner" id="todo-ticker-inner"></div>';
+    document.body.appendChild(ticker);
+  }
+  document.getElementById('todo-ticker-inner').textContent = content;
+}
 function renderTodoBody(){
   const body = document.getElementById('todo-modal-body');
   if(!body) return;
@@ -4153,21 +4189,37 @@ function renderTodoBody(){
   const input = document.createElement('input');
   input.className = 'todo-input';
   input.placeholder = 'Neue Notiz / Aufgabe...';
+  const dateInput = document.createElement('input');
+  dateInput.type = 'date';
+  dateInput.className = 'todo-date-input';
+  dateInput.title = 'Datum (optional)';
+  const timeInput = document.createElement('input');
+  timeInput.type = 'time';
+  timeInput.className = 'todo-time-input';
+  timeInput.title = 'Uhrzeit (optional)';
   const addBtn = document.createElement('button');
   addBtn.className = 'todo-add-btn';
   addBtn.textContent = '+ Hinzufügen';
   function addTodo(){
     const val = input.value.trim();
     if(!val) return;
-    personalTodos.unshift({ id: uid(), text: val, done: false, erstelltAm: new Date().toLocaleDateString('de-DE') });
+    personalTodos.unshift({
+      id: uid(), text: val, done: false,
+      erstelltAm: new Date().toLocaleDateString('de-DE'),
+      datum: dateInput.value || null,
+      uhrzeit: timeInput.value || null
+    });
     saveTodos();
-    input.value = '';
+    input.value = ''; dateInput.value = ''; timeInput.value = '';
     renderTodoBody();
     updateTodoFabBadge();
+    updateTodoTicker();
   }
   addBtn.addEventListener('click', addTodo);
   input.addEventListener('keydown', (e)=>{ if(e.key==='Enter') addTodo(); });
   inputRow.appendChild(input);
+  inputRow.appendChild(dateInput);
+  inputRow.appendChild(timeInput);
   inputRow.appendChild(addBtn);
   body.appendChild(inputRow);
 
@@ -4184,10 +4236,20 @@ function renderTodoBody(){
       cb.type = 'checkbox';
       cb.className = 'todo-checkbox';
       cb.checked = t.done;
-      cb.addEventListener('change', ()=>{ t.done = cb.checked; saveTodos(); renderTodoBody(); updateTodoFabBadge(); });
+      cb.addEventListener('change', ()=>{ t.done = cb.checked; saveTodos(); renderTodoBody(); updateTodoFabBadge(); updateTodoTicker(); });
+      const textWrap = document.createElement('div');
+      textWrap.className = 'todo-text-wrap';
       const txt = document.createElement('div');
       txt.className = 'todo-text' + (t.done ? ' done' : '');
       txt.textContent = t.text;
+      textWrap.appendChild(txt);
+      if(t.datum || t.uhrzeit){
+        const dt = document.createElement('div');
+        dt.className = 'todo-item-datetime';
+        const dateLabel = t.datum ? new Date(t.datum).toLocaleDateString('de-DE') : '';
+        dt.textContent = '🕒 ' + [dateLabel, t.uhrzeit].filter(Boolean).join(' · ');
+        textWrap.appendChild(dt);
+      }
       const del = document.createElement('button');
       del.className = 'todo-del';
       del.innerHTML = '🗑';
@@ -4196,9 +4258,10 @@ function renderTodoBody(){
         saveTodos();
         renderTodoBody();
         updateTodoFabBadge();
+        updateTodoTicker();
       });
       item.appendChild(cb);
-      item.appendChild(txt);
+      item.appendChild(textWrap);
       item.appendChild(del);
       body.appendChild(item);
     });
@@ -4241,6 +4304,7 @@ function closeTodoModal(){
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeTodoModal(); });
 loadTodos();
 updateTodoFabBadge();
+updateTodoTicker();
 document.getElementById('todo-fab').addEventListener('click', openTodoModal);
 
 // Service Worker registrieren (macht die Seite als App installierbar)
