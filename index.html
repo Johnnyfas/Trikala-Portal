@@ -2,7 +2,14 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Trikala-Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Standort-Portal</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#E20074">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Standort-Portal">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
@@ -472,7 +479,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
   <header class="board-header">
     <div class="title-block">
       <div class="eyebrow">Inbound &middot; Mobilfunk &amp; Festnetz Privatkunden</div>
-      <h1>Trikala-Portal</h1>
+      <h1>Standort-Portal</h1>
       <p>Ein Datenstand — Coaching-Ansicht zum Bearbeiten, Übersicht zum Teilen. Änderungen wirken sofort in beiden Ansichten.</p>
     </div>
   </header>
@@ -4004,6 +4011,13 @@ document.getElementById('export-png-btn').addEventListener('click', async ()=>{
 });
 
 loadState();
+
+// Service Worker registrieren (macht die Seite als App installierbar)
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{ /* z.B. wenn nicht per HTTPS geladen */ });
+  });
+}
 </script>
 </body>
 </html>
