@@ -3246,7 +3246,7 @@ function renderVerlauf(){
     const t = document.createElement('table');
     t.className = 'vl-table';
     const prods = cfg.products;
-    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>CR</th><th>NPS</th><th>Trend</th></tr>`;
+    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>Calls</th><th>CR</th><th>NPS</th><th>Trend</th></tr>`;
     monate.forEach(m => {
       const md = agentData.monate[m];
       const cr = md.cr || 0;
@@ -3259,6 +3259,7 @@ function renderVerlauf(){
         const cls = val >= tgt ? 'ok' : val > 0 ? 'mid' : 'bad';
         html += `<td><span class="vl-badge ${cls}">${Math.round(val)}</span></td>`;
       });
+      html += `<td><span class="vl-badge">${Math.round(md.calls||0)}</span></td>`;
       html += `<td><span class="vl-badge ${crOk?'ok':'bad'}">${cr.toFixed(2)}%</span></td>`;
       html += `<td><span class="vl-badge ${(md.nps||0)>=cfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
       // Trend: Vergleich mit Vormonat
@@ -3725,6 +3726,17 @@ function renderTeamZiele(){
   const container = document.getElementById('teamziele-container');
   container.innerHTML = '';
 
+  // Monat immer auf den echten aktuellen Kalendermonat abgleichen (statt eines evtl. veralteten gespeicherten Werts)
+  const aktuellerMonatLabel = new Date().toLocaleString('de-DE', {month:'long'});
+  let monatKorrigiert = false;
+  Object.values(state.teamziele).forEach(tzObj=>{
+    if(tzObj && tzObj.monat !== aktuellerMonatLabel){
+      tzObj.monat = aktuellerMonatLabel;
+      monatKorrigiert = true;
+    }
+  });
+  if(monatKorrigiert) scheduleSave();
+
   function mkInput(val, onChange){
     const inp = document.createElement('input');
     inp.type = 'text';
@@ -4008,7 +4020,7 @@ function renderOverview(){
     grid.className = 'ov-grid';
     // Grid: Name | NPS | LQ | Produkte... | CR
     // Name bekommt 2fr, alle anderen 1fr
-    const totalCols = 1 + 2 + cfg.products.length + 1;
+    const totalCols = 1 + 1 + 2 + cfg.products.length + 1;
     const nameWidth = '160px';
     const colWidth = '80px';
     const gridCols = `${nameWidth} repeat(${totalCols - 1}, ${colWidth})`;
@@ -4020,6 +4032,7 @@ function renderOverview(){
     headerRow.style.gridTemplateColumns = gridCols;
     headerRow.innerHTML =
       `<div class="ov-cell name-cell head">Mitarbeiter</div>` +
+      `<div class="ov-cell qual-cell head">Calls</div>` +
       `<div class="ov-cell qual-cell head">NPS<span style="font-size:9px;font-weight:400;">Ziel ${cfg.npsTarget}%</span></div>` +
       `<div class="ov-cell qual-cell head">LQ<span style="font-size:9px;font-weight:400;">Ziel ${cfg.lqTarget}%</span></div>` +
       cfg.products.map(p=>`<div class="ov-cell sales-cell head">${p}</div>`).join('') +
@@ -4045,6 +4058,7 @@ function renderOverview(){
                    agent.category === 'helpline' ? 'background:#EFE9F7;color:var(--helpline);' :
                    'background:#F1F4F7;color:var(--text);';
       let html = `<div class="ov-cell name-cell" style="${catBg}">${agent.name}</div>`;
+      html += `<div class="ov-cell qual-cell"><span class="ov-badge good">${Math.round(agent.calls||0)}</span></div>`;
       html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal.toFixed(2)}%</span></div>`;
       html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal.toFixed(2)}%</span></div>`;
       cfg.products.forEach((p,i)=>{
