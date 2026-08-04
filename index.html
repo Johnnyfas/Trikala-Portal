@@ -798,7 +798,7 @@ async function graphFetch(url, options={}){
 async function loadFromSharePoint(){
   setSyncStatus('syncing');
   try {
-    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/root:/${GRAPH_FOLDER}/${GRAPH_FILE}:/content`);
+    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/root:/${GRAPH_FOLDER}/${GRAPH_FILE}:/content?_cb=${Date.now()}`);
     if(resp.ok){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
@@ -1011,7 +1011,7 @@ async function graphFetch(url, options={}){
 async function loadFromSharePoint(){
   setSyncStatus('syncing');
   try {
-    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/root:/${GRAPH_FOLDER}/${GRAPH_FILE}:/content`);
+    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/root:/${GRAPH_FOLDER}/${GRAPH_FILE}:/content?_cb=${Date.now()}`);
     if(resp.ok){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
