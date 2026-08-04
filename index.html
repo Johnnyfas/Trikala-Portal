@@ -1008,6 +1008,20 @@ async function graphFetch(url, options={}){
   return resp;
 }
 
+function showSyncDebug(message, isError){
+  let box = document.getElementById('sync-debug-box');
+  if(!box){
+    box = document.createElement('div');
+    box.id = 'sync-debug-box';
+    box.style.cssText = 'position:fixed;bottom:16px;left:16px;z-index:1002;max-width:360px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 4px 16px rgba(0,0,0,.2);font-family:"Inter",sans-serif;font-size:12px;line-height:1.4;';
+    document.body.appendChild(box);
+  }
+  box.style.border = '2px solid ' + (isError ? 'var(--red)' : 'var(--teal)');
+  box.innerHTML = message +
+    '<div><button onclick="document.getElementById(\'sync-debug-box\').remove()" style="margin-top:6px;background:none;border:1px solid var(--border);border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;">Schließen</button></div>';
+  console.log('[Sync]', message);
+}
+
 async function loadFromSharePoint(){
   setSyncStatus('syncing');
   try {
@@ -1015,6 +1029,7 @@ async function loadFromSharePoint(){
     if(resp.ok){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
+        showSyncDebug(`✅ Daten geladen: ${data.agents.length} Mitarbeiter (HTTP ${resp.status}, ${new Date().toLocaleTimeString('de-DE')})`, false);
         state.agents = data.agents;
         if(data.teamziele){
           Object.keys(data.teamziele).forEach(k=>{
@@ -1147,13 +1162,27 @@ async function loadFromSharePoint(){
         setSyncStatus('ok');
         return;
       }
+      // Datei existiert und antwortet OK, aber ohne Mitarbeiterdaten - NICHT automatisch überschreiben
+      showSyncDebug(`⚠️ Datei geladen (HTTP ${resp.status}), aber keine Mitarbeiterdaten enthalten. Nichts wurde überschrieben.`, true);
+      setSyncStatus('error');
+      return;
     }
-    await saveToSharePoint();
-    setSyncStatus('ok');
+    if(resp.status === 404){
+      // Datei existiert noch nicht - einmalige Ersteinrichtung
+      showSyncDebug('ℹ️ Noch keine Datei in SharePoint gefunden - lege sie jetzt neu an.', false);
+      await saveToSharePoint();
+      setSyncStatus('ok');
+      return;
+    }
+    // Jeder andere Fehler (z.B. 401/403 Berechtigung, 500, o.ä.) - NICHT automatisch überschreiben
+    showSyncDebug(`❌ Fehler beim Laden: HTTP ${resp.status} ${resp.statusText}. Nichts wurde überschrieben - bitte Claude Bescheid geben.`, true);
+    setSyncStatus('error');
   } catch(e){
     console.error('SharePoint load error', e);
+    showSyncDebug(`❌ Netzwerk-/Skriptfehler beim Laden: ${e.message}`, true);
     setSyncStatus('error');
   }
+
 }
 
 async function saveToSharePoint(){
