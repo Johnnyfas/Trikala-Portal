@@ -4153,6 +4153,25 @@ let personalTodos = [];
 let currentUserId = null;
 let currentUserName = null;
 
+async function showMyFileId(){
+  if(document.getElementById('file-id-box')) return;
+  try{
+    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/root:/${GRAPH_FOLDER}/${GRAPH_FILE}?$select=id`);
+    if(!resp || !resp.ok) return;
+    const data = await resp.json();
+    const box = document.createElement('div');
+    box.id = 'file-id-box';
+    box.style.cssText = 'position:fixed;bottom:16px;left:16px;z-index:1002;background:#fff;border:2px solid var(--tmg);border-radius:10px;padding:12px 14px;max-width:340px;box-shadow:0 4px 16px rgba(0,0,0,.2);font-family:"Inter",sans-serif;';
+    box.innerHTML = `
+      <div style="font-weight:700;font-size:12.5px;margin-bottom:6px;">🔧 Für Claude: Datei-ID</div>
+      <input id="file-id-input" readonly value="${data.id}" style="width:100%;font-family:'IBM Plex Mono',monospace;font-size:10.5px;border:1px solid var(--border);border-radius:6px;padding:6px 8px;margin-bottom:6px;" onclick="this.select()">
+      <div style="font-size:11px;color:var(--muted);">Antippen zum Markieren, kopieren und mir im Chat schicken.</div>
+      <button onclick="document.getElementById('file-id-box').remove()" style="margin-top:6px;background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Schließen</button>
+    `;
+    document.body.appendChild(box);
+  }catch(e){ /* ignorieren */ }
+}
+
 async function fetchCurrentUser(){
   try{
     const resp = await graphFetch('/me?$select=mail,userPrincipalName,displayName,id');
@@ -4160,6 +4179,8 @@ async function fetchCurrentUser(){
       const data = await resp.json();
       currentUserId = (data.mail || data.userPrincipalName || data.id || '').toLowerCase();
       currentUserName = data.displayName || '';
+      // TEMPORÄR: Datei-ID anzeigen (für Fix des 403-Problems)
+      showMyFileId();
       // Falls vorher lokal (ohne Login) Einträge gesammelt wurden, einmalig übernehmen
       if(currentUserId){
         const local = JSON.parse(localStorage.getItem('personal_todos')||'[]');
