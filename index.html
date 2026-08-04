@@ -1677,7 +1677,7 @@ function renderHallOfFame(){
 
   // Prüfe ob ein MA die Hall of Fame Kriterien erfüllt
   function checkHOF(agent, monatKey){
-    const vl = state.verlauf[agent.name + '_' + agent.team];
+    const vl = state.verlauf[agent.name + '_' + agent.team] || Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
     if(!vl || !vl.monate[monatKey]) return null;
 
     const md = vl.monate[monatKey];
@@ -2813,140 +2813,6 @@ const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','Au
 let vlSelectedAgent = {};
 
 
-const CALLS_IMPORT_DATA = {"Trikala01":{"Lamprini Mitsiou":{"Januar":300,"Februar":95,"März":360,"April":304,"Mai":245,"Juni":256},"Maria Gkantela":{"Januar":177,"März":345,"April":127,"Mai":193,"Juni":284},"Georgios Aggelis":{"Februar":144,"Januar":605,"März":661,"April":553,"Mai":473,"Juni":646},"Efthymia Stefanopoulou":{"Februar":150,"Januar":612,"März":631,"April":344,"Mai":326,"Juni":369},"Vesna Kapsalis":{"Februar":181,"Januar":593,"März":489,"April":681,"Mai":811,"Juni":565},"Aikaterini Manakou":{"Januar":406,"März":524,"April":333,"Mai":291,"Juni":315},"Maria Rizou":{"Februar":148,"Januar":476,"März":564,"April":392,"Mai":527,"Juni":626},"Evangelia Tsekoura":{"Februar":184,"Januar":540,"März":806,"April":516,"Mai":292,"Juni":192},"Akrivi Papadopoulou":{"Februar":90,"Januar":458,"März":309,"April":434,"Mai":413,"Juni":303},"Sotirios Ioannou":{"Februar":95,"Januar":317,"März":487,"April":323,"Mai":429,"Juni":337},"Christos Ntaiakas":{"Februar":100,"Januar":175,"März":345,"April":436,"Mai":491,"Juni":394},"Ioanna Evangelou":{"Februar":128,"Januar":558,"März":934,"April":504,"Mai":803,"Juni":800},"Konstantinos Ntintis":{"Februar":102,"Januar":453,"März":495,"April":125,"Mai":0,"Juni":0},"Anastasia Koumboura":{"Februar":36,"Januar":334,"März":410,"April":290,"Mai":291,"Juni":285},"Achillefs Mitsios":{"Februar":140,"Januar":590,"März":610,"April":475,"Mai":587,"Juni":496},"Apostolos Kotoulas":{"Februar":212,"Januar":747,"März":820,"April":692,"Mai":653,"Juni":654},"Vasileios Ztoupis":{"Februar":108,"Januar":378,"März":519,"April":583,"Mai":538,"Juni":193},"Anastasia Tsiakalou":{"Februar":115,"Januar":568,"März":436,"April":492,"Mai":424,"Juni":374},"Maria Chatzikyriakou":{"Februar":158,"Januar":433,"März":571,"April":438,"Mai":532,"Juni":479},"Eleftheria-Mirela Tziani":{"Februar":35,"Januar":506,"März":819,"April":579,"Mai":649,"Juni":557},"Theodoros Sakellaris":{"Februar":157,"Januar":338,"März":638,"April":484,"Mai":730,"Juni":537},"Christos Varelis":{"Februar":74,"Januar":602,"März":572,"April":626,"Mai":642,"Juni":565},"Evaggelia Karamitsiou":{"Februar":53,"Januar":286,"März":265,"April":452,"Mai":566,"Juni":578},"Christina Kantziou":{"Februar":148,"Januar":437,"März":613,"April":506,"Mai":555,"Juni":505},"Spyridon Tzitzos":{"Februar":139,"Januar":514,"März":512,"April":454,"Mai":475,"Juni":464},"Foteini Skotra":{"Februar":168,"Januar":620,"März":752,"April":697,"Mai":760,"Juni":500},"Georgia Tasika":{"Februar":85,"Januar":409,"März":357,"April":354,"Mai":348,"Juni":300},"Pinelopi Koutelida":{"Februar":173,"Januar":593,"März":268,"April":685,"Mai":795,"Juni":699},"Styliani Thoma":{"Februar":154,"Januar":561,"März":714,"April":587,"Mai":501,"Juni":588},"Pia Antoniou":{"Februar":199,"Januar":793,"März":712,"April":537,"Mai":698,"Juni":613},"Georgia Makrygianni":{"Februar":198,"Januar":617,"März":620,"April":561,"Mai":744,"Juni":363},"Antonios Plavos":{"Februar":137,"Januar":478,"März":684,"April":486,"Mai":566,"Juni":650},"Ioannis Antoniou":{"Februar":169,"Januar":746,"März":674,"April":591,"Mai":727,"Juni":785},"Evangelos Megarchiotis":{"Februar":140,"Januar":439,"März":402,"April":483,"Mai":565,"Juni":530},"Georgios Karatzoulis":{"Februar":154,"Januar":726,"März":728,"April":615,"Mai":598,"Juni":552},"Anthoula Zisi":{"Mai":162,"Juni":449},"Georgios Karanikas":{"Mai":184,"Juni":570},"Stergiani Koutouza":{"Mai":164,"Juni":164}},"Trikala06":{"Vasiliki Toula":{"Januar":626,"Februar":190,"März":238,"April":0,"Mai":149,"Juni":232},"Dimitra Tsitsoula":{"Januar":730,"Februar":158,"März":867,"April":605,"Mai":613,"Juni":457},"Sofia Dadakou":{"Januar":587,"Februar":120,"März":676,"April":573,"Mai":518,"Juni":501},"Georgia Kostakopoulou":{"Januar":649,"Februar":147,"März":678,"April":552,"Mai":549,"Juni":252},"Frantziska Papanagiotou":{"Januar":899,"März":696,"April":804,"Mai":599,"Juni":595},"Evangelia Bousda":{"Februar":123,"Januar":671,"März":606,"April":599,"Mai":531,"Juni":454},"Sotirios Christodoulou":{"Februar":138,"Januar":634,"März":625,"April":372,"Mai":409,"Juni":326},"Apostolos Papavasileiou":{"Februar":167,"Januar":711,"März":672,"April":683,"Mai":611,"Juni":619},"Christos Papachristos":{"Februar":206,"Januar":948,"März":910,"April":827,"Mai":832,"Juni":606},"Athanasios Tsergoulas":{"Februar":110,"Januar":407,"März":382,"April":437,"Mai":460,"Juni":441},"Alexandra Papapostolou":{"Februar":14,"Januar":7,"April":334,"Mai":326,"März":348,"Juni":299},"Konstantina Kantzoura":{"Februar":130,"Januar":588,"März":695,"April":615,"Mai":540,"Juni":464},"Spyridoula Tzifou":{"März":169,"April":523,"Mai":491,"Juni":475},"Chryso Kantzoura":{"März":157,"April":352,"Mai":417,"Juni":428},"Apostolos Christanas":{"Juni":92},"Ioannis Charchantis":{"März":204,"April":700,"Mai":769,"Juni":751},"Paraskevi Karadima":{"Juni":112},"Chrysa Tseliou":{"Juni":0},"Apostolos Kostarelos":{"Juni":0},"Vasiliki-Anastasia Lazogiannis":{"Juni":127},"Ioanna Koutoumpa":{"Juni":167}}}
-;
-const CALLS_IMPORT_MONTHS = ['Januar','Februar','März','April','Mai','Juni'];
-
-function findBestAgentMatch(csvName, teamId){
-  const candidates = state.agents.filter(a => a.team === teamId && a.name.trim() !== '');
-  const norm = s => s.toLowerCase().replace(/[^a-zäöüß\s-]/gi,'').trim();
-  const csvNorm = norm(csvName);
-  const csvTokens = csvNorm.split(/\s+/).filter(Boolean);
-  let best = null, bestScore = 0;
-  candidates.forEach(a=>{
-    const aNorm = norm(a.name);
-    let score = 0;
-    if(aNorm === csvNorm) score = 100;
-    else if(csvTokens.includes(aNorm)) score = 80;
-    else if(aNorm.split(/\s+/).every(t=>csvTokens.includes(t))) score = 70;
-    else if(csvNorm.includes(aNorm) || aNorm.includes(csvNorm)) score = 50;
-    if(score > bestScore){ bestScore = score; best = a; }
-  });
-  return bestScore >= 50 ? best : null;
-}
-
-function openCallsImportModal(){
-  if(document.getElementById('calls-import-overlay')) return;
-  const overlay = document.createElement('div');
-  overlay.className = 'todo-modal-overlay';
-  overlay.id = 'calls-import-overlay';
-  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.remove(); });
-
-  const modal = document.createElement('div');
-  modal.className = 'todo-modal';
-  modal.style.width = '720px';
-
-  const head = document.createElement('div');
-  head.className = 'todo-modal-head';
-  head.innerHTML = `<div class="todo-modal-title">📥 Calls importieren (Januar – Juni)</div>`;
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'todo-modal-close';
-  closeBtn.innerHTML = '✕';
-  closeBtn.addEventListener('click', ()=>overlay.remove());
-  head.appendChild(closeBtn);
-  modal.appendChild(head);
-
-  const body = document.createElement('div');
-  body.className = 'todo-modal-body';
-
-  const hint = document.createElement('div');
-  hint.style.cssText = 'font-family:"Inter",sans-serif;font-size:12px;color:var(--muted);background:#F5F7F9;border-radius:8px;padding:10px 12px;margin-bottom:14px;';
-  hint.textContent = 'Prüfe die automatische Zuordnung. Bei "nicht zugeordnet" bitte manuell den passenden Mitarbeiter auswählen. Rot markierte Zeilen wurden nicht sicher zugeordnet.';
-  body.appendChild(hint);
-
-  const rowMappings = [];
-
-  Object.keys(CALLS_IMPORT_DATA).forEach(teamId=>{
-    const teamLabel = TEAM_CONFIGS[teamId] ? TEAM_CONFIGS[teamId].label : teamId;
-    const teamTitle = document.createElement('div');
-    teamTitle.style.cssText = 'font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:14px;margin:14px 0 8px;';
-    teamTitle.textContent = teamLabel;
-    body.appendChild(teamTitle);
-
-    const table = document.createElement('div');
-    table.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
-
-    Object.keys(CALLS_IMPORT_DATA[teamId]).forEach(csvName=>{
-      const monthsData = CALLS_IMPORT_DATA[teamId][csvName];
-      const match = findBestAgentMatch(csvName, teamId);
-
-      const row = document.createElement('div');
-      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;background:' + (match ? '#F5F7F9' : '#FEF0EF') + ';';
-
-      const nameLabel = document.createElement('div');
-      nameLabel.style.cssText = 'flex:1;font-family:\'IBM Plex Mono\',monospace;font-size:11.5px;';
-      nameLabel.textContent = csvName;
-      row.appendChild(nameLabel);
-
-      const arrow = document.createElement('div');
-      arrow.textContent = '→';
-      arrow.style.color = 'var(--muted)';
-      row.appendChild(arrow);
-
-      const allTeamAgents = state.agents.filter(a=>a.team===teamId && a.name.trim()!=='');
-      const sel = document.createElement('select');
-      sel.className = 'cp-form-select';
-      sel.style.flex = '1';
-      sel.innerHTML = '<option value="">— nicht zuordnen (überspringen) —</option>' +
-        allTeamAgents.map(a=>`<option value="${a.id}" ${match && match.id===a.id ? 'selected' : ''}>${a.name}</option>`).join('');
-      row.appendChild(sel);
-
-      table.appendChild(row);
-      rowMappings.push({ teamId, csvName, monthsData, sel });
-    });
-
-    body.appendChild(table);
-  });
-
-  const applyBtn = document.createElement('button');
-  applyBtn.className = 'primary';
-  applyBtn.style.marginTop = '18px';
-  applyBtn.textContent = 'Werte übernehmen';
-  applyBtn.addEventListener('click', ()=>{
-    let count = 0;
-    rowMappings.forEach(({teamId, monthsData, sel})=>{
-      const agentId = sel.value;
-      if(!agentId) return;
-      const agent = state.agents.find(a=>a.id===agentId);
-      if(!agent) return;
-      let verlaufEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===teamId);
-      if(!verlaufEntry){
-        const key = agent.id;
-        state.verlauf[key] = { name: agent.name, team: teamId, monate: {} };
-        verlaufEntry = state.verlauf[key];
-      }
-      CALLS_IMPORT_MONTHS.forEach(monatDe=>{
-        if(monthsData[monatDe] === undefined) return;
-        const monKey = '2026-' + monatDe;
-        if(!verlaufEntry.monate[monKey]){
-          verlaufEntry.monate[monKey] = { sales:{}, calls:0, cr:0, nps:0, lq:0 };
-        }
-        verlaufEntry.monate[monKey].calls = monthsData[monatDe];
-      });
-      count++;
-    });
-    scheduleSave();
-    overlay.remove();
-    renderVerlauf();
-    alert(count + ' Mitarbeiter aktualisiert.');
-  });
-  body.appendChild(applyBtn);
-
-  modal.appendChild(body);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-}
-
 function saveMonatSnapshot(){
   const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const now = new Date();
@@ -3084,12 +2950,6 @@ function renderVerlauf(){
   saveBtn.textContent = '📸 Aktuellen Monat speichern';
   saveBtn.addEventListener('click', saveMonatSnapshot);
   toolbar.appendChild(saveBtn);
-  const importBtn = document.createElement('button');
-  importBtn.className = 'vl-save-btn';
-  importBtn.style.background = 'var(--teal)';
-  importBtn.textContent = '📥 Calls importieren (Jan–Jun)';
-  importBtn.addEventListener('click', openCallsImportModal);
-  toolbar.appendChild(importBtn);
   const infoSpan = document.createElement('span');
   infoSpan.style.cssText = 'font-family:"Inter",sans-serif;font-size:12px;color:var(--muted);';
   const gespeicherteSnapshots = Object.keys(state.verlauf||{}).length;
@@ -3134,7 +2994,9 @@ function renderVerlauf(){
     teamBlock.appendChild(agentToolbar);
 
     const agentKey = vlSelectedAgent[teamId];
-    const agentData = state.verlauf[agentKey];
+    const [selName, ...selTeamParts] = agentKey.split('_');
+    const selTeam = selTeamParts.join('_');
+    const agentData = state.verlauf[agentKey] || Object.values(state.verlauf).find(v=>v.name===selName && v.team===selTeam);
     if(!agentData){ container.appendChild(teamBlock); return; }
 
     const MONATE_NAMEN = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
