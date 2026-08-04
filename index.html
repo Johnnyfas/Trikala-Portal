@@ -997,6 +997,7 @@ async function graphFetch(url, options={}){
   if(!graphToken) await getToken();
   const resp = await fetch('https://graph.microsoft.com/v1.0' + url, {
     ...options,
+    cache: 'no-store',
     headers: {
       'Authorization': 'Bearer ' + graphToken,
       'Content-Type': 'application/json',
