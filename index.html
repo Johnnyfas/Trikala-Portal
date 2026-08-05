@@ -315,8 +315,14 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 .chart-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .chart-popup{background:#fff;border-radius:20px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,0.3);width:90vw;max-width:900px;position:relative;}
 .chart-popup-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 16px;color:var(--text);}
-.chart-popup canvas{width:100% !important;height:400px !important;}
+.chart-popup canvas{width:100% !important;height:400px !important;transform-origin:center center;transition:transform .05s linear;}
 .chart-popup-close{position:absolute;top:16px;right:16px;background:var(--tmg);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;}
+.chart-zoom-bar{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.chart-zoom-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:16px;font-weight:700;cursor:pointer;color:var(--text);display:flex;align-items:center;justify-content:center;}
+.chart-zoom-btn:hover{border-color:var(--tmg);color:var(--tmg);}
+.chart-zoom-reset{font-size:14px;}
+.chart-zoom-label{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);min-width:42px;text-align:center;}
+.chart-zoom-viewport{width:100%;height:400px;overflow:hidden;border-radius:12px;position:relative;touch-action:none;}
 .vl-chart-wrap{cursor:zoom-in;transition:box-shadow 0.2s;}
 .vl-chart-wrap:hover{box-shadow:0 6px 24px rgba(0,0,0,0.14);}
 
@@ -2910,14 +2916,107 @@ function showChartPopup(title, drawFn){
   titleEl.className = 'chart-popup-title';
   titleEl.textContent = title;
 
+  const zoomBar = document.createElement('div');
+  zoomBar.className = 'chart-zoom-bar';
+  const zoomOutBtn = document.createElement('button');
+  zoomOutBtn.className = 'chart-zoom-btn'; zoomOutBtn.textContent = '−';
+  const zoomLabel = document.createElement('span');
+  zoomLabel.className = 'chart-zoom-label'; zoomLabel.textContent = '100%';
+  const zoomInBtn = document.createElement('button');
+  zoomInBtn.className = 'chart-zoom-btn'; zoomInBtn.textContent = '+';
+  const zoomResetBtn = document.createElement('button');
+  zoomResetBtn.className = 'chart-zoom-btn chart-zoom-reset'; zoomResetBtn.textContent = '⟲';
+  zoomResetBtn.title = 'Zurücksetzen';
+  zoomBar.appendChild(zoomOutBtn);
+  zoomBar.appendChild(zoomLabel);
+  zoomBar.appendChild(zoomInBtn);
+  zoomBar.appendChild(zoomResetBtn);
+
+  const viewport = document.createElement('div');
+  viewport.className = 'chart-zoom-viewport';
   const canvas = document.createElement('canvas');
   canvas.height = 400;
+  viewport.appendChild(canvas);
 
   popup.appendChild(closeBtn);
   popup.appendChild(titleEl);
-  popup.appendChild(canvas);
+  popup.appendChild(zoomBar);
+  popup.appendChild(viewport);
   overlay.appendChild(popup);
   document.body.appendChild(overlay);
+
+  // Zoom & Pan Zustand
+  let scale = 1, panX = 0, panY = 0;
+  let dragging = false, dragStartX = 0, dragStartY = 0, panStartX = 0, panStartY = 0;
+  const MIN_SCALE = 1, MAX_SCALE = 4;
+
+  function applyTransform(){
+    canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+    zoomLabel.textContent = Math.round(scale*100) + '%';
+    viewport.style.cursor = scale > 1 ? 'grab' : 'default';
+  }
+  function clampPan(){
+    // grobe Begrenzung, damit man den Chart nicht komplett wegzieht
+    const maxOffset = (scale - 1) * 300 + 40;
+    panX = Math.max(-maxOffset, Math.min(maxOffset, panX));
+    panY = Math.max(-maxOffset, Math.min(maxOffset, panY));
+  }
+  function setScale(newScale){
+    scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+    if(scale === 1){ panX = 0; panY = 0; }
+    clampPan();
+    applyTransform();
+  }
+
+  zoomInBtn.addEventListener('click', ()=>setScale(scale + 0.25));
+  zoomOutBtn.addEventListener('click', ()=>setScale(scale - 0.25));
+  zoomResetBtn.addEventListener('click', ()=>setScale(1));
+
+  viewport.addEventListener('wheel', e=>{
+    e.preventDefault();
+    setScale(scale + (e.deltaY < 0 ? 0.2 : -0.2));
+  }, { passive:false });
+
+  viewport.addEventListener('mousedown', e=>{
+    if(scale <= 1) return;
+    dragging = true;
+    dragStartX = e.clientX; dragStartY = e.clientY;
+    panStartX = panX; panStartY = panY;
+    viewport.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mousemove', e=>{
+    if(!dragging) return;
+    panX = panStartX + (e.clientX - dragStartX);
+    panY = panStartY + (e.clientY - dragStartY);
+    clampPan();
+    applyTransform();
+  });
+  window.addEventListener('mouseup', ()=>{ dragging = false; if(scale>1) viewport.style.cursor='grab'; });
+
+  // Touch (Pinch-Zoom + Ziehen)
+  let touchStartDist = null, touchStartScale = 1;
+  viewport.addEventListener('touchstart', e=>{
+    if(e.touches.length === 2){
+      touchStartDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+      touchStartScale = scale;
+    } else if(e.touches.length === 1 && scale > 1){
+      dragging = true;
+      dragStartX = e.touches[0].clientX; dragStartY = e.touches[0].clientY;
+      panStartX = panX; panStartY = panY;
+    }
+  }, { passive:true });
+  viewport.addEventListener('touchmove', e=>{
+    if(e.touches.length === 2 && touchStartDist){
+      const dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+      setScale(touchStartScale * (dist/touchStartDist));
+    } else if(e.touches.length === 1 && dragging){
+      panX = panStartX + (e.touches[0].clientX - dragStartX);
+      panY = panStartY + (e.touches[0].clientY - dragStartY);
+      clampPan();
+      applyTransform();
+    }
+  }, { passive:true });
+  viewport.addEventListener('touchend', ()=>{ dragging = false; touchStartDist = null; });
 
   setTimeout(()=>{
     const dpr = window.devicePixelRatio || 1;
@@ -2930,6 +3029,7 @@ function showChartPopup(title, drawFn){
     const ctx = canvas.getContext('2d');
     ctx.scale(dpr, dpr);
     drawFn(canvas);
+    applyTransform();
   }, 50);
 }
 
