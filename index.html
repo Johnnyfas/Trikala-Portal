@@ -1332,23 +1332,22 @@ async function loadFromExcel(){
           String(a.team) === String(teamId)
         );
         if(!agent) return;
-        if(row[1] !== null && row[1] !== '') agent.calls = parseFloat(row[1]) || 0;
-        if(row[2] !== null && row[2] !== '') agent.sales['MF']  = parseFloat(row[2]) || 0;
-        if(row[4] !== null && row[4] !== '') agent.sales['SU']  = parseFloat(row[4]) || 0;
-        if(row[6] !== null && row[6] !== '') agent.sales['BB']  = parseFloat(row[6]) || 0;
-        if(row[8] !== null && row[8] !== '') agent.sales['TV']  = parseFloat(row[8]) || 0;
+        const cellVal = v => (v !== null && v !== undefined && v !== '') ? (parseFloat(v) || 0) : null;
+        agent.calls = cellVal(row[1]);
+        agent.sales['MF'] = cellVal(row[2]);
+        agent.sales['SU'] = cellVal(row[4]);
+        agent.sales['BB'] = cellVal(row[6]);
+        agent.sales['TV'] = cellVal(row[8]);
         const vvmKey = agent.team === 'Trikala06' ? 'VVM+NVM' : 'VVM+BOJ';
         if(agent.team === 'Trikala06'){
-          const hasVvm = row[10] !== null && row[10] !== '';
-          const hasNvm = row[12] !== null && row[12] !== '';
-          if(hasVvm || hasNvm){
-            agent.sales[vvmKey] = (hasVvm ? parseFloat(row[10])||0 : 0) + (hasNvm ? parseFloat(row[12])||0 : 0);
-          }
+          const vvmVal = cellVal(row[10]);
+          const nvmVal = cellVal(row[12]);
+          agent.sales[vvmKey] = (vvmVal === null && nvmVal === null) ? null : (vvmVal||0) + (nvmVal||0);
         } else {
-          if(row[10] !== null && row[10] !== '') agent.sales[vvmKey] = parseFloat(row[10]) || 0;
+          agent.sales[vvmKey] = cellVal(row[10]);
         }
-        if(row[17] !== null && row[17] !== '' && parseFloat(row[17]) > 0) agent.nps = parseFloat(row[17]);
-        if(row[18] !== null && row[18] !== '' && parseFloat(row[18]) > 0) agent.lq  = parseFloat(row[18]);
+        agent.nps = cellVal(row[17]);
+        agent.lq = cellVal(row[18]);
         totalUpdated++;
       });
     } catch(e){
@@ -4168,10 +4167,10 @@ function renderOverview(){
       // Kein Punkt mehr - Hintergrundfarbe der Name-Zelle
       const npsTarget = cfg.npsTarget || 70;
       const lqTarget  = cfg.lqTarget  || 75;
-      const npsVal = agent.nps || 0;
-      const npsClass = npsVal >= npsTarget ? 'good' : 'zero';
-      const lqVal = agent.lq || 0;
-      const lqClass = lqVal >= lqTarget ? 'good' : 'zero';
+      const npsVal = (agent.nps === null || agent.nps === undefined) ? null : agent.nps;
+      const npsClass = npsVal !== null && npsVal >= npsTarget ? 'good' : npsVal === null ? '' : 'zero';
+      const lqVal = (agent.lq === null || agent.lq === undefined) ? null : agent.lq;
+      const lqClass = lqVal !== null && lqVal >= lqTarget ? 'good' : lqVal === null ? '' : 'zero';
       const cr = totalCr(agent);
       const crStatus = trafficStatus(parseFloat(cr.toFixed(2)), cfg.crTarget);
 
@@ -4179,15 +4178,16 @@ function renderOverview(){
                    agent.category === 'helpline' ? 'background:#EFE9F7;color:var(--helpline);' :
                    'background:#F1F4F7;color:var(--text);';
       let html = `<div class="ov-cell name-cell" style="${catBg}">${agent.name}</div>`;
-      html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal.toFixed(2)}%</span></div>`;
-      html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal.toFixed(2)}%</span></div>`;
+      html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal === null ? '–' : npsVal.toFixed(2)+'%'}</span></div>`;
+      html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal === null ? '–' : lqVal.toFixed(2)+'%'}</span></div>`;
       cfg.products.forEach((p,i)=>{
-        const val = agent.sales[p]||0;
-        const status = trafficStatus(val, myTargets[i]);
-        html += `<div class="ov-cell sales-cell"><span class="ov-badge ${status}" style="font-size:14px;padding:4px 10px;">${Math.round(val)}</span></div>`;
+        const val = agent.sales[p];
+        const isNull = (val === null || val === undefined);
+        const status = isNull ? '' : trafficStatus(val, myTargets[i]);
+        html += `<div class="ov-cell sales-cell"><span class="ov-badge ${status}" style="font-size:14px;padding:4px 10px;">${isNull ? '–' : Math.round(val)}</span></div>`;
       });
       html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(2)}%</span></div>`;
-      html += `<div class="ov-cell qual-cell"><span class="ov-badge good">${Math.round(agent.calls||0)}</span></div>`;
+      html += `<div class="ov-cell qual-cell"><span class="ov-badge ${agent.calls===null||agent.calls===undefined?'':'good'}">${(agent.calls===null||agent.calls===undefined) ? '–' : Math.round(agent.calls)}</span></div>`;
       row.innerHTML = html;
       grid.appendChild(row);
     });
