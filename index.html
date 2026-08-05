@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Standort-Portal">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
@@ -1300,34 +1301,28 @@ async function loadFromExcel(){
 
   for(const [teamId, cfg] of Object.entries(EXCEL_FILES)){
     try {
-      // Erstes/aktuelles Tabellenblatt der Datei ermitteln (unabhängig vom Namen)
-      const sheetsUrl = `/drives/${OWNER_DRIVE_ID}/root:/${cfg.path}:/workbook/worksheets`;
-      const sheetsResp = await graphFetch(sheetsUrl);
-      if(!sheetsResp.ok){
-        const errText = await sheetsResp.text();
-        console.error(`Excel ${teamId} Tabellenblatt-Liste fehlgeschlagen:`, sheetsResp.status, errText);
-        let detail = '';
-        try{ const eb = JSON.parse(errText); detail = eb.error ? ` — ${eb.error.code}: ${eb.error.message}` : ''; }catch(e){}
-        excelErrors.push(`${teamId}: HTTP ${sheetsResp.status}${detail}`);
-        continue;
-      }
-      const sheetsData = await sheetsResp.json();
-      const sheetName = sheetsData.value && sheetsData.value[0] && sheetsData.value[0].name;
-      if(!sheetName){
-        excelErrors.push(`${teamId}: Kein Tabellenblatt in der Datei gefunden`);
-        continue;
-      }
-
-      const url = `/drives/${OWNER_DRIVE_ID}/root:/${cfg.path}:/workbook/worksheets/${encodeURIComponent(sheetName)}/range(address='A5:S80')`;
+      // Datei als Rohdatei laden (wie die JSON-Datei) statt über die Excel-Online-API,
+      // da diese bei manchen Dateien/Tenants blockiert ist ("Could not obtain a WAC access token").
+      const url = `/drives/${OWNER_DRIVE_ID}/root:/${cfg.path}:/content?_cb=${Date.now()}`;
       const resp = await graphFetch(url);
       if(!resp.ok){
         const errText = await resp.text();
         console.error(`Excel ${teamId} fehlgeschlagen:`, resp.status, errText);
-        excelErrors.push(`${teamId}: HTTP ${resp.status} (Tabellenblatt "${sheetName}")`);
+        let detail = '';
+        try{ const eb = JSON.parse(errText); detail = eb.error ? ` — ${eb.error.code}: ${eb.error.message}` : ''; }catch(e){}
+        excelErrors.push(`${teamId}: HTTP ${resp.status}${detail}`);
         continue;
       }
-      const data = await resp.json();
-      const rows = data.values || [];
+      const arrayBuffer = await resp.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      if(!sheetName){
+        excelErrors.push(`${teamId}: Kein Tabellenblatt in der Datei gefunden`);
+        continue;
+      }
+      const sheet = workbook.Sheets[sheetName];
+      // Bereich A5:S80 als Zeilen-Array auslesen (gleiche Spaltenzuordnung wie bisher)
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, range: 'A5:S80', defval: '' });
 
       rows.forEach(row => {
         const name = (row[0] || '').toString().trim();
