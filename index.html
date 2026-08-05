@@ -528,6 +528,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <button class="login-btn" id="login-btn" onclick="signIn()">Mit Microsoft anmelden</button>
     <button class="logout-btn" id="logout-btn" style="display:none;" onclick="signOut()">Abmelden</button>
     <button class="login-btn" id="excel-sync-btn" style="display:none;background:var(--teal);" onclick="loadFromExcel()">↻ Excel aktualisieren</button>
+    <button class="login-btn" id="setup-token-btn" style="display:none;background:var(--red);" onclick="registerMsToken()">🔒 NUR IOANNIS: Zugang übertragen</button>
     <span id="excel-sync-label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);"></span>
   </div>
   <div class="tabs">
@@ -764,6 +765,38 @@ function updateLoginUI(loggedIn){
   if(ob) ob.style.display = loggedIn ? '' : 'none';
   const eb = document.getElementById('excel-sync-btn');
   if(eb) eb.style.display = loggedIn ? '' : 'none';
+  const sb = document.getElementById('setup-token-btn');
+  if(sb) sb.style.display = loggedIn ? '' : 'none';
+}
+
+async function registerMsToken(){
+  const rt = sessionStorage.getItem('refresh_token');
+  if(!rt){
+    alert('Kein Microsoft-Zugang im Speicher gefunden. Bitte einmal ab-/anmelden und erneut versuchen.');
+    return;
+  }
+  let appToken = getKIAppToken();
+  if(!appToken){
+    const entered = prompt('Gemeinsames Zugangs-Passwort eingeben (zur Bestätigung):');
+    if(!entered) return;
+    appToken = entered.trim();
+    setKIAppToken(appToken);
+  }
+  try{
+    const resp = await fetch(KI_PROXY_URL + '/register-token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
+      body: JSON.stringify({ refresh_token: rt })
+    });
+    if(resp.ok){
+      alert('✅ Zugang erfolgreich übertragen. Alle Führungskräfte können die Daten jetzt über das gemeinsame Passwort laden.');
+    } else {
+      const errBody = await resp.json().catch(()=>({}));
+      alert('❌ Fehler: ' + (errBody.error?.message || resp.status));
+    }
+  }catch(e){
+    alert('❌ Fehler: ' + e.message);
+  }
 }
 
 function signOut(){
@@ -1026,9 +1059,24 @@ function showSyncDebug(message, isError){
 async function loadFromSharePoint(){
   setSyncStatus('syncing');
   try {
-    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/items/${OWNER_FILE_ID}/content?_cb=${Date.now()}`);
+    let appToken = getKIAppToken();
+    if(!appToken){
+      const entered = prompt('Bitte gemeinsames Zugangs-Passwort für das Board eingeben:');
+      if(entered && entered.trim()){
+        appToken = entered.trim();
+        setKIAppToken(appToken);
+      } else {
+        showSyncDebug('⚠️ Kein Zugangs-Passwort eingegeben. Daten konnten nicht geladen werden.', true);
+        setSyncStatus('error');
+        return;
+      }
+    }
+    const resp = await fetch(KI_PROXY_URL + '/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
+      body: JSON.stringify({ action: 'load' })
+    });
     if(resp.ok){
-      const data = await resp.json();
       if(data && data.agents && data.agents.length){
         showSyncDebug(`✅ Daten geladen: ${data.agents.length} Mitarbeiter (HTTP ${resp.status}, ${new Date().toLocaleTimeString('de-DE')})`, false);
         state.agents = data.agents;
@@ -1189,27 +1237,28 @@ async function loadFromSharePoint(){
 }
 
 async function saveToSharePoint(){
-  if(!graphToken){
-    const ok = await getToken();
-    if(!ok) return;
+  const appToken = getKIAppToken();
+  if(!appToken){
+    console.warn('Kein Zugangs-Passwort hinterlegt - Speichern übersprungen.');
+    setSyncStatus('error');
+    return;
   }
   setSyncStatus('syncing');
   try {
-    const body = JSON.stringify(state);
-    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/items/${OWNER_FILE_ID}/content`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: body
+    const resp = await fetch(KI_PROXY_URL + '/data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
+      body: JSON.stringify({ action: 'save', data: state })
     });
     if(resp && resp.ok){
       setSyncStatus('ok');
-      console.log('SharePoint gespeichert:', new Date().toLocaleTimeString());
+      console.log('Gespeichert:', new Date().toLocaleTimeString());
     } else {
-      console.error('SharePoint save failed:', resp?.status);
+      console.error('Speichern fehlgeschlagen:', resp?.status);
       setSyncStatus('error');
     }
   } catch(e){
-    console.error('SharePoint save error', e);
+    console.error('Speicherfehler', e);
     setSyncStatus('error');
   }
 }
@@ -2079,7 +2128,7 @@ Beachte:
 - leitfaden_checkliste: pro Kriterium "ok" (erfüllt), "nok" (nicht erfüllt) oder "na" (nicht bewertet)`;
 
     try {
-      const response = await fetch(KI_PROXY_URL, {
+      const response = await fetch(KI_PROXY_URL + '/analyze', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
