@@ -137,6 +137,13 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 
 /* ===== Coaching Plan: Diagramme & Formular ===== */
 .cp-charts-row{display:flex;gap:16px;flex-wrap:wrap;}
+.cp-checklist-overview{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+.cp-co-row{display:grid;grid-template-columns:170px 1fr 44px auto;align-items:center;gap:10px;}
+.cp-co-label{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;}
+.cp-co-bar-track{height:16px;background:#F1F4F7;border-radius:8px;overflow:hidden;}
+.cp-co-bar-fill{height:100%;border-radius:8px;transition:width .3s;}
+.cp-co-pct{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;text-align:right;}
+.cp-co-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;}
 .cp-chart-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;flex:1;min-width:240px;}
 .cp-chart-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;}
 .cp-bar-row{display:flex;gap:24px;align-items:flex-end;height:160px;}
@@ -2429,6 +2436,8 @@ function computeCoachStats(){
   const countByTeam = {}, dauerByTeam = {};
   Object.values(TEAM_CONFIGS).forEach(cfg=>{ countByTeam[cfg.label]=0; dauerByTeam[cfg.label]=0; });
   const themen = {}; COACH_THEMEN.forEach(t=>themen[t]=0);
+  const checklistStats = {};
+  CHECKLIST_ITEMS.forEach(item=>{ checklistStats[item] = { ok:0, nok:0, na:0 }; });
   Object.values(state.coachverlauf).forEach(cv=>{
     const cfg = TEAM_CONFIGS[cv.team];
     const label = cfg ? cfg.label : null;
@@ -2439,9 +2448,51 @@ function computeCoachStats(){
       }
       const th = (e.thema && themen.hasOwnProperty(e.thema)) ? e.thema : 'Allgemein';
       themen[th]++;
+      if(e.checkliste){
+        CHECKLIST_ITEMS.forEach(item=>{
+          const v = e.checkliste[item];
+          if(v === 'ok') checklistStats[item].ok++;
+          else if(v === 'nok') checklistStats[item].nok++;
+          else if(v === 'na') checklistStats[item].na++;
+        });
+      }
     });
   });
-  return { countByTeam, dauerByTeam, themen };
+  return { countByTeam, dauerByTeam, themen, checklistStats };
+}
+
+function buildChecklistOverview(checklistStats){
+  const wrap = document.createElement('div');
+  wrap.className = 'cp-chart-card';
+  wrap.style.marginTop = '16px';
+
+  const rows = CHECKLIST_ITEMS.map(item=>{
+    const s = checklistStats[item];
+    const bewertet = s.ok + s.nok; // "na" zählt nicht als Bewertung
+    const nokPct = bewertet > 0 ? Math.round((s.nok / bewertet) * 100) : null;
+    return { item, ...s, bewertet, nokPct };
+  }).filter(r => r.bewertet > 0)
+    .sort((a,b) => b.nokPct - a.nokPct);
+
+  let html = `<div class="cp-chart-title">📋 Leitfaden-Auswertung — häufigste Schwachstellen im Team</div>`;
+  if(!rows.length){
+    html += `<div class="empty">Noch keine bewerteten Checklisten vorhanden.</div>`;
+  } else {
+    html += `<div class="cp-checklist-overview">`;
+    rows.forEach(r=>{
+      const color = r.nokPct >= 40 ? 'var(--red)' : r.nokPct >= 20 ? '#C2792B' : 'var(--teal)';
+      html += `
+        <div class="cp-co-row">
+          <div class="cp-co-label">${r.item}</div>
+          <div class="cp-co-bar-track"><div class="cp-co-bar-fill" style="width:${r.nokPct}%;background:${color};"></div></div>
+          <div class="cp-co-pct" style="color:${color};">${r.nokPct}%</div>
+          <div class="cp-co-count">(${r.nok} von ${r.bewertet})</div>
+        </div>`;
+    });
+    html += `</div>`;
+  }
+  wrap.innerHTML = html;
+  return wrap;
 }
 
 function buildBarChart(title, dataObj, colorMap, unitSuffix){
@@ -2764,7 +2815,7 @@ function renderCoachPlan(){
   }
 
   // ===== Diagramme =====
-  const { countByTeam, dauerByTeam, themen } = computeCoachStats();
+  const { countByTeam, dauerByTeam, themen, checklistStats } = computeCoachStats();
   const teamColorsByLabel = {};
   const palette = ['#E20074','#3B6FA0','#0E7C7B','#C2792B'];
   Object.values(TEAM_CONFIGS).forEach((cfg,i)=>{ teamColorsByLabel[cfg.label] = palette[i % palette.length]; });
@@ -2775,6 +2826,8 @@ function renderCoachPlan(){
   chartsRow.appendChild(buildBarChart('Gesamte Coaching-Dauer / Team', dauerByTeam, teamColorsByLabel, ' Min'));
   chartsRow.appendChild(buildPieChart('Coaching-Themen', themen, COACH_THEMEN_COLORS));
   container.appendChild(chartsRow);
+
+  container.appendChild(buildChecklistOverview(checklistStats));
 }
 
 function buildPlanRow(p){
