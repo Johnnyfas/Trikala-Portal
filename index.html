@@ -2164,7 +2164,8 @@ Beachte:
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-app-token': appToken
+          'x-app-token': appToken,
+          'x-user-id': currentUserId || currentUserName || getCoachName()
         },
         body: JSON.stringify({
           system: systemPrompt,
@@ -2174,6 +2175,9 @@ Beachte:
 
       if(!response.ok){
         const errData = await response.json().catch(()=>({}));
+        if(response.status === 429){
+          throw new Error(errData.error?.message || 'Tageslimit erreicht. Bitte morgen wieder versuchen.');
+        }
         throw new Error(errData.error?.message || ('HTTP ' + response.status));
       }
 
