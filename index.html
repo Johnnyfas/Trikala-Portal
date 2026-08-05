@@ -527,6 +527,20 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <span id="user-label" class="user-label"></span>
     <button class="login-btn" id="login-btn" onclick="signIn()">Mit Microsoft anmelden</button>
     <button class="logout-btn" id="logout-btn" style="display:none;" onclick="signOut()">Abmelden</button>
+    <select id="excel-month-select" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;border:1px solid var(--border);border-radius:8px;padding:8px 10px;">
+      <option value="Januar">Januar</option>
+      <option value="Februar">Februar</option>
+      <option value="März">März</option>
+      <option value="April">April</option>
+      <option value="Mai">Mai</option>
+      <option value="Juni">Juni</option>
+      <option value="Juli">Juli</option>
+      <option value="August">August</option>
+      <option value="September">September</option>
+      <option value="Oktober">Oktober</option>
+      <option value="November">November</option>
+      <option value="Dezember">Dezember</option>
+    </select>
     <button class="login-btn" id="excel-sync-btn" style="display:none;background:var(--teal);" onclick="loadFromExcel()">↻ Excel aktualisieren</button>
     <button class="login-btn" id="setup-token-btn" style="display:none;background:var(--red);" onclick="registerMsToken()">🔒 NUR IOANNIS: Zugang übertragen</button>
     <span id="excel-sync-label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);"></span>
@@ -765,6 +779,14 @@ function updateLoginUI(loggedIn){
   if(ob) ob.style.display = loggedIn ? '' : 'none';
   const eb = document.getElementById('excel-sync-btn');
   if(eb) eb.style.display = loggedIn ? '' : 'none';
+  const ems = document.getElementById('excel-month-select');
+  if(ems){
+    ems.style.display = loggedIn ? '' : 'none';
+    if(loggedIn && !ems.dataset.init){
+      ems.value = new Date().toLocaleString('de-DE', {month:'long'});
+      ems.dataset.init = '1';
+    }
+  }
   const sb = document.getElementById('setup-token-btn');
   if(sb) sb.style.display = loggedIn ? '' : 'none';
 }
@@ -1296,7 +1318,8 @@ async function loadFromExcel(){
   if(!graphToken) return;
   setSyncStatus('syncing');
   let totalUpdated = 0;
-  const aktuellerMonat = new Date().toLocaleString('de-DE', {month:'long'});
+  const monthSelect = document.getElementById('excel-month-select');
+  const aktuellerMonat = (monthSelect && monthSelect.value) || new Date().toLocaleString('de-DE', {month:'long'});
   const excelErrors = [];
 
   for(const [teamId, cfg] of Object.entries(EXCEL_FILES)){
