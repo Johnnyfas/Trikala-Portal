@@ -335,6 +335,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 
 
 /* ===== Neue Features ===== */
+.ranking-outer{display:flex;flex-direction:column;gap:8px;}
 .ranking-wrap{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;}
 .ranking-box{flex:1;min-width:240px;background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 2px 12px rgba(0,0,0,0.07);}
 .ranking-box .rb-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
@@ -3211,8 +3212,8 @@ function renderVerlauf(){
   container.innerHTML = '';
 
   // ===== TOP 5 / BOTTOM 5 (Durchschnitt über alle vorhandenen Monate) =====
-  const rankWrap = document.createElement('div');
-  rankWrap.className = 'ranking-wrap';
+  const rankOuter = document.createElement('div');
+  rankOuter.className = 'ranking-outer';
 
   function avgFromVerlauf(agent, field){
     const entry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
@@ -3226,6 +3227,9 @@ function renderVerlauf(){
     const cfg = TEAM_CONFIGS[teamId];
     const teamAgents = state.agents.filter(a => a.team === teamId);
     if(!teamAgents.length) return;
+
+    const rankWrap = document.createElement('div');
+    rankWrap.className = 'ranking-wrap';
 
     const mkRankBox = (title, emoji, agents, valFn, colorFn) => {
       const box = document.createElement('div');
@@ -3262,8 +3266,10 @@ function renderVerlauf(){
       a => avgFromVerlauf(a,'nps').toFixed(1)+'%', v => '#0A7C70'));
     rankWrap.appendChild(mkRankBox('Coaching Bedarf (Ø NPS)', '⚠️', npsSorted.slice(-5).reverse().map(x=>x.agent),
       a => avgFromVerlauf(a,'nps').toFixed(1)+'%', v => '#B4423A'));
+
+    rankOuter.appendChild(rankWrap);
   });
-  container.appendChild(rankWrap);
+  container.appendChild(rankOuter);
 
   // Toolbar
   const toolbar = document.createElement('div');
