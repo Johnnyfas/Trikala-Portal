@@ -1395,11 +1395,7 @@ async function loadState(){
 function scheduleSave(){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async ()=>{
-    // Lokales Speichern versuchen (kann auf GitHub Pages fehlschlagen)
-    try{ await window.storage.set(STORAGE_KEY, JSON.stringify(state), false); }
-    catch(e){ /* Lokaler Speicher nicht verfügbar - nur SharePoint */ }
-    // SharePoint IMMER speichern wenn eingeloggt
-    if(graphToken) await saveToSharePoint();
+    await saveToSharePoint();
   }, 400);
 }
 
