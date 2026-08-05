@@ -1225,7 +1225,7 @@ async function loadFromSharePoint(){
     }
     // Jeder andere Fehler (z.B. 401/403 Berechtigung, 500, o.ä.) - NICHT automatisch überschreiben
     let errDetail = '';
-    try{ const errBody = await resp.json(); errDetail = (errBody.error && errBody.error.code) ? ` — ${errBody.error.code}: ${errBody.error.message}` : ''; }catch(e){}
+    try{ const errBody = await resp.json(); const em = errBody.error && (errBody.error.message || errBody.error.code); errDetail = em ? ` — ${em}` : ''; }catch(e){}
     showSyncDebug(`❌ Fehler beim Laden: HTTP ${resp.status} ${resp.statusText}${errDetail}. Nichts wurde überschrieben - bitte Claude Bescheid geben.`, true);
     setSyncStatus('error');
   } catch(e){
