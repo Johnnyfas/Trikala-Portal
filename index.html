@@ -2709,7 +2709,7 @@ function buildCoachingRecordForm(prefill){
       tcapId: stilSel.value === 'TCAP' ? tcapInput.value.trim() : '',
       checkliste: Object.assign({}, checklistState),
       performance: parseInt(slider.value),
-      coach: currentUserName || 'Unbekannt'
+      coach: getCoachName()
     });
     agent.coachingDatum = datum;
     if(prefill.planId){
@@ -4270,6 +4270,19 @@ loadState();
 let personalTodos = [];
 let currentUserId = null;
 let currentUserName = null;
+
+function getCoachName(){
+  if(currentUserName) return currentUserName;
+  let saved = localStorage.getItem('coach_display_name');
+  if(saved) return saved;
+  const entered = prompt('Wie heißt du? (wird bei deinen Coachings angezeigt)');
+  if(entered && entered.trim()){
+    saved = entered.trim();
+    localStorage.setItem('coach_display_name', saved);
+    return saved;
+  }
+  return 'Unbekannt';
+}
 
 async function fetchCurrentUser(){
   try{
