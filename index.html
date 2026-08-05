@@ -2352,6 +2352,20 @@ function renderCoachVerlauf(){
       delBtn.addEventListener('click', ()=>{
         const agentKey = Object.keys(state.coachverlauf).find(k=>state.coachverlauf[k]===cv);
         cv.eintraege = cv.eintraege.filter(e=>e.id!==entry.id);
+        // "Letztes Coaching" beim Mitarbeiter neu ermitteln (neuestes verbleibendes Datum, oder leeren)
+        const agent = state.agents.find(a => a.name === cv.name && a.team === cv.team);
+        if(agent){
+          if(cv.eintraege.length){
+            const newest = cv.eintraege.slice().sort((a,b)=>{
+              const da = (a.datum||'').split('.').reverse().join('-');
+              const db = (b.datum||'').split('.').reverse().join('-');
+              return db.localeCompare(da);
+            })[0];
+            agent.coachingDatum = newest.datum;
+          } else {
+            agent.coachingDatum = '';
+          }
+        }
         scheduleSave();
         renderCoachVerlauf();
       });
