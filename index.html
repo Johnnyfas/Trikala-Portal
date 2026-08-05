@@ -1951,7 +1951,8 @@ function buildKIContext(){
           dauer_min: e.dauer || null,
           performance_note: (e.performance !== undefined && e.performance !== null) ? e.performance + '/10' : null,
           notiz: e.text || null,
-          leitfaden_checkliste: e.checkliste || null
+          leitfaden_checkliste: e.checkliste || null,
+          coach: e.coach || null
         }));
         const verlaufEntry = Object.values(state.verlauf).find(v => v.name === a.name && v.team === teamId);
         const monatsverlauf = verlaufEntry ? Object.keys(verlaufEntry.monate).map(m=>({
@@ -2285,6 +2286,13 @@ function renderCoachVerlauf(){
       const meta = document.createElement('div');
       meta.className = 'cv-entry-meta';
       meta.appendChild(dateEl);
+      if(entry.coach){
+        const b = document.createElement('span');
+        b.className = 'cv-meta-badge';
+        b.style.cssText = 'background:var(--tmg)22;color:var(--tmg);';
+        b.textContent = '👤 ' + entry.coach;
+        meta.appendChild(b);
+      }
       if(entry.thema){
         const themeColor = COACH_THEMEN_COLORS[entry.thema] || '#888';
         const b = document.createElement('span');
@@ -2704,7 +2712,8 @@ function buildCoachingRecordForm(prefill){
       stil: stilSel.value,
       tcapId: stilSel.value === 'TCAP' ? tcapInput.value.trim() : '',
       checkliste: Object.assign({}, checklistState),
-      performance: parseInt(slider.value)
+      performance: parseInt(slider.value),
+      coach: currentUserName || 'Unbekannt'
     });
     agent.coachingDatum = datum;
     if(prefill.planId){
