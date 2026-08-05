@@ -1289,7 +1289,7 @@ function setSyncStatus(s){
 // Spalten: A=Name, B=Calls, C=MF NG, E=SU, G=BB, I=TV, K=VVM, Q=GESAMT CR, R=NPS
 // ============================================================
 const EXCEL_FILES = {
-  "Trikala01": { path: "Trikala-Portal/MF ScozTR_01 Live Ticker.xlsx" },
+  "Trikala01": { path: "Trikala-Portal/MF ScozTR_ 01 Live Ticker.xlsx" },
   "Trikala06": { path: "Trikala-Portal/FN ScozTR_06 Live Ticker.xlsx" }
 };
 
@@ -1338,7 +1338,15 @@ async function loadFromExcel(){
         if(row[6] !== null && row[6] !== '') agent.sales['BB']  = parseFloat(row[6]) || 0;
         if(row[8] !== null && row[8] !== '') agent.sales['TV']  = parseFloat(row[8]) || 0;
         const vvmKey = agent.team === 'Trikala06' ? 'VVM+NVM' : 'VVM+BOJ';
-        if(row[10] !== null && row[10] !== '') agent.sales[vvmKey] = parseFloat(row[10]) || 0;
+        if(agent.team === 'Trikala06'){
+          const hasVvm = row[10] !== null && row[10] !== '';
+          const hasNvm = row[12] !== null && row[12] !== '';
+          if(hasVvm || hasNvm){
+            agent.sales[vvmKey] = (hasVvm ? parseFloat(row[10])||0 : 0) + (hasNvm ? parseFloat(row[12])||0 : 0);
+          }
+        } else {
+          if(row[10] !== null && row[10] !== '') agent.sales[vvmKey] = parseFloat(row[10]) || 0;
+        }
         if(row[17] !== null && row[17] !== '' && parseFloat(row[17]) > 0) agent.nps = parseFloat(row[17]);
         if(row[18] !== null && row[18] !== '' && parseFloat(row[18]) > 0) agent.lq  = parseFloat(row[18]);
         totalUpdated++;
