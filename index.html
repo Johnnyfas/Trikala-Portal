@@ -532,6 +532,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <span id="sync-status" class="sync-badge sync-idle">Nicht verbunden</span>
     <span id="user-label" class="user-label"></span>
     <button class="login-btn" id="login-btn" onclick="signIn()">Mit Microsoft anmelden</button>
+    <span id="logged-in-name" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);align-self:center;padding:0 6px;"></span>
     <button class="logout-btn" id="logout-btn" style="display:none;" onclick="signOut()">Abmelden</button>
     <button class="login-btn" id="excel-sync-btn" style="display:none;background:var(--teal);" onclick="loadFromExcel()">↻ Excel aktualisieren</button>
     <button class="login-btn" id="setup-token-btn" style="display:none;background:var(--red);" onclick="registerMsToken()">🔒 Einloggen</button>
@@ -4292,6 +4293,11 @@ async function fetchCurrentUser(){
       const data = await resp.json();
       currentUserId = (data.mail || data.userPrincipalName || data.id || '').toLowerCase();
       currentUserName = data.displayName || '';
+      const nameEl = document.getElementById('logged-in-name');
+      if(nameEl){
+        nameEl.textContent = currentUserName ? ('Angemeldet als ' + currentUserName) : '';
+        nameEl.style.display = currentUserName ? '' : 'none';
+      }
       // Falls vorher lokal (ohne Login) Einträge gesammelt wurden, einmalig übernehmen
       if(currentUserId){
         const local = JSON.parse(localStorage.getItem('personal_todos')||'[]');
@@ -4306,8 +4312,10 @@ async function fetchCurrentUser(){
       updateTodoTicker();
       const overlay = document.getElementById('todo-modal-overlay');
       if(overlay) renderTodoBody();
+    } else if(resp) {
+      console.warn('fetchCurrentUser fehlgeschlagen:', resp.status);
     }
-  }catch(e){ /* kein Login / kein Netzwerk - lokaler Fallback bleibt aktiv */ }
+  }catch(e){ console.warn('fetchCurrentUser Fehler:', e.message); }
 }
 
 function loadTodos(){
