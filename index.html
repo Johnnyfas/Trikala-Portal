@@ -1109,6 +1109,21 @@ async function loadFromSharePoint(){
         if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
         if(data.coachingPlan) state.coachingPlan = data.coachingPlan;
         if(data.todosByUser) Object.assign(state.todosByUser, data.todosByUser);
+        // "Letztes Coaching" pro Mitarbeiter anhand der echten Verlaufsdaten geraderücken
+        // (behebt veraltete Werte, die vor einem früheren Fix entstanden sind)
+        state.agents.forEach(agent=>{
+          const cv = Object.values(state.coachverlauf).find(v => v.name === agent.name && v.team === agent.team);
+          if(cv && cv.eintraege && cv.eintraege.length){
+            const newest = cv.eintraege.slice().sort((a,b)=>{
+              const da = (a.datum||'').split('.').reverse().join('-');
+              const db = (b.datum||'').split('.').reverse().join('-');
+              return db.localeCompare(da);
+            })[0];
+            agent.coachingDatum = newest.datum;
+          } else {
+            agent.coachingDatum = '';
+          }
+        });
         // Ungültige Verlauf-Einträge entfernen
         const INVALID_NAMES = ['6','Helpline','helpline','Michas','Lekaki','Manachiari','Tstisoula'];
         // Alte Alias-Keys entfernen
@@ -3195,24 +3210,33 @@ function renderVerlauf(){
   const container = document.getElementById('verlauf-container');
   container.innerHTML = '';
 
-  // ===== TOP 5 / BOTTOM 5 =====
+  // ===== TOP 5 / BOTTOM 5 (Durchschnitt über alle vorhandenen Monate) =====
   const rankWrap = document.createElement('div');
   rankWrap.className = 'ranking-wrap';
+
+  function avgFromVerlauf(agent, field){
+    const entry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
+    if(!entry) return null;
+    const vals = Object.values(entry.monate||{}).map(m=>m[field]).filter(v=>v !== undefined && v !== null && v > 0);
+    if(!vals.length) return null;
+    return vals.reduce((s,v)=>s+v,0)/vals.length;
+  }
 
   Object.keys(TEAM_CONFIGS).forEach(teamId => {
     const cfg = TEAM_CONFIGS[teamId];
     const teamAgents = state.agents.filter(a => a.team === teamId);
     if(!teamAgents.length) return;
 
-    // Top 5 CR
-    const sorted = [...teamAgents].filter(a=>totalCr(a)>0).sort((a,b)=>totalCr(b)-totalCr(a));
-    const top5 = sorted.slice(0,5);
-    const bot5 = sorted.slice(-5).reverse();
-
     const mkRankBox = (title, emoji, agents, valFn, colorFn) => {
       const box = document.createElement('div');
       box.className = 'ranking-box';
       box.innerHTML = `<div class="rb-title">${emoji} ${title} — ${cfg.label}</div>`;
+      if(!agents.length){
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'Noch keine Verlaufsdaten.';
+        box.appendChild(empty);
+      }
       agents.forEach((a,i) => {
         const row = document.createElement('div');
         row.className = 'ranking-row';
@@ -3223,14 +3247,21 @@ function renderVerlauf(){
       return box;
     };
 
-    rankWrap.appendChild(mkRankBox('Top 5 CR', '🏆', top5,
-      a => totalCr(a).toFixed(2)+'%',
-      v => '#0A7C70'
-    ));
-    rankWrap.appendChild(mkRankBox('Coaching Bedarf', '⚠️', bot5,
-      a => totalCr(a).toFixed(2)+'%',
-      v => '#B4423A'
-    ));
+    // Ø CR über alle Monate
+    const withCr = teamAgents.map(a=>({agent:a, avg:avgFromVerlauf(a,'cr')})).filter(x=>x.avg!==null);
+    const crSorted = withCr.sort((a,b)=>b.avg-a.avg);
+    rankWrap.appendChild(mkRankBox('Ø CR (alle Monate)', '🏆', crSorted.slice(0,5).map(x=>x.agent),
+      a => avgFromVerlauf(a,'cr').toFixed(2)+'%', v => '#0A7C70'));
+    rankWrap.appendChild(mkRankBox('Coaching Bedarf (Ø CR)', '⚠️', crSorted.slice(-5).reverse().map(x=>x.agent),
+      a => avgFromVerlauf(a,'cr').toFixed(2)+'%', v => '#B4423A'));
+
+    // Ø NPS über alle Monate
+    const withNps = teamAgents.map(a=>({agent:a, avg:avgFromVerlauf(a,'nps')})).filter(x=>x.avg!==null);
+    const npsSorted = withNps.sort((a,b)=>b.avg-a.avg);
+    rankWrap.appendChild(mkRankBox('Ø NPS (alle Monate)', '🏆', npsSorted.slice(0,5).map(x=>x.agent),
+      a => avgFromVerlauf(a,'nps').toFixed(1)+'%', v => '#0A7C70'));
+    rankWrap.appendChild(mkRankBox('Coaching Bedarf (Ø NPS)', '⚠️', npsSorted.slice(-5).reverse().map(x=>x.agent),
+      a => avgFromVerlauf(a,'nps').toFixed(1)+'%', v => '#B4423A'));
   });
   container.appendChild(rankWrap);
 
@@ -3697,14 +3728,89 @@ function renderMonatsabschluss(){
         closeBtn.addEventListener('click', ()=>overlay.remove());
         const titleEl = document.createElement('div');
         titleEl.className = 'chart-popup-title'; titleEl.textContent = title;
+
+        const zoomBar = document.createElement('div');
+        zoomBar.className = 'chart-zoom-bar';
+        const zoomOutBtn = document.createElement('button'); zoomOutBtn.className='chart-zoom-btn'; zoomOutBtn.textContent='−';
+        const zoomLabel = document.createElement('span'); zoomLabel.className='chart-zoom-label'; zoomLabel.textContent='100%';
+        const zoomInBtn = document.createElement('button'); zoomInBtn.className='chart-zoom-btn'; zoomInBtn.textContent='+';
+        const zoomResetBtn = document.createElement('button'); zoomResetBtn.className='chart-zoom-btn chart-zoom-reset'; zoomResetBtn.textContent='⟲'; zoomResetBtn.title='Zurücksetzen';
+        zoomBar.appendChild(zoomOutBtn); zoomBar.appendChild(zoomLabel); zoomBar.appendChild(zoomInBtn); zoomBar.appendChild(zoomResetBtn);
+
+        const viewport = document.createElement('div');
+        viewport.className = 'chart-zoom-viewport';
         const svgWrap = document.createElement('div');
-        svgWrap.style.cssText = 'width:100%;';
+        svgWrap.style.cssText = 'width:100%;transform-origin:center center;transition:transform .05s linear;';
         svgWrap.innerHTML = makeSVGChart(buildFn(), isPercent, 820, 400, fixedMax);
-        popup.appendChild(closeBtn); popup.appendChild(titleEl); popup.appendChild(svgWrap);
+        viewport.appendChild(svgWrap);
+
+        popup.appendChild(closeBtn); popup.appendChild(titleEl); popup.appendChild(zoomBar); popup.appendChild(viewport);
         overlay.appendChild(popup); document.body.appendChild(overlay);
+
+        attachZoomPan(svgWrap, viewport, zoomLabel);
       });
     },80);
   };
+
+  // Wiederverwendbare Zoom/Pan-Steuerung für ein Element innerhalb eines Viewports
+  function attachZoomPan(el, viewport, zoomLabel){
+    let scale = 1, panX = 0, panY = 0;
+    let dragging = false, dragStartX = 0, dragStartY = 0, panStartX = 0, panStartY = 0;
+    const MIN_SCALE = 1, MAX_SCALE = 4;
+    function applyTransform(){
+      el.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+      zoomLabel.textContent = Math.round(scale*100) + '%';
+      viewport.style.cursor = scale > 1 ? 'grab' : 'default';
+    }
+    function clampPan(){
+      const maxOffset = (scale - 1) * 300 + 40;
+      panX = Math.max(-maxOffset, Math.min(maxOffset, panX));
+      panY = Math.max(-maxOffset, Math.min(maxOffset, panY));
+    }
+    function setScale(newScale){
+      scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+      if(scale === 1){ panX = 0; panY = 0; }
+      clampPan(); applyTransform();
+    }
+    const zoomBar = viewport.parentElement.querySelector('.chart-zoom-bar');
+    if(zoomBar){
+      const [outBtn, , inBtn, resetBtn] = zoomBar.children;
+      outBtn.addEventListener('click', ()=>setScale(scale - 0.25));
+      inBtn.addEventListener('click', ()=>setScale(scale + 0.25));
+      resetBtn.addEventListener('click', ()=>setScale(1));
+    }
+    viewport.addEventListener('wheel', e=>{ e.preventDefault(); setScale(scale + (e.deltaY<0?0.2:-0.2)); }, { passive:false });
+    viewport.addEventListener('mousedown', e=>{
+      if(scale<=1) return;
+      dragging=true; dragStartX=e.clientX; dragStartY=e.clientY; panStartX=panX; panStartY=panY;
+      viewport.style.cursor='grabbing';
+    });
+    window.addEventListener('mousemove', e=>{
+      if(!dragging) return;
+      panX=panStartX+(e.clientX-dragStartX); panY=panStartY+(e.clientY-dragStartY);
+      clampPan(); applyTransform();
+    });
+    window.addEventListener('mouseup', ()=>{ dragging=false; if(scale>1) viewport.style.cursor='grab'; });
+    let touchStartDist=null, touchStartScale=1;
+    viewport.addEventListener('touchstart', e=>{
+      if(e.touches.length===2){
+        touchStartDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+        touchStartScale = scale;
+      } else if(e.touches.length===1 && scale>1){
+        dragging=true; dragStartX=e.touches[0].clientX; dragStartY=e.touches[0].clientY; panStartX=panX; panStartY=panY;
+      }
+    }, { passive:true });
+    viewport.addEventListener('touchmove', e=>{
+      if(e.touches.length===2 && touchStartDist){
+        const dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+        setScale(touchStartScale * (dist/touchStartDist));
+      } else if(e.touches.length===1 && dragging){
+        panX=panStartX+(e.touches[0].clientX-dragStartX); panY=panStartY+(e.touches[0].clientY-dragStartY);
+        clampPan(); applyTransform();
+      }
+    }, { passive:true });
+    viewport.addEventListener('touchend', ()=>{ dragging=false; touchStartDist=null; });
+  }
 
   mkBox('Gesamt CR — Monatsverlauf', ()=>[
     { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; if(!md) return 0; return md.crGesamtErreicht||Object.values(md.cr||{}).reduce((s,v)=>s+v,0); }) },
