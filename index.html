@@ -1306,7 +1306,9 @@ async function loadFromExcel(){
       if(!sheetsResp.ok){
         const errText = await sheetsResp.text();
         console.error(`Excel ${teamId} Tabellenblatt-Liste fehlgeschlagen:`, sheetsResp.status, errText);
-        excelErrors.push(`${teamId}: HTTP ${sheetsResp.status} (Datei/Tabellenblätter nicht gefunden)`);
+        let detail = '';
+        try{ const eb = JSON.parse(errText); detail = eb.error ? ` — ${eb.error.code}: ${eb.error.message}` : ''; }catch(e){}
+        excelErrors.push(`${teamId}: HTTP ${sheetsResp.status}${detail}`);
         continue;
       }
       const sheetsData = await sheetsResp.json();
