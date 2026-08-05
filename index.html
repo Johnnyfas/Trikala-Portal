@@ -224,9 +224,18 @@ button.logout-btn{background:transparent;border:1px solid var(--border);color:va
 .tz-row-header{background:linear-gradient(135deg,var(--tmg) 0%,var(--tmg-dark) 100%);color:#fff;}
 .tz-row-header td{font-family:'Inter',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#9FC5C4;}
 .tz-row-date{background:#F8F9FA;color:var(--muted);}
-.tz-row-soll{background:#E8F5E9;color:#2E7D32;}
+.tz-row-soll{background:#E8F5E9;color:#2E7D32;border-top:3px solid #9C27B0;}
+.tz-row-soll td{border-top:3px solid #9C27B0;}
+.tz-row-soll td:first-child{border-left:3px solid #9C27B0;}
+.tz-row-soll td:last-child{border-right:3px solid #9C27B0;}
 .tz-row-ist{background:#FFF3E0;color:#E65100;}
-.tz-row-noch{background:#F3E5F5;color:#6A1B9A;}
+.tz-row-ist td:first-child{border-left:3px solid #9C27B0;}
+.tz-row-ist td:last-child{border-right:3px solid #9C27B0;}
+.tz-row-noch{background:#F3E5F5;color:#6A1B9A;border-bottom:3px solid #9C27B0;}
+.tz-row-noch td{border-bottom:3px solid #9C27B0;}
+.tz-row-noch td:first-child{border-left:3px solid #9C27B0;}
+.tz-row-noch td:last-child{border-right:3px solid #9C27B0;}
+.tz-row-protag{background:#FAF3FB;color:#6A1B9A;}
 .tz-row-cr{background:#CE93D8;color:#4A148C;}
 .tz-row-crziel1{background:#81C784;color:#1B5E20;}
 .tz-row-crziel2{background:#4CAF50;color:#fff;}
@@ -4036,7 +4045,7 @@ function renderTeamZiele(){
       return count || 1;
     }
     const verbleibendeAT = computeRemainingWorkdaysMoFr();
-    const proTagRow = document.createElement('tr'); proTagRow.className = 'tz-row-noch';
+    const proTagRow = document.createElement('tr'); proTagRow.className = 'tz-row-protag';
     proTagRow.appendChild(cell(`Absätze/Tag (${verbleibendeAT} verb. AT, Mo–Fr)`, 'tz-label'));
     proTagRow.appendChild(cell('')); proTagRow.appendChild(cell(''));
     cols.forEach(p => {
