@@ -4022,6 +4022,21 @@ function renderTeamZiele(){
     });
     t.appendChild(nochRow);
 
+    // === Absätze pro Arbeitstag (berechnet, Basis: 23 Arbeitstage) ===
+    const ARBEITSTAGE = 23;
+    const proTagRow = document.createElement('tr'); proTagRow.className = 'tz-row-noch';
+    proTagRow.appendChild(cell(`Absätze/Tag (${ARBEITSTAGE} AT)`, 'tz-label'));
+    proTagRow.appendChild(cell('')); proTagRow.appendChild(cell(''));
+    cols.forEach(p => {
+      const noch = (tz.soll[p]||0)-(tz.ist[p]||0);
+      const proTag = noch / ARBEITSTAGE;
+      const td = cell(proTag.toFixed(2));
+      if(noch < 0) td.style.color='#B71C1C';
+      else if(noch === 0) td.style.color = 'var(--muted)';
+      proTagRow.appendChild(td);
+    });
+    t.appendChild(proTagRow);
+
     // === CR Zeilen (mit Produkt-CRs) ===
     // Stufen: MF hat 3, FN hat 2
     const stufenMF = [
