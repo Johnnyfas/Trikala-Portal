@@ -1288,21 +1288,25 @@ function setSyncStatus(s){
 // Spalten: A=Name, B=Calls, C=MF NG, E=SU, G=BB, I=TV, K=VVM, Q=GESAMT CR, R=NPS
 // ============================================================
 const EXCEL_FILES = {
-  "Trikala01": { path: "Trikala-Portal/MF ScozTR_01 Live Ticker.xlsx", sheet: "Juli" },
-  "Trikala06": { path: "Trikala-Portal/FN ScozTR_06 Live Ticker.xlsx", sheet: "Juli" }
+  "Trikala01": { path: "Trikala-Portal/MF ScozTR_01 Live Ticker.xlsx" },
+  "Trikala06": { path: "Trikala-Portal/FN ScozTR_06 Live Ticker.xlsx" }
 };
 
 async function loadFromExcel(){
   if(!graphToken) return;
   setSyncStatus('syncing');
   let totalUpdated = 0;
+  const aktuellerMonat = new Date().toLocaleString('de-DE', {month:'long'});
+  const excelErrors = [];
 
   for(const [teamId, cfg] of Object.entries(EXCEL_FILES)){
     try {
-      const url = `/drives/${OWNER_DRIVE_ID}/root:/${cfg.path}:/workbook/worksheets/${cfg.sheet}/range(address='A5:S80')`;
+      const url = `/drives/${OWNER_DRIVE_ID}/root:/${cfg.path}:/workbook/worksheets/${aktuellerMonat}/range(address='A5:S80')`;
       const resp = await graphFetch(url);
       if(!resp.ok){
-        console.error(`Excel ${teamId} fehlgeschlagen:`, resp.status, await resp.text());
+        const errText = await resp.text();
+        console.error(`Excel ${teamId} fehlgeschlagen:`, resp.status, errText);
+        excelErrors.push(`${teamId}: HTTP ${resp.status} (Tabellenblatt "${aktuellerMonat}" gesucht)`);
         continue;
       }
       const data = await resp.json();
@@ -1339,8 +1343,12 @@ async function loadFromExcel(){
     const now = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
     const lbl = document.getElementById('excel-sync-label');
     if(lbl) lbl.textContent = `Excel: ${totalUpdated} MA · ${now}`;
+    if(excelErrors.length){
+      showSyncDebug(`⚠️ Excel teilweise aktualisiert (${totalUpdated} MA), aber Fehler bei: ${excelErrors.join(' | ')}`, true);
+    }
   } else {
     setSyncStatus('error');
+    showSyncDebug(`❌ Excel-Aktualisierung fehlgeschlagen. ${excelErrors.join(' | ') || 'Keine passenden Mitarbeiter gefunden.'}`, true);
   }
 }
 
