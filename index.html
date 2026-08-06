@@ -3343,6 +3343,7 @@ function renderVerlauf(){
   container.innerHTML = '';
 
   // ===== TOP 5 / BOTTOM 5 (Durchschnitt über alle vorhandenen Monate) =====
+  try {
   const rankOuter = document.createElement('div');
   rankOuter.className = 'ranking-outer';
 
@@ -3401,6 +3402,10 @@ function renderVerlauf(){
     rankOuter.appendChild(rankWrap);
   });
   container.appendChild(rankOuter);
+  } catch(e) {
+    console.error('Fehler bei den Ranglisten:', e);
+    showSyncDebug('⚠️ Fehler bei den Ranglisten: ' + e.message, true);
+  }
 
   // Toolbar
   const toolbar = document.createElement('div');
