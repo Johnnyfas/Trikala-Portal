@@ -137,6 +137,13 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 
 /* ===== Coaching Plan: Diagramme & Formular ===== */
 .cp-charts-row{display:flex;gap:16px;flex-wrap:wrap;}
+.cp-checklist-overview{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+.cp-co-row{display:grid;grid-template-columns:170px 1fr 44px auto;align-items:center;gap:10px;}
+.cp-co-label{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;}
+.cp-co-bar-track{height:16px;background:#F1F4F7;border-radius:8px;overflow:hidden;}
+.cp-co-bar-fill{height:100%;border-radius:8px;transition:width .3s;}
+.cp-co-pct{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;text-align:right;}
+.cp-co-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;}
 .cp-chart-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;flex:1;min-width:240px;}
 .cp-chart-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;}
 .cp-bar-row{display:flex;gap:24px;align-items:flex-end;height:160px;}
@@ -328,6 +335,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 
 
 /* ===== Neue Features ===== */
+.ranking-outer{display:flex;flex-direction:column;gap:8px;}
 .ranking-wrap{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap;}
 .ranking-box{flex:1;min-width:240px;background:#fff;border-radius:16px;padding:16px 20px;box-shadow:0 2px 12px rgba(0,0,0,0.07);}
 .ranking-box .rb-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px;}
@@ -541,7 +549,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <span id="logged-in-name" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);align-self:center;padding:0 6px;"></span>
     <button class="logout-btn" id="logout-btn" style="display:none;" onclick="signOut()">Abmelden</button>
     <button class="login-btn" id="excel-sync-btn" style="display:none;background:var(--teal);" onclick="loadFromExcel()">↻ Excel aktualisieren</button>
-    <button class="login-btn" id="setup-token-btn" style="display:none;background:var(--red);" onclick="registerMsToken()">🔒 Einloggen</button>
+    <button class="login-btn" id="setup-token-btn" style="display:none;background:var(--red);" onclick="signInAdmin()">🔒 Einloggen</button>
     <span id="excel-sync-label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);"></span>
   </div>
   <div class="tabs">
@@ -683,6 +691,7 @@ const GRAPH_FILE      = "trikala-portal-data.json";
 const OWNER_DRIVE_ID   = "b!LiS4-DvP5km4q6ILerTDekxNudCyz1pBrvWeXSm_vmOwaSSWuFMpQY7sUgZQWdRD"; // Ioannis' OneDrive - alle Führungskräfte greifen hierüber auf dieselben Daten zu
 const OWNER_FILE_ID    = "01KFIMVO7WJZDXQZQNUBG3UXWV2Z4ONO55"; // Direkte Item-ID der Datendatei - unabhängig vom Ordnerpfad, umgeht 403-Probleme bei Ordner-Berechtigungen
 const REDIRECT_URI = window.location.origin + '/Trikala-Portal/';
+const ADMIN_REDIRECT_URI = window.location.origin + '/Trikala-Portal/?admin=1'; // Public-Client-Zugang ohne 24h-Limit, nur für "Zugang übertragen"
 const SCOPES          = "Files.ReadWrite User.Read offline_access";
 
 let graphToken = null;
@@ -715,20 +724,38 @@ async function signIn(){
   window.location.href = `https://login.microsoftonline.com/${GRAPH_TENANT_ID}/oauth2/v2.0/authorize?${params}`;
 }
 
+// ---- Sign In (Admin - für "Zugang übertragen", ohne 24h-Limit) ----
+async function signInAdmin(){
+  const pkce = await generatePKCE();
+  sessionStorage.setItem('pkce_verifier_admin', pkce.verifier);
+  const params = new URLSearchParams({
+    client_id: GRAPH_CLIENT_ID,
+    response_type: 'code',
+    redirect_uri: ADMIN_REDIRECT_URI,
+    scope: SCOPES,
+    code_challenge: pkce.challenge,
+    code_challenge_method: 'S256',
+    response_mode: 'query'
+  });
+  window.location.href = `https://login.microsoftonline.com/${GRAPH_TENANT_ID}/oauth2/v2.0/authorize?${params}`;
+}
+
 // ---- Handle redirect back ----
 async function handleAuthRedirect(){
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   if(!code) return false;
+  const isAdminFlow = params.get('admin') === '1';
   // Clean URL
   window.history.replaceState({}, '', window.location.pathname);
-  const verifier = sessionStorage.getItem('pkce_verifier');
+  const verifier = sessionStorage.getItem(isAdminFlow ? 'pkce_verifier_admin' : 'pkce_verifier');
   if(!verifier) return false;
+  const usedRedirectUri = isAdminFlow ? ADMIN_REDIRECT_URI : REDIRECT_URI;
   const body = new URLSearchParams({
     client_id: GRAPH_CLIENT_ID,
     grant_type: 'authorization_code',
     code,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: usedRedirectUri,
     code_verifier: verifier,
     scope: SCOPES
   });
@@ -739,6 +766,15 @@ async function handleAuthRedirect(){
   });
   const data = await resp.json();
   if(data.access_token){
+    if(isAdminFlow){
+      // Nicht als normale Sitzung übernehmen - direkt an den Worker übertragen
+      if(data.refresh_token){
+        await registerMsToken(data.refresh_token);
+      } else {
+        alert('❌ Kein dauerhafter Zugang erhalten (kein refresh_token in der Antwort).');
+      }
+      return false;
+    }
     graphToken = data.access_token;
     sessionStorage.setItem('graph_token', graphToken);
     if(data.refresh_token) sessionStorage.setItem('refresh_token', data.refresh_token);
@@ -782,8 +818,8 @@ function updateLoginUI(loggedIn){
   if(sb) sb.style.display = loggedIn ? '' : 'none';
 }
 
-async function registerMsToken(){
-  const rt = sessionStorage.getItem('refresh_token');
+async function registerMsToken(refreshTokenArg){
+  const rt = refreshTokenArg || sessionStorage.getItem('refresh_token');
   if(!rt){
     alert('Kein Microsoft-Zugang im Speicher gefunden. Bitte einmal ab-/anmelden und erneut versuchen.');
     return;
@@ -1102,6 +1138,21 @@ async function loadFromSharePoint(){
         if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
         if(data.coachingPlan) state.coachingPlan = data.coachingPlan;
         if(data.todosByUser) Object.assign(state.todosByUser, data.todosByUser);
+        // "Letztes Coaching" pro Mitarbeiter anhand der echten Verlaufsdaten geraderücken
+        // (behebt veraltete Werte, die vor einem früheren Fix entstanden sind)
+        state.agents.forEach(agent=>{
+          const cv = Object.values(state.coachverlauf).find(v => v.name === agent.name && v.team === agent.team);
+          if(cv && cv.eintraege && cv.eintraege.length){
+            const newest = cv.eintraege.slice().sort((a,b)=>{
+              const da = (a.datum||'').split('.').reverse().join('-');
+              const db = (b.datum||'').split('.').reverse().join('-');
+              return db.localeCompare(da);
+            })[0];
+            agent.coachingDatum = newest.datum;
+          } else {
+            agent.coachingDatum = '';
+          }
+        });
         // Ungültige Verlauf-Einträge entfernen
         const INVALID_NAMES = ['6','Helpline','helpline','Michas','Lekaki','Manachiari','Tstisoula'];
         // Alte Alias-Keys entfernen
@@ -2345,6 +2396,20 @@ function renderCoachVerlauf(){
       delBtn.addEventListener('click', ()=>{
         const agentKey = Object.keys(state.coachverlauf).find(k=>state.coachverlauf[k]===cv);
         cv.eintraege = cv.eintraege.filter(e=>e.id!==entry.id);
+        // "Letztes Coaching" beim Mitarbeiter neu ermitteln (neuestes verbleibendes Datum, oder leeren)
+        const agent = state.agents.find(a => a.name === cv.name && a.team === cv.team);
+        if(agent){
+          if(cv.eintraege.length){
+            const newest = cv.eintraege.slice().sort((a,b)=>{
+              const da = (a.datum||'').split('.').reverse().join('-');
+              const db = (b.datum||'').split('.').reverse().join('-');
+              return db.localeCompare(da);
+            })[0];
+            agent.coachingDatum = newest.datum;
+          } else {
+            agent.coachingDatum = '';
+          }
+        }
         scheduleSave();
         renderCoachVerlauf();
       });
@@ -2429,6 +2494,8 @@ function computeCoachStats(){
   const countByTeam = {}, dauerByTeam = {};
   Object.values(TEAM_CONFIGS).forEach(cfg=>{ countByTeam[cfg.label]=0; dauerByTeam[cfg.label]=0; });
   const themen = {}; COACH_THEMEN.forEach(t=>themen[t]=0);
+  const checklistStats = {};
+  CHECKLIST_ITEMS.forEach(item=>{ checklistStats[item] = { ok:0, nok:0, na:0 }; });
   Object.values(state.coachverlauf).forEach(cv=>{
     const cfg = TEAM_CONFIGS[cv.team];
     const label = cfg ? cfg.label : null;
@@ -2439,9 +2506,51 @@ function computeCoachStats(){
       }
       const th = (e.thema && themen.hasOwnProperty(e.thema)) ? e.thema : 'Allgemein';
       themen[th]++;
+      if(e.checkliste){
+        CHECKLIST_ITEMS.forEach(item=>{
+          const v = e.checkliste[item];
+          if(v === 'ok') checklistStats[item].ok++;
+          else if(v === 'nok') checklistStats[item].nok++;
+          else if(v === 'na') checklistStats[item].na++;
+        });
+      }
     });
   });
-  return { countByTeam, dauerByTeam, themen };
+  return { countByTeam, dauerByTeam, themen, checklistStats };
+}
+
+function buildChecklistOverview(checklistStats){
+  const wrap = document.createElement('div');
+  wrap.className = 'cp-chart-card';
+  wrap.style.marginTop = '16px';
+
+  const rows = CHECKLIST_ITEMS.map(item=>{
+    const s = checklistStats[item];
+    const bewertet = s.ok + s.nok; // "na" zählt nicht als Bewertung
+    const nokPct = bewertet > 0 ? Math.round((s.nok / bewertet) * 100) : null;
+    return { item, ...s, bewertet, nokPct };
+  }).filter(r => r.bewertet > 0)
+    .sort((a,b) => b.nokPct - a.nokPct);
+
+  let html = `<div class="cp-chart-title">📋 Leitfaden-Auswertung — häufigste Schwachstellen im Team</div>`;
+  if(!rows.length){
+    html += `<div class="empty">Noch keine bewerteten Checklisten vorhanden.</div>`;
+  } else {
+    html += `<div class="cp-checklist-overview">`;
+    rows.forEach(r=>{
+      const color = r.nokPct >= 40 ? 'var(--red)' : r.nokPct >= 20 ? '#C2792B' : 'var(--teal)';
+      html += `
+        <div class="cp-co-row">
+          <div class="cp-co-label">${r.item}</div>
+          <div class="cp-co-bar-track"><div class="cp-co-bar-fill" style="width:${r.nokPct}%;background:${color};"></div></div>
+          <div class="cp-co-pct" style="color:${color};">${r.nokPct}%</div>
+          <div class="cp-co-count">(${r.nok} von ${r.bewertet})</div>
+        </div>`;
+    });
+    html += `</div>`;
+  }
+  wrap.innerHTML = html;
+  return wrap;
 }
 
 function buildBarChart(title, dataObj, colorMap, unitSuffix){
@@ -2764,7 +2873,7 @@ function renderCoachPlan(){
   }
 
   // ===== Diagramme =====
-  const { countByTeam, dauerByTeam, themen } = computeCoachStats();
+  const { countByTeam, dauerByTeam, themen, checklistStats } = computeCoachStats();
   const teamColorsByLabel = {};
   const palette = ['#E20074','#3B6FA0','#0E7C7B','#C2792B'];
   Object.values(TEAM_CONFIGS).forEach((cfg,i)=>{ teamColorsByLabel[cfg.label] = palette[i % palette.length]; });
@@ -2775,6 +2884,8 @@ function renderCoachPlan(){
   chartsRow.appendChild(buildBarChart('Gesamte Coaching-Dauer / Team', dauerByTeam, teamColorsByLabel, ' Min'));
   chartsRow.appendChild(buildPieChart('Coaching-Themen', themen, COACH_THEMEN_COLORS));
   container.appendChild(chartsRow);
+
+  container.appendChild(buildChecklistOverview(checklistStats));
 }
 
 function buildPlanRow(p){
@@ -3038,6 +3149,109 @@ const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','Au
 let vlSelectedAgent = {};
 
 
+const CR_IMPORT_DATA = {
+  'Mai': {
+    'Tsitsoula': 10.77, 'Dadakou': 15.06, 'Kostakopoulou': 8.20, 'Bousda': 23.35,
+    'Christodoulou': 7.82, 'Papavasileiou': 18.00, 'Papachristos': 6.97, 'Tsergoulas': 15.65,
+    'Kantzoura K.': 15.93, 'Papapostolou': 4.91, 'Papanagiotou': 9.35, 'Kantzoura Chr.': 4.33,
+    'Charchantis': 7.80, 'Tzifou': 6.11
+  },
+  'Juni': {
+    'Kostakopoulou': 8.33, 'Dadakou': 10.18, 'Papachristos': 9.41, 'Kantzoura K.': 14.22,
+    'Tzifou': 6.95, 'Christodoulou': 9.51, 'Toula': 5.6, 'Koutoumpa': 8.98, 'Lazogiannis': 11.81,
+    'Bousda': 16.52, 'Papavasileiou': 18.74, 'Tsergoulas': 17.69, 'Tsitsoula': 14,
+    'Kantzoura Chr.': 2.8, 'Papanagiotou': 7.06, 'Papapostolou': 9.7, 'Charchantis': 8.79
+  }
+};
+
+function openCrImportModal(){
+  if(document.getElementById('cr-import-overlay')) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'todo-modal-overlay';
+  overlay.id = 'cr-import-overlay';
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  const modal = document.createElement('div');
+  modal.className = 'todo-modal';
+  modal.style.width = '640px';
+
+  const head = document.createElement('div');
+  head.className = 'todo-modal-head';
+  head.innerHTML = `<div class="todo-modal-title">📥 CR importieren — Mai &amp; Juni (Festnetz)</div>`;
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'todo-modal-close'; closeBtn.innerHTML = '✕';
+  closeBtn.addEventListener('click', ()=>overlay.remove());
+  head.appendChild(closeBtn);
+  modal.appendChild(head);
+
+  const body = document.createElement('div');
+  body.className = 'todo-modal-body';
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-family:"Inter",sans-serif;font-size:12px;color:var(--muted);background:#F5F7F9;border-radius:8px;padding:10px 12px;margin-bottom:14px;';
+  hint.textContent = 'Prüfe die Zuordnung. Rot markierte Namen wurden nicht sicher gefunden - bitte manuell auswählen oder abwählen.';
+  body.appendChild(hint);
+
+  const allNames = new Set([...Object.keys(CR_IMPORT_DATA['Mai']), ...Object.keys(CR_IMPORT_DATA['Juni'])]);
+  const teamAgents = state.agents.filter(a => a.team === 'Trikala06' && a.name.trim() !== '');
+  const rowMappings = [];
+
+  Array.from(allNames).sort().forEach(csvName=>{
+    const match = teamAgents.find(a => a.name.trim().toLowerCase() === csvName.trim().toLowerCase());
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;margin-bottom:6px;background:' + (match ? '#F5F7F9' : '#FEF0EF') + ';';
+    const nameLabel = document.createElement('div');
+    nameLabel.style.cssText = 'flex:1;font-family:"IBM Plex Mono",monospace;font-size:11.5px;';
+    const maiVal = CR_IMPORT_DATA['Mai'][csvName];
+    const juniVal = CR_IMPORT_DATA['Juni'][csvName];
+    nameLabel.textContent = `${csvName}  (Mai: ${maiVal!==undefined?maiVal+'%':'–'}, Juni: ${juniVal!==undefined?juniVal+'%':'–'})`;
+    row.appendChild(nameLabel);
+    const arrow = document.createElement('div'); arrow.textContent='→'; arrow.style.color='var(--muted)'; row.appendChild(arrow);
+    const sel = document.createElement('select');
+    sel.className = 'cp-form-select'; sel.style.flex = '1';
+    sel.innerHTML = '<option value="">— nicht zuordnen —</option>' +
+      teamAgents.map(a=>`<option value="${a.id}" ${match && match.id===a.id ? 'selected':''}>${a.name}</option>`).join('');
+    row.appendChild(sel);
+    body.appendChild(row);
+    rowMappings.push({ csvName, maiVal, juniVal, sel });
+  });
+
+  const applyBtn = document.createElement('button');
+  applyBtn.className = 'primary';
+  applyBtn.style.marginTop = '14px';
+  applyBtn.textContent = 'Werte übernehmen';
+  applyBtn.addEventListener('click', ()=>{
+    let count = 0;
+    rowMappings.forEach(({maiVal, juniVal, sel})=>{
+      const agentId = sel.value;
+      if(!agentId) return;
+      const agent = state.agents.find(a=>a.id===agentId);
+      if(!agent) return;
+      let verlaufEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team==='Trikala06');
+      if(!verlaufEntry){
+        const key = agent.name + '_Trikala06';
+        state.verlauf[key] = { name: agent.name, team: 'Trikala06', monate: {} };
+        verlaufEntry = state.verlauf[key];
+      }
+      [['Mai', maiVal], ['Juni', juniVal]].forEach(([monatDe, val])=>{
+        if(val === undefined) return;
+        const monKey = '2026-' + monatDe;
+        if(!verlaufEntry.monate[monKey]) verlaufEntry.monate[monKey] = { sales:{}, calls:0, cr:0, nps:0, lq:0 };
+        verlaufEntry.monate[monKey].cr = val;
+      });
+      count++;
+    });
+    scheduleSave();
+    overlay.remove();
+    renderVerlauf();
+    alert(count + ' Mitarbeiter aktualisiert.');
+  });
+  body.appendChild(applyBtn);
+
+  modal.appendChild(body);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+}
+
 function saveMonatSnapshot(){
   const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const now = new Date();
@@ -3128,24 +3342,36 @@ function renderVerlauf(){
   const container = document.getElementById('verlauf-container');
   container.innerHTML = '';
 
-  // ===== TOP 5 / BOTTOM 5 =====
-  const rankWrap = document.createElement('div');
-  rankWrap.className = 'ranking-wrap';
+  // ===== TOP 5 / BOTTOM 5 (Durchschnitt über alle vorhandenen Monate) =====
+  const rankOuter = document.createElement('div');
+  rankOuter.className = 'ranking-outer';
+
+  function avgFromVerlauf(agent, field){
+    const entry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
+    if(!entry) return null;
+    const vals = Object.values(entry.monate||{}).map(m=>m[field]).filter(v=>v !== undefined && v !== null && v > 0);
+    if(!vals.length) return null;
+    return vals.reduce((s,v)=>s+v,0)/vals.length;
+  }
 
   Object.keys(TEAM_CONFIGS).forEach(teamId => {
     const cfg = TEAM_CONFIGS[teamId];
     const teamAgents = state.agents.filter(a => a.team === teamId);
     if(!teamAgents.length) return;
 
-    // Top 5 CR
-    const sorted = [...teamAgents].filter(a=>totalCr(a)>0).sort((a,b)=>totalCr(b)-totalCr(a));
-    const top5 = sorted.slice(0,5);
-    const bot5 = sorted.slice(-5).reverse();
+    const rankWrap = document.createElement('div');
+    rankWrap.className = 'ranking-wrap';
 
     const mkRankBox = (title, emoji, agents, valFn, colorFn) => {
       const box = document.createElement('div');
       box.className = 'ranking-box';
       box.innerHTML = `<div class="rb-title">${emoji} ${title} — ${cfg.label}</div>`;
+      if(!agents.length){
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'Noch keine Verlaufsdaten.';
+        box.appendChild(empty);
+      }
       agents.forEach((a,i) => {
         const row = document.createElement('div');
         row.className = 'ranking-row';
@@ -3156,16 +3382,25 @@ function renderVerlauf(){
       return box;
     };
 
-    rankWrap.appendChild(mkRankBox('Top 5 CR', '🏆', top5,
-      a => totalCr(a).toFixed(2)+'%',
-      v => '#0A7C70'
-    ));
-    rankWrap.appendChild(mkRankBox('Coaching Bedarf', '⚠️', bot5,
-      a => totalCr(a).toFixed(2)+'%',
-      v => '#B4423A'
-    ));
+    // Ø CR über alle Monate
+    const withCr = teamAgents.map(a=>({agent:a, avg:avgFromVerlauf(a,'cr')})).filter(x=>x.avg!==null);
+    const crSorted = withCr.sort((a,b)=>b.avg-a.avg);
+    rankWrap.appendChild(mkRankBox('Ø CR (alle Monate)', '🏆', crSorted.slice(0,5).map(x=>x.agent),
+      a => avgFromVerlauf(a,'cr').toFixed(2)+'%', v => '#0A7C70'));
+    rankWrap.appendChild(mkRankBox('Coaching Bedarf (Ø CR)', '⚠️', crSorted.slice(-5).reverse().map(x=>x.agent),
+      a => avgFromVerlauf(a,'cr').toFixed(2)+'%', v => '#B4423A'));
+
+    // Ø NPS über alle Monate
+    const withNps = teamAgents.map(a=>({agent:a, avg:avgFromVerlauf(a,'nps')})).filter(x=>x.avg!==null);
+    const npsSorted = withNps.sort((a,b)=>b.avg-a.avg);
+    rankWrap.appendChild(mkRankBox('Ø NPS (alle Monate)', '🏆', npsSorted.slice(0,5).map(x=>x.agent),
+      a => avgFromVerlauf(a,'nps').toFixed(1)+'%', v => '#0A7C70'));
+    rankWrap.appendChild(mkRankBox('Coaching Bedarf (Ø NPS)', '⚠️', npsSorted.slice(-5).reverse().map(x=>x.agent),
+      a => avgFromVerlauf(a,'nps').toFixed(1)+'%', v => '#B4423A'));
+
+    rankOuter.appendChild(rankWrap);
   });
-  container.appendChild(rankWrap);
+  container.appendChild(rankOuter);
 
   // Toolbar
   const toolbar = document.createElement('div');
@@ -3175,6 +3410,12 @@ function renderVerlauf(){
   saveBtn.textContent = '📸 Aktuellen Monat speichern';
   saveBtn.addEventListener('click', saveMonatSnapshot);
   toolbar.appendChild(saveBtn);
+  const crImportBtn = document.createElement('button');
+  crImportBtn.className = 'vl-save-btn';
+  crImportBtn.style.background = 'var(--teal)';
+  crImportBtn.textContent = '📥 CR importieren (Mai/Juni FN)';
+  crImportBtn.addEventListener('click', openCrImportModal);
+  toolbar.appendChild(crImportBtn);
   const infoSpan = document.createElement('span');
   infoSpan.style.cssText = 'font-family:"Inter",sans-serif;font-size:12px;color:var(--muted);';
   const gespeicherteSnapshots = Object.keys(state.verlauf||{}).length;
@@ -3630,14 +3871,89 @@ function renderMonatsabschluss(){
         closeBtn.addEventListener('click', ()=>overlay.remove());
         const titleEl = document.createElement('div');
         titleEl.className = 'chart-popup-title'; titleEl.textContent = title;
+
+        const zoomBar = document.createElement('div');
+        zoomBar.className = 'chart-zoom-bar';
+        const zoomOutBtn = document.createElement('button'); zoomOutBtn.className='chart-zoom-btn'; zoomOutBtn.textContent='−';
+        const zoomLabel = document.createElement('span'); zoomLabel.className='chart-zoom-label'; zoomLabel.textContent='100%';
+        const zoomInBtn = document.createElement('button'); zoomInBtn.className='chart-zoom-btn'; zoomInBtn.textContent='+';
+        const zoomResetBtn = document.createElement('button'); zoomResetBtn.className='chart-zoom-btn chart-zoom-reset'; zoomResetBtn.textContent='⟲'; zoomResetBtn.title='Zurücksetzen';
+        zoomBar.appendChild(zoomOutBtn); zoomBar.appendChild(zoomLabel); zoomBar.appendChild(zoomInBtn); zoomBar.appendChild(zoomResetBtn);
+
+        const viewport = document.createElement('div');
+        viewport.className = 'chart-zoom-viewport';
         const svgWrap = document.createElement('div');
-        svgWrap.style.cssText = 'width:100%;';
+        svgWrap.style.cssText = 'width:100%;transform-origin:center center;transition:transform .05s linear;';
         svgWrap.innerHTML = makeSVGChart(buildFn(), isPercent, 820, 400, fixedMax);
-        popup.appendChild(closeBtn); popup.appendChild(titleEl); popup.appendChild(svgWrap);
+        viewport.appendChild(svgWrap);
+
+        popup.appendChild(closeBtn); popup.appendChild(titleEl); popup.appendChild(zoomBar); popup.appendChild(viewport);
         overlay.appendChild(popup); document.body.appendChild(overlay);
+
+        attachZoomPan(svgWrap, viewport, zoomLabel);
       });
     },80);
   };
+
+  // Wiederverwendbare Zoom/Pan-Steuerung für ein Element innerhalb eines Viewports
+  function attachZoomPan(el, viewport, zoomLabel){
+    let scale = 1, panX = 0, panY = 0;
+    let dragging = false, dragStartX = 0, dragStartY = 0, panStartX = 0, panStartY = 0;
+    const MIN_SCALE = 1, MAX_SCALE = 4;
+    function applyTransform(){
+      el.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+      zoomLabel.textContent = Math.round(scale*100) + '%';
+      viewport.style.cursor = scale > 1 ? 'grab' : 'default';
+    }
+    function clampPan(){
+      const maxOffset = (scale - 1) * 300 + 40;
+      panX = Math.max(-maxOffset, Math.min(maxOffset, panX));
+      panY = Math.max(-maxOffset, Math.min(maxOffset, panY));
+    }
+    function setScale(newScale){
+      scale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
+      if(scale === 1){ panX = 0; panY = 0; }
+      clampPan(); applyTransform();
+    }
+    const zoomBar = viewport.parentElement.querySelector('.chart-zoom-bar');
+    if(zoomBar){
+      const [outBtn, , inBtn, resetBtn] = zoomBar.children;
+      outBtn.addEventListener('click', ()=>setScale(scale - 0.25));
+      inBtn.addEventListener('click', ()=>setScale(scale + 0.25));
+      resetBtn.addEventListener('click', ()=>setScale(1));
+    }
+    viewport.addEventListener('wheel', e=>{ e.preventDefault(); setScale(scale + (e.deltaY<0?0.2:-0.2)); }, { passive:false });
+    viewport.addEventListener('mousedown', e=>{
+      if(scale<=1) return;
+      dragging=true; dragStartX=e.clientX; dragStartY=e.clientY; panStartX=panX; panStartY=panY;
+      viewport.style.cursor='grabbing';
+    });
+    window.addEventListener('mousemove', e=>{
+      if(!dragging) return;
+      panX=panStartX+(e.clientX-dragStartX); panY=panStartY+(e.clientY-dragStartY);
+      clampPan(); applyTransform();
+    });
+    window.addEventListener('mouseup', ()=>{ dragging=false; if(scale>1) viewport.style.cursor='grab'; });
+    let touchStartDist=null, touchStartScale=1;
+    viewport.addEventListener('touchstart', e=>{
+      if(e.touches.length===2){
+        touchStartDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+        touchStartScale = scale;
+      } else if(e.touches.length===1 && scale>1){
+        dragging=true; dragStartX=e.touches[0].clientX; dragStartY=e.touches[0].clientY; panStartX=panX; panStartY=panY;
+      }
+    }, { passive:true });
+    viewport.addEventListener('touchmove', e=>{
+      if(e.touches.length===2 && touchStartDist){
+        const dist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX, e.touches[0].clientY-e.touches[1].clientY);
+        setScale(touchStartScale * (dist/touchStartDist));
+      } else if(e.touches.length===1 && dragging){
+        panX=panStartX+(e.touches[0].clientX-dragStartX); panY=panStartY+(e.touches[0].clientY-dragStartY);
+        clampPan(); applyTransform();
+      }
+    }, { passive:true });
+    viewport.addEventListener('touchend', ()=>{ dragging=false; touchStartDist=null; });
+  }
 
   mkBox('Gesamt CR — Monatsverlauf', ()=>[
     { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; if(!md) return 0; return md.crGesamtErreicht||Object.values(md.cr||{}).reduce((s,v)=>s+v,0); }) },
