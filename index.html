@@ -549,7 +549,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <span id="logged-in-name" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);align-self:center;padding:0 6px;"></span>
     <button class="logout-btn" id="logout-btn" style="display:none;" onclick="signOut()">Abmelden</button>
     <button class="login-btn" id="excel-sync-btn" style="display:none;background:var(--teal);" onclick="loadFromExcel()">↻ Excel aktualisieren</button>
-    <button class="login-btn" id="setup-token-btn" style="display:none;background:var(--red);" onclick="registerMsToken()">🔒 Einloggen</button>
+    <button class="login-btn" id="setup-token-btn" style="display:none;background:var(--red);" onclick="signInAdmin()">🔒 Einloggen</button>
     <span id="excel-sync-label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);"></span>
   </div>
   <div class="tabs">
@@ -691,6 +691,7 @@ const GRAPH_FILE      = "trikala-portal-data.json";
 const OWNER_DRIVE_ID   = "b!LiS4-DvP5km4q6ILerTDekxNudCyz1pBrvWeXSm_vmOwaSSWuFMpQY7sUgZQWdRD"; // Ioannis' OneDrive - alle Führungskräfte greifen hierüber auf dieselben Daten zu
 const OWNER_FILE_ID    = "01KFIMVO7WJZDXQZQNUBG3UXWV2Z4ONO55"; // Direkte Item-ID der Datendatei - unabhängig vom Ordnerpfad, umgeht 403-Probleme bei Ordner-Berechtigungen
 const REDIRECT_URI = window.location.origin + '/Trikala-Portal/';
+const ADMIN_REDIRECT_URI = window.location.origin + '/Trikala-Portal/?admin=1'; // Public-Client-Zugang ohne 24h-Limit, nur für "Zugang übertragen"
 const SCOPES          = "Files.ReadWrite User.Read offline_access";
 
 let graphToken = null;
@@ -723,20 +724,38 @@ async function signIn(){
   window.location.href = `https://login.microsoftonline.com/${GRAPH_TENANT_ID}/oauth2/v2.0/authorize?${params}`;
 }
 
+// ---- Sign In (Admin - für "Zugang übertragen", ohne 24h-Limit) ----
+async function signInAdmin(){
+  const pkce = await generatePKCE();
+  sessionStorage.setItem('pkce_verifier_admin', pkce.verifier);
+  const params = new URLSearchParams({
+    client_id: GRAPH_CLIENT_ID,
+    response_type: 'code',
+    redirect_uri: ADMIN_REDIRECT_URI,
+    scope: SCOPES,
+    code_challenge: pkce.challenge,
+    code_challenge_method: 'S256',
+    response_mode: 'query'
+  });
+  window.location.href = `https://login.microsoftonline.com/${GRAPH_TENANT_ID}/oauth2/v2.0/authorize?${params}`;
+}
+
 // ---- Handle redirect back ----
 async function handleAuthRedirect(){
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   if(!code) return false;
+  const isAdminFlow = params.get('admin') === '1';
   // Clean URL
   window.history.replaceState({}, '', window.location.pathname);
-  const verifier = sessionStorage.getItem('pkce_verifier');
+  const verifier = sessionStorage.getItem(isAdminFlow ? 'pkce_verifier_admin' : 'pkce_verifier');
   if(!verifier) return false;
+  const usedRedirectUri = isAdminFlow ? ADMIN_REDIRECT_URI : REDIRECT_URI;
   const body = new URLSearchParams({
     client_id: GRAPH_CLIENT_ID,
     grant_type: 'authorization_code',
     code,
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: usedRedirectUri,
     code_verifier: verifier,
     scope: SCOPES
   });
@@ -747,6 +766,15 @@ async function handleAuthRedirect(){
   });
   const data = await resp.json();
   if(data.access_token){
+    if(isAdminFlow){
+      // Nicht als normale Sitzung übernehmen - direkt an den Worker übertragen
+      if(data.refresh_token){
+        await registerMsToken(data.refresh_token);
+      } else {
+        alert('❌ Kein dauerhafter Zugang erhalten (kein refresh_token in der Antwort).');
+      }
+      return false;
+    }
     graphToken = data.access_token;
     sessionStorage.setItem('graph_token', graphToken);
     if(data.refresh_token) sessionStorage.setItem('refresh_token', data.refresh_token);
@@ -790,8 +818,8 @@ function updateLoginUI(loggedIn){
   if(sb) sb.style.display = loggedIn ? '' : 'none';
 }
 
-async function registerMsToken(){
-  const rt = sessionStorage.getItem('refresh_token');
+async function registerMsToken(refreshTokenArg){
+  const rt = refreshTokenArg || sessionStorage.getItem('refresh_token');
   if(!rt){
     alert('Kein Microsoft-Zugang im Speicher gefunden. Bitte einmal ab-/anmelden und erneut versuchen.');
     return;
