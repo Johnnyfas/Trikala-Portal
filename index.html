@@ -4608,14 +4608,22 @@ function openMergeAgentsModal(){
     const sel = document.createElement('select');
     sel.className = 'cp-form-select';
     sel.style.width = '100%';
-    sel.innerHTML = '<option value="">— auswählen —</option>' +
-      Object.keys(TEAM_CONFIGS).map(teamId=>{
-        const teamAgents = allAgents.filter(a=>a.team===teamId);
-        if(!teamAgents.length) return '';
-        return `<optgroup label="${TEAM_CONFIGS[teamId].label}">` +
-          teamAgents.map(a=>`<option value="${a.id}">${a.name}</option>`).join('') +
-          `</optgroup>`;
-      }).join('');
+    let html = '<option value="">— auswählen —</option>';
+    const usedIds = new Set();
+    Object.keys(TEAM_CONFIGS).forEach(teamId=>{
+      const teamAgents = allAgents.filter(a=>String(a.team)===String(teamId));
+      if(!teamAgents.length) return;
+      html += `<optgroup label="${TEAM_CONFIGS[teamId].label}">` +
+        teamAgents.map(a=>{ usedIds.add(a.id); return `<option value="${a.id}">${a.name} (${a.id.slice(0,6)})</option>`; }).join('') +
+        `</optgroup>`;
+    });
+    const rest = allAgents.filter(a=>!usedIds.has(a.id));
+    if(rest.length){
+      html += `<optgroup label="Sonstige / unklares Team">` +
+        rest.map(a=>`<option value="${a.id}">${a.name} — Team: ${a.team||'(leer)'} (${a.id.slice(0,6)})</option>`).join('') +
+        `</optgroup>`;
+    }
+    sel.innerHTML = html;
     return sel;
   }
 
