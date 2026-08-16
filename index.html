@@ -620,6 +620,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
       <span class="count" id="ov-count"></span>
       <button class="primary" id="export-png-btn">Als Bild speichern</button>
       <button class="primary" id="merge-agents-btn" style="background:var(--teal);" onclick="openMergeAgentsModal()">🔀 Mitarbeiter zusammenführen</button>
+      <button class="primary" id="merge-kantzoura-btn" style="background:var(--red);" onclick="mergeKantzoura()">🔗 Kantzoura zusammenführen (einmalig)</button>
     </div>
     <div id="overview-capture"></div>
   </div>
@@ -4574,6 +4575,72 @@ function renderTeamZiele(){
   );
 }
 
+
+function mergeKantzoura(){
+  if(!confirm('"Kantzoura" (ohne K) wird mit "Kantzoura K" zusammengeführt und danach entfernt. Fortfahren?')) return;
+  const TEAM = 'Trikala06';
+  const keepName = 'Kantzoura K';
+  const dupName = 'Kantzoura';
+
+  const keepAgent = state.agents.find(a=>a.name.trim()===keepName && a.team===TEAM);
+  const dupAgent = state.agents.find(a=>a.name.trim()===dupName && a.team===TEAM);
+  if(!keepAgent || !dupAgent){ alert('Einer der beiden Namen wurde nicht gefunden ("'+keepName+'" / "'+dupName+'").'); return; }
+
+  // Monatsverlauf zusammenführen: pro Feld den nicht-leeren/nicht-null Wert von "Kantzoura K" bevorzugen,
+  // Lücken (0/leer) mit den Werten von "Kantzoura" auffüllen.
+  const keepVlKey = Object.keys(state.verlauf).find(k=>state.verlauf[k].name===keepName && state.verlauf[k].team===TEAM);
+  const dupVlKey = Object.keys(state.verlauf).find(k=>state.verlauf[k].name===dupName && state.verlauf[k].team===TEAM);
+  if(dupVlKey){
+    const dupVl = state.verlauf[dupVlKey];
+    if(keepVlKey){
+      const keepVl = state.verlauf[keepVlKey];
+      Object.keys(dupVl.monate||{}).forEach(monKey=>{
+        const dm = dupVl.monate[monKey];
+        if(!keepVl.monate[monKey]){
+          keepVl.monate[monKey] = dm;
+          return;
+        }
+        const km = keepVl.monate[monKey];
+        ['MF','SU','BB','TV','VVM+NVM','VVM+BOJ'].forEach(p=>{
+          if((!km.sales[p] || km.sales[p]===0) && dm.sales && dm.sales[p]) km.sales[p] = dm.sales[p];
+        });
+        if((!km.calls || km.calls===0) && dm.calls) km.calls = dm.calls;
+        if((!km.cr || km.cr===0) && dm.cr) km.cr = dm.cr;
+        if((!km.nps || km.nps===0) && dm.nps) km.nps = dm.nps;
+        if((!km.lq || km.lq===0) && dm.lq) km.lq = dm.lq;
+      });
+    } else {
+      state.verlauf[keepName + '_' + TEAM] = { name: keepName, team: TEAM, monate: dupVl.monate };
+    }
+    delete state.verlauf[dupVlKey];
+  }
+
+  // Coaching Verlauf zusammenführen
+  const keepCvKey = Object.keys(state.coachverlauf).find(k=>state.coachverlauf[k].name===keepName && state.coachverlauf[k].team===TEAM);
+  const dupCvKey = Object.keys(state.coachverlauf).find(k=>state.coachverlauf[k].name===dupName && state.coachverlauf[k].team===TEAM);
+  if(dupCvKey){
+    const dupCv = state.coachverlauf[dupCvKey];
+    if(keepCvKey){
+      state.coachverlauf[keepCvKey].eintraege = [...state.coachverlauf[keepCvKey].eintraege, ...dupCv.eintraege];
+    } else {
+      state.coachverlauf[keepName + '_' + TEAM] = { name: keepName, team: TEAM, eintraege: dupCv.eintraege };
+    }
+    delete state.coachverlauf[dupCvKey];
+  }
+
+  // Geplante Coachings umhängen
+  (state.coachingPlan||[]).forEach(p=>{
+    if(p.agentId === dupAgent.id){ p.agentId = keepAgent.id; p.name = keepAgent.name; p.team = keepAgent.team; }
+  });
+
+  if(!keepAgent.coachingDatum && dupAgent.coachingDatum) keepAgent.coachingDatum = dupAgent.coachingDatum;
+
+  state.agents = state.agents.filter(a=>a.id!==dupAgent.id);
+
+  scheduleSave();
+  renderAll();
+  alert('"Kantzoura" wurde erfolgreich mit "Kantzoura K" zusammengeführt.');
+}
 
 function openMergeAgentsModal(){
   if(document.getElementById('merge-agents-overlay')) return;
