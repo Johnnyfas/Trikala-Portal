@@ -619,6 +619,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <div class="toolbar">
       <span class="count" id="ov-count"></span>
       <button class="primary" id="export-png-btn">Als Bild speichern</button>
+      <button class="primary" id="merge-agents-btn" style="background:var(--teal);" onclick="openMergeAgentsModal()">🔀 Mitarbeiter zusammenführen</button>
     </div>
     <div id="overview-capture"></div>
   </div>
@@ -4573,6 +4574,138 @@ function renderTeamZiele(){
   );
 }
 
+
+function openMergeAgentsModal(){
+  if(document.getElementById('merge-agents-overlay')) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'todo-modal-overlay';
+  overlay.id = 'merge-agents-overlay';
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  const modal = document.createElement('div');
+  modal.className = 'todo-modal';
+  modal.style.width = '520px';
+
+  const head = document.createElement('div');
+  head.className = 'todo-modal-head';
+  head.innerHTML = `<div class="todo-modal-title">🔀 Mitarbeiter zusammenführen</div>`;
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'todo-modal-close'; closeBtn.innerHTML = '✕';
+  closeBtn.addEventListener('click', ()=>overlay.remove());
+  head.appendChild(closeBtn);
+  modal.appendChild(head);
+
+  const body = document.createElement('div');
+  body.className = 'todo-modal-body';
+
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-family:"Inter",sans-serif;font-size:12px;color:var(--muted);background:#F5F7F9;border-radius:8px;padding:10px 12px;margin-bottom:14px;';
+  hint.textContent = 'Wähle die zwei doppelten Einträge. Der zweite ("Duplikat") wird gelöscht, seine Coachings und sein Monatsverlauf werden in den ersten ("Behalten") übernommen.';
+  body.appendChild(hint);
+
+  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
+  function buildAgentSelect(){
+    const sel = document.createElement('select');
+    sel.className = 'cp-form-select';
+    sel.style.width = '100%';
+    sel.innerHTML = '<option value="">— auswählen —</option>' +
+      Object.keys(TEAM_CONFIGS).map(teamId=>{
+        const teamAgents = allAgents.filter(a=>a.team===teamId);
+        if(!teamAgents.length) return '';
+        return `<optgroup label="${TEAM_CONFIGS[teamId].label}">` +
+          teamAgents.map(a=>`<option value="${a.id}">${a.name}</option>`).join('') +
+          `</optgroup>`;
+      }).join('');
+    return sel;
+  }
+
+  const keepField = labeledField('Behalten (bleibt bestehen)', buildAgentSelect());
+  const dupField = labeledField('Duplikat (wird entfernt)', buildAgentSelect());
+  body.appendChild(keepField);
+  body.appendChild(dupField);
+
+  const mergeBtn = document.createElement('button');
+  mergeBtn.className = 'primary';
+  mergeBtn.style.marginTop = '14px';
+  mergeBtn.textContent = 'Zusammenführen';
+  mergeBtn.addEventListener('click', ()=>{
+    const keepId = keepField.querySelector('select').value;
+    const dupId = dupField.querySelector('select').value;
+    if(!keepId || !dupId){ alert('Bitte beide Mitarbeiter auswählen.'); return; }
+    if(keepId === dupId){ alert('Bitte zwei unterschiedliche Mitarbeiter auswählen.'); return; }
+    const keepAgent = state.agents.find(a=>a.id===keepId);
+    const dupAgent = state.agents.find(a=>a.id===dupId);
+    if(!keepAgent || !dupAgent) return;
+    if(!confirm(`"${dupAgent.name}" wird gelöscht, alle Daten wandern zu "${keepAgent.name}". Fortfahren?`)) return;
+
+    // Coaching Verlauf zusammenführen
+    const keepCvKey = Object.keys(state.coachverlauf).find(k=>{
+      const v = state.coachverlauf[k];
+      return v.name===keepAgent.name && v.team===keepAgent.team;
+    });
+    const dupCvKey = Object.keys(state.coachverlauf).find(k=>{
+      const v = state.coachverlauf[k];
+      return v.name===dupAgent.name && v.team===dupAgent.team;
+    });
+    if(dupCvKey){
+      const dupCv = state.coachverlauf[dupCvKey];
+      if(keepCvKey){
+        state.coachverlauf[keepCvKey].eintraege = [...state.coachverlauf[keepCvKey].eintraege, ...dupCv.eintraege];
+      } else {
+        state.coachverlauf[keepAgent.name + '_' + keepAgent.team] = { name: keepAgent.name, team: keepAgent.team, eintraege: dupCv.eintraege };
+      }
+      delete state.coachverlauf[dupCvKey];
+    }
+
+    // Monatsverlauf zusammenführen
+    const keepVlKey = Object.keys(state.verlauf).find(k=>{
+      const v = state.verlauf[k];
+      return v.name===keepAgent.name && v.team===keepAgent.team;
+    });
+    const dupVlKey = Object.keys(state.verlauf).find(k=>{
+      const v = state.verlauf[k];
+      return v.name===dupAgent.name && v.team===dupAgent.team;
+    });
+    if(dupVlKey){
+      const dupVl = state.verlauf[dupVlKey];
+      if(keepVlKey){
+        const keepVl = state.verlauf[keepVlKey];
+        Object.keys(dupVl.monate||{}).forEach(monKey=>{
+          if(!keepVl.monate[monKey]){
+            keepVl.monate[monKey] = dupVl.monate[monKey];
+          }
+          // Falls beide Daten für denselben Monat haben, bleibt "Behalten" bevorzugt
+        });
+      } else {
+        state.verlauf[keepAgent.name + '_' + keepAgent.team] = { name: keepAgent.name, team: keepAgent.team, monate: dupVl.monate };
+      }
+      delete state.verlauf[dupVlKey];
+    }
+
+    // Geplante Coachings umhängen
+    (state.coachingPlan||[]).forEach(p=>{
+      if(p.agentId === dupAgent.id){ p.agentId = keepAgent.id; p.name = keepAgent.name; p.team = keepAgent.team; }
+    });
+
+    // "Letztes Coaching" ggf. übernehmen, falls beim behaltenen Eintrag leer
+    if(!keepAgent.coachingDatum && dupAgent.coachingDatum){
+      keepAgent.coachingDatum = dupAgent.coachingDatum;
+    }
+
+    // Duplikat-Mitarbeiter entfernen
+    state.agents = state.agents.filter(a=>a.id!==dupAgent.id);
+
+    scheduleSave();
+    overlay.remove();
+    renderAll();
+    alert(`"${dupAgent.name}" wurde erfolgreich mit "${keepAgent.name}" zusammengeführt.`);
+  });
+  body.appendChild(mergeBtn);
+
+  modal.appendChild(body);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
+}
 
 function renderOverview(){
   document.getElementById('ov-count').textContent = state.agents.length + ' Mitarbeiter';
