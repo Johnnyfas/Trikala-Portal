@@ -4577,20 +4577,22 @@ function renderTeamZiele(){
 
 
 function mergeKantzoura(){
-  if(!confirm('"Kantzoura" (ohne K) wird mit "Kantzoura K" zusammengeführt und danach entfernt. Fortfahren?')) return;
+  if(!confirm('Verlaufsdaten von "Kantzoura" (ohne K) werden in "Kantzoura K" übernommen. Fortfahren?')) return;
   const TEAM = 'Trikala06';
   const keepName = 'Kantzoura K';
   const dupName = 'Kantzoura';
 
   const keepAgent = state.agents.find(a=>a.name.trim()===keepName && a.team===TEAM);
-  const dupAgent = state.agents.find(a=>a.name.trim()===dupName && a.team===TEAM);
-  if(!keepAgent || !dupAgent){ alert('Einer der beiden Namen wurde nicht gefunden ("'+keepName+'" / "'+dupName+'").'); return; }
+  if(!keepAgent){ alert('"'+keepName+'" wurde nicht in den Mitarbeitern gefunden.'); return; }
+
+  let merged = false;
 
   // Monatsverlauf zusammenführen: pro Feld den nicht-leeren/nicht-null Wert von "Kantzoura K" bevorzugen,
   // Lücken (0/leer) mit den Werten von "Kantzoura" auffüllen.
   const keepVlKey = Object.keys(state.verlauf).find(k=>state.verlauf[k].name===keepName && state.verlauf[k].team===TEAM);
   const dupVlKey = Object.keys(state.verlauf).find(k=>state.verlauf[k].name===dupName && state.verlauf[k].team===TEAM);
   if(dupVlKey){
+    merged = true;
     const dupVl = state.verlauf[dupVlKey];
     if(keepVlKey){
       const keepVl = state.verlauf[keepVlKey];
@@ -4615,10 +4617,11 @@ function mergeKantzoura(){
     delete state.verlauf[dupVlKey];
   }
 
-  // Coaching Verlauf zusammenführen
+  // Coaching Verlauf zusammenführen (falls unter "Kantzoura" auch was hinterlegt ist)
   const keepCvKey = Object.keys(state.coachverlauf).find(k=>state.coachverlauf[k].name===keepName && state.coachverlauf[k].team===TEAM);
   const dupCvKey = Object.keys(state.coachverlauf).find(k=>state.coachverlauf[k].name===dupName && state.coachverlauf[k].team===TEAM);
   if(dupCvKey){
+    merged = true;
     const dupCv = state.coachverlauf[dupCvKey];
     if(keepCvKey){
       state.coachverlauf[keepCvKey].eintraege = [...state.coachverlauf[keepCvKey].eintraege, ...dupCv.eintraege];
@@ -4628,14 +4631,7 @@ function mergeKantzoura(){
     delete state.coachverlauf[dupCvKey];
   }
 
-  // Geplante Coachings umhängen
-  (state.coachingPlan||[]).forEach(p=>{
-    if(p.agentId === dupAgent.id){ p.agentId = keepAgent.id; p.name = keepAgent.name; p.team = keepAgent.team; }
-  });
-
-  if(!keepAgent.coachingDatum && dupAgent.coachingDatum) keepAgent.coachingDatum = dupAgent.coachingDatum;
-
-  state.agents = state.agents.filter(a=>a.id!==dupAgent.id);
+  if(!merged){ alert('Kein verwaister "Kantzoura"-Eintrag gefunden - nichts zu tun.'); return; }
 
   scheduleSave();
   renderAll();
