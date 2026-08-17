@@ -619,8 +619,6 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <div class="toolbar">
       <span class="count" id="ov-count"></span>
       <button class="primary" id="export-png-btn">Als Bild speichern</button>
-      <button class="primary" id="merge-agents-btn" style="background:var(--teal);" onclick="openMergeAgentsModal()">🔀 Mitarbeiter zusammenführen</button>
-      <button class="primary" id="merge-kantzoura-btn" style="background:var(--red);" onclick="mergeKantzoura()">🔗 Kantzoura zusammenführen (einmalig)</button>
     </div>
     <div id="overview-capture"></div>
   </div>
@@ -1438,6 +1436,12 @@ async function loadFromExcel(){
 
 // Auto-refresh alle 5 Minuten
 setInterval(() => { if(graphToken) loadFromExcel(); }, 5 * 60 * 1000);
+// Gemeinsame Board-Daten (Mitarbeiter, Coachings, Ziele, ...) alle 2 Minuten im Hintergrund neu laden,
+// damit Änderungen anderer Führungskräfte automatisch sichtbar werden, ohne dass man neu laden muss.
+// Wird übersprungen, während gerade ein Coaching-Formular offen ist, um laufende Eingaben nicht zu verlieren.
+setInterval(() => {
+  if(getKIAppToken() && !cpShowForm) loadFromSharePoint();
+}, 2 * 60 * 1000);
 
 function uid(){ return 'a' + Math.random().toString(36).slice(2,9); }
 
@@ -3151,109 +3155,6 @@ const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','Au
 let vlSelectedAgent = {};
 
 
-const CR_IMPORT_DATA = {
-  'Mai': {
-    'Tsitsoula': 10.77, 'Dadakou': 15.06, 'Kostakopoulou': 8.20, 'Bousda': 23.35,
-    'Christodoulou': 7.82, 'Papavasileiou': 18.00, 'Papachristos': 6.97, 'Tsergoulas': 15.65,
-    'Kantzoura K.': 15.93, 'Papapostolou': 4.91, 'Papanagiotou': 9.35, 'Kantzoura Chr.': 4.33,
-    'Charchantis': 7.80, 'Tzifou': 6.11
-  },
-  'Juni': {
-    'Kostakopoulou': 8.33, 'Dadakou': 10.18, 'Papachristos': 9.41, 'Kantzoura K.': 14.22,
-    'Tzifou': 6.95, 'Christodoulou': 9.51, 'Toula': 5.6, 'Koutoumpa': 8.98, 'Lazogiannis': 11.81,
-    'Bousda': 16.52, 'Papavasileiou': 18.74, 'Tsergoulas': 17.69, 'Tsitsoula': 14,
-    'Kantzoura Chr.': 2.8, 'Papanagiotou': 7.06, 'Papapostolou': 9.7, 'Charchantis': 8.79
-  }
-};
-
-function openCrImportModal(){
-  if(document.getElementById('cr-import-overlay')) return;
-  const overlay = document.createElement('div');
-  overlay.className = 'todo-modal-overlay';
-  overlay.id = 'cr-import-overlay';
-  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
-
-  const modal = document.createElement('div');
-  modal.className = 'todo-modal';
-  modal.style.width = '640px';
-
-  const head = document.createElement('div');
-  head.className = 'todo-modal-head';
-  head.innerHTML = `<div class="todo-modal-title">📥 CR importieren — Mai &amp; Juni (Festnetz)</div>`;
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'todo-modal-close'; closeBtn.innerHTML = '✕';
-  closeBtn.addEventListener('click', ()=>overlay.remove());
-  head.appendChild(closeBtn);
-  modal.appendChild(head);
-
-  const body = document.createElement('div');
-  body.className = 'todo-modal-body';
-  const hint = document.createElement('div');
-  hint.style.cssText = 'font-family:"Inter",sans-serif;font-size:12px;color:var(--muted);background:#F5F7F9;border-radius:8px;padding:10px 12px;margin-bottom:14px;';
-  hint.textContent = 'Prüfe die Zuordnung. Rot markierte Namen wurden nicht sicher gefunden - bitte manuell auswählen oder abwählen.';
-  body.appendChild(hint);
-
-  const allNames = new Set([...Object.keys(CR_IMPORT_DATA['Mai']), ...Object.keys(CR_IMPORT_DATA['Juni'])]);
-  const teamAgents = state.agents.filter(a => a.team === 'Trikala06' && a.name.trim() !== '');
-  const rowMappings = [];
-
-  Array.from(allNames).sort().forEach(csvName=>{
-    const match = teamAgents.find(a => a.name.trim().toLowerCase() === csvName.trim().toLowerCase());
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:8px;margin-bottom:6px;background:' + (match ? '#F5F7F9' : '#FEF0EF') + ';';
-    const nameLabel = document.createElement('div');
-    nameLabel.style.cssText = 'flex:1;font-family:"IBM Plex Mono",monospace;font-size:11.5px;';
-    const maiVal = CR_IMPORT_DATA['Mai'][csvName];
-    const juniVal = CR_IMPORT_DATA['Juni'][csvName];
-    nameLabel.textContent = `${csvName}  (Mai: ${maiVal!==undefined?maiVal+'%':'–'}, Juni: ${juniVal!==undefined?juniVal+'%':'–'})`;
-    row.appendChild(nameLabel);
-    const arrow = document.createElement('div'); arrow.textContent='→'; arrow.style.color='var(--muted)'; row.appendChild(arrow);
-    const sel = document.createElement('select');
-    sel.className = 'cp-form-select'; sel.style.flex = '1';
-    sel.innerHTML = '<option value="">— nicht zuordnen —</option>' +
-      teamAgents.map(a=>`<option value="${a.id}" ${match && match.id===a.id ? 'selected':''}>${a.name}</option>`).join('');
-    row.appendChild(sel);
-    body.appendChild(row);
-    rowMappings.push({ csvName, maiVal, juniVal, sel });
-  });
-
-  const applyBtn = document.createElement('button');
-  applyBtn.className = 'primary';
-  applyBtn.style.marginTop = '14px';
-  applyBtn.textContent = 'Werte übernehmen';
-  applyBtn.addEventListener('click', ()=>{
-    let count = 0;
-    rowMappings.forEach(({maiVal, juniVal, sel})=>{
-      const agentId = sel.value;
-      if(!agentId) return;
-      const agent = state.agents.find(a=>a.id===agentId);
-      if(!agent) return;
-      let verlaufEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team==='Trikala06');
-      if(!verlaufEntry){
-        const key = agent.name + '_Trikala06';
-        state.verlauf[key] = { name: agent.name, team: 'Trikala06', monate: {} };
-        verlaufEntry = state.verlauf[key];
-      }
-      [['Mai', maiVal], ['Juni', juniVal]].forEach(([monatDe, val])=>{
-        if(val === undefined) return;
-        const monKey = '2026-' + monatDe;
-        if(!verlaufEntry.monate[monKey]) verlaufEntry.monate[monKey] = { sales:{}, calls:0, cr:0, nps:0, lq:0 };
-        verlaufEntry.monate[monKey].cr = val;
-      });
-      count++;
-    });
-    scheduleSave();
-    overlay.remove();
-    renderVerlauf();
-    alert(count + ' Mitarbeiter aktualisiert.');
-  });
-  body.appendChild(applyBtn);
-
-  modal.appendChild(body);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-}
-
 function saveMonatSnapshot(){
   const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const now = new Date();
@@ -3417,12 +3318,6 @@ function renderVerlauf(){
   saveBtn.textContent = '📸 Aktuellen Monat speichern';
   saveBtn.addEventListener('click', saveMonatSnapshot);
   toolbar.appendChild(saveBtn);
-  const crImportBtn = document.createElement('button');
-  crImportBtn.className = 'vl-save-btn';
-  crImportBtn.style.background = 'var(--teal)';
-  crImportBtn.textContent = '📥 CR importieren (Mai/Juni FN)';
-  crImportBtn.addEventListener('click', openCrImportModal);
-  toolbar.appendChild(crImportBtn);
   const infoSpan = document.createElement('span');
   infoSpan.style.cssText = 'font-family:"Inter",sans-serif;font-size:12px;color:var(--muted);';
   const gespeicherteSnapshots = Object.keys(state.verlauf||{}).length;
@@ -4575,208 +4470,6 @@ function renderTeamZiele(){
   );
 }
 
-
-function mergeKantzoura(){
-  if(!confirm('Verlaufsdaten von "Kantzoura" (ohne K) werden in "Kantzoura K" übernommen. Fortfahren?')) return;
-  const TEAM = 'Trikala06';
-  const keepName = 'Kantzoura K';
-  const dupName = 'Kantzoura';
-
-  const keepAgent = state.agents.find(a=>a.name.trim()===keepName && a.team===TEAM);
-  if(!keepAgent){ alert('"'+keepName+'" wurde nicht in den Mitarbeitern gefunden.'); return; }
-
-  let merged = false;
-
-  // Monatsverlauf zusammenführen: pro Feld den nicht-leeren/nicht-null Wert von "Kantzoura K" bevorzugen,
-  // Lücken (0/leer) mit den Werten von "Kantzoura" auffüllen.
-  const keepVlKey = Object.keys(state.verlauf).find(k=>state.verlauf[k].name===keepName && state.verlauf[k].team===TEAM);
-  const dupVlKey = Object.keys(state.verlauf).find(k=>state.verlauf[k].name===dupName && state.verlauf[k].team===TEAM);
-  if(dupVlKey){
-    merged = true;
-    const dupVl = state.verlauf[dupVlKey];
-    if(keepVlKey){
-      const keepVl = state.verlauf[keepVlKey];
-      Object.keys(dupVl.monate||{}).forEach(monKey=>{
-        const dm = dupVl.monate[monKey];
-        if(!keepVl.monate[monKey]){
-          keepVl.monate[monKey] = dm;
-          return;
-        }
-        const km = keepVl.monate[monKey];
-        ['MF','SU','BB','TV','VVM+NVM','VVM+BOJ'].forEach(p=>{
-          if((!km.sales[p] || km.sales[p]===0) && dm.sales && dm.sales[p]) km.sales[p] = dm.sales[p];
-        });
-        if((!km.calls || km.calls===0) && dm.calls) km.calls = dm.calls;
-        if((!km.cr || km.cr===0) && dm.cr) km.cr = dm.cr;
-        if((!km.nps || km.nps===0) && dm.nps) km.nps = dm.nps;
-        if((!km.lq || km.lq===0) && dm.lq) km.lq = dm.lq;
-      });
-    } else {
-      state.verlauf[keepName + '_' + TEAM] = { name: keepName, team: TEAM, monate: dupVl.monate };
-    }
-    delete state.verlauf[dupVlKey];
-  }
-
-  // Coaching Verlauf zusammenführen (falls unter "Kantzoura" auch was hinterlegt ist)
-  const keepCvKey = Object.keys(state.coachverlauf).find(k=>state.coachverlauf[k].name===keepName && state.coachverlauf[k].team===TEAM);
-  const dupCvKey = Object.keys(state.coachverlauf).find(k=>state.coachverlauf[k].name===dupName && state.coachverlauf[k].team===TEAM);
-  if(dupCvKey){
-    merged = true;
-    const dupCv = state.coachverlauf[dupCvKey];
-    if(keepCvKey){
-      state.coachverlauf[keepCvKey].eintraege = [...state.coachverlauf[keepCvKey].eintraege, ...dupCv.eintraege];
-    } else {
-      state.coachverlauf[keepName + '_' + TEAM] = { name: keepName, team: TEAM, eintraege: dupCv.eintraege };
-    }
-    delete state.coachverlauf[dupCvKey];
-  }
-
-  if(!merged){ alert('Kein verwaister "Kantzoura"-Eintrag gefunden - nichts zu tun.'); return; }
-
-  scheduleSave();
-  renderAll();
-  alert('"Kantzoura" wurde erfolgreich mit "Kantzoura K" zusammengeführt.');
-}
-
-function openMergeAgentsModal(){
-  if(document.getElementById('merge-agents-overlay')) return;
-  const overlay = document.createElement('div');
-  overlay.className = 'todo-modal-overlay';
-  overlay.id = 'merge-agents-overlay';
-  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
-
-  const modal = document.createElement('div');
-  modal.className = 'todo-modal';
-  modal.style.width = '520px';
-
-  const head = document.createElement('div');
-  head.className = 'todo-modal-head';
-  head.innerHTML = `<div class="todo-modal-title">🔀 Mitarbeiter zusammenführen</div>`;
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'todo-modal-close'; closeBtn.innerHTML = '✕';
-  closeBtn.addEventListener('click', ()=>overlay.remove());
-  head.appendChild(closeBtn);
-  modal.appendChild(head);
-
-  const body = document.createElement('div');
-  body.className = 'todo-modal-body';
-
-  const hint = document.createElement('div');
-  hint.style.cssText = 'font-family:"Inter",sans-serif;font-size:12px;color:var(--muted);background:#F5F7F9;border-radius:8px;padding:10px 12px;margin-bottom:14px;';
-  hint.textContent = 'Wähle die zwei doppelten Einträge. Der zweite ("Duplikat") wird gelöscht, seine Coachings und sein Monatsverlauf werden in den ersten ("Behalten") übernommen.';
-  body.appendChild(hint);
-
-  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
-  function buildAgentSelect(){
-    const sel = document.createElement('select');
-    sel.className = 'cp-form-select';
-    sel.style.width = '100%';
-    let html = '<option value="">— auswählen —</option>';
-    const usedIds = new Set();
-    Object.keys(TEAM_CONFIGS).forEach(teamId=>{
-      const teamAgents = allAgents.filter(a=>String(a.team)===String(teamId));
-      if(!teamAgents.length) return;
-      html += `<optgroup label="${TEAM_CONFIGS[teamId].label}">` +
-        teamAgents.map(a=>{ usedIds.add(a.id); return `<option value="${a.id}">${a.name} (${a.id.slice(0,6)})</option>`; }).join('') +
-        `</optgroup>`;
-    });
-    const rest = allAgents.filter(a=>!usedIds.has(a.id));
-    if(rest.length){
-      html += `<optgroup label="Sonstige / unklares Team">` +
-        rest.map(a=>`<option value="${a.id}">${a.name} — Team: ${a.team||'(leer)'} (${a.id.slice(0,6)})</option>`).join('') +
-        `</optgroup>`;
-    }
-    sel.innerHTML = html;
-    return sel;
-  }
-
-  const keepField = labeledField('Behalten (bleibt bestehen)', buildAgentSelect());
-  const dupField = labeledField('Duplikat (wird entfernt)', buildAgentSelect());
-  body.appendChild(keepField);
-  body.appendChild(dupField);
-
-  const mergeBtn = document.createElement('button');
-  mergeBtn.className = 'primary';
-  mergeBtn.style.marginTop = '14px';
-  mergeBtn.textContent = 'Zusammenführen';
-  mergeBtn.addEventListener('click', ()=>{
-    const keepId = keepField.querySelector('select').value;
-    const dupId = dupField.querySelector('select').value;
-    if(!keepId || !dupId){ alert('Bitte beide Mitarbeiter auswählen.'); return; }
-    if(keepId === dupId){ alert('Bitte zwei unterschiedliche Mitarbeiter auswählen.'); return; }
-    const keepAgent = state.agents.find(a=>a.id===keepId);
-    const dupAgent = state.agents.find(a=>a.id===dupId);
-    if(!keepAgent || !dupAgent) return;
-    if(!confirm(`"${dupAgent.name}" wird gelöscht, alle Daten wandern zu "${keepAgent.name}". Fortfahren?`)) return;
-
-    // Coaching Verlauf zusammenführen
-    const keepCvKey = Object.keys(state.coachverlauf).find(k=>{
-      const v = state.coachverlauf[k];
-      return v.name===keepAgent.name && v.team===keepAgent.team;
-    });
-    const dupCvKey = Object.keys(state.coachverlauf).find(k=>{
-      const v = state.coachverlauf[k];
-      return v.name===dupAgent.name && v.team===dupAgent.team;
-    });
-    if(dupCvKey){
-      const dupCv = state.coachverlauf[dupCvKey];
-      if(keepCvKey){
-        state.coachverlauf[keepCvKey].eintraege = [...state.coachverlauf[keepCvKey].eintraege, ...dupCv.eintraege];
-      } else {
-        state.coachverlauf[keepAgent.name + '_' + keepAgent.team] = { name: keepAgent.name, team: keepAgent.team, eintraege: dupCv.eintraege };
-      }
-      delete state.coachverlauf[dupCvKey];
-    }
-
-    // Monatsverlauf zusammenführen
-    const keepVlKey = Object.keys(state.verlauf).find(k=>{
-      const v = state.verlauf[k];
-      return v.name===keepAgent.name && v.team===keepAgent.team;
-    });
-    const dupVlKey = Object.keys(state.verlauf).find(k=>{
-      const v = state.verlauf[k];
-      return v.name===dupAgent.name && v.team===dupAgent.team;
-    });
-    if(dupVlKey){
-      const dupVl = state.verlauf[dupVlKey];
-      if(keepVlKey){
-        const keepVl = state.verlauf[keepVlKey];
-        Object.keys(dupVl.monate||{}).forEach(monKey=>{
-          if(!keepVl.monate[monKey]){
-            keepVl.monate[monKey] = dupVl.monate[monKey];
-          }
-          // Falls beide Daten für denselben Monat haben, bleibt "Behalten" bevorzugt
-        });
-      } else {
-        state.verlauf[keepAgent.name + '_' + keepAgent.team] = { name: keepAgent.name, team: keepAgent.team, monate: dupVl.monate };
-      }
-      delete state.verlauf[dupVlKey];
-    }
-
-    // Geplante Coachings umhängen
-    (state.coachingPlan||[]).forEach(p=>{
-      if(p.agentId === dupAgent.id){ p.agentId = keepAgent.id; p.name = keepAgent.name; p.team = keepAgent.team; }
-    });
-
-    // "Letztes Coaching" ggf. übernehmen, falls beim behaltenen Eintrag leer
-    if(!keepAgent.coachingDatum && dupAgent.coachingDatum){
-      keepAgent.coachingDatum = dupAgent.coachingDatum;
-    }
-
-    // Duplikat-Mitarbeiter entfernen
-    state.agents = state.agents.filter(a=>a.id!==dupAgent.id);
-
-    scheduleSave();
-    overlay.remove();
-    renderAll();
-    alert(`"${dupAgent.name}" wurde erfolgreich mit "${keepAgent.name}" zusammengeführt.`);
-  });
-  body.appendChild(mergeBtn);
-
-  modal.appendChild(body);
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-}
 
 function renderOverview(){
   document.getElementById('ov-count').textContent = state.agents.length + ' Mitarbeiter';
