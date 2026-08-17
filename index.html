@@ -678,6 +678,9 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, v
   }
 } };
 let saveTimer = null;
+// Merkt sich lokal gelöschte Coaching-Einträge, damit die Zusammenführung beim Speichern
+// sie nicht versehentlich wieder herstellt, falls der Server noch die alte Version hat.
+const pendingDeletedIds = new Set();
 let currentTab = 'coachdash';
 
 
@@ -1351,7 +1354,7 @@ async function saveToSharePoint(){
             } else {
               const localIds = new Set(localCv.eintraege.map(e=>e.id));
               const merged = [...localCv.eintraege];
-              (serverCv.eintraege||[]).forEach(e=>{ if(!localIds.has(e.id)) merged.push(e); });
+              (serverCv.eintraege||[]).forEach(e=>{ if(!localIds.has(e.id) && !pendingDeletedIds.has(e.id)) merged.push(e); });
               merged.sort((a,b)=>{
                 const da = (a.datum||'').split('.').reverse().join('-');
                 const db = (b.datum||'').split('.').reverse().join('-');
@@ -1365,7 +1368,7 @@ async function saveToSharePoint(){
         // Geplante Coachings: nach id vereinen
         if(serverData.coachingPlan){
           const localIds = new Set((state.coachingPlan||[]).map(p=>p.id));
-          const extra = serverData.coachingPlan.filter(p=>!localIds.has(p.id));
+          const extra = serverData.coachingPlan.filter(p=>!localIds.has(p.id) && !pendingDeletedIds.has(p.id));
           state.coachingPlan = [...(state.coachingPlan||[]), ...extra];
         }
 
@@ -2471,6 +2474,7 @@ function renderCoachVerlauf(){
       delBtn.title = 'Eintrag löschen';
       delBtn.addEventListener('click', ()=>{
         const agentKey = Object.keys(state.coachverlauf).find(k=>state.coachverlauf[k]===cv);
+        pendingDeletedIds.add(entry.id);
         cv.eintraege = cv.eintraege.filter(e=>e.id!==entry.id);
         // "Letztes Coaching" beim Mitarbeiter neu ermitteln (neuestes verbleibendes Datum, oder leeren)
         const agent = state.agents.find(a => a.name === cv.name && a.team === cv.team);
@@ -2990,6 +2994,7 @@ function buildPlanRow(p){
     switchCoachDashSub('coachplan');
   });
   row.querySelector('.cp-del-btn').addEventListener('click', ()=>{
+    pendingDeletedIds.add(p.id);
     state.coachingPlan = state.coachingPlan.filter(x=>x.id!==p.id);
     scheduleSave();
     renderTermineKalender();
