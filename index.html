@@ -1158,8 +1158,30 @@ async function loadFromSharePoint(){
             if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
           });
         }
-        if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
-        if(data.coachingPlan) state.coachingPlan = data.coachingPlan;
+        if(data.coachverlauf){
+          Object.keys(data.coachverlauf).forEach(key=>{
+            const serverCv = data.coachverlauf[key];
+            const localCv = state.coachverlauf[key];
+            if(!localCv){
+              state.coachverlauf[key] = serverCv;
+            } else {
+              const localIds = new Set(localCv.eintraege.map(e=>e.id));
+              const merged = [...localCv.eintraege];
+              (serverCv.eintraege||[]).forEach(e=>{ if(!localIds.has(e.id) && !pendingDeletedIds.has(e.id)) merged.push(e); });
+              merged.sort((a,b)=>{
+                const da = (a.datum||'').split('.').reverse().join('-');
+                const db = (b.datum||'').split('.').reverse().join('-');
+                return db.localeCompare(da);
+              });
+              localCv.eintraege = merged;
+            }
+          });
+        }
+        if(data.coachingPlan){
+          const localIds = new Set((state.coachingPlan||[]).map(p=>p.id));
+          const extra = data.coachingPlan.filter(p=>!localIds.has(p.id) && !pendingDeletedIds.has(p.id));
+          state.coachingPlan = [...(state.coachingPlan||[]), ...extra];
+        }
         if(data.todosByUser) Object.assign(state.todosByUser, data.todosByUser);
         // "Letztes Coaching" pro Mitarbeiter anhand der echten Verlaufsdaten geraderücken
         // (behebt veraltete Werte, die vor einem früheren Fix entstanden sind)
