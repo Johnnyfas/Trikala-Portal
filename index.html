@@ -691,7 +691,7 @@ const GRAPH_FILE      = "trikala-portal-data.json";
 const OWNER_DRIVE_ID   = "b!LiS4-DvP5km4q6ILerTDekxNudCyz1pBrvWeXSm_vmOwaSSWuFMpQY7sUgZQWdRD"; // Ioannis' OneDrive - alle Führungskräfte greifen hierüber auf dieselben Daten zu
 const OWNER_FILE_ID    = "01KFIMVO7WJZDXQZQNUBG3UXWV2Z4ONO55"; // Direkte Item-ID der Datendatei - unabhängig vom Ordnerpfad, umgeht 403-Probleme bei Ordner-Berechtigungen
 const REDIRECT_URI = window.location.origin + '/Trikala-Portal/';
-const ADMIN_REDIRECT_URI = window.location.origin + '/Trikala-Portal/?admin=1'; // Public-Client-Zugang ohne 24h-Limit, nur für "Zugang übertragen"
+const ADMIN_REDIRECT_URI = window.location.origin + '/Trikala-Portal/admin.html'; // Public-Client-Zugang ohne 24h-Limit, eigene Seite um Verwechslung mit der SPA-Adresse zu vermeiden
 const SCOPES          = "Files.ReadWrite User.Read offline_access";
 
 let graphToken = null;
