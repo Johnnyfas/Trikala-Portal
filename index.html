@@ -753,12 +753,38 @@ async function handleAuthRedirect(){
     if(isAdminFlow) alert('❌ Login fehlgeschlagen: Kein PKCE-Verifier gefunden (Sitzung ggf. abgelaufen). Bitte "Einloggen" erneut versuchen.');
     return false;
   }
-  const usedRedirectUri = isAdminFlow ? ADMIN_REDIRECT_URI : REDIRECT_URI;
+
+  if(isAdminFlow){
+    // Für den öffentlichen Client-Zugang muss der Code-Austausch serverseitig (im Worker) passieren -
+    // Microsoft blockiert das direkt aus dem Browser für diesen Kontotyp.
+    const appToken = getKIAppToken();
+    if(!appToken){
+      alert('❌ Kein Zugangs-Passwort hinterlegt. Bitte zuerst in der KI Analyse das gemeinsame Passwort eingeben, dann erneut einloggen.');
+      return false;
+    }
+    try{
+      const resp = await fetch(KI_PROXY_URL + '/exchange-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
+        body: JSON.stringify({ code, code_verifier: verifier, redirect_uri: ADMIN_REDIRECT_URI })
+      });
+      const data = await resp.json();
+      if(resp.ok && data.success){
+        alert('✅ Zugang erfolgreich übertragen. Alle Führungskräfte können die Daten jetzt über das gemeinsame Passwort laden.');
+      } else {
+        alert('❌ Fehler: ' + (data.error?.message || resp.status));
+      }
+    } catch(e){
+      alert('❌ Fehler beim Übertragen: ' + e.message);
+    }
+    return false;
+  }
+
   const body = new URLSearchParams({
     client_id: GRAPH_CLIENT_ID,
     grant_type: 'authorization_code',
     code,
-    redirect_uri: usedRedirectUri,
+    redirect_uri: REDIRECT_URI,
     code_verifier: verifier,
     scope: SCOPES
   });
@@ -769,23 +795,11 @@ async function handleAuthRedirect(){
   });
   const data = await resp.json();
   if(data.access_token){
-    if(isAdminFlow){
-      // Nicht als normale Sitzung übernehmen - direkt an den Worker übertragen
-      if(data.refresh_token){
-        await registerMsToken(data.refresh_token);
-      } else {
-        alert('❌ Kein dauerhafter Zugang erhalten (kein refresh_token in der Antwort).');
-      }
-      return false;
-    }
     graphToken = data.access_token;
     sessionStorage.setItem('graph_token', graphToken);
     if(data.refresh_token) sessionStorage.setItem('refresh_token', data.refresh_token);
     updateLoginUI(true);
     return true;
-  }
-  if(isAdminFlow){
-    alert('❌ Login fehlgeschlagen: ' + (data.error_description || data.error || 'unbekannter Fehler'));
   }
   return false;
 }
