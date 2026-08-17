@@ -1310,6 +1310,56 @@ async function saveToSharePoint(){
   }
   setSyncStatus('syncing');
   try {
+    // Vor dem Speichern: aktuellsten Serverstand holen und mit den eigenen Änderungen zusammenführen,
+    // statt blind zu überschreiben - verhindert, dass parallele Änderungen anderer Personen verloren gehen.
+    try {
+      const freshResp = await fetch(KI_PROXY_URL + '/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
+        body: JSON.stringify({ action: 'load' })
+      });
+      if(freshResp && freshResp.ok){
+        const serverData = await freshResp.json();
+
+        // Coaching Verlauf: pro Mitarbeiter die Einträge beider Seiten vereinen (nach id)
+        if(serverData.coachverlauf){
+          Object.keys(serverData.coachverlauf).forEach(key=>{
+            const serverCv = serverData.coachverlauf[key];
+            const localCv = state.coachverlauf[key];
+            if(!localCv){
+              state.coachverlauf[key] = serverCv;
+            } else {
+              const localIds = new Set(localCv.eintraege.map(e=>e.id));
+              const merged = [...localCv.eintraege];
+              (serverCv.eintraege||[]).forEach(e=>{ if(!localIds.has(e.id)) merged.push(e); });
+              merged.sort((a,b)=>{
+                const da = (a.datum||'').split('.').reverse().join('-');
+                const db = (b.datum||'').split('.').reverse().join('-');
+                return db.localeCompare(da);
+              });
+              localCv.eintraege = merged;
+            }
+          });
+        }
+
+        // Geplante Coachings: nach id vereinen
+        if(serverData.coachingPlan){
+          const localIds = new Set((state.coachingPlan||[]).map(p=>p.id));
+          const extra = serverData.coachingPlan.filter(p=>!localIds.has(p.id));
+          state.coachingPlan = [...(state.coachingPlan||[]), ...extra];
+        }
+
+        // To-Do's: jede Person behält nur ihre eigenen lokal, fremde Personen vom Server übernehmen
+        if(serverData.todosByUser){
+          Object.keys(serverData.todosByUser).forEach(uid=>{
+            if(uid !== currentUserId) state.todosByUser[uid] = serverData.todosByUser[uid];
+          });
+        }
+      }
+    } catch(mergeErr){
+      console.warn('Zusammenführen vor dem Speichern fehlgeschlagen, speichere trotzdem lokalen Stand:', mergeErr);
+    }
+
     const resp = await fetch(KI_PROXY_URL + '/data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
