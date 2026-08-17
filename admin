@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Admin-Login</title>
+</head>
+<body>
+<p>Einen Moment...</p>
+<script>
+  // Microsoft leitet hierher zurück; wir reichen den Code an die Haupt-App weiter,
+  // markiert als Admin-Flow, damit dort der richtige Verifier verwendet wird.
+  const params = new URLSearchParams(window.location.search);
+  const forward = new URLSearchParams();
+  if(params.get('code')) forward.set('code', params.get('code'));
+  if(params.get('state')) forward.set('state', params.get('state'));
+  forward.set('admin', '1');
+  window.location.replace('./index.html?' + forward.toString());
+</script>
+</body>
+</html>
