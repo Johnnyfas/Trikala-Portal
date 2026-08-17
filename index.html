@@ -749,7 +749,10 @@ async function handleAuthRedirect(){
   // Clean URL
   window.history.replaceState({}, '', window.location.pathname);
   const verifier = sessionStorage.getItem(isAdminFlow ? 'pkce_verifier_admin' : 'pkce_verifier');
-  if(!verifier) return false;
+  if(!verifier){
+    if(isAdminFlow) alert('❌ Login fehlgeschlagen: Kein PKCE-Verifier gefunden (Sitzung ggf. abgelaufen). Bitte "Einloggen" erneut versuchen.');
+    return false;
+  }
   const usedRedirectUri = isAdminFlow ? ADMIN_REDIRECT_URI : REDIRECT_URI;
   const body = new URLSearchParams({
     client_id: GRAPH_CLIENT_ID,
@@ -780,6 +783,9 @@ async function handleAuthRedirect(){
     if(data.refresh_token) sessionStorage.setItem('refresh_token', data.refresh_token);
     updateLoginUI(true);
     return true;
+  }
+  if(isAdminFlow){
+    alert('❌ Login fehlgeschlagen: ' + (data.error_description || data.error || 'unbekannter Fehler'));
   }
   return false;
 }
