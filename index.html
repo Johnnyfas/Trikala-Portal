@@ -467,29 +467,31 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 .ov-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;margin:0 0 4px;color:var(--text);}
 .ov-sub{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);margin:0 0 20px;}
 .ov-team{margin-bottom:24px;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);}
-.ov-team-head{background:linear-gradient(135deg,var(--tmg) 0%,var(--tmg-dark) 100%);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
-.ov-team-head .name{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;letter-spacing:-.01em;}
-.ov-team-head .targets{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#FFB3D9;}
+.ov-team-head{background:#1D1D1F;color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.ov-team-head .name{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:600;font-size:17px;letter-spacing:-.015em;}
+.ov-team-head .targets{font-family:'Inter',-apple-system,sans-serif;font-size:12px;font-weight:500;color:rgba(255,255,255,.6);}
 .ov-grid{width:100%;background:#fff;font-size:0;}
 .ov-header-row,.ov-data-row{display:grid;align-items:stretch;}
-.ov-header-row{border-bottom:2px solid #EEF1F4;}
-.ov-data-row{border-bottom:1px solid #F5F7F9;}
+.ov-header-row{border-bottom:1px solid #E5E5EA;background:#FAFAFA;}
+.ov-data-row{border-bottom:1px solid #F0F0F2;}
 .ov-data-row:last-child{border-bottom:none;}
-.ov-data-row:hover{background:#FAFBFC;}
-.ov-cell{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;padding:9px 6px;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;}
-.ov-cell.head{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:.05em;padding:10px 6px;flex-direction:column;gap:2px;}
-.ov-cell.name-cell{font-family:'Inter',sans-serif;font-weight:600;font-size:13px;color:var(--text);text-align:left;justify-content:flex-start;padding-left:18px;flex:0 1 auto;white-space:nowrap;}
-.ov-cell.name-cell.head{justify-content:flex-start;padding-left:18px;}
-.ov-cell.qual-cell{flex:0 0 78px;background:#E9EBEE;min-width:78px;}
-.ov-cell.qual-cell.head{background:#DEE1E6;color:#4A5560;border-bottom:2px solid #C5CAD1;}
-.ov-cell.sales-cell{flex:0 0 80px;background:#F5F6F7;}
-.ov-cell.sales-cell.head{background:#EEF0F2;color:#5A6572;border-bottom:2px solid #D5D9DE;font-size:13px;font-weight:700;}
-.ov-cell.cr-cell{flex:0 0 90px;background:#E9EBEE;}
-.ov-cell.cr-cell.head{background:#DEE1E6;color:#4A5560;border-bottom:2px solid #C5CAD1;}
-.ov-badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
-.ov-badge.good{background:#E6F7F4;color:#0A7C70;}
-.ov-badge.mid{background:#FEF3E8;color:#B87030;}
-.ov-badge.zero{background:#FEF0EF;color:#B4423A;}
+.ov-data-row:nth-child(even){background:#FBFBFC;}
+.ov-data-row:hover{background:#F5F5F7;}
+.ov-cell{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;font-weight:500;color:#1D1D1F;padding:11px 6px;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;}
+.ov-cell.head{font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:600;color:#86868B;text-transform:none;letter-spacing:0;padding:11px 6px;flex-direction:column;gap:2px;}
+.ov-cell.name-cell{font-weight:600;font-size:14px;color:#1D1D1F;text-align:left;justify-content:flex-start;padding-left:20px;flex:0 1 auto;white-space:nowrap;position:relative;background:transparent !important;}
+.ov-cat-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:9px;flex-shrink:0;}
+.ov-cell.name-cell.head{justify-content:flex-start;padding-left:20px;}
+.ov-cell.qual-cell{flex:0 0 78px;background:#fff;min-width:78px;}
+.ov-cell.qual-cell.head{background:#FAFAFA;border-bottom:1px solid #E5E5EA;}
+.ov-cell.sales-cell{flex:0 0 80px;background:#fff;}
+.ov-cell.sales-cell.head{background:#FAFAFA;border-bottom:1px solid #E5E5EA;font-size:11px;font-weight:600;}
+.ov-cell.cr-cell{flex:0 0 90px;background:#fff;}
+.ov-cell.cr-cell.head{background:#FAFAFA;border-bottom:1px solid #E5E5EA;}
+.ov-badge{display:inline-block;padding:4px 11px;border-radius:980px;font-size:12px;font-weight:600;font-family:'Inter',-apple-system,sans-serif;letter-spacing:-.005em;}
+.ov-badge.good{background:#E6F9EC;color:#1D8A3E;}
+.ov-badge.mid{background:#FFF3DE;color:#B9770E;}
+.ov-badge.zero{background:#FFEBEB;color:#D70015;}
 
 /* ===== To-Do's Pop-up ===== */
 .todo-fab{position:fixed;top:16px;right:16px;z-index:1000;background:var(--tmg);color:#fff;border:none;border-radius:999px;padding:10px 18px;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 10px rgba(226,0,116,.35);display:flex;align-items:center;gap:7px;transition:background .15s;}
@@ -4632,10 +4634,10 @@ function renderOverview(){
       const cr = totalCr(agent);
       const crStatus = trafficStatus(parseFloat(cr.toFixed(2)), cfg.crTarget);
 
-      const catBg = agent.category === '6h' ? 'background:#E4ECF5;color:var(--sixh);' :
-                   agent.category === 'helpline' ? 'background:#EFE9F7;color:var(--helpline);' :
-                   'background:#F1F4F7;color:var(--text);';
-      let html = `<div class="ov-cell name-cell" style="${catBg}">${agent.name}</div>`;
+      const catDotColor = agent.category === '6h' ? 'var(--sixh)' :
+                   agent.category === 'helpline' ? 'var(--helpline)' :
+                   'transparent';
+      let html = `<div class="ov-cell name-cell"><span class="ov-cat-dot" style="background:${catDotColor};"></span>${agent.name}</div>`;
       html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal === null ? '–' : npsVal.toFixed(2)+'%'}</span></div>`;
       html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal === null ? '–' : lqVal.toFixed(2)+'%'}</span></div>`;
       cfg.products.forEach((p,i)=>{
