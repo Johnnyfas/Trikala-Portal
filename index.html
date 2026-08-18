@@ -620,12 +620,12 @@ canvas.vl-canvas{width:100%;max-height:280px;}
     <div id="kianalyse-container"></div>
   </div>
 
-  <div id="view-overview" style="display:none;">
-    <div class="toolbar">
+  <div id="view-overview" style="display:none;width:100vw;margin-left:calc(-50vw + 50%);">
+    <div class="toolbar" style="max-width:1320px;margin:0 auto 14px;padding:0 20px;">
       <span class="count" id="ov-count"></span>
       <button class="primary" id="export-png-btn">Als Bild speichern</button>
     </div>
-    <div id="overview-capture"></div>
+    <div id="overview-capture" style="padding:0 20px;"></div>
   </div>
 
   <div class="site-copyright">© <span id="copyright-year"></span> Ioannis Fasoulas. Alle Rechte vorbehalten. Diese Anwendung sowie ihr Quellcode dürfen ohne ausdrückliche schriftliche Genehmigung des Urhebers weder ganz noch teilweise kopiert, vervielfältigt, weiterverbreitet oder anderweitig verwendet werden.</div>
@@ -4613,8 +4613,8 @@ function renderOverview(){
       </div>`;
 
     const totalCols = 1 + 1 + 2 + cfg.products.length + 1;
-    const nameWidth = '110px';
-    const colWidth = '52px';
+    const nameWidth = '130px';
+    const colWidth = '64px';
     const gridCols = `${nameWidth} repeat(${totalCols - 1}, ${colWidth})`;
 
     function buildGrid(agentsSubset){
@@ -4654,15 +4654,15 @@ function renderOverview(){
                      agent.category === 'helpline' ? 'background:rgba(124,92,191,.14);color:var(--helpline);' :
                      'background:rgba(252,211,77,.28);color:#8A6D00;';
         let html = `<div class="ov-cell name-cell"><span class="ov-name-pill" style="${catBg}">${agent.name}</span></div>`;
-        html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal === null ? '–' : npsVal.toFixed(2)+'%'}</span></div>`;
-        html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal === null ? '–' : lqVal.toFixed(2)+'%'}</span></div>`;
+        html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal === null ? '–' : npsVal.toFixed(1)+'%'}</span></div>`;
+        html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal === null ? '–' : lqVal.toFixed(1)+'%'}</span></div>`;
         cfg.products.forEach((p,i)=>{
           const val = agent.sales[p];
           const isNull = (val === null || val === undefined);
           const status = isNull ? '' : trafficStatus(val, myTargets[i]);
           html += `<div class="ov-cell sales-cell"><span class="ov-badge ${status}" style="font-size:14px;padding:4px 10px;">${isNull ? '–' : Math.round(val)}</span></div>`;
         });
-        html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(2)}%</span></div>`;
+        html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(1)}%</span></div>`;
         html += `<div class="ov-cell qual-cell"><span class="ov-badge ${agent.calls===null||agent.calls===undefined?'':'good'}">${(agent.calls===null||agent.calls===undefined) ? '–' : Math.round(agent.calls)}</span></div>`;
         row.innerHTML = html;
         grid.appendChild(row);
