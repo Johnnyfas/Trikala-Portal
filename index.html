@@ -1509,11 +1509,24 @@ async function loadFromExcel(){
         }
         agent.nps = cellVal(row[17]);
         agent.lq = cellVal(row[18]);
+        window.__npsDebug = window.__npsDebug || [];
+        window.__npsDebug.push({ name: agent.name, team: agent.team, rawNps: row[17], rawLq: row[18], setNps: agent.nps, setLq: agent.lq });
         totalUpdated++;
       });
     } catch(e){
       console.error(`Excel ${teamId} Fehler:`, e);
     }
+  }
+
+  if(window.__npsDebug){
+    const problem = window.__npsDebug.filter(d =>
+      ((d.rawNps !== undefined && d.rawNps !== null && d.rawNps !== '') && d.setNps === null) ||
+      ((d.rawLq !== undefined && d.rawLq !== null && d.rawLq !== '') && d.setLq === null)
+    );
+    if(problem.length){
+      showSyncDebug('🔍 NPS/LQ-Diagnose (Wert vorhanden, aber nicht übernommen): ' + problem.map(p=>`${p.name} (${p.team}): roh-NPS=${JSON.stringify(p.rawNps)} roh-LQ=${JSON.stringify(p.rawLq)}`).join(' | '), true);
+    }
+    window.__npsDebug = [];
   }
 
   if(totalUpdated > 0){
