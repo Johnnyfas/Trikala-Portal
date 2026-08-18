@@ -4648,7 +4648,9 @@ function renderOverview(){
         const lqVal = (agent.lq === null || agent.lq === undefined) ? null : agent.lq;
         const lqClass = lqVal !== null && lqVal >= lqTarget ? 'good' : lqVal === null ? '' : 'zero';
         const cr = totalCr(agent);
-        const crStatus = trafficStatus(parseFloat(cr.toFixed(2)), cfg.crTarget);
+        const crRedThreshold = teamId === 'Trikala01' ? 4 : 7;
+        const crValRounded = parseFloat(cr.toFixed(2));
+        const crStatus = crValRounded < crRedThreshold ? 'zero' : (crValRounded >= cfg.crTarget ? 'good' : 'mid');
 
         const catBg = agent.category === '6h' ? 'background:rgba(59,111,160,.14);color:var(--sixh);' :
                      agent.category === 'helpline' ? 'background:rgba(124,92,191,.14);color:var(--helpline);' :
