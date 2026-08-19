@@ -47,7 +47,10 @@ header.board-header{display:flex;justify-content:space-between;align-items:flex-
 h1{font-family:'Space Grotesk',sans-serif;font-size:28px;margin:0;letter-spacing:-.01em;}
 .title-block p{margin:6px 0 0;color:var(--muted);font-size:13.5px;}
 
-.tabs{display:flex;gap:8px;margin-bottom:18px;}
+.tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+@media (max-width: 900px){
+  .todo-fab{position:static;margin-bottom:10px;display:inline-flex;}
+}
 .tab-btn{
   background:var(--panel);border:1px solid var(--border);color:var(--muted);
   padding:9px 18px;border-radius:8px;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;cursor:pointer;
@@ -249,6 +252,20 @@ button.logout-btn{background:transparent;border:1px solid var(--border);color:va
 
 /* Gesamt CR Kasten */
 .tz-team-layout{display:flex;gap:20px;align-items:flex-start;}
+.ma-layout{display:flex;gap:20px;align-items:flex-start;}
+.ma-table-wrap{flex:1;min-width:0;overflow-x:auto;}
+.ma-side-box{display:flex;flex-direction:column;gap:12px;min-width:130px;max-width:130px;flex-shrink:0;}
+@media (max-width: 900px){
+  .tz-team-layout{flex-direction:column;}
+  .cr-sidebar{flex-direction:row;flex-wrap:wrap;min-width:0;width:100%;}
+  .ma-layout{flex-direction:column;}
+  .ma-side-box{flex-direction:row;flex-wrap:wrap;min-width:0;max-width:none;width:100%;}
+  .ov-columns-wrap{flex-direction:column;}
+  .ov-column-divider{width:100%;height:10px;}
+}
+@media (min-width: 901px){
+  .ov-view-outer{width:100vw;margin-left:calc(-50vw + 50%);}
+}
 .tz-table-wrap{flex:1;min-width:0;}
 .cr-sidebar{display:flex;flex-direction:column;gap:12px;min-width:160px;}
 .cr-box{border-radius:16px;padding:16px 20px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.10);position:relative;overflow:hidden;}
@@ -638,12 +655,12 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
     <div id="kianalyse-container"></div>
   </div>
 
-  <div id="view-overview" style="display:none;width:100vw;margin-left:calc(-50vw + 50%);">
+  <div id="view-overview" class="ov-view-outer" style="display:none;">
     <div class="toolbar" style="max-width:1320px;margin:0 auto 14px;padding:0 20px;">
       <span class="count" id="ov-count"></span>
       <button class="primary" id="export-png-btn">Als Bild speichern</button>
     </div>
-    <div id="overview-capture" style="padding:0 20px;"></div>
+    <div id="overview-capture" style="padding:0 20px;overflow-x:auto;"></div>
   </div>
 
   <div class="site-copyright">© <span id="copyright-year"></span> Ioannis Fasoulas. Alle Rechte vorbehalten. Diese Anwendung sowie ihr Quellcode dürfen ohne ausdrückliche schriftliche Genehmigung des Urhebers weder ganz noch teilweise kopiert, vervielfältigt, weiterverbreitet oder anderweitig verwendet werden.</div>
@@ -4326,13 +4343,13 @@ function renderMonatsabschluss(){
 
     // NPS Box links
     const npsLeftBox = document.createElement('div');
-    npsLeftBox.style.cssText = 'display:flex;flex-direction:column;gap:12px;min-width:130px;max-width:130px;';
+    npsLeftBox.className = 'ma-side-box';
     npsLeftBox.appendChild(mkNpsBox('ziel', 'NPS Ziel', md.nps_plan, v=>{ md.nps_plan=v; }));
     npsLeftBox.appendChild(mkNpsBox('ist', 'NPS Erreicht', md.nps_ist, v=>{ md.nps_ist=v; }));
 
     // CR Box rechts
     const crRightBox = document.createElement('div');
-    crRightBox.style.cssText = 'display:flex;flex-direction:column;gap:12px;min-width:130px;max-width:130px;';
+    crRightBox.className = 'ma-side-box';
     // CR Gesamt automatisch berechnen aus Produkt-CRs
     const EXCL_CR = teamKey === 'fn' ? ['BOJ'] : [];
     const crGesamtCalc = Object.entries(md.cr||{})
@@ -4368,9 +4385,9 @@ function renderMonatsabschluss(){
 
     // Layout: NPS links | Tabelle mitte | CR rechts
     const maLayout = document.createElement('div');
-    maLayout.style.cssText = 'display:flex;gap:20px;align-items:flex-start;';
+    maLayout.className = 'ma-layout';
     const tableWrapMA = document.createElement('div');
-    tableWrapMA.style.cssText = 'flex:1;min-width:0;overflow-x:auto;';
+    tableWrapMA.className = 'ma-table-wrap';
     tableWrapMA.appendChild(t);
     maLayout.appendChild(npsLeftBox);
     maLayout.appendChild(tableWrapMA);
