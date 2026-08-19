@@ -400,6 +400,18 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 .ki-send:disabled{opacity:.5;cursor:not-allowed;}
 .ki-history{display:flex;flex-direction:column;gap:14px;}
 .ki-msg{padding:14px 18px;border-radius:14px;font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.6;}
+.ki-h{font-family:'Space Grotesk',sans-serif;font-weight:700;margin:10px 0 6px;}
+h3.ki-h{font-size:15.5px;color:var(--tmg);}
+h4.ki-h{font-size:13.5px;color:var(--text);}
+.ki-p{margin:4px 0;}
+.ki-gap{height:6px;}
+.ki-hr{border:none;border-top:1px solid var(--border);margin:10px 0;}
+.ki-list{margin:4px 0 8px 18px;padding:0;}
+.ki-list li{margin-bottom:3px;}
+.ki-table{border-collapse:collapse;width:100%;margin:8px 0 12px;font-size:12.5px;}
+.ki-table th{background:#1C2733;color:#9FC5C4;font-weight:700;text-align:left;padding:7px 10px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;}
+.ki-table td{padding:7px 10px;border-bottom:1px solid var(--border);}
+.ki-table tr:nth-child(even) td{background:#FAFBFC;}
 .ki-msg.user{background:linear-gradient(135deg,var(--tmg),var(--tmg-dark));color:#fff;align-self:flex-end;max-width:80%;}
 .ki-msg.assistant{background:#fff;border:1px solid var(--border);color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
 .ki-msg.loading{background:#f8f9fa;color:var(--muted);font-style:italic;}
@@ -2286,10 +2298,76 @@ function renderKIAnalyse(){
   // Bestehende History anzeigen
   kiHistory.forEach(msg=>addMsgBubble(msg.role, msg.content, historyEl));
 
+  function renderMarkdown(text){
+    const lines = text.split('\n');
+    let html = '';
+    let i = 0;
+    let inList = false;
+    while(i < lines.length){
+      const line = lines[i];
+
+      // Tabelle erkennen
+      if(/^\s*\|.*\|\s*$/.test(line)){
+        const tableLines = [];
+        while(i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])){
+          tableLines.push(lines[i]);
+          i++;
+        }
+        const rows = tableLines
+          .filter(l => !/^\s*\|[\s:|-]+\|\s*$/.test(l)) // Trennzeile |---|---| rauswerfen
+          .map(l => l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()));
+        if(rows.length){
+          html += '<table class="ki-table"><thead><tr>' +
+            rows[0].map(c=>`<th>${inlineMd(c)}</th>`).join('') +
+            '</tr></thead><tbody>' +
+            rows.slice(1).map(r=>'<tr>' + r.map(c=>`<td>${inlineMd(c)}</td>`).join('') + '</tr>').join('') +
+            '</tbody></table>';
+        }
+        continue;
+      }
+
+      // Überschriften
+      let m;
+      if((m = /^###\s+(.*)/.exec(line))){ html += `<h4 class="ki-h">${inlineMd(m[1])}</h4>`; i++; continue; }
+      if((m = /^##\s+(.*)/.exec(line))){ html += `<h3 class="ki-h">${inlineMd(m[1])}</h3>`; i++; continue; }
+      if((m = /^#\s+(.*)/.exec(line))){ html += `<h2 class="ki-h">${inlineMd(m[1])}</h2>`; i++; continue; }
+
+      // Horizontale Linie
+      if(/^\s*---+\s*$/.test(line)){ html += '<hr class="ki-hr">'; i++; continue; }
+
+      // Listenpunkte
+      if((m = /^\s*[-*]\s+(.*)/.exec(line))){
+        if(!inList){ html += '<ul class="ki-list">'; inList = true; }
+        html += `<li>${inlineMd(m[1])}</li>`;
+        i++;
+        continue;
+      }
+      if(inList){ html += '</ul>'; inList = false; }
+
+      // Leerzeile
+      if(line.trim() === ''){ html += '<div class="ki-gap"></div>'; i++; continue; }
+
+      // Normaler Absatz
+      html += `<p class="ki-p">${inlineMd(line)}</p>`;
+      i++;
+    }
+    if(inList) html += '</ul>';
+    return html;
+  }
+  function inlineMd(s){
+    return s
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>');
+  }
+
   function addMsgBubble(role, text, parent){
     const el = document.createElement('div');
     el.className = 'ki-msg ' + role;
-    el.innerHTML = text.split(String.fromCharCode(10)).join('<br>');
+    if(role === 'assistant'){
+      el.innerHTML = renderMarkdown(text);
+    } else {
+      el.innerHTML = text.split(String.fromCharCode(10)).join('<br>');
+    }
     parent.appendChild(el);
     el.scrollIntoView({behavior:'smooth',block:'nearest'});
     return el;
@@ -2332,6 +2410,8 @@ WICHTIG - KEINE REINE ZUSAMMENFASSUNG: Wenn es um einen oder mehrere Mitarbeiter
 4. Schließe mit einer kurzen, klaren Einschätzung/Ausblick ab (z.B. wo der Mitarbeiter in den nächsten Wochen stehen könnte, wenn die Empfehlung umgesetzt wird).
 
 FORM: Antworte ausführlich genug, um direkt als Grundlage für ein Mitarbeitergespräch zu dienen, aber klar strukturiert (z.B. mit kurzen Abschnitten oder Aufzählungen für Stärken / Schwachstellen / Empfehlung) statt als ein dichter Fließtext-Block. Vermeide bloßes Nacherzählen von Notizen in eigenen Worten — jede Aussage soll eine Bewertung oder Handlungsempfehlung enthalten, keine reine Wiedergabe.
+- Markiere Zahlen/Kennzahlen IMMER mit einem Farbsymbol direkt davor, damit auf einen Blick klar ist, ob sie gut oder schlecht sind: 🟢 wenn Ziel erreicht/übertroffen, 🟡 wenn knapp darunter (grob within 15% des Ziels), 🔴 wenn deutlich unter Ziel. Das gilt in Tabellen genauso wie im Fließtext.
+- Nutze zusätzlich passende Symbole zur Orientierung: ✅ für Stärken, ⚠️ für Schwachstellen, 💡 für Lösungsvorschläge, 📈/📉 für steigende/fallende Trends.
 - Vergleiche mit Zielen (CR-Ziel, NPS-Ziel, LQ-Ziel, Team-Soll/Ist)
 - Bei einer "Zusammenfassung" oder allgemeinen Fragen zu mehreren Mitarbeitern: wende das gleiche Prinzip (Stärken + Schwachstellen + Lösung) kompakt auf jeden relevanten Mitarbeiter an, nicht nur eine Liste von Kennzahlen
 - Antworte auf Deutsch, klar und verständlich formuliert - keine unnötigen Fachbegriffe ohne Erklärung
