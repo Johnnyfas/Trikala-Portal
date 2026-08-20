@@ -4716,10 +4716,10 @@ function renderOverview(){
       <div class="ov-team-head">
         <span class="name">${cfg.label} — ${cfg.project}</span>
       </div>
-      <div style="background:#1C1C1E;padding:8px 16px;border-bottom:1px solid rgba(255,255,255,.08);">
-        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#98989D;">Standard: ${legendLine('regular')}</div>
-        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#6FA8DC;">6-Stündler: ${legendLine('6h')}</div>
-        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#B79CE8;">Helpline: ${legendLine('helpline')}</div>
+      <div style="background:#1C1C1E;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08);text-align:center;">
+        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#98989D;margin-bottom:4px;">Standard: ${legendLine('regular')}</div>
+        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#6FA8DC;margin-bottom:4px;">6-Stündler: ${legendLine('6h')}</div>
+        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#B79CE8;">Helpline: ${legendLine('helpline')}</div>
       </div>`;
 
     const totalCols = 1 + 1 + 2 + cfg.products.length + 1;
