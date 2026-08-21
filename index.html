@@ -4599,9 +4599,12 @@ function renderTeamZiele(){
     proTagRow.appendChild(cell(`Absätze/Tag (${verbleibendeAT} verb. AT, Mo–Fr)`, 'tz-label'));
     proTagRow.appendChild(cell('')); proTagRow.appendChild(cell(''));
     cols.forEach(p => {
-      const noch = (tz.soll[p]||0)-(tz.ist[p]||0);
+      const soll = tz.soll[p]||0;
+      const ist = tz.ist[p]||0;
+      const noch = soll - ist;
       const proTag = noch / verbleibendeAT;
-      const td = cell(proTag.toFixed(2));
+      const erfuellung = soll > 0 ? (ist / soll) * 100 : 0;
+      const td = cell(`${proTag.toFixed(2)} (${erfuellung.toFixed(0)}%)`);
       if(noch < 0) td.style.color='#B71C1C';
       else if(noch === 0) td.style.color = 'var(--muted)';
       proTagRow.appendChild(td);
