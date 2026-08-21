@@ -1824,34 +1824,38 @@ function renderCoaching(){
       crBadgeWrap.appendChild(crBadge);
       topLeft.appendChild(crBadgeWrap);
 
-      // === Trend vs. Vormonat (CR & NPS) ===
+      // === Trend: aktuelle Live-Zahlen vs. letzter gespeicherter Monat ===
       const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
       if(vlEntry && vlEntry.monate){
         const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-        const monKeys = Object.keys(vlEntry.monate).sort((a,b)=>{
-          const [ya,ma] = a.split('-'); const [yb,mb] = b.split('-');
-          if(ya !== yb) return ya.localeCompare(yb);
-          return MONATE_ORDER.indexOf(ma) - MONATE_ORDER.indexOf(mb);
-        });
-        const letzter = monKeys[monKeys.length-1];
-        const vorletzter = monKeys[monKeys.length-2];
-        if(letzter && vorletzter){
-          const mkTrend = (feld, label, suffix) => {
-            const jetzt = vlEntry.monate[letzter][feld] || 0;
-            const davor = vlEntry.monate[vorletzter][feld] || 0;
+        const aktuellerMonatName = new Date().toLocaleString('de-DE', {month:'long'});
+        // Nur Monate berücksichtigen, die NICHT der laufende Monat sind -
+        // sonst würde man den aktuellen Stand mit sich selbst vergleichen.
+        const monKeys = Object.keys(vlEntry.monate)
+          .filter(k => k.split('-')[1] !== aktuellerMonatName)
+          .sort((a,b)=>{
+            const [ya,ma] = a.split('-'); const [yb,mb] = b.split('-');
+            if(ya !== yb) return ya.localeCompare(yb);
+            return MONATE_ORDER.indexOf(ma) - MONATE_ORDER.indexOf(mb);
+          });
+        const referenz = monKeys[monKeys.length-1];
+        if(referenz){
+          const mkTrend = (jetztVal, feld, label, suffix) => {
+            const davor = vlEntry.monate[referenz][feld] || 0;
             if(!davor) return null;
-            const diff = jetzt - davor;
+            if(jetztVal === null || jetztVal === undefined) return null;
+            const diff = jetztVal - davor;
             if(Math.abs(diff) < 0.1) return null;
             const up = diff > 0;
             const span = document.createElement('span');
             span.style.cssText = `font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:${up?'var(--teal-soft)':'var(--red-soft)'};color:${up?'var(--teal)':'var(--red)'};`;
-            span.textContent = `${label} ${up?'▲':'▼'} ${Math.abs(diff).toFixed(1)}${suffix} vs ${vorletzter.split('-')[1]}`;
+            span.textContent = `${label} ${up?'▲':'▼'} ${Math.abs(diff).toFixed(1)}${suffix} vs ${referenz.split('-')[1]}`;
             return span;
           };
           const trendWrap = document.createElement('div');
           trendWrap.style.cssText = 'display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
-          const tCr = mkTrend('cr','CR','%');
-          const tNps = mkTrend('nps','NPS','');
+          const tCr = mkTrend(totalCr(agent), 'cr', 'CR', '%');
+          const tNps = mkTrend(agent.nps, 'nps', 'NPS', '');
           if(tCr) trendWrap.appendChild(tCr);
           if(tNps) trendWrap.appendChild(tNps);
           if(trendWrap.children.length) topLeft.appendChild(trendWrap);
