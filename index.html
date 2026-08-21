@@ -1824,6 +1824,71 @@ function renderCoaching(){
       crBadgeWrap.appendChild(crBadge);
       topLeft.appendChild(crBadgeWrap);
 
+      // === Trend vs. Vormonat (CR & NPS) ===
+      const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
+      if(vlEntry && vlEntry.monate){
+        const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+        const monKeys = Object.keys(vlEntry.monate).sort((a,b)=>{
+          const [ya,ma] = a.split('-'); const [yb,mb] = b.split('-');
+          if(ya !== yb) return ya.localeCompare(yb);
+          return MONATE_ORDER.indexOf(ma) - MONATE_ORDER.indexOf(mb);
+        });
+        const letzter = monKeys[monKeys.length-1];
+        const vorletzter = monKeys[monKeys.length-2];
+        if(letzter && vorletzter){
+          const mkTrend = (feld, label, suffix) => {
+            const jetzt = vlEntry.monate[letzter][feld] || 0;
+            const davor = vlEntry.monate[vorletzter][feld] || 0;
+            if(!davor) return null;
+            const diff = jetzt - davor;
+            if(Math.abs(diff) < 0.1) return null;
+            const up = diff > 0;
+            const span = document.createElement('span');
+            span.style.cssText = `font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:${up?'var(--teal-soft)':'var(--red-soft)'};color:${up?'var(--teal)':'var(--red)'};`;
+            span.textContent = `${label} ${up?'▲':'▼'} ${Math.abs(diff).toFixed(1)}${suffix} vs ${vorletzter.split('-')[1]}`;
+            return span;
+          };
+          const trendWrap = document.createElement('div');
+          trendWrap.style.cssText = 'display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
+          const tCr = mkTrend('cr','CR','%');
+          const tNps = mkTrend('nps','NPS','');
+          if(tCr) trendWrap.appendChild(tCr);
+          if(tNps) trendWrap.appendChild(tNps);
+          if(trendWrap.children.length) topLeft.appendChild(trendWrap);
+        }
+      }
+
+      // === Wiederkehrende Schwachstellen aus der Leitfaden-Checkliste ===
+      const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
+      if(cvEntry && cvEntry.eintraege && cvEntry.eintraege.length){
+        const nokCount = {};
+        cvEntry.eintraege.forEach(e=>{
+          if(!e.checkliste) return;
+          Object.keys(e.checkliste).forEach(item=>{
+            if(e.checkliste[item] === 'nok') nokCount[item] = (nokCount[item]||0) + 1;
+          });
+        });
+        const wiederkehrend = Object.entries(nokCount)
+          .filter(([,n]) => n >= 2)
+          .sort((a,b)=>b[1]-a[1])
+          .slice(0,4);
+        if(wiederkehrend.length){
+          const weakWrap = document.createElement('div');
+          weakWrap.style.cssText = 'display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:2px;';
+          const lbl = document.createElement('span');
+          lbl.style.cssText = "font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;";
+          lbl.textContent = '⚠️ Wiederkehrend:';
+          weakWrap.appendChild(lbl);
+          wiederkehrend.forEach(([item,n])=>{
+            const chip = document.createElement('span');
+            chip.style.cssText = "font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--amber-soft);color:var(--amber);";
+            chip.textContent = `${item} (${n}×)`;
+            weakWrap.appendChild(chip);
+          });
+          topLeft.appendChild(weakWrap);
+        }
+      }
+
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
       removeBtn.addEventListener('click', ()=>{ state.agents = state.agents.filter(a=>a.id!==agent.id); scheduleSave(); renderAll(); });
