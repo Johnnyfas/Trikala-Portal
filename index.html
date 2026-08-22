@@ -5775,7 +5775,8 @@ html[data-fx-theme="dark"] .metric-group,html[data-fx-theme="dark"] .cf-checklis
 html[data-fx-theme="dark"] .ws-team-block,html[data-fx-theme="dark"] .panel-coaching,html[data-fx-theme="dark"] .hof-criteria,
 html[data-fx-theme="dark"] .cp-team,html[data-fx-theme="dark"] .ki-badge,html[data-fx-theme="dark"] .cv-check-chip,
 html[data-fx-theme="dark"] .sync-idle{background:#232C37;color:var(--text);}
-html[data-fx-theme="dark"] .cp-co-bar-track,html[data-fx-theme="dark"] .cp-bar-track,html[data-fx-theme="dark"] .cp-pie,html[data-fx-theme="dark"] .fx-skel i{background:#26313D;}
+html[data-fx-theme="dark"] .cp-co-bar-track,html[data-fx-theme="dark"] .cp-bar-track,html[data-fx-theme="dark"] .fx-skel i{background:#26313D;}
+html[data-fx-theme="dark"] .cp-pie[style*="#F1F4F7"]{background:#26313D!important;}
 html[data-fx-theme="dark"] .fx-skel i{background:linear-gradient(90deg,#26313D 25%,#31404F 50%,#26313D 75%);background-size:200% 100%;}
 html[data-fx-theme="dark"] input,html[data-fx-theme="dark"] textarea,html[data-fx-theme="dark"] select{
   background:#232C37!important;color:var(--text);border-color:var(--border);}
@@ -5841,6 +5842,95 @@ html[data-fx-theme="dark"] svg text{fill:var(--muted);}
   function boot(){ bg(); themeBtn(); }
   if(document.readyState==='complete') setTimeout(boot,80);
   else addEventListener('load', function(){ setTimeout(boot,80); });
+})();
+</script>
+
+
+<!-- ===== Effekt-Layer 3: Logo 21 · Zähler 22 · Stagger 24 ===== -->
+<style id="fx-layer-3">
+@keyframes fxOrbit{to{transform:rotate(360deg)}}
+@keyframes fxIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* 21 – Logo-Lockup im Header */
+#fx-logo{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+#fx-logo .mark{position:relative;width:34px;height:34px;flex-shrink:0;}
+#fx-logo .mark .ring{position:absolute;inset:0;border:3px solid var(--tmg);border-radius:50%;display:block;}
+#fx-logo .mark .orb{position:absolute;inset:0;display:block;animation:fxOrbit 6s linear infinite;}
+#fx-logo .mark .orb b{position:absolute;top:-4px;left:50%;margin-left:-4px;width:8px;height:8px;border-radius:50%;background:var(--teal);display:block;}
+#fx-logo .word{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;letter-spacing:-.01em;line-height:1.15;color:var(--text);}
+#fx-logo .sub{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;}
+
+/* 24 – Gestaffelter Einflug */
+.fx-in{animation:fxIn .42s cubic-bezier(.2,.8,.2,1) both;}
+
+@media (prefers-reduced-motion: reduce){#fx-logo .mark .orb{animation:none!important}.fx-in{animation:none!important}}
+</style>
+<script>
+(function(){
+  /* 21 Logo */
+  function logo(){
+    if(document.getElementById('fx-logo')) return;
+    var tb=document.querySelector('.title-block'); if(!tb) return;
+    var eyebrow=tb.querySelector('.eyebrow');
+    var d=document.createElement('div'); d.id='fx-logo';
+    d.innerHTML='<span class="mark"><span class="ring"></span><span class="orb"><b></b></span></span>'+
+                '<span><span class="word">Standort-Portal</span><br><span class="sub">Trikala</span></span>';
+    tb.insertBefore(d, eyebrow || tb.firstChild);
+  }
+
+  /* 22 Hochzählende Zahlen */
+  var COUNT_SEL = '.fx-ring-val,.cp-co-pct,.cp-bar-value,.panel-avg-val,.ma-kpi-value,.cp-kpi-value';
+  function countUp(el){
+    var raw = el.textContent.trim();
+    var m = raw.match(/^(-?\d+(?:[.,]\d+)?)(\s*[%A-Za-zÄÖÜäöüß.]{0,12})$/);
+    if(!m) return;
+    var target = parseFloat(m[1].replace(',','.'));
+    if(!isFinite(target) || Math.abs(target) < 1) return;
+    var dec = (m[1].split(/[.,]/)[1]||'').length, suf = m[2] || '';
+    var t0 = performance.now(), dur = 700;
+    el.dataset.fxCounted = '1';
+    function step(t){
+      var k = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-k,3), v = target*e;
+      el.textContent = (dec ? v.toFixed(dec).replace('.',',') : Math.round(v)) + suf;
+      if(k<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  function countAll(scope){
+    (scope||document).querySelectorAll(COUNT_SEL).forEach(function(el){
+      if(el.dataset.fxCounted) return;
+      countUp(el);
+    });
+  }
+
+  /* 24 Stagger */
+  var STAGGER_SEL = '#coaching-teams .card, #coachplan-container .cp-card, #coachplan-container .cp-chart-card, #coachverlauf-container .cv-agent-block, #halloffame-container .hof-month-card, .ranking-box, .ma-chart-box';
+  function stagger(){
+    var els = document.querySelectorAll(STAGGER_SEL), i = 0;
+    els.forEach(function(el){
+      if(el.offsetParent === null) return;
+      el.classList.remove('fx-in'); void el.offsetWidth;
+      el.style.animationDelay = Math.min(i,10)*0.055 + 's';
+      el.classList.add('fx-in');
+      setTimeout(function(){ el.classList.remove('fx-in'); el.style.animationDelay=''; }, 900 + i*55);
+      i++;
+    });
+  }
+
+  function refresh(){
+    document.querySelectorAll('[data-fx-counted]').forEach(function(el){ delete el.dataset.fxCounted; });
+    countAll(); stagger();
+  }
+  window.fxRefreshLife = refresh;
+
+  function boot(){
+    logo(); countAll(); stagger();
+    document.querySelectorAll('.tab-btn').forEach(function(b){
+      b.addEventListener('click', function(){ setTimeout(refresh, 60); });
+    });
+  }
+  if(document.readyState==='complete') setTimeout(boot,140);
+  else addEventListener('load', function(){ setTimeout(boot,140); });
 })();
 </script>
 
