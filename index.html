@@ -223,6 +223,8 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .ws-agent-chip.checked{background:var(--tmg);border-color:var(--tmg);color:#fff;font-weight:600;}
 .ws-agent-chip input{accent-color:#fff;cursor:pointer;}
 .ws-count{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted);margin-top:2px;}
+.ws-list-participants{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 2px;}
+.ws-list-chip{font-family:'Inter',sans-serif;font-size:12px;font-weight:500;background:rgba(124,92,191,.12);color:var(--helpline);padding:4px 10px;border-radius:8px;}
 .cp-add-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.25);font-size:14px;line-height:1;}
 .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;padding:10px 16px;background:var(--panel);border:1px solid var(--border);border-radius:10px;}
 .sync-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;font-weight:600;}
@@ -623,10 +625,12 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
       <div id="coachdash-subtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;">
         <button class="tab-btn active" id="sub-coachplan" style="font-size:13px;padding:7px 16px;">📝 Coaching Plan</button>
         <button class="tab-btn" id="sub-coachverlauf" style="font-size:13px;padding:7px 16px;">📋 Coaching Verlauf</button>
+        <button class="tab-btn" id="sub-workshops" style="font-size:13px;padding:7px 16px;">👥 Workshops</button>
         <button class="tab-btn" id="sub-termine" style="font-size:13px;padding:7px 16px;">📅 Termin Kalender</button>
       </div>
       <div id="coachplan-container"></div>
       <div id="coachverlauf-container" style="display:none;"></div>
+      <div id="workshops-container" style="display:none;"></div>
       <div id="termine-container" style="display:none;"></div>
     </div>
   </div>
@@ -1711,6 +1715,7 @@ document.getElementById('tab-coachdash').addEventListener('click', ()=>switchTab
 const COACHDASH_SUBS = {
   coachplan:    { btn: 'sub-coachplan',    container: 'coachplan-container',    render: ()=>renderCoachPlan() },
   coachverlauf: { btn: 'sub-coachverlauf', container: 'coachverlauf-container', render: ()=>renderCoachVerlauf() },
+  workshops:    { btn: 'sub-workshops',    container: 'workshops-container',    render: ()=>renderWorkshops() },
   termine:      { btn: 'sub-termine',      container: 'termine-container',      render: ()=>renderTermineKalender() }
 };
 function switchCoachDashSub(sub){
@@ -2584,6 +2589,134 @@ Beachte:
 let cvSelectedTeam = 'all';
 let cvSearchText = '';
 
+function renderWorkshops(){
+  const container = document.getElementById('workshops-container');
+  container.innerHTML = '';
+
+  // Alle Workshop-Einträge sammeln und nach workshopId gruppieren
+  const groups = {};
+  Object.values(state.coachverlauf).forEach(cv=>{
+    (cv.eintraege||[]).forEach(e=>{
+      if(e.stil !== 'Workshop') return;
+      const key = e.workshopId || e.id;
+      if(!groups[key]){
+        groups[key] = {
+          id: key,
+          titel: e.workshopTitel || '(ohne Titel)',
+          datum: e.datum,
+          thema: e.thema,
+          dauer: e.dauer,
+          coach: e.coach,
+          text: e.text,
+          teilnehmer: []
+        };
+      }
+      groups[key].teilnehmer.push({ name: cv.name, team: cv.team, entryId: e.id });
+    });
+  });
+
+  const list = Object.values(groups).sort((a,b)=>{
+    const da = (a.datum||'').split('.').reverse().join('-');
+    const db = (b.datum||'').split('.').reverse().join('-');
+    return db.localeCompare(da);
+  });
+
+  if(!list.length){
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'Noch keine Workshops erfasst. Lege einen über "+ Neues Coaching → Workshop (Gruppe)" an.';
+    container.appendChild(empty);
+    return;
+  }
+
+  list.forEach(ws=>{
+    const block = document.createElement('div');
+    block.className = 'cv-agent-block';
+
+    const head = document.createElement('div');
+    head.className = 'cv-agent-head';
+    head.innerHTML = `<span class="cv-agent-name">👥 ${ws.titel}</span><span style="font-size:11px;opacity:.85;">${ws.datum} · ${ws.teilnehmer.length} Teilnehmer</span>`;
+    block.appendChild(head);
+
+    const body = document.createElement('div');
+    body.className = 'cv-entry';
+
+    // Meta-Zeile
+    const top = document.createElement('div');
+    top.className = 'cv-entry-top';
+    const meta = document.createElement('div');
+    meta.className = 'cv-entry-meta';
+    const dateEl = document.createElement('span');
+    dateEl.className = 'cv-entry-date';
+    dateEl.textContent = ws.datum;
+    meta.appendChild(dateEl);
+    if(ws.coach){
+      const b = document.createElement('span');
+      b.className = 'cv-meta-badge';
+      b.style.cssText = 'background:var(--tmg)22;color:var(--tmg);';
+      b.textContent = '👤 ' + ws.coach;
+      meta.appendChild(b);
+    }
+    if(ws.thema){
+      const themeColor = COACH_THEMEN_COLORS[ws.thema] || '#888';
+      const b = document.createElement('span');
+      b.className = 'cv-meta-badge';
+      b.style.cssText = `background:${themeColor}22;color:${themeColor};`;
+      b.textContent = ws.thema;
+      meta.appendChild(b);
+    }
+    if(ws.dauer){
+      const b = document.createElement('span');
+      b.className = 'cv-meta-badge';
+      b.textContent = ws.dauer + ' Min';
+      meta.appendChild(b);
+    }
+    top.appendChild(meta);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'cv-entry-delete';
+    delBtn.innerHTML = '🗑';
+    delBtn.title = 'Workshop löschen (bei allen Teilnehmern)';
+    delBtn.addEventListener('click', ()=>{
+      if(!confirm(`Workshop "${ws.titel}" bei allen ${ws.teilnehmer.length} Teilnehmern löschen?`)) return;
+      ws.teilnehmer.forEach(t=>{
+        pendingDeletedIds.add(t.entryId);
+        const realCv = Object.values(state.coachverlauf).find(v => v.name === t.name && v.team === t.team);
+        if(realCv) realCv.eintraege = (realCv.eintraege||[]).filter(e=>e.id !== t.entryId);
+      });
+      scheduleSave();
+      renderWorkshops();
+    });
+    top.appendChild(delBtn);
+    body.appendChild(top);
+
+    // Teilnehmerliste
+    const partWrap = document.createElement('div');
+    partWrap.className = 'ws-list-participants';
+    ws.teilnehmer
+      .sort((a,b)=>a.name.localeCompare(b.name))
+      .forEach(t=>{
+        const chip = document.createElement('span');
+        chip.className = 'ws-list-chip';
+        const teamLabel = TEAM_CONFIGS[t.team]?.label || t.team;
+        chip.textContent = `${t.name} · ${teamLabel}`;
+        partWrap.appendChild(chip);
+      });
+    body.appendChild(partWrap);
+
+    // Notizen
+    if(ws.text){
+      const textEl = document.createElement('div');
+      textEl.className = 'cv-entry-text';
+      textEl.textContent = ws.text;
+      body.appendChild(textEl);
+    }
+
+    block.appendChild(body);
+    container.appendChild(block);
+  });
+}
+
 function renderCoachVerlauf(){
   const container = document.getElementById('coachverlauf-container');
   container.innerHTML = '';
@@ -2610,9 +2743,10 @@ function renderCoachVerlauf(){
   filter.appendChild(countEl);
   container.appendChild(filter);
 
-  // Einträge anzeigen
+  // Einträge anzeigen (Workshops werden separat im Workshops-Reiter gezeigt)
   let totalEntries = 0;
   const entries = Object.values(state.coachverlauf)
+    .map(cv => ({ ...cv, eintraege: (cv.eintraege||[]).filter(e => e.stil !== 'Workshop') }))
     .filter(cv => {
       if(cvSelectedTeam !== 'all' && cv.team !== cvSelectedTeam) return false;
       if(cvSearchText && !cv.name.toLowerCase().includes(cvSearchText.toLowerCase())) return false;
@@ -2719,21 +2853,24 @@ function renderCoachVerlauf(){
       delBtn.innerHTML = '🗑';
       delBtn.title = 'Eintrag löschen';
       delBtn.addEventListener('click', ()=>{
-        const agentKey = Object.keys(state.coachverlauf).find(k=>state.coachverlauf[k]===cv);
         pendingDeletedIds.add(entry.id);
-        cv.eintraege = cv.eintraege.filter(e=>e.id!==entry.id);
-        // "Letztes Coaching" beim Mitarbeiter neu ermitteln (neuestes verbleibendes Datum, oder leeren)
-        const agent = state.agents.find(a => a.name === cv.name && a.team === cv.team);
-        if(agent){
-          if(cv.eintraege.length){
-            const newest = cv.eintraege.slice().sort((a,b)=>{
-              const da = (a.datum||'').split('.').reverse().join('-');
-              const db = (b.datum||'').split('.').reverse().join('-');
-              return db.localeCompare(da);
-            })[0];
-            agent.coachingDatum = newest.datum;
-          } else {
-            agent.coachingDatum = '';
+        // Echten Eintrag im state finden (die angezeigte Liste ist eine gefilterte Kopie)
+        const realCv = Object.values(state.coachverlauf).find(v => v.name === cv.name && v.team === cv.team);
+        if(realCv){
+          realCv.eintraege = (realCv.eintraege||[]).filter(e=>e.id!==entry.id);
+          // "Letztes Coaching" beim Mitarbeiter neu ermitteln (neuestes verbleibendes Datum, oder leeren)
+          const agent = state.agents.find(a => a.name === cv.name && a.team === cv.team);
+          if(agent){
+            if(realCv.eintraege.length){
+              const newest = realCv.eintraege.slice().sort((a,b)=>{
+                const da = (a.datum||'').split('.').reverse().join('-');
+                const db = (b.datum||'').split('.').reverse().join('-');
+                return db.localeCompare(da);
+              })[0];
+              agent.coachingDatum = newest.datum;
+            } else {
+              agent.coachingDatum = '';
+            }
           }
         }
         scheduleSave();
