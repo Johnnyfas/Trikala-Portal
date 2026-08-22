@@ -208,6 +208,21 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .cal-chip{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;padding:2px 6px;border-radius:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .cp-add-btn{background:var(--tmg);color:#fff;border:none;border-radius:999px;padding:11px 22px;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(226,0,116,.35);transition:background .15s;}
 .cp-add-btn:hover{background:var(--tmg-dark);}
+.cp-type-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:50;background:#1C2733;border-radius:12px;padding:6px;box-shadow:0 8px 28px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:2px;min-width:210px;}
+.cp-type-item{background:none;border:none;color:#fff;text-align:left;padding:10px 14px;border-radius:8px;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:10px;}
+.cp-type-item:hover{background:rgba(255,255,255,.12);}
+.ws-participants{display:flex;flex-direction:column;gap:12px;}
+.ws-team-block{background:#FAFBFC;border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.ws-team-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.ws-team-head span{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;}
+.ws-all-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:3px 10px;font-size:11px;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif;}
+.ws-all-btn:hover{border-color:var(--tmg);color:var(--tmg);}
+.ws-agent-grid{display:flex;flex-wrap:wrap;gap:6px;}
+.ws-agent-chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-family:'Inter',sans-serif;font-size:12.5px;cursor:pointer;user-select:none;}
+.ws-agent-chip:hover{border-color:var(--tmg);}
+.ws-agent-chip.checked{background:var(--tmg);border-color:var(--tmg);color:#fff;font-weight:600;}
+.ws-agent-chip input{accent-color:#fff;cursor:pointer;}
+.ws-count{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted);margin-top:2px;}
 .cp-add-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.25);font-size:14px;line-height:1;}
 .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;padding:10px 16px;background:var(--panel);border:1px solid var(--border);border-radius:10px;}
 .sync-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 10px;border-radius:6px;font-weight:600;}
@@ -2661,7 +2676,19 @@ function renderCoachVerlauf(){
       if(entry.stil){
         const b = document.createElement('span');
         b.className = 'cv-meta-badge';
-        b.textContent = entry.stil;
+        if(entry.stil === 'Workshop'){
+          b.style.cssText = 'background:rgba(124,92,191,.16);color:var(--helpline);';
+          b.textContent = '👥 Workshop' + (entry.teilnehmerAnzahl ? ` (${entry.teilnehmerAnzahl} TN)` : '');
+        } else {
+          b.textContent = entry.stil;
+        }
+        meta.appendChild(b);
+      }
+      if(entry.workshopTitel){
+        const b = document.createElement('span');
+        b.className = 'cv-meta-badge';
+        b.style.cssText = 'background:#EEF1F4;color:var(--text);';
+        b.textContent = entry.workshopTitel;
         meta.appendChild(b);
       }
       if(entry.tcapId){
@@ -2788,6 +2815,7 @@ function renderCoachVerlauf(){
 const COACH_THEMEN = ['Sales','Qualität','Allgemein','Second Nature'];
 const COACH_THEMEN_COLORS = { 'Allgemein':'#E20074', 'Qualität':'#3B6FA0', 'Sales':'#C2792B', 'Second Nature':'#7C5CBF' };
 let cpShowForm = false;
+let cpFormType = 'coaching'; // 'coaching' (Einzel) oder 'workshop' (Gruppe)
 
 function computeCoachStats(){
   const countByTeam = {}, dauerByTeam = {};
@@ -2994,6 +3022,166 @@ function buildQuickPlanForm(defaultAgentId){
   return box;
 }
 
+function buildWorkshopForm(){
+  const wrap = document.createElement('div');
+  wrap.className = 'cp-form cf-wrap';
+  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
+
+  const titelInput = document.createElement('input');
+  titelInput.type = 'text';
+  titelInput.className = 'cp-form-input';
+  titelInput.placeholder = 'z.B. Vom Service-Anliegen zur Sales-Ansprache';
+
+  const themaSel = document.createElement('select');
+  themaSel.className = 'cp-form-select';
+  themaSel.innerHTML = COACH_THEMEN.map(t=>`<option value="${t}">${t}</option>`).join('');
+
+  const dauerInput = document.createElement('input');
+  dauerInput.type = 'number';
+  dauerInput.className = 'cp-form-input';
+  dauerInput.value = 45;
+  dauerInput.min = 0;
+
+  const row1 = document.createElement('div');
+  row1.className = 'cp-form-row';
+  row1.appendChild(labeledField('Workshop-Titel', titelInput));
+  row1.appendChild(labeledField('Thema', themaSel));
+  row1.appendChild(labeledField('Dauer (Min)', dauerInput));
+  wrap.appendChild(row1);
+
+  // === Teilnehmer auswählen ===
+  const partTitle = document.createElement('div');
+  partTitle.className = 'cf-section-title';
+  partTitle.textContent = '👥 Teilnehmer';
+  wrap.appendChild(partTitle);
+
+  const selectedIds = new Set();
+  const partBox = document.createElement('div');
+  partBox.className = 'ws-participants';
+
+  Object.keys(TEAM_CONFIGS).forEach(teamId=>{
+    const teamAgents = allAgents.filter(a=>a.team===teamId);
+    if(!teamAgents.length) return;
+    const teamBlock = document.createElement('div');
+    teamBlock.className = 'ws-team-block';
+
+    const head = document.createElement('div');
+    head.className = 'ws-team-head';
+    const headLabel = document.createElement('span');
+    headLabel.textContent = TEAM_CONFIGS[teamId].label;
+    const allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.className = 'ws-all-btn';
+    allBtn.textContent = 'Alle auswählen';
+    allBtn.addEventListener('click', ()=>{
+      const boxes = teamBlock.querySelectorAll('input[type=checkbox]');
+      const allChecked = Array.from(boxes).every(b=>b.checked);
+      boxes.forEach(b=>{
+        b.checked = !allChecked;
+        if(b.checked) selectedIds.add(b.value); else selectedIds.delete(b.value);
+      });
+      allBtn.textContent = allChecked ? 'Alle auswählen' : 'Alle abwählen';
+      updateCount();
+    });
+    head.appendChild(headLabel);
+    head.appendChild(allBtn);
+    teamBlock.appendChild(head);
+
+    const grid = document.createElement('div');
+    grid.className = 'ws-agent-grid';
+    teamAgents.forEach(a=>{
+      const lab = document.createElement('label');
+      lab.className = 'ws-agent-chip';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = a.id;
+      cb.addEventListener('change', ()=>{
+        if(cb.checked) selectedIds.add(a.id); else selectedIds.delete(a.id);
+        lab.classList.toggle('checked', cb.checked);
+        updateCount();
+      });
+      lab.appendChild(cb);
+      lab.appendChild(document.createTextNode(a.name));
+      grid.appendChild(lab);
+    });
+    teamBlock.appendChild(grid);
+    partBox.appendChild(teamBlock);
+  });
+  wrap.appendChild(partBox);
+
+  const countLabel = document.createElement('div');
+  countLabel.className = 'ws-count';
+  function updateCount(){
+    countLabel.textContent = selectedIds.size === 0
+      ? 'Noch keine Teilnehmer ausgewählt'
+      : `${selectedIds.size} Teilnehmer ausgewählt`;
+  }
+  updateCount();
+  wrap.appendChild(countLabel);
+
+  // === Inhalte / Notizen ===
+  const notesTitle = document.createElement('div');
+  notesTitle.className = 'cf-section-title';
+  notesTitle.textContent = '📝 Inhalte & Notizen';
+  wrap.appendChild(notesTitle);
+  const notesArea = document.createElement('textarea');
+  notesArea.className = 'cp-form-textarea';
+  notesArea.placeholder = 'Was wurde im Workshop behandelt? Übungen, Erkenntnisse, Vereinbarungen...';
+  wrap.appendChild(notesArea);
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'cf-btn-row';
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'primary';
+  saveBtn.textContent = '💾 Workshop speichern';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'secondary';
+  cancelBtn.textContent = '✕ Abbrechen';
+
+  saveBtn.addEventListener('click', ()=>{
+    if(!selectedIds.size){ alert('Bitte mindestens einen Teilnehmer auswählen.'); return; }
+    if(!titelInput.value.trim()){
+      titelInput.style.borderColor = 'var(--red)';
+      titelInput.focus();
+      return;
+    }
+    const datum = new Date().toLocaleDateString('de-DE');
+    const coachName = getCoachName();
+    const workshopId = uid(); // gemeinsame ID für alle Teilnehmer-Einträge
+    selectedIds.forEach(agentId=>{
+      const agent = state.agents.find(a=>a.id===agentId);
+      if(!agent) return;
+      if(!state.coachverlauf[agent.id]){
+        state.coachverlauf[agent.id] = { name: agent.name, team: agent.team, eintraege: [] };
+      }
+      state.coachverlauf[agent.id].eintraege.unshift({
+        id: uid(),
+        datum: datum,
+        text: notesArea.value.trim() || '(Workshop ohne Notiz)',
+        thema: themaSel.value,
+        dauer: parseInt(dauerInput.value)||0,
+        stil: 'Workshop',
+        workshopTitel: titelInput.value.trim(),
+        workshopId: workshopId,
+        teilnehmerAnzahl: selectedIds.size,
+        coach: coachName
+      });
+      agent.coachingDatum = datum;
+    });
+    scheduleSave();
+    cpShowForm = false;
+    cpFormType = 'coaching';
+    renderAll();
+  });
+  cancelBtn.addEventListener('click', ()=>{ cpShowForm = false; cpFormType = 'coaching'; renderCoachPlan(); });
+
+  btnRow.appendChild(saveBtn);
+  btnRow.appendChild(cancelBtn);
+  wrap.appendChild(btnRow);
+
+  return wrap;
+}
+
 function buildCoachingRecordForm(prefill){
   prefill = prefill || {};
   const wrap = document.createElement('div');
@@ -3153,22 +3341,55 @@ function renderCoachPlan(){
   const container = document.getElementById('coachplan-container');
   container.innerHTML = '';
 
-  // ===== Neues Coaching (oben) =====
+  // ===== Neues Coaching / Workshop (oben) =====
   const actionRow = document.createElement('div');
-  actionRow.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:18px;';
+  actionRow.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:18px;position:relative;';
   const addBtn = document.createElement('button');
   addBtn.className = 'cp-add-btn';
-  addBtn.innerHTML = cpShowForm ? '✕ Abbrechen' : '<span class="cp-add-icon">+</span> Neues Coaching';
-  addBtn.addEventListener('click', ()=>{
-    cpShowForm = !cpShowForm;
-    if(cpShowForm) cpPrefill = null;
-    renderCoachPlan();
+  addBtn.innerHTML = cpShowForm ? '✕ Abbrechen' : '<span class="cp-add-icon">+</span> Neues Coaching ▾';
+  addBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    if(cpShowForm){
+      cpShowForm = false;
+      cpPrefill = null;
+      renderCoachPlan();
+      return;
+    }
+    // Dropdown mit den zwei Optionen öffnen
+    const existing = document.getElementById('cp-type-menu');
+    if(existing){ existing.remove(); return; }
+    const menu = document.createElement('div');
+    menu.id = 'cp-type-menu';
+    menu.className = 'cp-type-menu';
+    const mkItem = (icon, label, type) => {
+      const item = document.createElement('button');
+      item.className = 'cp-type-item';
+      item.innerHTML = `<span>${icon}</span> ${label}`;
+      item.addEventListener('click', ()=>{
+        menu.remove();
+        cpFormType = type;
+        cpShowForm = true;
+        cpPrefill = null;
+        renderCoachPlan();
+      });
+      return item;
+    };
+    menu.appendChild(mkItem('🗣️', 'Coaching (Einzel)', 'coaching'));
+    menu.appendChild(mkItem('👥', 'Workshop (Gruppe)', 'workshop'));
+    actionRow.appendChild(menu);
+    setTimeout(()=>{
+      document.addEventListener('click', function closeMenu(){
+        const m = document.getElementById('cp-type-menu');
+        if(m) m.remove();
+        document.removeEventListener('click', closeMenu);
+      }, { once:true });
+    }, 0);
   });
   actionRow.appendChild(addBtn);
   container.appendChild(actionRow);
 
   if(cpShowForm){
-    container.appendChild(buildCoachingRecordForm(cpPrefill));
+    container.appendChild(cpFormType === 'workshop' ? buildWorkshopForm() : buildCoachingRecordForm(cpPrefill));
   }
 
   // ===== Diagramme =====
