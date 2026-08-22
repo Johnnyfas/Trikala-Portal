@@ -5520,5 +5520,212 @@ if('serviceWorker' in navigator){
   });
 }
 </script>
+
+<!-- ===== Effekt-Layer (nachträglich, unabhängig vom Rest) ===== -->
+<style id="fx-layer">
+@keyframes fxShimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes fxPulseRing{0%{box-shadow:0 0 0 0 rgba(180,66,58,.5)}70%{box-shadow:0 0 0 12px rgba(180,66,58,0)}100%{box-shadow:0 0 0 0 rgba(180,66,58,0)}}
+@keyframes fxSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fxPopIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes fxBarGrow{from{width:0}}
+
+/* 01 – 3D Tilt */
+.cards{perspective:1200px;}
+.card{transition:transform .16s ease-out, box-shadow .25s ease;transform-style:preserve-3d;will-change:transform;}
+.card.fx-tilting{box-shadow:0 22px 44px -24px rgba(28,39,51,.45);}
+
+/* 02 – Toast */
+#fx-toasts{position:fixed;right:18px;bottom:18px;z-index:4000;display:flex;flex-direction:column;gap:9px;align-items:flex-end;pointer-events:none;}
+.fx-toast{background:#1C2733;color:#fff;padding:11px 16px;border-radius:10px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 14px 32px -14px rgba(0,0,0,.6);animation:fxSlideUp .26s ease-out;max-width:360px;}
+.fx-toast .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 4px rgba(14,124,123,.25);flex-shrink:0;}
+.fx-toast.warn .dot{background:var(--amber);box-shadow:0 0 0 4px rgba(194,121,43,.25);}
+.fx-toast.err .dot{background:var(--red);box-shadow:0 0 0 4px rgba(180,66,58,.25);}
+.fx-toast.out{opacity:0;transform:translateY(8px);transition:opacity .3s, transform .3s;}
+
+/* 03 – Pop-ups mit Blur */
+.chart-overlay,.todo-modal-overlay{backdrop-filter:blur(7px) saturate(1.05);-webkit-backdrop-filter:blur(7px) saturate(1.05);background:rgba(28,39,51,.42);}
+.chart-popup,.todo-modal{animation:fxPopIn .24s cubic-bezier(.2,.8,.2,1);}
+.fx-confirm{background:#fff;border-radius:14px;padding:20px 22px;width:300px;box-shadow:0 26px 54px -20px rgba(0,0,0,.5);animation:fxPopIn .22s ease-out;font-family:'Inter',sans-serif;}
+.fx-confirm h4{font-family:'Space Grotesk',sans-serif;font-size:16px;margin:0 0 6px;}
+.fx-confirm p{margin:0 0 16px;font-size:13px;color:var(--muted);}
+
+/* 04 – Ringe / 10 – Heatmap: Kopfleiste */
+#fx-pulse{display:flex;align-items:center;gap:26px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:18px;}
+#fx-pulse .fx-ring{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .5s;}
+#fx-pulse .fx-ring-in{width:72px;height:72px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+#fx-pulse .fx-ring-val{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;}
+#fx-pulse .fx-cap{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;}
+#fx-pulse .fx-heat{display:grid;gap:4px;}
+#fx-pulse .fx-heat i{width:14px;height:14px;border-radius:3px;display:block;}
+#fx-pulse .fx-legend{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:7px;}
+#fx-pulse .fx-legend b{width:11px;height:11px;border-radius:2px;display:inline-block;}
+
+/* 06 – Shimmer */
+.fx-skel{display:flex;flex-direction:column;gap:11px;padding:16px 2px;}
+.fx-skel i{display:block;height:15px;border-radius:8px;background:linear-gradient(90deg,#EDEFF2 25%,#F8F9FA 50%,#EDEFF2 75%);background-size:200% 100%;animation:fxShimmer 1.4s linear infinite;}
+
+/* 07 – Karten-Stapel (Tiefe hinter jedem Team-Block) */
+.team-block{position:relative;}
+.team-block .cards{position:relative;z-index:1;}
+.team-block.fx-stacked{margin-bottom:44px;}
+.team-block.fx-stacked::after{content:'';position:absolute;left:14px;right:14px;bottom:-7px;height:12px;border-radius:0 0 12px 12px;background:var(--panel);border:1px solid var(--border);border-top:none;opacity:.6;z-index:0;}
+.team-block.fx-stacked::before{content:'';position:absolute;left:26px;right:26px;bottom:-13px;height:12px;border-radius:0 0 12px 12px;background:var(--panel);border:1px solid var(--border);border-top:none;opacity:.35;z-index:0;}
+
+/* 08 – Pulsierender kritischer Status */
+.status-dot.critical{animation:fxPulseRing 1.9s ease-out infinite;}
+
+/* 09 – Tabs mit gleitender Pille */
+.tabs,#coachdash-subtabs{position:relative;}
+.fx-pill{position:absolute;border-radius:8px;background:var(--text);transition:left .32s cubic-bezier(.4,0,.2,1),width .32s cubic-bezier(.4,0,.2,1),top .32s,height .32s;z-index:0;pointer-events:none;}
+.tabs .tab-btn,#coachdash-subtabs .tab-btn{position:relative;z-index:1;transition:color .22s;}
+.tabs .tab-btn.active,#coachdash-subtabs .tab-btn.active{background:transparent;border-color:transparent;color:#fff;}
+
+/* 12 – Balken laufen ein + Ziel-Marke */
+.cp-co-bar-track{position:relative;}
+.cp-co-bar-fill{animation:fxBarGrow .9s cubic-bezier(.2,.8,.2,1);}
+.cp-co-bar-track[data-target]::after{content:'';position:absolute;top:0;bottom:0;left:var(--fx-target,80%);width:2px;background:repeating-linear-gradient(var(--text) 0 3px,transparent 3px 6px);}
+
+@media (prefers-reduced-motion: reduce){.card,.fx-pill{transition:none!important}.status-dot.critical,.cp-co-bar-fill,.fx-skel i{animation:none!important}}
+</style>
+<script>
+(function(){
+  var touch = matchMedia('(hover:none)').matches;
+
+  /* 02 Toast */
+  function toastHost(){ var h=document.getElementById('fx-toasts'); if(!h){h=document.createElement('div');h.id='fx-toasts';document.body.appendChild(h);} return h; }
+  window.fxToast = function(msg, type, ms){
+    var t=document.createElement('div'); t.className='fx-toast'+(type?' '+type:'');
+    t.innerHTML='<span class="dot"></span><span></span>'; t.lastChild.textContent=msg;
+    toastHost().appendChild(t);
+    setTimeout(function(){ t.classList.add('out'); setTimeout(function(){t.remove();},320); }, ms||2800);
+  };
+  var nativeAlert = window.alert;
+  window.alert = function(m){ var s=String(m); fxToast(s.replace(/^[✓✔]\s*/,''), /fehl|error|nicht/i.test(s)?'err':'', 3200); };
+  window.fxAlertNative = nativeAlert;
+
+  /* 03 Bestätigungs-Dialog */
+  window.fxConfirm = function(title, text, onOk, okLabel){
+    var ov=document.createElement('div'); ov.className='chart-overlay'; ov.style.zIndex=3000;
+    var box=document.createElement('div'); box.className='fx-confirm';
+    box.innerHTML='<h4></h4><p></p><div style="display:flex;gap:8px"><button class="fx-ok" style="flex:1;background:var(--red);color:#fff;border:none;padding:9px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer">'+(okLabel||'Löschen')+'</button><button class="fx-no" style="flex:1;background:#fff;border:1px solid var(--border);padding:9px;border-radius:8px;font-weight:600;font-size:13px;cursor:pointer">Abbrechen</button></div>';
+    box.querySelector('h4').textContent=title; box.querySelector('p').textContent=text||'';
+    box.querySelector('.fx-no').onclick=function(){ov.remove();};
+    box.querySelector('.fx-ok').onclick=function(){ov.remove(); onOk&&onOk();};
+    ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
+    ov.appendChild(box); document.body.appendChild(ov);
+  };
+
+  /* 01 3D-Tilt */
+  if(!touch){
+    document.addEventListener('mousemove', function(e){
+      var c = e.target.closest && e.target.closest('.card'); if(!c) return;
+      if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) { c.style.transform=''; return; }
+      var r=c.getBoundingClientRect();
+      var x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
+      c.classList.add('fx-tilting');
+      c.style.transform='perspective(1200px) rotateY('+(x*3.2).toFixed(2)+'deg) rotateX('+(-y*2.4).toFixed(2)+'deg) translateZ(6px)';
+    }, true);
+    document.addEventListener('mouseout', function(e){
+      var c = e.target.closest && e.target.closest('.card'); if(!c) return;
+      if(c.contains(e.relatedTarget)) return;
+      c.style.transform=''; c.classList.remove('fx-tilting');
+    }, true);
+  }
+
+  /* 09 Gleitende Pille */
+  function pill(bar){
+    if(!bar) return;
+    var p=bar.querySelector(':scope > .fx-pill');
+    if(!p){ p=document.createElement('div'); p.className='fx-pill'; bar.insertBefore(p, bar.firstChild); }
+    var a=bar.querySelector('.tab-btn.active');
+    if(!a){ p.style.opacity=0; return; }
+    p.style.opacity=1;
+    p.style.left=a.offsetLeft+'px'; p.style.top=a.offsetTop+'px';
+    p.style.width=a.offsetWidth+'px'; p.style.height=a.offsetHeight+'px';
+  }
+  function pills(){ pill(document.querySelector('.tabs')); pill(document.getElementById('coachdash-subtabs')); }
+  addEventListener('resize', pills);
+  document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('.tab-btn')) setTimeout(pills, 30); }, true);
+
+  /* 06 Shimmer beim Umschalten */
+  window.fxSkeleton = function(el, rows){
+    if(!el) return function(){};
+    var s=document.createElement('div'); s.className='fx-skel';
+    var w=[62,88,74,45,80,58];
+    for(var i=0;i<(rows||5);i++){ var b=document.createElement('i'); b.style.width=w[i%w.length]+'%'; s.appendChild(b); }
+    el.insertBefore(s, el.firstChild);
+    return function(){ s.remove(); };
+  };
+
+  /* 04 + 10 Kopfleiste: Ring + Heatmap, aus den sichtbaren Karten berechnet */
+  function ringHTML(pct){
+    var col = pct>=80 ? 'var(--teal)' : pct>=50 ? 'var(--amber)' : 'var(--red)';
+    return '<div class="fx-ring" style="background:conic-gradient('+col+' '+(pct*3.6)+'deg,#EDEFF2 0deg)">'+
+      '<div class="fx-ring-in"><div class="fx-ring-val">'+pct+'%</div><div class="fx-cap">im Ziel</div></div></div>';
+  }
+  function stacks(){
+    document.querySelectorAll('.team-block').forEach(function(b){
+      b.classList.toggle('fx-stacked', b.querySelectorAll('.card').length > 0);
+    });
+  }
+  function updatePulse(){
+    stacks();
+    var host=document.getElementById('coaching-teams'); if(!host) return;
+    var strip=document.getElementById('fx-pulse');
+    var cards=host.querySelectorAll('.card');
+    if(!cards.length){ if(strip) strip.remove(); return; }
+    if(!strip){ strip=document.createElement('div'); strip.id='fx-pulse'; host.parentNode.insertBefore(strip, host); }
+    var good=0, cells=[];
+    cards.forEach(function(c){
+      var d=c.querySelector('.status-dot');
+      var bad = d && (d.classList.contains('warn')||d.classList.contains('critical'));
+      if(!bad) good++;
+      var ins=c.querySelectorAll('.metric-field input, .stk-input, .calls-field input');
+      var filled=0; ins.forEach(function(i){ if(i.value && i.value.trim()!=='' && i.value!=='0') filled++; });
+      cells.push(ins.length ? filled/ins.length : 0);
+    });
+    var pct = Math.round(good/cards.length*100);
+    var cols = Math.min(14, Math.max(6, Math.ceil(Math.sqrt(cells.length*2))));
+    var heat = cells.map(function(v){
+      var bg = v<0.05 ? '#EDEFF2' : 'rgba(226,0,116,'+(0.18+v*0.82).toFixed(2)+')';
+      return '<i style="background:'+bg+'"></i>';
+    }).join('');
+    strip.innerHTML = ringHTML(pct) +
+      '<div><div class="fx-cap">Datenpflege je Karte</div>'+
+      '<div class="fx-heat" style="grid-template-columns:repeat('+cols+',14px);margin-top:8px">'+heat+'</div>'+
+      '<div class="fx-legend"><span>leer</span><b style="background:#EDEFF2"></b><b style="background:rgba(226,0,116,.35)"></b><b style="background:rgba(226,0,116,.65)"></b><b style="background:rgba(226,0,116,1)"></b><span>vollständig</span></div></div>'+
+      '<div style="margin-left:auto;text-align:right"><div class="fx-cap">Karten</div><div style="font-family:\'Space Grotesk\',sans-serif;font-size:22px;font-weight:700">'+cards.length+'</div></div>';
+  }
+  window.fxUpdatePulse = updatePulse;
+
+  var raf;
+  function schedule(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(function(){ pills(); updatePulse(); }); }
+  document.addEventListener('input', function(e){ if(e.target.closest('#coaching-teams')) schedule(); });
+
+  function boot(){
+    pills(); updatePulse();
+    var host=document.getElementById('coaching-teams');
+    if(host) new MutationObserver(schedule).observe(host,{childList:true,subtree:true});
+    var main=document.querySelector('.wrap')||document.body;
+    new MutationObserver(function(){ pills(); }).observe(main,{attributes:true,attributeFilter:['class'],subtree:true});
+    if(typeof switchTab==='function'){
+      var orig=switchTab;
+      window.switchTab=function(t){
+        var pane=document.querySelector('.wrap');
+        var done=fxSkeleton(null);
+        orig.apply(this,arguments);
+        setTimeout(function(){ pills(); updatePulse(); },20);
+      };
+      ['coachdash','teamziele','monatsabschluss','coaching','verlauf','overview','halloffame','kianalyse'].forEach(function(id){
+        var b=document.getElementById('tab-'+id);
+        if(b) b.addEventListener('click', function(){ setTimeout(function(){pills();updatePulse();},20); });
+      });
+    }
+  }
+  if(document.readyState==='complete') setTimeout(boot,60);
+  else addEventListener('load', function(){ setTimeout(boot,60); });
+})();
+</script>
+
 </body>
 </html>
