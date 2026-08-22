@@ -137,6 +137,10 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .tag.ok{background:var(--teal-soft);color:var(--teal);}
 
 .empty{color:var(--muted);font-size:13px;font-style:italic;padding:20px 0;text-align:center;}
+.empty-illus{display:flex;flex-direction:column;align-items:center;padding:32px 20px;text-align:center;}
+.empty-illus svg{margin-bottom:12px;}
+.empty-illus-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
+.empty-illus-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:340px;}
 
 /* ===== Coaching Plan: Diagramme & Formular ===== */
 .cp-charts-row{display:flex;gap:16px;flex-wrap:wrap;}
@@ -616,17 +620,17 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
     <button class="tab-btn active" id="tab-coaching">Mitarbeiter Ziele</button>
     <button class="tab-btn" id="tab-verlauf">Mitarbeiter Verlauf</button>
     <button class="tab-btn" id="tab-overview">MA Stand</button>
-    <button class="tab-btn" id="tab-halloffame">🏆 Hall of Fame</button>
-    <button class="tab-btn" id="tab-kianalyse">🤖 KI Analyse</button>
+    <button class="tab-btn" id="tab-halloffame"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px;"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg>Hall of Fame</button>
+    <button class="tab-btn" id="tab-kianalyse"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V5a3 3 0 0 1 6 0v3M9 14h.01M15 14h.01"/></svg>KI Analyse</button>
   </div>
 
   <div id="view-coachdash" style="display:none;">
     <div style="flex-direction:column;">
       <div id="coachdash-subtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;">
-        <button class="tab-btn active" id="sub-coachplan" style="font-size:13px;padding:7px 16px;">📝 Coaching Plan</button>
-        <button class="tab-btn" id="sub-coachverlauf" style="font-size:13px;padding:7px 16px;">📋 Coaching Verlauf</button>
-        <button class="tab-btn" id="sub-workshops" style="font-size:13px;padding:7px 16px;">👥 Workshops</button>
-        <button class="tab-btn" id="sub-termine" style="font-size:13px;padding:7px 16px;">📅 Termin Kalender</button>
+        <button class="tab-btn active" id="sub-coachplan" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Coaching Plan</button>
+        <button class="tab-btn" id="sub-coachverlauf" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Coaching Verlauf</button>
+        <button class="tab-btn" id="sub-workshops" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/><circle cx="17" cy="8" r="2.5"/><path d="M17 13c2.5 0 5 1.5 5 4"/></svg>Workshops</button>
+        <button class="tab-btn" id="sub-termine" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Termin Kalender</button>
       </div>
       <div id="coachplan-container"></div>
       <div id="coachverlauf-container" style="display:none;"></div>
@@ -2320,7 +2324,7 @@ function renderKIAnalyse(){
   wrap.className = 'ki-wrap';
 
   wrap.innerHTML = `
-    <div class="ki-title">🤖 KI Analyse</div>
+    <div class="ki-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V5a3 3 0 0 1 6 0v3M9 14h.01M15 14h.01"/></svg>KI Analyse</div>
     <div class="ki-sub">Stelle Fragen zu deinen Teams und Mitarbeitern — die KI analysiert deine echten Daten.</div>
   `;
 
@@ -2622,10 +2626,7 @@ function renderWorkshops(){
   });
 
   if(!list.length){
-    const empty = document.createElement('div');
-    empty.className = 'empty';
-    empty.textContent = 'Noch keine Workshops erfasst. Lege einen über "+ Neues Coaching → Workshop (Gruppe)" an.';
-    container.appendChild(empty);
+    container.appendChild(emptyStateEl('Noch keine Workshops erfasst', 'Lege einen über "+ Neues Coaching → Workshop (Gruppe)" an.'));
     return;
   }
 
@@ -3061,6 +3062,23 @@ function buildPieChart(title, dataObj, colorMap){
   });
   html += '</div></div>';
   wrap.innerHTML = html;
+  return wrap;
+}
+
+function emptyStateEl(title, subtitle){
+  const wrap = document.createElement('div');
+  wrap.className = 'empty-illus';
+  wrap.innerHTML = `
+    <svg width="100" height="76" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="60" cy="80" rx="42" ry="5" fill="#F0F0F2"/>
+      <rect x="25" y="20" width="70" height="48" rx="8" fill="#FCE4F1" stroke="var(--tmg)" stroke-width="2"/>
+      <circle cx="45" cy="41" r="7" fill="var(--tmg)"/>
+      <path d="M60 48 h20 M60 41 h15 M60 34 h20" stroke="var(--tmg)" stroke-width="3" stroke-linecap="round"/>
+      <path d="M30 20 l9 -9 h9 l-9 9" fill="#FFD54F"/>
+    </svg>
+    <div class="empty-illus-title">${title}</div>
+    ${subtitle ? `<div class="empty-illus-sub">${subtitle}</div>` : ''}
+  `;
   return wrap;
 }
 
@@ -3654,10 +3672,7 @@ function renderTermineKalender(){
     : (state.coachingPlan||[]).slice().sort((a,b)=>(a.datum||'').localeCompare(b.datum||''));
 
   if(!relevant.length){
-    const empty = document.createElement('div');
-    empty.className = 'empty';
-    empty.textContent = calSelectedDate ? 'Keine Termine an diesem Tag.' : 'Keine geplanten Coachings.';
-    container.appendChild(empty);
+    container.appendChild(emptyStateEl(calSelectedDate ? 'Keine Termine an diesem Tag' : 'Keine geplanten Coachings'));
     return;
   }
 
