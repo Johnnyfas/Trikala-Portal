@@ -5727,5 +5727,122 @@ if('serviceWorker' in navigator){
 })();
 </script>
 
+
+<!-- ===== Effekt-Layer 2: Hintergrund 13 · Dark-Mode 15 · Symbole 19 ===== -->
+<style id="fx-layer-2">
+@keyframes fxDrift{0%{transform:translate(0,0) scale(1)}33%{transform:translate(5%,-4%) scale(1.12)}66%{transform:translate(-4%,3%) scale(.94)}100%{transform:translate(0,0) scale(1)}}
+@keyframes fxDrift2{0%{transform:translate(0,0) scale(1.06)}50%{transform:translate(-6%,5%) scale(.92)}100%{transform:translate(0,0) scale(1.06)}}
+
+/* 13 – Zweifarbiger Blur-Nebel */
+body{background:transparent;}
+#fx-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:#FAFAFB;pointer-events:none;}
+#fx-bg .b{position:absolute;border-radius:50%;filter:blur(90px);will-change:transform;}
+#fx-bg .b1{width:44vw;height:44vw;min-width:420px;min-height:420px;background:var(--tmg);opacity:.20;top:-14vw;left:-10vw;animation:fxDrift 24s ease-in-out infinite;}
+#fx-bg .b2{width:40vw;height:40vw;min-width:380px;min-height:380px;background:var(--teal);opacity:.17;bottom:-14vw;right:-8vw;animation:fxDrift2 30s ease-in-out infinite;}
+#fx-bg .b3{width:28vw;height:28vw;min-width:280px;min-height:280px;background:var(--sixh);opacity:.10;top:38%;left:52%;animation:fxDrift 36s ease-in-out infinite;}
+
+/* Karten als Milchglas über dem Nebel */
+.card,.agent-panel,.topbar,.cv-agent-block,.ranking-box,.ma-chart-box,.hof-month-card,.vl-chart-wrap,.cp-card,#fx-pulse{
+  background-color:rgba(255,255,255,.82);backdrop-filter:blur(12px) saturate(1.05);-webkit-backdrop-filter:blur(12px) saturate(1.05);
+}
+
+/* 15 – Dark Mode */
+#fx-theme-btn{background:var(--panel);border:1px solid var(--border);border-radius:999px;width:36px;height:36px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex-shrink:0;}
+#fx-theme-btn:hover{border-color:var(--tmg);color:var(--tmg);}
+#fx-theme-btn i{width:14px;height:14px;border-radius:50%;background:currentColor;display:block;box-shadow:inset -4px -1px 0 0 var(--panel);}
+
+html[data-fx-theme="dark"]{color-scheme:dark;}
+html[data-fx-theme="dark"] :root,html[data-fx-theme="dark"] body{
+  --bg:#141A21;--panel:#1C242E;--border:#2C3742;--text:#E7ECF1;--muted:#93A2B3;
+  --teal-soft:#12332F;--amber-soft:#33270F;--red-soft:#361A18;--sixh-soft:#16273A;--helpline-soft:#241C3A;
+  --tmg-soft:#3A0E27;--tmg-light:#232B35;--tmg-gray:#93A2B3;
+}
+html[data-fx-theme="dark"] #fx-bg{background:#111820;}
+html[data-fx-theme="dark"] #fx-bg .b1{opacity:.36;}
+html[data-fx-theme="dark"] #fx-bg .b2{opacity:.30;}
+html[data-fx-theme="dark"] #fx-bg .b3{opacity:.18;}
+html[data-fx-theme="dark"] body{color:var(--text);}
+html[data-fx-theme="dark"] .card,html[data-fx-theme="dark"] .agent-panel,html[data-fx-theme="dark"] .topbar,
+html[data-fx-theme="dark"] .cv-agent-block,html[data-fx-theme="dark"] .ranking-box,html[data-fx-theme="dark"] .ma-chart-box,
+html[data-fx-theme="dark"] .hof-month-card,html[data-fx-theme="dark"] .vl-chart-wrap,html[data-fx-theme="dark"] .cp-card,
+html[data-fx-theme="dark"] #fx-pulse{background-color:rgba(28,36,46,.86);border-color:var(--border);}
+html[data-fx-theme="dark"] .chart-popup,html[data-fx-theme="dark"] .todo-modal,html[data-fx-theme="dark"] .fx-confirm,
+html[data-fx-theme="dark"] .cal-cell,html[data-fx-theme="dark"] .product-block,html[data-fx-theme="dark"] .ws-agent-chip,
+html[data-fx-theme="dark"] .ki-chip,html[data-fx-theme="dark"] .cf-check-btn,html[data-fx-theme="dark"] .cal-nav-btn,
+html[data-fx-theme="dark"] .chart-zoom-btn,html[data-fx-theme="dark"] .ma-month-btn,html[data-fx-theme="dark"] .cf-next-btn,
+html[data-fx-theme="dark"] button.secondary,html[data-fx-theme="dark"] .tab-btn{background:var(--panel);color:var(--text);border-color:var(--border);}
+html[data-fx-theme="dark"] .metric-group,html[data-fx-theme="dark"] .cf-checklist,html[data-fx-theme="dark"] .cf-quickplan,
+html[data-fx-theme="dark"] .ws-team-block,html[data-fx-theme="dark"] .panel-coaching,html[data-fx-theme="dark"] .hof-criteria,
+html[data-fx-theme="dark"] .cp-team,html[data-fx-theme="dark"] .ki-badge,html[data-fx-theme="dark"] .cv-check-chip,
+html[data-fx-theme="dark"] .sync-idle{background:#232C37;color:var(--text);}
+html[data-fx-theme="dark"] .cp-co-bar-track,html[data-fx-theme="dark"] .cp-bar-track,html[data-fx-theme="dark"] .cp-pie,html[data-fx-theme="dark"] .fx-skel i{background:#26313D;}
+html[data-fx-theme="dark"] .fx-skel i{background:linear-gradient(90deg,#26313D 25%,#31404F 50%,#26313D 75%);background-size:200% 100%;}
+html[data-fx-theme="dark"] input,html[data-fx-theme="dark"] textarea,html[data-fx-theme="dark"] select{
+  background:#232C37!important;color:var(--text);border-color:var(--border);}
+html[data-fx-theme="dark"] .name-input{background:transparent!important;color:var(--text);}
+html[data-fx-theme="dark"] .calls-field input{background:#3A2C15!important;}
+html[data-fx-theme="dark"] .tab-btn.active{background:transparent;color:#fff;}
+html[data-fx-theme="dark"] .fx-pill{background:var(--tmg);}
+html[data-fx-theme="dark"] header.board-header{border-bottom-color:var(--border);}
+html[data-fx-theme="dark"] .ma-table tr:not([class]),html[data-fx-theme="dark"] .vl-table tr:not([class]),
+html[data-fx-theme="dark"] .tz-table tr:not([class]){background:var(--panel);color:var(--text);}
+html[data-fx-theme="dark"] .tz-row-date,html[data-fx-theme="dark"] .tz-row-soll,html[data-fx-theme="dark"] .tz-row-ist,
+html[data-fx-theme="dark"] .tz-row-noch,html[data-fx-theme="dark"] .tz-row-protag,html[data-fx-theme="dark"] .tz-row-cr,
+html[data-fx-theme="dark"] .tz-row-storno,html[data-fx-theme="dark"] .tz-row-gesamt,html[data-fx-theme="dark"] .freq-ok,
+html[data-fx-theme="dark"] .freq-warn,html[data-fx-theme="dark"] .freq-late{filter:saturate(.72) brightness(.62);}
+html[data-fx-theme="dark"] .fx-ring-in{background:#1C242E;}
+html[data-fx-theme="dark"] .team-block.fx-stacked::after,html[data-fx-theme="dark"] .team-block.fx-stacked::before{background:var(--panel);}
+html[data-fx-theme="dark"] svg text{fill:var(--muted);}
+
+/* 19 – Symbol-Familie */
+.tab-btn svg,.topbar svg{stroke-width:1.8;vertical-align:-2px;}
+.metric-group .group-label{display:flex;align-items:center;gap:7px;}
+.metric-group .group-label::before{content:'';width:14px;height:14px;border-radius:4px;flex-shrink:0;display:inline-block;}
+.metric-group.quality .group-label::before{border:2.5px solid var(--teal);border-radius:50%;}
+.metric-group.sales .group-label::before{background:var(--amber);}
+.metric-group.extra .group-label::before{background:var(--muted);transform:rotate(45deg);border-radius:2px;width:11px;height:11px;}
+.team-title{display:flex;align-items:center;gap:9px;}
+.team-title::before{content:'';width:9px;height:9px;border-radius:50%;border:2.5px solid var(--tmg);flex-shrink:0;}
+.cat-badge{display:inline-flex;align-items:center;gap:5px;}
+.cat-badge::before{content:'';width:7px;height:7px;border-radius:2px;background:currentColor;flex-shrink:0;}
+.cat-badge.sixh::before{border-radius:50%;}
+.cat-badge.helpline::before{transform:rotate(45deg);}
+
+@media (prefers-reduced-motion: reduce){#fx-bg .b{animation:none!important}}
+@media print{#fx-bg{display:none}}
+</style>
+<script>
+(function(){
+  /* 13 Hintergrund */
+  function bg(){
+    if(document.getElementById('fx-bg')) return;
+    var d=document.createElement('div'); d.id='fx-bg';
+    d.innerHTML='<span class="b b1"></span><span class="b b2"></span><span class="b b3"></span>';
+    document.body.insertBefore(d, document.body.firstChild);
+  }
+  /* 15 Dark-Mode */
+  var KEY='fx-theme';
+  function apply(t){ document.documentElement.setAttribute('data-fx-theme', t); var m=document.querySelector('meta[name=theme-color]'); if(m) m.content = t==='dark' ? '#141A21' : '#E20074'; }
+  try{ apply(localStorage.getItem(KEY)==='dark'?'dark':'light'); }catch(e){ apply('light'); }
+  function themeBtn(){
+    if(document.getElementById('fx-theme-btn')) return;
+    var host=document.querySelector('.topbar')||document.querySelector('header.board-header');
+    if(!host) return;
+    var b=document.createElement('button');
+    b.id='fx-theme-btn'; b.type='button'; b.title='Hell / Dunkel'; b.innerHTML='<i></i>';
+    b.onclick=function(){
+      var next = document.documentElement.getAttribute('data-fx-theme')==='dark' ? 'light':'dark';
+      apply(next); try{ localStorage.setItem(KEY,next); }catch(e){}
+      if(window.fxToast) fxToast(next==='dark'?'Dunkles Design':'Helles Design');
+    };
+    if(host.classList.contains('topbar')) host.appendChild(b);
+    else { b.style.marginLeft='auto'; host.appendChild(b); }
+  }
+  function boot(){ bg(); themeBtn(); }
+  if(document.readyState==='complete') setTimeout(boot,80);
+  else addEventListener('load', function(){ setTimeout(boot,80); });
+})();
+</script>
+
 </body>
 </html>
