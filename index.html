@@ -153,6 +153,18 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .dp-dot{width:16px;height:16px;border-radius:5px;}
 .dp-legend{display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;font-size:11.5px;color:var(--muted);}
 .dp-legend-dot{width:11px;height:11px;border-radius:3px;}
+.cp-alert-banner{display:flex;align-items:center;gap:10px;background:#FEF3E8;border:1px solid #F0D5B0;color:#8A5A00;border-radius:12px;padding:12px 18px;margin-bottom:16px;font-family:'Inter',sans-serif;font-size:13.5px;}
+.cp-priority-list{display:flex;flex-direction:column;gap:8px;}
+.cp-priority-row{display:flex;align-items:center;gap:12px;padding:9px 12px;background:#FAFBFC;border-radius:10px;}
+.cp-priority-rank{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--tmg);width:20px;flex-shrink:0;}
+.cp-priority-name{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;flex:0 0 140px;}
+.cp-priority-team{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);flex:0 0 90px;}
+.cp-priority-reasons{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text);}
+.cp-eff-list{display:flex;flex-direction:column;gap:7px;}
+.cp-eff-row{display:flex;align-items:center;gap:14px;padding:8px 12px;background:#FAFBFC;border-radius:10px;}
+.cp-eff-name{font-family:'Inter',sans-serif;font-weight:600;font-size:13px;flex:0 0 140px;}
+.cp-eff-vals{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);flex:1;}
+.cp-eff-diff{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;}
 
 /* ===== Coaching Plan: Diagramme & Formular ===== */
 .cp-charts-row{display:flex;gap:16px;flex-wrap:wrap;}
@@ -3550,6 +3562,10 @@ function renderCoachPlan(){
   const container = document.getElementById('coachplan-container');
   container.innerHTML = '';
 
+  // ===== Zielerinnerung / Alarm =====
+  const alertBanner = buildAlertBanner();
+  if(alertBanner) container.appendChild(alertBanner);
+
   // ===== Neues Coaching / Workshop (oben) =====
   const actionRow = document.createElement('div');
   actionRow.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:18px;position:relative;';
@@ -3601,6 +3617,8 @@ function renderCoachPlan(){
     container.appendChild(cpFormType === 'workshop' ? buildWorkshopForm() : buildCoachingRecordForm(cpPrefill));
   }
 
+  container.appendChild(buildPriorityList());
+
   // ===== Diagramme =====
   const { countByTeam, dauerByTeam, themen, checklistStats } = computeCoachStats();
   const teamColorsByLabel = {};
@@ -3614,7 +3632,175 @@ function renderCoachPlan(){
   chartsRow.appendChild(buildPieChart('Coaching-Themen', themen, COACH_THEMEN_COLORS));
   container.appendChild(chartsRow);
 
+  container.appendChild(buildEffectivenessSection());
   container.appendChild(buildChecklistOverview(checklistStats));
+}
+
+// ===== Zielerinnerung/Alarm: Mitarbeiter lange ohne Coaching + fallende CR =====
+function buildAlertBanner(){
+  const now = new Date();
+  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
+  let noCoachingCount = 0;
+  let fallingCrCount = 0;
+  const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const aktuellerMonatName = now.toLocaleString('de-DE', {month:'long'});
+
+  allAgents.forEach(a=>{
+    let daysSince = null;
+    if(a.coachingDatum){
+      const parts = a.coachingDatum.split('.');
+      if(parts.length===3){
+        const dt = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        if(!isNaN(dt)) daysSince = Math.floor((now-dt)/(1000*60*60*24));
+      }
+    }
+    const laengereZeitOhne = (daysSince===null || daysSince>14);
+    if(laengereZeitOhne) noCoachingCount++;
+
+    if(laengereZeitOhne){
+      const vlEntry = Object.values(state.verlauf).find(v=>v.name===a.name && v.team===a.team);
+      if(vlEntry && vlEntry.monate){
+        const monKeys = Object.keys(vlEntry.monate).filter(k=>k.split('-')[1]!==aktuellerMonatName).sort((x,y)=>{
+          const [ya,ma]=x.split('-'); const [yb,mb]=y.split('-');
+          if(ya!==yb) return ya.localeCompare(yb);
+          return MONATE_ORDER.indexOf(ma)-MONATE_ORDER.indexOf(mb);
+        });
+        const ref = monKeys[monKeys.length-1];
+        if(ref){
+          const davor = vlEntry.monate[ref].cr || 0;
+          const jetzt = totalCr(a);
+          if(davor>0 && (jetzt-davor) < -0.5) fallingCrCount++;
+        }
+      }
+    }
+  });
+
+  if(noCoachingCount===0) return null;
+  const banner = document.createElement('div');
+  banner.className = 'cp-alert-banner';
+  banner.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+    <span><strong>${noCoachingCount} Mitarbeiter</strong> seit über 14 Tagen ohne Coaching${fallingCrCount>0 ? ` — bei <strong>${fallingCrCount}</strong> davon fällt aktuell die CR` : ''}.</span>`;
+  return banner;
+}
+
+// ===== Automatische Prioritätenliste: Wen zuerst coachen =====
+function buildPriorityList(){
+  const now = new Date();
+  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
+  const scored = allAgents.map(a=>{
+    const cfg = TEAM_CONFIGS[a.team];
+    const cr = totalCr(a);
+    const crGap = Math.max(0, (cfg?.crTarget||0) - cr);
+    let daysSince = 999;
+    if(a.coachingDatum){
+      const parts = a.coachingDatum.split('.');
+      if(parts.length===3){
+        const dt = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+        if(!isNaN(dt)) daysSince = Math.floor((now-dt)/(1000*60*60*24));
+      }
+    }
+    const cv = Object.values(state.coachverlauf).find(v=>v.name===a.name && v.team===a.team);
+    let weaknessCount = 0;
+    if(cv && cv.eintraege){
+      const nokCount = {};
+      cv.eintraege.forEach(e=>{
+        if(!e.checkliste) return;
+        Object.keys(e.checkliste).forEach(k=>{ if(e.checkliste[k]==='nok') nokCount[k]=(nokCount[k]||0)+1; });
+      });
+      weaknessCount = Object.values(nokCount).filter(n=>n>=2).length;
+    }
+    const score = crGap*3 + Math.min(daysSince,60)*0.5 + weaknessCount*4;
+    return { agent:a, crGap, daysSince, weaknessCount, score, cfg };
+  }).filter(x=>x.score > 0.5);
+
+  scored.sort((x,y)=>y.score-x.score);
+  const top5 = scored.slice(0,5);
+
+  const wrap = document.createElement('div');
+  wrap.className = 'cp-chart-card';
+  wrap.style.marginTop = '16px';
+  let html = `<div class="cp-chart-title">🎯 Wen zuerst coachen — Top 5 mit größtem Hebel</div>`;
+  if(!top5.length){
+    html += `<div class="empty">Aktuell kein dringender Handlungsbedarf erkennbar.</div>`;
+  } else {
+    html += `<div class="cp-priority-list">`;
+    top5.forEach((x,i)=>{
+      const reasons = [];
+      if(x.crGap>0.5) reasons.push(`CR ${x.crGap.toFixed(1)} Pkt. unter Ziel`);
+      if(x.daysSince>=999) reasons.push('noch nie gecoacht');
+      else if(x.daysSince>14) reasons.push(`${x.daysSince} Tage ohne Coaching`);
+      if(x.weaknessCount>0) reasons.push(`${x.weaknessCount} wiederkehrende Schwachstelle${x.weaknessCount>1?'n':''}`);
+      html += `<div class="cp-priority-row">
+        <span class="cp-priority-rank">${i+1}</span>
+        <span class="cp-priority-name">${x.agent.name}</span>
+        <span class="cp-priority-team">${x.cfg?.label||x.agent.team}</span>
+        <span class="cp-priority-reasons">${reasons.join(' · ')}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  wrap.innerHTML = html;
+  return wrap;
+}
+
+// ===== Coaching-Wirksamkeit: CR vor dem ersten Coaching vs. heute =====
+function buildEffectivenessSection(){
+  const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
+  const rows = [];
+  allAgents.forEach(a=>{
+    const cv = Object.values(state.coachverlauf).find(v=>v.name===a.name && v.team===a.team);
+    if(!cv || !cv.eintraege || !cv.eintraege.length) return;
+    const sorted = cv.eintraege.slice().sort((x,y)=>{
+      const dx=(x.datum||'').split('.').reverse().join('-');
+      const dy=(y.datum||'').split('.').reverse().join('-');
+      return dx.localeCompare(dy);
+    });
+    const erstesCoaching = sorted[0];
+    const parts = (erstesCoaching.datum||'').split('.');
+    if(parts.length!==3) return;
+    const coachingDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+    if(isNaN(coachingDate)) return;
+    const coachingMonatName = coachingDate.toLocaleString('de-DE',{month:'long'});
+    const vlEntry = Object.values(state.verlauf).find(v=>v.name===a.name && v.team===a.team);
+    if(!vlEntry || !vlEntry.monate) return;
+    const monKeys = Object.keys(vlEntry.monate).sort((x,y)=>{
+      const [ya,ma]=x.split('-'); const [yb,mb]=y.split('-');
+      if(ya!==yb) return ya.localeCompare(yb);
+      return MONATE_ORDER.indexOf(ma)-MONATE_ORDER.indexOf(mb);
+    });
+    const coachingKey = `${parts[2]}-${coachingMonatName}`;
+    const idx = monKeys.indexOf(coachingKey);
+    const vorherKey = idx > 0 ? monKeys[idx-1] : (idx===0 ? monKeys[0] : null);
+    if(!vorherKey) return;
+    const crVorher = vlEntry.monate[vorherKey].cr || 0;
+    if(!crVorher) return;
+    const crJetzt = totalCr(a);
+    rows.push({ name:a.name, crVorher, crJetzt, diff: crJetzt-crVorher });
+  });
+
+  const wrap = document.createElement('div');
+  wrap.className = 'cp-chart-card';
+  wrap.style.marginTop = '16px';
+  let html = `<div class="cp-chart-title">📈 Coaching-Wirksamkeit — CR vor dem ersten Coaching vs. heute</div>`;
+  if(!rows.length){
+    html += `<div class="empty">Noch nicht genug Daten (braucht mind. 1 Coaching + Verlaufsdaten aus dem Monat davor).</div>`;
+  } else {
+    const avgDiff = rows.reduce((s,r)=>s+r.diff,0)/rows.length;
+    html += `<div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--muted);margin-bottom:10px;">Ø Veränderung nach Coaching: <strong style="color:${avgDiff>=0?'var(--teal)':'var(--red)'};">${avgDiff>=0?'+':''}${avgDiff.toFixed(1)} Prozentpunkte</strong></div>`;
+    html += `<div class="cp-eff-list">`;
+    rows.sort((a,b)=>b.diff-a.diff).forEach(r=>{
+      const color = r.diff>=0 ? 'var(--teal)' : 'var(--red)';
+      html += `<div class="cp-eff-row">
+        <span class="cp-eff-name">${r.name}</span>
+        <span class="cp-eff-vals">${r.crVorher.toFixed(1)}% → ${r.crJetzt.toFixed(1)}%</span>
+        <span class="cp-eff-diff" style="color:${color};">${r.diff>=0?'▲':'▼'} ${Math.abs(r.diff).toFixed(1)} Pkt.</span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  wrap.innerHTML = html;
+  return wrap;
 }
 
 function buildPlanRow(p){
