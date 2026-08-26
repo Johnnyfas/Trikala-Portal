@@ -5477,16 +5477,17 @@ function renderTeamZiele(){
     cols.forEach(p => stRow.appendChild(cell(mkInput((parseFloat(tz.storno[p]||0)).toFixed(2)+'%', v=>{
       const neu = parseFloat(v)||0;
       const alt = parseFloat(tz.storno[p]||0);
-      // Alten Wert mit heutigem Datum im Verlauf ablegen, bevor überschrieben wird
+      // Den Stand VOR der ersten Änderung des Tages im Verlauf ablegen (das ist der echte "Vortages-Wert").
+      // Wird am selben Tag nochmal korrigiert, bleibt dieser Ausgangswert unangetastet -
+      // nur der zuletzt eingegebene Wert selbst (tz.storno[p]) zählt als "heutiger Stand".
       if(alt !== neu){
         if(!tz.stornoHistory[p]) tz.stornoHistory[p] = [];
         const heute = new Date().toLocaleDateString('de-DE');
         const letzter = tz.stornoHistory[p][tz.stornoHistory[p].length-1];
-        if(letzter && letzter.datum === heute){
-          letzter.wert = alt; // Am selben Tag mehrfach geändert: nur den letzten Stand des Tages behalten
-        } else {
+        if(!letzter || letzter.datum !== heute){
           tz.stornoHistory[p].push({ datum: heute, wert: alt });
         }
+        // war schon ein Eintrag für heute da: nichts tun, der ursprüngliche Vortages-Wert bleibt korrekt erhalten
       }
       tz.storno[p]=neu;
     }))));
