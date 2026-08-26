@@ -537,44 +537,42 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 .cp-team-block{margin-bottom:26px;}
 .cp-team-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;margin:0 0 10px;color:var(--text);}
 
-#overview-capture{background:#0D0D0F;padding:16px 4px;}
-.ov-title{color:#F5F5F7;}
-.ov-sub{color:#98989D;}
+#overview-capture{background:var(--bg);padding:4px;}
 .ov-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;margin:0 0 4px;color:var(--text);}
 .ov-sub{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);margin:0 0 20px;}
 .ov-team{margin-bottom:24px;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);}
-.ov-team-head{background:#000;color:#F5F5F7;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.ov-team-head{background:#1D1D1F;color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
 .ov-team-head .name{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:600;font-size:17px;letter-spacing:-.015em;}
 .ov-team-head .targets{font-family:'Inter',-apple-system,sans-serif;font-size:12px;font-weight:500;color:rgba(255,255,255,.6);}
 .ov-columns-wrap{display:flex;align-items:stretch;}
-.ov-column-divider{width:10px;flex-shrink:0;background:#0D0D0F;}
-.ov-grid{width:100%;background:#1C1C1E;font-size:0;}
+.ov-column-divider{width:10px;flex-shrink:0;background:#F0F0F2;}
+.ov-grid{width:100%;background:#fff;font-size:0;}
 .ov-header-row,.ov-data-row{display:grid;align-items:stretch;}
-.ov-header-row{border-bottom:1px solid rgba(255,255,255,.08);background:#232326;}
-.ov-data-row{border-bottom:1px solid rgba(255,255,255,.06);}
+.ov-header-row{border-bottom:1px solid #E5E5EA;background:#FAFAFA;}
+.ov-data-row{border-bottom:1px solid #F0F0F2;}
 .ov-data-row:last-child{border-bottom:none;}
-.ov-data-row:nth-child(even){background:#222224;}
-.ov-data-row:hover{background:#28282B;}
-.ov-cell{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;font-weight:500;color:#F5F5F7;padding:8px 3px;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;}
-.ov-cell.head{font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:600;color:#98989D;text-transform:none;letter-spacing:0;padding:11px 6px;flex-direction:column;gap:2px;}
-.ov-cell.name-cell{font-weight:600;font-size:14px;color:#F5F5F7;text-align:left;justify-content:flex-start;padding-left:20px;flex:0 1 auto;white-space:nowrap;position:relative;}
+.ov-data-row:nth-child(even){background:#FBFBFC;}
+.ov-data-row:hover{background:#F5F5F7;}
+.ov-cell{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;font-weight:500;color:#1D1D1F;padding:8px 3px;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;}
+.ov-cell.head{font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:600;color:#86868B;text-transform:none;letter-spacing:0;padding:11px 6px;flex-direction:column;gap:2px;}
+.ov-cell.name-cell{font-weight:600;font-size:14px;color:#1D1D1F;text-align:left;justify-content:flex-start;padding-left:20px;flex:0 1 auto;white-space:nowrap;position:relative;}
 .ov-name-pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:10px;font-weight:600;font-size:12px;}
 .ov-cat-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:9px;flex-shrink:0;}
 .ov-cell.name-cell.head{justify-content:flex-start;padding-left:20px;}
-.ov-cell.qual-cell{flex:0 0 78px;background:#1C1C1E;min-width:78px;}
-.ov-cell.qual-cell.head{background:#232326;border-bottom:1px solid rgba(255,255,255,.08);}
-.ov-cell.sales-cell{flex:0 0 80px;background:linear-gradient(160deg,rgba(120,150,210,.12),rgba(255,255,255,.03));}
-.ov-cell.sales-cell.head{background:#232326;border-bottom:1px solid rgba(255,255,255,.08);font-size:11px;font-weight:600;}
-.ov-cell.cr-cell{flex:0 0 90px;background:#1C1C1E;}
-.ov-cell.cr-cell.head{background:#232326;border-bottom:1px solid rgba(255,255,255,.08);}
+.ov-cell.qual-cell{flex:0 0 78px;background:#fff;min-width:78px;}
+.ov-cell.qual-cell.head{background:#FAFAFA;border-bottom:1px solid #E5E5EA;}
+.ov-cell.sales-cell{flex:0 0 80px;background:linear-gradient(160deg,rgba(120,150,210,.10),rgba(255,255,255,.35));}
+.ov-cell.sales-cell.head{background:#FAFAFA;border-bottom:1px solid #E5E5EA;font-size:11px;font-weight:600;}
+.ov-cell.cr-cell{flex:0 0 90px;background:#fff;}
+.ov-cell.cr-cell.head{background:#FAFAFA;border-bottom:1px solid #E5E5EA;}
 .ov-badge{display:inline-block;padding:3px 7px;border-radius:980px;font-size:11px;font-weight:600;font-family:'Inter',-apple-system,sans-serif;letter-spacing:-.005em;white-space:nowrap;}
-.ov-badge.good{background:rgba(48,209,88,.16);color:#30D158;}
-.ov-badge.mid{background:rgba(255,159,10,.18);color:#FF9F0A;}
-.ov-badge.zero{background:rgba(255,69,58,.18);color:#FF453A;}
-.ov-badge-glass{padding:5px 12px;background:rgba(255,255,255,.08) !important;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.14);box-shadow:0 2px 6px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08);}
-.ov-badge-glass.good{color:#30D158;}
-.ov-badge-glass.mid{color:#FF9F0A;}
-.ov-badge-glass.zero{color:#FF453A;}
+.ov-badge.good{background:#E6F9EC;color:#1D8A3E;}
+.ov-badge.mid{background:#FFF3DE;color:#B9770E;}
+.ov-badge.zero{background:#FFEBEB;color:#D70015;}
+.ov-badge-glass{padding:5px 12px;background:rgba(255,255,255,.55) !important;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.7);box-shadow:0 2px 6px rgba(30,40,60,.10), inset 0 1px 0 rgba(255,255,255,.8);}
+.ov-badge-glass.good{color:#1D8A3E;}
+.ov-badge-glass.mid{color:#B9770E;}
+.ov-badge-glass.zero{color:#D70015;}
 
 /* ===== To-Do's Pop-up ===== */
 .todo-fab{position:fixed;top:16px;right:16px;z-index:1000;background:var(--tmg);color:#fff;border:none;border-radius:999px;padding:10px 18px;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;cursor:pointer;box-shadow:0 2px 10px rgba(226,0,116,.35);display:flex;align-items:center;gap:7px;transition:background .15s;}
@@ -610,7 +608,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 .todo-del:hover{opacity:1;color:var(--red);}
 .todo-empty{color:var(--muted);font-size:13px;font-style:italic;text-align:center;padding:20px 0;}
 .site-copyright{font-family:'Inter',sans-serif;font-size:10.5px;color:var(--muted);text-align:center;padding:24px 16px 12px;line-height:1.5;max-width:680px;margin:0 auto;}
-.ov-foot{font-family:'Inter',sans-serif;font-size:11.5px;color:#98989D;margin-top:8px;display:flex;align-items:center;gap:12px;}
+.ov-foot{font-family:'Inter',sans-serif;font-size:11.5px;color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:12px;}
 </style>
 </head>
 <body>
@@ -5401,11 +5399,11 @@ function renderOverview(){
       <div class="ov-team-head">
         <span class="name">${cfg.label} — ${cfg.project}</span>
       </div>
-      <div style="background:#1C1C1E;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08);text-align:center;">
-        <div style="font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:700;color:#6E6E73;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Ziele</div>
-        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#FBBF24;margin-bottom:4px;">8-Stündler: ${legendLine('regular')}</div>
-        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#6FA8DC;margin-bottom:4px;">6-Stündler: ${legendLine('6h')}</div>
-        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#B79CE8;">Helpline: ${legendLine('helpline')}</div>
+      <div style="background:#F7F9FA;padding:14px 16px;border-bottom:1px solid var(--border);text-align:center;">
+        <div style="font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Ziele</div>
+        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#8A6D00;margin-bottom:4px;">8-Stündler: ${legendLine('regular')}</div>
+        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--sixh);margin-bottom:4px;">6-Stündler: ${legendLine('6h')}</div>
+        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--helpline);">Helpline: ${legendLine('helpline')}</div>
       </div>`;
 
     const totalCols = 1 + 1 + 2 + cfg.products.length + 1;
@@ -5488,7 +5486,7 @@ function renderOverview(){
 
   const foot = document.createElement('div');
   foot.className = 'ov-foot';
-  foot.innerHTML = 'Grün = Ziel erreicht · Rot = unter Ziel &nbsp;·&nbsp; <span style="background:rgba(59,111,160,.2);color:#6FA8DC;padding:1px 6px;border-radius:4px;font-size:11px;">6-Stündler</span> &nbsp; <span style="background:rgba(124,92,191,.2);color:#B79CE8;padding:1px 6px;border-radius:4px;font-size:11px;">Helpline</span>';
+  foot.innerHTML = 'Grün = Ziel erreicht · Rot = unter Ziel &nbsp;·&nbsp; <span style="background:#E4ECF5;color:var(--sixh);padding:1px 6px;border-radius:4px;font-size:11px;">6-Stündler</span> &nbsp; <span style="background:#EFE9F7;color:var(--helpline);padding:1px 6px;border-radius:4px;font-size:11px;">Helpline</span>';
   container.appendChild(foot);
 }
 
