@@ -537,7 +537,46 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 .cp-team-block{margin-bottom:26px;}
 .cp-team-title{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;margin:0 0 10px;color:var(--text);}
 
-#overview-capture{background:var(--bg);padding:4px;}
+#overview-capture{
+  background:linear-gradient(135deg, rgba(226,0,116,.06) 0%, rgba(14,124,123,.05) 50%, rgba(226,0,116,.06) 100%), var(--bg);
+  padding:20px;
+  border-radius:24px;
+  box-shadow:0 24px 60px -20px rgba(28,39,51,.22), 0 4px 16px rgba(28,39,51,.08);
+  position:relative;
+  overflow:hidden;
+}
+#overview-capture::before{
+  content:'';
+  position:absolute;
+  top:-60px; right:-60px;
+  width:280px; height:280px;
+  border-radius:50%;
+  border:34px solid rgba(226,0,116,.05);
+  pointer-events:none;
+  z-index:0;
+}
+#overview-capture::after{
+  content:'';
+  position:absolute;
+  bottom:-80px; left:-40px;
+  width:220px; height:220px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(14,124,123,.07), transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+#overview-capture > *{position:relative;z-index:1;}
+.ov-watermark{
+  position:absolute;
+  bottom:14px; right:24px;
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:700;
+  font-size:13px;
+  letter-spacing:.12em;
+  color:rgba(28,39,51,.10);
+  z-index:0;
+  pointer-events:none;
+}
 .ov-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;margin:0 0 4px;color:var(--text);}
 .ov-sub{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);margin:0 0 20px;}
 .ov-team{margin-bottom:24px;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);}
@@ -5342,6 +5381,10 @@ function renderOverview(){
   document.getElementById('ov-count').textContent = state.agents.length + ' Mitarbeiter';
   const container = document.getElementById('overview-capture');
   container.innerHTML = '';
+  const watermark = document.createElement('div');
+  watermark.className = 'ov-watermark';
+  watermark.textContent = 'STANDORT-PORTAL';
+  container.appendChild(watermark);
   const title = document.createElement('div');
   title.innerHTML = '<div class="ov-title">Team-Übersicht — Vertrieb &amp; Gesamt-CR</div><div class="ov-sub">Inbound Mobilfunk &amp; Festnetz Privatkunden · Stand aktuell</div>';
   container.appendChild(title);
