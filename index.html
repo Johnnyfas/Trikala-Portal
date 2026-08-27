@@ -4884,7 +4884,7 @@ function renderMonatsabschluss(){
 
   mkBox('Gesamt Stückzahl — Monatsverlauf', ()=>[
     { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; return md&&md.erreicht?Object.values(md.erreicht).reduce((s,v)=>s+v,0):0; }) },
-    { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; return md&&md.erreicht?Object.values(md.erreicht).reduce((s,v)=>s+v,0):0; }) }
+    { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; return md&&md.erreicht?Object.entries(md.erreicht).filter(([k])=>k!=='BOJ').reduce((s,[,v])=>s+v,0):0; }) }
   ], false);
 
   mkBox('NPS — Monatsverlauf', ()=>[
@@ -5493,31 +5493,26 @@ function renderTeamZiele(){
     }))));
     t.appendChild(stRow);
 
-    tableWrap.appendChild(t);
-    teamLayout.appendChild(tableWrap);
-    teamLayout.appendChild(sidebar);
-    section.appendChild(teamLayout);
-
-    // === Storno-Verlauf Diagramm ===
+    // === Storno-Verlauf Diagramm (in die Sidebar, unter die CR-Kästchen) ===
     const hasHistory = Object.values(tz.stornoHistory).some(arr=>arr && arr.length>0);
     if(hasHistory){
       const stChartWrap = document.createElement('div');
       stChartWrap.className = 'cp-chart-card';
-      stChartWrap.style.marginTop = '14px';
-      stChartWrap.innerHTML = `<div class="cp-chart-title">📈 Storno-Verlauf — ${label}</div>`;
+      stChartWrap.style.marginTop = '4px';
+      stChartWrap.innerHTML = `<div class="cp-chart-title" style="font-size:12px;">📈 Storno-Verlauf</div>`;
       const canvas = document.createElement('canvas');
-      canvas.height = 220;
+      canvas.height = 180;
       canvas.style.cursor = 'zoom-in';
       canvas.style.width = '100%';
       canvas.style.display = 'block';
       stChartWrap.appendChild(canvas);
-      section.appendChild(stChartWrap);
+      sidebar.appendChild(stChartWrap);
 
       const drawFn = (c) => drawStornoTrendChart(c, tz.stornoHistory, tz.storno, cols);
       setTimeout(()=>{
         const dpr = window.devicePixelRatio || 1;
-        const dw = canvas.offsetWidth || 600;
-        const dh = 220;
+        const dw = canvas.offsetWidth || 260;
+        const dh = 180;
         canvas.width = dw * dpr;
         canvas.height = dh * dpr;
         canvas.style.width = dw + 'px';
@@ -5529,6 +5524,10 @@ function renderTeamZiele(){
       canvas.addEventListener('click', ()=>showChartPopup(`Storno-Verlauf — ${label}`, drawFn));
     }
 
+    tableWrap.appendChild(t);
+    teamLayout.appendChild(tableWrap);
+    teamLayout.appendChild(sidebar);
+    section.appendChild(teamLayout);
     container.appendChild(section);
   };
 
