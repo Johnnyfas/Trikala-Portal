@@ -1093,6 +1093,7 @@ async function loadFromSharePoint(){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
         state.agents = data.agents;
+        if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
         if(data.teamziele){
           Object.keys(data.teamziele).forEach(k=>{
             if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
@@ -1337,6 +1338,7 @@ async function loadFromSharePoint(){
       if(data && data.agents && data.agents.length){
         showSyncDebug(`✅ Daten geladen: ${data.agents.length} Mitarbeiter (HTTP ${resp.status}, ${new Date().toLocaleTimeString('de-DE')})`, false);
         state.agents = data.agents;
+        if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
         if(data.teamziele){
           Object.keys(data.teamziele).forEach(k=>{
             if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
