@@ -6195,6 +6195,12 @@ if('serviceWorker' in navigator){
 
 /* 04 – Ringe / 10 – Heatmap: Kopfleiste */
 #fx-pulse{display:flex;align-items:center;gap:26px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:18px;}
+.fx-cnt-total{flex-shrink:0;padding-right:20px;border-right:1px solid var(--border);}
+.fx-cnt-teams{display:flex;gap:28px;flex-wrap:wrap;flex:1;}
+.fx-cnt-team-head{font-family:'Inter',sans-serif;font-size:12.5px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.fx-cnt-team-head b{font-family:'Space Grotesk',sans-serif;font-size:15px;margin-left:6px;color:var(--tmg);}
+.fx-cnt-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.fx-cnt-chip{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;background:#F1F4F7;color:var(--muted);padding:3px 9px;border-radius:980px;}
 #fx-pulse .fx-ring{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .5s;}
 #fx-pulse .fx-ring-in{width:72px;height:72px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;}
 #fx-pulse .fx-ring-val{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;}
@@ -6301,29 +6307,32 @@ if('serviceWorker' in navigator){
     stacks();
     var host=document.getElementById('coaching-teams'); if(!host) return;
     var strip=document.getElementById('fx-pulse');
-    var cards=host.querySelectorAll('.card');
-    if(!cards.length){ if(strip) strip.remove(); return; }
+    if(typeof state === 'undefined' || !state.agents){ if(strip) strip.remove(); return; }
+    var agents = state.agents.filter(function(a){ return a.name && a.name.trim()!==''; });
+    if(!agents.length){ if(strip) strip.remove(); return; }
     if(!strip){ strip=document.createElement('div'); strip.id='fx-pulse'; host.parentNode.insertBefore(strip, host); }
-    var good=0, cells=[];
-    cards.forEach(function(c){
-      var d=c.querySelector('.status-dot');
-      var bad = d && (d.classList.contains('warn')||d.classList.contains('critical'));
-      if(!bad) good++;
-      var ins=c.querySelectorAll('.metric-field input, .stk-input, .calls-field input');
-      var filled=0; ins.forEach(function(i){ if(i.value && i.value.trim()!=='' && i.value!=='0') filled++; });
-      cells.push(ins.length ? filled/ins.length : 0);
-    });
-    var pct = Math.round(good/cards.length*100);
-    var cols = Math.min(14, Math.max(6, Math.ceil(Math.sqrt(cells.length*2))));
-    var heat = cells.map(function(v){
-      var bg = v<0.05 ? '#EDEFF2' : 'rgba(226,0,116,'+(0.18+v*0.82).toFixed(2)+')';
-      return '<i style="background:'+bg+'"></i>';
+
+    var catLabel = { regular:'8-Stündler', '6h':'6-Stündler', helpline:'Helpline' };
+    var teamOrder = Object.keys(TEAM_CONFIGS);
+    var teamsHtml = teamOrder.map(function(teamId){
+      var cfg = TEAM_CONFIGS[teamId];
+      var teamAgents = agents.filter(function(a){ return String(a.team) === String(teamId); });
+      if(!teamAgents.length) return '';
+      var counts = { regular:0, '6h':0, helpline:0 };
+      teamAgents.forEach(function(a){ var c = a.category||'regular'; if(counts[c]===undefined) counts[c]=0; counts[c]++; });
+      var breakdown = ['regular','6h','helpline'].map(function(c){
+        return '<span class="fx-cnt-chip">'+counts[c]+' '+catLabel[c]+'</span>';
+      }).join('');
+      return '<div class="fx-cnt-team">'+
+        '<div class="fx-cnt-team-head">'+cfg.label+' — '+cfg.project+' <b>'+teamAgents.length+'</b></div>'+
+        '<div class="fx-cnt-chips">'+breakdown+'</div>'+
+      '</div>';
     }).join('');
-    strip.innerHTML = ringHTML(pct) +
-      '<div><div class="fx-cap">Datenpflege je Karte</div>'+
-      '<div class="fx-heat" style="grid-template-columns:repeat('+cols+',14px);margin-top:8px">'+heat+'</div>'+
-      '<div class="fx-legend"><span>leer</span><b style="background:#EDEFF2"></b><b style="background:rgba(226,0,116,.35)"></b><b style="background:rgba(226,0,116,.65)"></b><b style="background:rgba(226,0,116,1)"></b><span>vollständig</span></div></div>'+
-      '<div style="margin-left:auto;text-align:right"><div class="fx-cap">Karten</div><div style="font-family:\'Space Grotesk\',sans-serif;font-size:22px;font-weight:700">'+cards.length+'</div></div>';
+
+    strip.innerHTML =
+      '<div class="fx-cnt-total"><div class="fx-cap">Mitarbeiter gesamt</div>'+
+      '<div style="font-family:\'Space Grotesk\',sans-serif;font-size:28px;font-weight:700">'+agents.length+'</div></div>'+
+      '<div class="fx-cnt-teams">'+teamsHtml+'</div>';
   }
   window.fxUpdatePulse = updatePulse;
 
