@@ -2936,7 +2936,7 @@ function renderCoachVerlauf(){
     const head = document.createElement('div');
     head.className = 'cv-agent-head';
     const teamLabel = TEAM_CONFIGS[cv.team]?.label || cv.team;
-    head.innerHTML = `<span class="cv-agent-name">${cv.name}</span><span style="font-size:11px;opacity:.8;">${label} · ${cv.eintraege.length} Coaching${cv.eintraege.length>1?'s':''}</span>`;
+    head.innerHTML = `<span class="cv-agent-name">${cv.name}</span><span style="font-size:11px;opacity:.8;">${teamLabel} · ${cv.eintraege.length} Coaching${cv.eintraege.length>1?'s':''}</span>`;
     block.appendChild(head);
 
     cv.eintraege.forEach(entry => {
