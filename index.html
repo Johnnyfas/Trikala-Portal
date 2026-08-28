@@ -99,7 +99,8 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .calls-field label{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
 .calls-field input{width:74px;border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;background:#FFF7EC;outline:none;}
 
-.remove-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;flex-shrink:0;}
+.remove-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;flex-shrink:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:8px;padding:0;}
+.remove-btn:hover{background:#F5F7F9;color:var(--red);}
 .remove-btn:hover{color:var(--red);}
 
 .metrics-row{display:flex;gap:14px;flex-wrap:wrap;}
@@ -718,9 +719,9 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
     <button class="tab-btn" id="tab-coachdash">Coaching Dashboard</button>
     <button class="tab-btn" id="tab-teamziele">Team Ziele</button>
     <button class="tab-btn" id="tab-monatsabschluss">Monatsabschluss</button>
-    <button class="tab-btn active" id="tab-coaching">Mitarbeiter Ziele</button>
+    <button class="tab-btn active" id="tab-coaching">Mitarbeiter Überblick</button>
     <button class="tab-btn" id="tab-verlauf">Mitarbeiter Verlauf</button>
-    <button class="tab-btn" id="tab-overview">MA Stand</button>
+    <button class="tab-btn" id="tab-overview">Mitarbeiter Ziele</button>
     <button class="tab-btn" id="tab-tageswerte">📝 Tageswerte</button>
     <button class="tab-btn" id="tab-halloffame"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px;"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg>Hall of Fame</button>
     <button class="tab-btn" id="tab-kianalyse"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V5a3 3 0 0 1 6 0v3M9 14h.01M15 14h.01"/></svg>KI Analyse</button>
@@ -6258,22 +6259,7 @@ if('serviceWorker' in navigator){
     ov.appendChild(box); document.body.appendChild(ov);
   };
 
-  /* 01 3D-Tilt */
-  if(!touch){
-    document.addEventListener('mousemove', function(e){
-      var c = e.target.closest && e.target.closest('.card'); if(!c) return;
-      if(/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) { c.style.transform=''; return; }
-      var r=c.getBoundingClientRect();
-      var x=(e.clientX-r.left)/r.width-.5, y=(e.clientY-r.top)/r.height-.5;
-      c.classList.add('fx-tilting');
-      c.style.transform='perspective(1200px) rotateY('+(x*3.2).toFixed(2)+'deg) rotateX('+(-y*2.4).toFixed(2)+'deg) translateZ(6px)';
-    }, true);
-    document.addEventListener('mouseout', function(e){
-      var c = e.target.closest && e.target.closest('.card'); if(!c) return;
-      if(c.contains(e.relatedTarget)) return;
-      c.style.transform=''; c.classList.remove('fx-tilting');
-    }, true);
-  }
+  /* 01 3D-Tilt (entfernt auf Wunsch - fühlte sich wie ein "Wackeln" an) */
 
   /* 09 Gleitende Pille */
   function pill(bar){
