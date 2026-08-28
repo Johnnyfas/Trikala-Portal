@@ -733,9 +733,6 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
       <button class="tab-btn" id="tab-halloffame"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px;"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg>Hall of Fame</button>
       <button class="tab-btn" id="tab-kianalyse"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V5a3 3 0 0 1 6 0v3M9 14h.01M15 14h.01"/></svg>KI Analyse</button>
     </div>
-    <div class="tabs-secondary">
-      <button class="tab-btn" id="tab-tageswerte">📝 Tageswerte</button>
-    </div>
   </div>
 
   <div id="view-coachdash" style="display:none;">
@@ -793,19 +790,24 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   </div>
 
   <div id="view-overview" class="ov-view-outer" style="display:none;">
-    <div class="toolbar" style="max-width:1320px;margin:0 auto 14px;padding:0 20px;">
-      <span class="count" id="ov-count"></span>
-      <button class="primary" id="export-png-btn">Als Bild speichern</button>
+    <div id="ov-subtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;max-width:1320px;margin-left:auto;margin-right:auto;padding-left:20px;padding-right:20px;">
+      <button class="tab-btn active" id="sub-ovziele" style="font-size:13px;padding:7px 16px;">Mitarbeiter Ziele</button>
+      <button class="tab-btn" id="sub-ovtageswerte" style="font-size:13px;padding:7px 16px;">📝 Tageswerte</button>
     </div>
-    <div id="overview-capture" style="padding:0 20px;overflow-x:auto;"></div>
-  </div>
-
-  <div id="view-tageswerte" style="display:none;">
-    <div class="toolbar">
-      <span class="count" id="tw-count"></span>
-      <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);">Änderungen werden automatisch gespeichert</span>
+    <div id="ov-ziele-container">
+      <div class="toolbar" style="max-width:1320px;margin:0 auto 14px;padding:0 20px;">
+        <span class="count" id="ov-count"></span>
+        <button class="primary" id="export-png-btn">Als Bild speichern</button>
+      </div>
+      <div id="overview-capture" style="padding:0 20px;overflow-x:auto;"></div>
     </div>
-    <div id="tageswerte-capture" style="overflow-x:auto;"></div>
+    <div id="ov-tageswerte-container" style="display:none;">
+      <div class="toolbar">
+        <span class="count" id="tw-count"></span>
+        <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);">Änderungen werden automatisch gespeichert</span>
+      </div>
+      <div id="tageswerte-capture" style="overflow-x:auto;"></div>
+    </div>
   </div>
 
   <div class="site-copyright">© <span id="copyright-year"></span> Ioannis Fasoulas. Alle Rechte vorbehalten. Diese Anwendung sowie ihr Quellcode dürfen ohne ausdrückliche schriftliche Genehmigung des Urhebers weder ganz noch teilweise kopiert, vervielfältigt, weiterverbreitet oder anderweitig verwendet werden.</div>
@@ -1889,7 +1891,6 @@ function switchTab(tab){
   document.getElementById('tab-monatsabschluss').classList.toggle('active', tab==='monatsabschluss');
   document.getElementById('tab-verlauf').classList.toggle('active', tab==='verlauf');
   document.getElementById('tab-overview').classList.toggle('active', tab==='overview');
-  document.getElementById('tab-tageswerte').classList.toggle('active', tab==='tageswerte');
   document.getElementById('tab-halloffame').classList.toggle('active', tab==='halloffame');
   document.getElementById('tab-kianalyse').classList.toggle('active', tab==='kianalyse');
   document.getElementById('view-coaching').style.display = tab==='coaching' ? '' : 'none';
@@ -1898,7 +1899,6 @@ function switchTab(tab){
   document.getElementById('view-monatsabschluss').style.display = tab==='monatsabschluss' ? '' : 'none';
   document.getElementById('view-verlauf').style.display = tab==='verlauf' ? '' : 'none';
   document.getElementById('view-overview').style.display = tab==='overview' ? '' : 'none';
-  document.getElementById('view-tageswerte').style.display = tab==='tageswerte' ? '' : 'none';
   document.getElementById('view-halloffame').style.display = tab==='halloffame' ? '' : 'none';
   document.getElementById('view-kianalyse').style.display = tab==='kianalyse' ? '' : 'none';
   renderAll();
@@ -1936,11 +1936,38 @@ function initCoachDashSubTabs(){
 document.getElementById('tab-coachdash').addEventListener('click', ()=>{
   setTimeout(initCoachDashSubTabs, 50);
 });
+
+// Sub-Tab Steuerung für Mitarbeiter Ziele (Mitarbeiter Ziele / Tageswerte)
+const OVERVIEW_SUBS = {
+  ziele:      { btn: 'sub-ovziele',      container: 'ov-ziele-container',      render: ()=>renderOverview() },
+  tageswerte: { btn: 'sub-ovtageswerte', container: 'ov-tageswerte-container', render: ()=>renderTageswerte() }
+};
+function switchOverviewSub(sub){
+  Object.keys(OVERVIEW_SUBS).forEach(key=>{
+    const cfg = OVERVIEW_SUBS[key];
+    const btn = document.getElementById(cfg.btn);
+    const cont = document.getElementById(cfg.container);
+    if(!btn || !cont) return;
+    btn.classList.toggle('active', key===sub);
+    cont.style.display = key===sub ? '' : 'none';
+  });
+  OVERVIEW_SUBS[sub].render();
+}
+function initOverviewSubTabs(){
+  Object.keys(OVERVIEW_SUBS).forEach(key=>{
+    const btn = document.getElementById(OVERVIEW_SUBS[key].btn);
+    if(!btn || btn.dataset.wired) return;
+    btn.dataset.wired = '1';
+    btn.addEventListener('click', ()=>switchOverviewSub(key));
+  });
+}
+document.getElementById('tab-overview').addEventListener('click', ()=>{
+  setTimeout(initOverviewSubTabs, 50);
+});
 document.getElementById('tab-teamziele').addEventListener('click', ()=>switchTab('teamziele'));
 document.getElementById('tab-monatsabschluss').addEventListener('click', ()=>switchTab('monatsabschluss'));
 document.getElementById('tab-verlauf').addEventListener('click', ()=>switchTab('verlauf'));
 document.getElementById('tab-overview').addEventListener('click', ()=>switchTab('overview'));
-document.getElementById('tab-tageswerte').addEventListener('click', ()=>switchTab('tageswerte'));
 document.getElementById('tab-halloffame').addEventListener('click', ()=>switchTab('halloffame'));
 document.getElementById('tab-kianalyse').addEventListener('click', ()=>switchTab('kianalyse'));
 
@@ -1958,7 +1985,13 @@ function renderAll(){
   else if(currentTab === 'verlauf') renderVerlauf();
   else if(currentTab === 'halloffame') renderHallOfFame();
   else if(currentTab === 'kianalyse') renderKIAnalyse();
-  else if(currentTab === 'tageswerte') renderTageswerte();
+  else if(currentTab === 'overview'){
+    const activeSub = Object.keys(OVERVIEW_SUBS).find(key=>{
+      const btn = document.getElementById(OVERVIEW_SUBS[key].btn);
+      return btn && btn.classList.contains('active');
+    }) || 'ziele';
+    OVERVIEW_SUBS[activeSub].render();
+  }
   else renderOverview();
 }
 
@@ -6356,10 +6389,10 @@ if('serviceWorker' in navigator){
 /* 09 – Tabs mit gleitender Pille */
 /* .tabs braucht hier kein position:relative mehr - position:sticky (siehe Basis-CSS weiter oben)
    erfüllt denselben Zweck als Positionierungs-Kontext für die Pille und bleibt beim Scrollen oben sichtbar. */
-#coachdash-subtabs{position:relative;}
+#coachdash-subtabs,#ov-subtabs{position:relative;}
 .fx-pill{position:absolute;border-radius:8px;background:var(--text);transition:left .32s cubic-bezier(.4,0,.2,1),width .32s cubic-bezier(.4,0,.2,1),top .32s,height .32s;z-index:0;pointer-events:none;}
-.tabs .tab-btn,#coachdash-subtabs .tab-btn{position:relative;z-index:1;transition:color .22s;}
-.tabs .tab-btn.active,#coachdash-subtabs .tab-btn.active{background:transparent;border-color:transparent;color:#fff;}
+.tabs .tab-btn,#coachdash-subtabs .tab-btn,#ov-subtabs .tab-btn{position:relative;z-index:1;transition:color .22s;}
+.tabs .tab-btn.active,#coachdash-subtabs .tab-btn.active,#ov-subtabs .tab-btn.active{background:transparent;border-color:transparent;color:#fff;}
 
 /* 12 – Balken laufen ein + Ziel-Marke */
 .cp-co-bar-track{position:relative;}
@@ -6409,7 +6442,7 @@ if('serviceWorker' in navigator){
     p.style.left=a.offsetLeft+'px'; p.style.top=a.offsetTop+'px';
     p.style.width=a.offsetWidth+'px'; p.style.height=a.offsetHeight+'px';
   }
-  function pills(){ pill(document.querySelector('.tabs')); pill(document.getElementById('coachdash-subtabs')); }
+  function pills(){ pill(document.querySelector('.tabs')); pill(document.getElementById('coachdash-subtabs')); pill(document.getElementById('ov-subtabs')); }
   addEventListener('resize', pills);
   document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('.tab-btn')) setTimeout(pills, 30); }, true);
 
@@ -6485,7 +6518,7 @@ if('serviceWorker' in navigator){
         orig.apply(this,arguments);
         setTimeout(function(){ pills(); updatePulse(); },20);
       };
-      ['coachdash','teamziele','monatsabschluss','coaching','verlauf','overview','tageswerte','halloffame','kianalyse'].forEach(function(id){
+      ['coachdash','teamziele','monatsabschluss','coaching','verlauf','overview','halloffame','kianalyse'].forEach(function(id){
         var b=document.getElementById('tab-'+id);
         if(b) b.addEventListener('click', function(){ setTimeout(function(){pills();updatePulse();},20); });
       });
