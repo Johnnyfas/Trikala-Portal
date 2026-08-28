@@ -144,12 +144,13 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .tw-team{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
 .tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;}
 .tw-table{width:100%;border-collapse:collapse;}
+.tw-table td{text-align:center;padding:4px 8px;}
 .tw-head-row th{background:#FAFAFA;border-bottom:1px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;}
 .tw-head-row th:first-child{text-align:left;padding-left:20px;}
 .tw-row{border-bottom:1px solid #F0F0F2;}
 .tw-row:nth-child(even){background:#FBFBFC;}
 .tw-row:hover{background:#F5F5F7;}
-.tw-name{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;padding:8px 8px 8px 20px;white-space:nowrap;}
+.tw-name{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;padding:8px 8px 8px 20px;white-space:nowrap;text-align:left;}
 .tw-input{width:64px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;border:1px solid transparent;border-radius:6px;padding:6px 4px;background:transparent;color:var(--text);}
 .tw-input:hover{border-color:var(--border);}
 .tw-input:focus{outline:none;border-color:var(--tmg);background:#fff;box-shadow:0 0 0 3px rgba(226,0,116,.1);}
@@ -5660,9 +5661,10 @@ function renderTageswerte(){
 
     const thead = document.createElement('tr');
     thead.className = 'tw-head-row';
+    const orderedProducts = displayOrderProducts(cfg.products);
     const headers = isTotal
-      ? ['Mitarbeiter', 'Calls', ...cfg.products, 'NPS %', 'LQ %']
-      : ['Mitarbeiter', ...cfg.products];
+      ? ['Mitarbeiter', 'Calls', ...orderedProducts, 'NPS %', 'LQ %']
+      : ['Mitarbeiter', ...orderedProducts];
     headers.forEach(h=>{
       const th = document.createElement('th');
       th.textContent = h;
@@ -5702,7 +5704,7 @@ function renderTageswerte(){
       if(isTotal){
         // Calls, NPS, LQ: manuell editierbar. Produkte: automatisch aus den Tages-Seiten summiert (nicht editierbar).
         row.appendChild(mkTwInput(()=>agent.calls, v=>{ agent.calls=v; }, false));
-        cfg.products.forEach(p=> row.appendChild(mkTwInput(()=>agent.sales[p], ()=>{}, true)));
+        orderedProducts.forEach(p=> row.appendChild(mkTwInput(()=>agent.sales[p], ()=>{}, true)));
         row.appendChild(mkTwInput(()=>agent.nps, v=>{ agent.nps=v; }, false));
         row.appendChild(mkTwInput(()=>agent.lq, v=>{ agent.lq=v; }, false));
       } else {
@@ -5712,7 +5714,7 @@ function renderTageswerte(){
         const dv = agent.tageswerte[monthKey][twSelectedDay];
         if(!dv.sales) dv.sales = {};
 
-        cfg.products.forEach(p=>{
+        orderedProducts.forEach(p=>{
           row.appendChild(mkTwInput(()=>dv.sales[p], v=>{ dv.sales[p]=v; }, false));
         });
       }
@@ -5727,6 +5729,14 @@ function renderTageswerte(){
   if(!state.agents.some(a=>a.name.trim()!=='')){
     container.appendChild(emptyStateEl('Noch keine Mitarbeiter angelegt', 'Lege zuerst Mitarbeiter im Reiter "Mitarbeiter Ziele" an.'));
   }
+}
+
+// Gewünschte Anzeige-Reihenfolge der Produkte in MA Stand & Tageswerte (links nach rechts).
+// Ändert NICHT die Reihenfolge in TEAM_CONFIGS.products (die ist an die Zielwerte gekoppelt) -
+// liefert nur die Anzeige-Reihenfolge; die Ziel-Zuordnung erfolgt weiterhin über den echten Index.
+const PRODUCT_DISPLAY_ORDER = ['BB','SU','VVM+BOJ','VVM+NVM','TV','MF'];
+function displayOrderProducts(products){
+  return products.slice().sort((a,b)=> PRODUCT_DISPLAY_ORDER.indexOf(a) - PRODUCT_DISPLAY_ORDER.indexOf(b));
 }
 
 function renderOverview(){
@@ -5779,7 +5789,7 @@ function renderOverview(){
         `<div class="ov-cell name-cell head">Mitarbeiter</div>` +
         `<div class="ov-cell qual-cell head">NPS<span style="font-size:9px;font-weight:400;">Ziel ${cfg.npsTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head">LQ<span style="font-size:9px;font-weight:400;">Ziel ${cfg.lqTarget}%</span></div>` +
-        cfg.products.map(p=>`<div class="ov-cell sales-cell head">${p}</div>`).join('') +
+        displayOrderProducts(cfg.products).map(p=>`<div class="ov-cell sales-cell head">${p}</div>`).join('') +
         `<div class="ov-cell cr-cell head">CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head">Calls</div>`;
       grid.appendChild(headerRow);
@@ -5806,7 +5816,8 @@ function renderOverview(){
         let html = `<div class="ov-cell name-cell"><span class="ov-name-pill" style="${catBg}">${agent.name}</span></div>`;
         html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal === null ? '–' : npsVal.toFixed(1)+'%'}</span></div>`;
         html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal === null ? '–' : lqVal.toFixed(1)+'%'}</span></div>`;
-        cfg.products.forEach((p,i)=>{
+        displayOrderProducts(cfg.products).forEach((p)=>{
+          const i = cfg.products.indexOf(p);
           const val = agent.sales[p];
           const isNull = (val === null || val === undefined);
           const status = isNull ? '' : trafficStatus(val, myTargets[i]);
