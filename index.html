@@ -1020,7 +1020,11 @@ function updateLoginUI(loggedIn){
   if(lb) lb.style.display = loggedIn ? 'none' : '';
   if(ob) ob.style.display = loggedIn ? '' : 'none';
   const eb = document.getElementById('excel-sync-btn');
-  if(eb) eb.style.display = loggedIn ? '' : 'none';
+  // Der Excel-Sync greift direkt auf Ioannis' persönliches OneDrive zu und schlägt bei allen
+  // anderen Führungskräften mit "403 accessDenied" fehl. Der Button wird deshalb hier NICHT
+  // pauschal beim Login gezeigt - das übernimmt fetchCurrentUser(), sobald bekannt ist, wer
+  // eingeloggt ist. Beim Logout wird er in jedem Fall ausgeblendet.
+  if(eb && !loggedIn) eb.style.display = 'none';
   const sb = document.getElementById('setup-token-btn');
   if(sb) sb.style.display = loggedIn ? '' : 'none';
 }
@@ -1279,8 +1283,11 @@ function initMsal(){
   if(stored){ graphToken = stored; updateLoginUI(true); }
   // Handle redirect
   handleAuthRedirect().then(ok=>{
-    if(ok){ loadFromSharePoint().then(()=>{ loadFromExcel(); fetchCurrentUser(); }); }
-    else if(graphToken){ loadFromSharePoint().then(()=>{ loadFromExcel(); fetchCurrentUser(); }); }
+    // fetchCurrentUser() zuerst (und abgewartet), damit loadFromExcel() schon weiß, ob es sich
+    // um Ioannis handelt - sonst würde der Excel-Sync auch bei ihm beim Login übersprungen,
+    // weil die Identität in dem Moment noch unbekannt wäre.
+    if(ok){ loadFromSharePoint().then(()=>fetchCurrentUser()).then(()=>loadFromExcel()); }
+    else if(graphToken){ loadFromSharePoint().then(()=>fetchCurrentUser()).then(()=>loadFromExcel()); }
   });
 }
 
@@ -1658,6 +1665,11 @@ const EXCEL_FILES = {
 
 async function loadFromExcel(){
   if(!graphToken) return;
+  // Die Excel-Dateien liegen in Ioannis' persönlichem OneDrive - bei jeder anderen Führungskraft
+  // schlägt der direkte Zugriff mit "403 accessDenied" fehl. Deshalb hier komplett überspringen,
+  // wenn nicht sicher feststeht, dass Ioannis eingeloggt ist (schützt auch den automatischen
+  // 5-Minuten-Hintergrund-Sync und den Aufruf direkt nach dem Login).
+  if(currentUserName !== 'Ioannis Fasoulas') return;
   setSyncStatus('syncing');
   let totalUpdated = 0;
   const excelErrors = [];
@@ -6024,6 +6036,11 @@ async function fetchCurrentUser(){
         nameEl.textContent = currentUserName ? ('Angemeldet als ' + currentUserName) : '';
         nameEl.style.display = currentUserName ? '' : 'none';
       }
+      // Excel-Sync greift direkt auf Ioannis' persönliches OneDrive zu und funktioniert deshalb
+      // nur bei ihm - bei allen anderen Führungskräften kommt sonst ein 403 accessDenied.
+      // Button daher nur zeigen, wenn wirklich Ioannis eingeloggt ist.
+      const eb = document.getElementById('excel-sync-btn');
+      if(eb) eb.style.display = (currentUserName === 'Ioannis Fasoulas') ? '' : 'none';
       // Falls vorher lokal (ohne Login) Einträge gesammelt wurden, einmalig übernehmen
       if(currentUserId){
         const local = JSON.parse(localStorage.getItem('personal_todos')||'[]');
