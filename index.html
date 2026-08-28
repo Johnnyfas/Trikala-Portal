@@ -5592,25 +5592,18 @@ function twRecomputeAgent(agent, cfg){
   if(!tw){ return; }
   const days = Object.keys(tw);
   if(!days.length) return;
-  let callsSum = null, callsHas = false;
   const salesSum = {}; const salesHas = {};
-  let npsVals = [], lqVals = [];
   cfg.products.forEach(p=>{ salesSum[p]=0; salesHas[p]=false; });
   days.forEach(dKey=>{
     const dv = tw[dKey];
     if(!dv) return;
-    if(dv.calls!==null && dv.calls!==undefined){ callsSum=(callsSum||0)+dv.calls; callsHas=true; }
     cfg.products.forEach(p=>{
       const v = dv.sales ? dv.sales[p] : null;
       if(v!==null && v!==undefined){ salesSum[p]+=v; salesHas[p]=true; }
     });
-    if(dv.nps!==null && dv.nps!==undefined) npsVals.push(dv.nps);
-    if(dv.lq!==null && dv.lq!==undefined) lqVals.push(dv.lq);
   });
-  agent.calls = callsHas ? callsSum : null;
   cfg.products.forEach(p=>{ agent.sales[p] = salesHas[p] ? salesSum[p] : null; });
-  agent.nps = npsVals.length ? (npsVals.reduce((s,v)=>s+v,0)/npsVals.length) : null;
-  agent.lq = lqVals.length ? (lqVals.reduce((s,v)=>s+v,0)/lqVals.length) : null;
+  // Calls, NPS und LQ werden bewusst NICHT hier berechnet - die trägst du direkt am Monatsstand manuell ein.
 }
 
 function renderTageswerte(){
@@ -5644,7 +5637,7 @@ function renderTageswerte(){
   if(isTotal){
     const hint = document.createElement('div');
     hint.className = 'tw-hint';
-    hint.textContent = 'Automatisch berechnet aus allen Tages-Einträgen dieses Monats — Calls/Produkte summiert, NPS/LQ gemittelt. Hier nicht direkt bearbeitbar.';
+    hint.textContent = 'Die Produkt-Spalten werden automatisch aus allen Tages-Seiten dieses Monats summiert (nicht bearbeitbar). Calls, NPS und LQ trägst du hier direkt manuell ein.';
     container.appendChild(hint);
   }
 
@@ -5667,7 +5660,9 @@ function renderTageswerte(){
 
     const thead = document.createElement('tr');
     thead.className = 'tw-head-row';
-    const headers = ['Mitarbeiter', 'Calls', ...cfg.products, 'NPS %', 'LQ %'];
+    const headers = isTotal
+      ? ['Mitarbeiter', 'Calls', ...cfg.products, 'NPS %', 'LQ %']
+      : ['Mitarbeiter', ...cfg.products];
     headers.forEach(h=>{
       const th = document.createElement('th');
       th.textContent = h;
@@ -5675,7 +5670,7 @@ function renderTageswerte(){
     });
     table.appendChild(thead);
 
-    function mkTwInput(getVal, setVal){
+    function mkTwInput(getVal, setVal, readOnly){
       const td = document.createElement('td');
       const inp = document.createElement('input');
       inp.type = 'text';
@@ -5684,7 +5679,7 @@ function renderTageswerte(){
       inp.value = (v===null || v===undefined) ? '' : v;
       inp.placeholder = '–';
       inp.className = 'tw-input';
-      inp.disabled = isTotal;
+      inp.disabled = !!readOnly;
       inp.addEventListener('focus', e=>e.target.select());
       inp.addEventListener('change', e=>{
         const raw = e.target.value.trim().replace(',', '.');
@@ -5705,22 +5700,21 @@ function renderTageswerte(){
       row.appendChild(nameTd);
 
       if(isTotal){
-        row.appendChild(mkTwInput(()=>agent.calls, ()=>{}));
-        cfg.products.forEach(p=> row.appendChild(mkTwInput(()=>agent.sales[p], ()=>{})));
-        row.appendChild(mkTwInput(()=>agent.nps===null||agent.nps===undefined?null:agent.nps.toFixed(1), ()=>{}));
-        row.appendChild(mkTwInput(()=>agent.lq===null||agent.lq===undefined?null:agent.lq.toFixed(1), ()=>{}));
+        // Calls, NPS, LQ: manuell editierbar. Produkte: automatisch aus den Tages-Seiten summiert (nicht editierbar).
+        row.appendChild(mkTwInput(()=>agent.calls, v=>{ agent.calls=v; }, false));
+        cfg.products.forEach(p=> row.appendChild(mkTwInput(()=>agent.sales[p], ()=>{}, true)));
+        row.appendChild(mkTwInput(()=>agent.nps, v=>{ agent.nps=v; }, false));
+        row.appendChild(mkTwInput(()=>agent.lq, v=>{ agent.lq=v; }, false));
       } else {
         if(!agent.tageswerte) agent.tageswerte = {};
         if(!agent.tageswerte[monthKey]) agent.tageswerte[monthKey] = {};
-        if(!agent.tageswerte[monthKey][twSelectedDay]) agent.tageswerte[monthKey][twSelectedDay] = { calls:null, sales:{}, nps:null, lq:null };
+        if(!agent.tageswerte[monthKey][twSelectedDay]) agent.tageswerte[monthKey][twSelectedDay] = { sales:{} };
         const dv = agent.tageswerte[monthKey][twSelectedDay];
+        if(!dv.sales) dv.sales = {};
 
-        row.appendChild(mkTwInput(()=>dv.calls, v=>{ dv.calls=v; }));
         cfg.products.forEach(p=>{
-          row.appendChild(mkTwInput(()=>dv.sales[p], v=>{ dv.sales[p]=v; }));
+          row.appendChild(mkTwInput(()=>dv.sales[p], v=>{ dv.sales[p]=v; }, false));
         });
-        row.appendChild(mkTwInput(()=>dv.nps, v=>{ dv.nps=v; }));
-        row.appendChild(mkTwInput(()=>dv.lq, v=>{ dv.lq=v; }));
       }
 
       table.appendChild(row);
