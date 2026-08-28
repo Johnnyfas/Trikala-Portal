@@ -6319,7 +6319,9 @@ if('serviceWorker' in navigator){
 .status-dot.critical{animation:fxPulseRing 1.9s ease-out infinite;}
 
 /* 09 – Tabs mit gleitender Pille */
-.tabs,#coachdash-subtabs{position:relative;}
+/* .tabs braucht hier kein position:relative mehr - position:sticky (siehe Basis-CSS weiter oben)
+   erfüllt denselben Zweck als Positionierungs-Kontext für die Pille und bleibt beim Scrollen oben sichtbar. */
+#coachdash-subtabs{position:relative;}
 .fx-pill{position:absolute;border-radius:8px;background:var(--text);transition:left .32s cubic-bezier(.4,0,.2,1),width .32s cubic-bezier(.4,0,.2,1),top .32s,height .32s;z-index:0;pointer-events:none;}
 .tabs .tab-btn,#coachdash-subtabs .tab-btn{position:relative;z-index:1;transition:color .22s;}
 .tabs .tab-btn.active,#coachdash-subtabs .tab-btn.active{background:transparent;border-color:transparent;color:#fff;}
