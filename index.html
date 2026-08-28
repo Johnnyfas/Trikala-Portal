@@ -2034,7 +2034,12 @@ function renderCoaching(){
 
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
-      removeBtn.addEventListener('click', ()=>{ state.agents = state.agents.filter(a=>a.id!==agent.id); scheduleSave(); renderAll(); });
+      removeBtn.addEventListener('click', ()=>{
+        if(!confirm(`"${agent.name || 'Dieser Mitarbeiter'}" wirklich löschen? Das entfernt nur die Karte hier, Coaching-Verlauf und Monatsdaten bleiben erhalten.`)) return;
+        state.agents = state.agents.filter(a=>a.id!==agent.id);
+        scheduleSave();
+        renderAll();
+      });
 
       topRow.appendChild(topLeft); topRow.appendChild(removeBtn);
       card.appendChild(topRow);
@@ -5856,9 +5861,45 @@ function renderOverview(){
 }
 
 document.getElementById('add-agent-btn').addEventListener('click', ()=>{
-  state.agents.push(makeAgent('Trikala01'));
-  scheduleSave();
-  renderAll();
+  const overlay = document.createElement('div');
+  overlay.className = 'todo-modal-overlay';
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  const modal = document.createElement('div');
+  modal.className = 'todo-modal';
+  modal.style.width = '340px';
+
+  const head = document.createElement('div');
+  head.className = 'todo-modal-head';
+  head.innerHTML = `<div class="todo-modal-title">Neuer Mitarbeiter — welches Team?</div>`;
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'todo-modal-close'; closeBtn.innerHTML = '✕';
+  closeBtn.addEventListener('click', ()=>overlay.remove());
+  head.appendChild(closeBtn);
+  modal.appendChild(head);
+
+  const body = document.createElement('div');
+  body.className = 'todo-modal-body';
+  body.style.cssText = 'display:flex;flex-direction:column;gap:10px;';
+
+  Object.keys(TEAM_CONFIGS).forEach(teamId=>{
+    const cfg = TEAM_CONFIGS[teamId];
+    const btn = document.createElement('button');
+    btn.className = 'primary';
+    btn.style.width = '100%';
+    btn.textContent = `${cfg.label} — ${cfg.project}`;
+    btn.addEventListener('click', ()=>{
+      state.agents.push(makeAgent(teamId));
+      scheduleSave();
+      overlay.remove();
+      renderAll();
+    });
+    body.appendChild(btn);
+  });
+
+  modal.appendChild(body);
+  overlay.appendChild(modal);
+  document.body.appendChild(overlay);
 });
 
 document.getElementById('export-png-btn').addEventListener('click', async ()=>{
