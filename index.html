@@ -1889,6 +1889,45 @@ function renderCoaching(){
   container.innerHTML = '';
   document.getElementById('agent-count').textContent = state.agents.length + ' Mitarbeiter';
 
+  // === Führungskräfte ===
+  if(!state.fuehrungskraefte){
+    state.fuehrungskraefte = {
+      standortleiter: [''],
+      salescoach: [''],
+      qualitaetscoach: [''],
+      teamleiter: ['','','','','']
+    };
+  }
+  const fk = state.fuehrungskraefte;
+  const fkRolesWrap = document.createElement('div');
+  fkRolesWrap.className = 'fk-wrap';
+  const fkRoleLabels = { standortleiter:'Standortleiter', salescoach:'Sales Coach', qualitaetscoach:'Qualitätscoach', teamleiter:'Teamleiter' };
+  Object.keys(fkRoleLabels).forEach(roleKey=>{
+    const roleBox = document.createElement('div');
+    roleBox.className = 'fk-role';
+    const roleTitle = document.createElement('div');
+    roleTitle.className = 'fk-role-title';
+    roleTitle.textContent = `${fkRoleLabels[roleKey]} (${fk[roleKey].length})`;
+    roleBox.appendChild(roleTitle);
+    const inputsWrap = document.createElement('div');
+    inputsWrap.className = 'fk-inputs';
+    fk[roleKey].forEach((name, idx)=>{
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'fk-input';
+      inp.placeholder = fk[roleKey].length > 1 ? `Name ${idx+1}` : 'Name';
+      inp.value = name || '';
+      inp.addEventListener('change', e=>{
+        fk[roleKey][idx] = e.target.value.trim();
+        scheduleSave();
+      });
+      inputsWrap.appendChild(inp);
+    });
+    roleBox.appendChild(inputsWrap);
+    fkRolesWrap.appendChild(roleBox);
+  });
+  container.appendChild(fkRolesWrap);
+
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
     const cfg = TEAM_CONFIGS[teamId];
     const teamAgents = state.agents.filter(a => String(a.team) === String(teamId));
@@ -6201,6 +6240,13 @@ if('serviceWorker' in navigator){
 .fx-cnt-team-head b{font-family:'Space Grotesk',sans-serif;font-size:15px;margin-left:6px;color:var(--tmg);}
 .fx-cnt-chips{display:flex;gap:6px;flex-wrap:wrap;}
 .fx-cnt-chip{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;background:#F1F4F7;color:var(--muted);padding:3px 9px;border-radius:980px;}
+.fk-wrap{display:flex;gap:16px;flex-wrap:wrap;background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;}
+.fk-role{flex:1;min-width:150px;}
+.fk-role-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+.fk-inputs{display:flex;flex-direction:column;gap:6px;}
+.fk-input{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;border:1px solid var(--border);border-radius:8px;padding:7px 10px;background:#FAFBFC;color:var(--text);width:100%;box-sizing:border-box;}
+.fk-input:focus{outline:none;border-color:var(--tmg);background:#fff;box-shadow:0 0 0 3px rgba(226,0,116,.08);}
+.fk-input::placeholder{color:#B8BEC5;}
 #fx-pulse .fx-ring{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .5s;}
 #fx-pulse .fx-ring-in{width:72px;height:72px;border-radius:50%;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;}
 #fx-pulse .fx-ring-val{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;}
