@@ -5131,7 +5131,7 @@ function renderVerlauf(){
     const t = document.createElement('table');
     t.className = 'vl-table';
     const prods = cfg.products;
-    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>Calls</th><th>CHT</th><th>CR</th><th>NPS</th><th>Trend</th></tr>`;
+    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>CR</th><th>Calls</th><th>CHT</th><th>NPS</th><th>Trend</th></tr>`;
     monate.forEach(m => {
       const md = agentData.monate[m];
       const cr = md.cr || 0;
@@ -5144,11 +5144,11 @@ function renderVerlauf(){
         const cls = val >= tgt ? 'ok' : val > 0 ? 'mid' : 'bad';
         html += `<td><span class="vl-badge ${cls}">${Math.round(val)}</span></td>`;
       });
+      html += `<td><span class="vl-badge ${crOk?'ok':'bad'}">${cr.toFixed(2)}%</span></td>`;
       html += `<td><span class="vl-badge">${Math.round(md.calls||0)}</span></td>`;
       const chtVal = (md.cht === null || md.cht === undefined) ? null : md.cht;
       const chtCls = chtVal === null ? '' : (chtVal <= 550 ? 'ok' : chtVal <= 680 ? 'mid' : 'bad');
       html += `<td><span class="vl-badge ${chtCls}">${chtVal === null ? '–' : Math.round(chtVal)}</span></td>`;
-      html += `<td><span class="vl-badge ${crOk?'ok':'bad'}">${cr.toFixed(2)}%</span></td>`;
       html += `<td><span class="vl-badge ${(md.nps||0)>=cfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
       // Trend: Vergleich mit Vormonat
       const prevM = monate[monate.indexOf(m)-1];
