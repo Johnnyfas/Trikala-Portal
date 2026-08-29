@@ -660,8 +660,8 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 .ov-data-row:last-child{border-bottom:none;}
 .ov-data-row:nth-child(even){background:#FBFBFC;}
 .ov-data-row:hover{background:#F5F5F7;}
-.ov-cell{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;font-weight:500;color:#1D1D1F;padding:8px 3px;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;}
-.ov-cell.head{font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:600;color:#86868B;text-transform:none;letter-spacing:0;padding:11px 6px;flex-direction:column;gap:2px;}
+.ov-cell{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;font-weight:500;color:#1D1D1F;padding:8px 2px;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;}
+.ov-cell.head{font-family:'Inter',-apple-system,sans-serif;font-size:10.5px;font-weight:600;color:#86868B;text-transform:none;letter-spacing:0;padding:11px 2px;flex-direction:column;gap:2px;}
 .ov-cell.name-cell{font-weight:600;font-size:14px;color:#1D1D1F;text-align:left;justify-content:flex-start;padding-left:20px;flex:0 1 auto;white-space:nowrap;position:relative;}
 .ov-name-pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:10px;font-weight:600;font-size:12px;}
 .ov-cat-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:9px;flex-shrink:0;}
@@ -672,7 +672,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 .ov-cell.sales-cell.head{background:#FAFAFA;border-bottom:1px solid #E5E5EA;font-size:11px;font-weight:600;}
 .ov-cell.cr-cell{flex:0 0 90px;background:#fff;}
 .ov-cell.cr-cell.head{background:#FAFAFA;border-bottom:1px solid #E5E5EA;}
-.ov-badge{display:inline-block;padding:3px 7px;border-radius:980px;font-size:11px;font-weight:600;font-family:'Inter',-apple-system,sans-serif;letter-spacing:-.005em;white-space:nowrap;}
+.ov-badge{display:inline-block;padding:2px 5px;border-radius:980px;font-size:10.5px;font-weight:600;font-family:'Inter',-apple-system,sans-serif;letter-spacing:-.005em;white-space:nowrap;}
 .ov-badge.good{background:#E6F9EC;color:#1D8A3E;}
 .ov-badge.mid{background:#FFF3DE;color:#B9770E;}
 .ov-badge.zero{background:#FFEBEB;color:#D70015;}
@@ -6247,10 +6247,11 @@ function renderOverview(){
       </div>`;
 
     const totalCols = 1 + 1 + 2 + cfg.products.length + 1 + 1;
-    const nameWidth = '112px';
-    const colWidth = '52px';
-    const callsColWidth = '44px';
-    const gridCols = `${nameWidth} repeat(${2 + cfg.products.length + 1}, ${colWidth}) repeat(2, ${callsColWidth})`;
+    const nameWidth = '106px';
+    const colWidth = '50px';
+    const callsColWidth = '46px';
+    const chtColWidth = '38px';
+    const gridCols = `${nameWidth} repeat(${2 + cfg.products.length + 1}, ${colWidth}) ${callsColWidth} ${chtColWidth}`;
 
     function buildGrid(agentsSubset){
       const grid = document.createElement('div');
