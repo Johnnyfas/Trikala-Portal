@@ -1874,9 +1874,8 @@ function evaluateAgent(agent){
 // für die kompakte Mitarbeiterkarte im Standort Überblick.
 function buildAgentSummary(agent){
   const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-  const parts = [];
 
-  // KPI-Verlauf: Trend über die erfassten Monate
+  // KPI-Verlauf: Trend über die erfassten Monate (rein rechnerisch, immer aktuell verfügbar)
   const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
   const monKeys = (vlEntry && vlEntry.monate) ? Object.keys(vlEntry.monate).sort((a,b)=>{
     const [ya,ma] = a.split('-'); const [yb,mb] = b.split('-');
@@ -1888,50 +1887,95 @@ function buildAgentSummary(agent){
     const letztesCr = vlEntry.monate[monKeys[monKeys.length-1]].cr || 0;
     const diff = letztesCr - erstesCr;
     const richtung = Math.abs(diff) < 0.3 ? 'stabil' : (diff > 0 ? 'steigend' : 'fallend');
-    parts.push(`CR-Trend über ${monKeys.length} erfasste Monate: ${richtung} (${erstesCr.toFixed(1)}% → ${letztesCr.toFixed(1)}%).`);
+    return `CR-Trend über ${monKeys.length} erfasste Monate: ${richtung} (${erstesCr.toFixed(1)}% → ${letztesCr.toFixed(1)}%).`;
   } else if(monKeys.length === 1){
-    parts.push(`Erst ein Monat archiviert (${monKeys[0].split('-')[1]}) – noch kein Trend erkennbar.`);
-  } else {
-    parts.push('Noch keine Monatsdaten archiviert.');
+    return `Erst ein Monat archiviert (${monKeys[0].split('-')[1]}) – noch kein Trend erkennbar.`;
   }
+  return 'Noch keine Monatsdaten archiviert.';
+}
 
-  // Coaching-Verlauf: Zusammenfassung aus den tatsächlichen Notiztexten (nicht Anzahl/Datum)
-  const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
-  const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop') : [];
-  const echteNotizen = eintraege
-    .filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)')
-    .sort((a,b)=>{
-      const da = (a.datum||'').split('.').reverse().join('-');
-      const db = (b.datum||'').split('.').reverse().join('-');
-      return db.localeCompare(da);
-    });
+// Mitarbeiter eines Teams, die genug Coaching-Notizen für eine KI-Zusammenfassung haben.
+function agentsWithNotesForTeam(teamAgents){
+  return teamAgents.filter(agent=>{
+    if(!agent.name.trim()) return false;
+    const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
+    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop') : [];
+    const echteNotizen = eintraege.filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)');
+    return echteNotizen.length >= 2;
+  });
+}
 
-  if(echteNotizen.length === 0){
-    parts.push(eintraege.length ? 'Coachings dokumentiert, aber bisher ohne Notiztext.' : 'Noch keine Coaching-Notizen vorhanden.');
-  } else if(echteNotizen.length === 1){
-    parts.push('Noch nicht genug Coaching-Notizen für eine Zusammenfassung.');
-  } else {
-    // Wiederkehrende Begriffe über alle Notizen hinweg ermitteln (einfache Häufigkeitsanalyse,
-    // ohne KI-Aufruf - damit das bei jedem Kartenaufbau ohne Tageslimit funktioniert).
-    const stopwords = new Set(['und','der','die','das','den','dem','des','ein','eine','einer','eines','einem','einen','ist','war','sind','waren','hat','hatte','haben','wird','wurde','noch','sehr','auch','aber','mit','für','von','bei','zum','zur','auf','an','im','in','sich','sie','er','es','wir','ich','du','ihr','nicht','kein','keine','mehr','muss','müsste','soll','sollte','kann','könnte','wurde','worden','dass','wie','was','wenn','als','so','zu','um','über','nach','vor','bis','ohne','wieder','immer','etwas','sowie','dabei','dann','dort','hier','dieser','diese','dieses']);
-    const freq = {};
-    echteNotizen.forEach(e=>{
-      const words = e.text.toLowerCase().replace(/[.,;:!?()"„“'\-]/g,' ').split(/\s+/).filter(w=>w.length>=4 && !stopwords.has(w));
-      const seen = new Set();
-      words.forEach(w=>{ if(!seen.has(w)){ freq[w] = (freq[w]||0)+1; seen.add(w); } });
+// Holt für ein ganzes Team in EINEM KI-Aufruf (verbraucht nur 1 von den 5 Tages-Anfragen) ein
+// kurzes, inhaltliches Feedback je Mitarbeiter, basierend auf dessen Coaching-Notizen.
+async function generateTeamKiSummaries(teamId, cfg, teamAgents, btn){
+  const kandidaten = agentsWithNotesForTeam(teamAgents);
+  if(!kandidaten.length){
+    alert('Kein Mitarbeiter in diesem Team hat aktuell genug Coaching-Notizen (mind. 2) für eine Zusammenfassung.');
+    return;
+  }
+  const origLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '⏳ Wird generiert...';
+
+  const payload = kandidaten.map(agent=>{
+    const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
+    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop') : [];
+    const notizen = eintraege
+      .filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)')
+      .sort((a,b)=>{
+        const da = (a.datum||'').split('.').reverse().join('-');
+        const db = (b.datum||'').split('.').reverse().join('-');
+        return db.localeCompare(da);
+      })
+      .slice(0,6)
+      .map(e=>({ datum: e.datum, notiz: e.text }));
+    return { name: agent.name, coaching_notizen: notizen };
+  });
+
+  const systemPrompt = `Du bist Assistent eines Salescoaches bei der Telekom (Inbound Mobilfunk/Festnetz Privatkunden). Für jeden Mitarbeiter unten bekommst du seine letzten Coaching-Notizen. Schreibe pro Mitarbeiter EIN kurzes, konkretes Feedback (max. 20 Wörter, ein Satz), das die inhaltlichen Muster über die Notizen hinweg zusammenfasst - keine reine Wortliste, keine wörtliche Wiedergabe der Notizen. Sag klar, worauf es hinausläuft (z.B. eine wiederkehrende Schwäche, ein klarer Fortschritt, oder ein gemischtes Bild) und wenn möglich einen kurzen Hinweis fürs nächste Coaching. Antworte AUSSCHLIESSLICH mit einem validen JSON-Array, ohne Markdown-Codeblock, ohne weiteren Text, in genau diesem Format:
+[{"name":"Vorname Nachname","feedback":"..."}]
+
+MITARBEITERDATEN:
+${JSON.stringify(payload, null, 2)}`;
+
+  try {
+    const appToken = getKIAppToken();
+    const response = await fetch(KI_PROXY_URL + '/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-app-token': appToken,
+        'x-user-id': currentUserId || currentUserName || getCoachName()
+      },
+      body: JSON.stringify({
+        system: systemPrompt,
+        messages: [{ role: 'user', content: 'Erstelle die Zusammenfassungen im geforderten JSON-Format.' }]
+      })
     });
-    const themen = Object.entries(freq).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([w])=>w);
-    if(themen.length){
-      parts.push(`Wiederkehrende Themen in den Coaching-Notizen: ${themen.join(', ')}.`);
-    } else {
-      parts.push('Noch keine wiederkehrenden Themen in den Coaching-Notizen erkennbar.');
+    if(!response.ok){
+      const errData = await response.json().catch(()=>({}));
+      if(response.status === 429) throw new Error(errData.error?.message || 'Tageslimit erreicht. Bitte morgen wieder versuchen.');
+      throw new Error(errData.error?.message || ('HTTP ' + response.status));
     }
-    const letzte = echteNotizen[0];
-    const letzteText = letzte.text.length > 140 ? letzte.text.slice(0,140) + '…' : letzte.text;
-    parts.push(`Letzte Notiz${letzte.datum ? ' (' + letzte.datum + ')' : ''}: „${letzteText}“`);
+    const data = await response.json();
+    let raw = data.content?.[0]?.text || '[]';
+    raw = raw.trim().replace(/^```json\s*/i,'').replace(/^```\s*/,'').replace(/```\s*$/,'');
+    const results = JSON.parse(raw);
+    const heute = new Date().toLocaleDateString('de-DE');
+    results.forEach(r=>{
+      const agent = kandidaten.find(a=>a.name === r.name);
+      if(agent && r.feedback){
+        agent.kiSummary = r.feedback;
+        agent.kiSummaryDatum = heute;
+      }
+    });
+    scheduleSave();
+    renderAll();
+  } catch(e){
+    alert('KI-Zusammenfassung fehlgeschlagen: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = origLabel;
   }
-
-  return parts.join(' ');
 }
 
 function numField(labelText, value, onChange, step){
@@ -2112,6 +2156,12 @@ function renderCoaching(){
     block.className = 'team-block';
 
     block.innerHTML = `<div class="team-title">${cfg.label} — ${cfg.project}</div>`;
+    const kiTeamBtn = document.createElement('button');
+    kiTeamBtn.textContent = '🧭 KI-Zusammenfassungen aktualisieren';
+    kiTeamBtn.style.cssText = 'margin:6px 0 4px;padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);font-family:\'Inter\',sans-serif;font-weight:600;font-size:12.5px;cursor:pointer;';
+    kiTeamBtn.title = 'Erstellt für alle Mitarbeiter dieses Teams mit mind. 2 Coaching-Notizen in einem einzigen KI-Aufruf ein kurzes Feedback (verbraucht 1 der 5 täglichen KI-Anfragen).';
+    kiTeamBtn.addEventListener('click', ()=>generateTeamKiSummaries(teamId, cfg, teamAgents, kiTeamBtn));
+    block.appendChild(kiTeamBtn);
     const cardsWrap = document.createElement('div');
     cardsWrap.className = 'cards';
 
@@ -2261,7 +2311,7 @@ function renderCoaching(){
       topPairRow.appendChild(notesSection);
       card.appendChild(topPairRow);
 
-      // === Kurz-Zusammenfassung (KPI-Verlauf + Coaching-Verlauf) ===
+      // === Kurz-Zusammenfassung: CR-Trend (rechnerisch) + KI-Feedback aus Coaching-Notizen (gecacht) ===
       const summarySection = document.createElement('div');
       summarySection.className = 'panel-section';
       const summaryTitle = document.createElement('div');
@@ -2271,7 +2321,11 @@ function renderCoaching(){
       const summaryText = document.createElement('div');
       summaryText.className = 'panel-coaching-text';
       summaryText.style.maxHeight = 'none';
-      summaryText.textContent = buildAgentSummary(agent);
+      const trendLine = buildAgentSummary(agent);
+      const kiLine = agent.kiSummary
+        ? `${agent.kiSummary}${agent.kiSummaryDatum ? ' (KI-Feedback vom ' + agent.kiSummaryDatum + ')' : ''}`
+        : 'Noch keine KI-Zusammenfassung – oben am Team-Titel generieren.';
+      summaryText.textContent = trendLine + ' ' + kiLine;
       summarySection.appendChild(summaryText);
       card.appendChild(summarySection);
 
