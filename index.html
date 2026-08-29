@@ -201,6 +201,23 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .cp-co-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);white-space:nowrap;}
 .cp-chart-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px 18px;flex:1;min-width:240px;}
 .cp-chart-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;margin-bottom:14px;}
+.storno-delta-list{display:flex;flex-direction:column;gap:7px;}
+.storno-delta-row{display:flex;justify-content:space-between;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:12px;}
+.storno-delta-label{display:flex;align-items:center;gap:6px;font-weight:700;color:var(--text);}
+.storno-delta-dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+.storno-delta-vals{color:var(--muted);white-space:nowrap;}
+.storno-delta-current{color:var(--text);font-weight:700;}
+.storno-delta-diff{font-weight:700;padding:1px 6px;border-radius:5px;margin-left:2px;}
+.storno-delta-diff.good{color:var(--teal);background:var(--teal-soft);}
+.storno-delta-diff.bad{color:var(--red);background:var(--red-soft);}
+.storno-delta-diff.eq{color:var(--muted);background:var(--tmg-light);}
+.storno-delta-nohist{font-style:italic;color:var(--muted);}
+.storno-history-table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:13px;}
+.storno-history-table th{text-align:left;padding:8px 10px;border-bottom:2px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;}
+.storno-history-table td{padding:7px 10px;border-bottom:1px solid var(--border);}
+.storno-history-diff.good{color:var(--teal);font-weight:700;}
+.storno-history-diff.bad{color:var(--red);font-weight:700;}
+.storno-history-diff.eq{color:var(--muted);}
 .cp-bar-row{display:flex;gap:24px;align-items:flex-end;height:160px;}
 .cp-bar-col{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;height:100%;}
 .cp-bar-value{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;margin-bottom:6px;}
@@ -4125,6 +4142,126 @@ function renderTermineKalender(){
 }
 
 
+// Kompakte Delta-Anzeige je Produkt: letzter bekannter Wert -> aktueller Wert, mit Differenz.
+// Ersetzt das frühere Liniendiagramm, das bei nur kleinen Tagesunterschieden auf einer
+// gemeinsamen 0-Skala kaum ablesbar war.
+// Öffnet ein Popup mit der kompletten Tages-für-Tag-Liste eines einzelnen Produkts.
+function showStornoHistoryPopup(productLabel, stornoHistory, stornoCurrent){
+  const heute = new Date().toLocaleDateString('de-DE');
+  const parseDatum = (s) => { const parts = s.split('.'); return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`); };
+
+  const hist = (stornoHistory||[]).slice();
+  const pts = hist.map(hh=>({datum:hh.datum, wert:hh.wert}));
+  pts.push({datum: heute, wert: stornoCurrent||0});
+  const byDate = {};
+  pts.forEach(pt=>{ byDate[pt.datum] = pt.wert; });
+  const dateKeys = Object.keys(byDate).sort((a,b)=>parseDatum(a)-parseDatum(b));
+
+  const overlay = document.createElement('div');
+  overlay.className = 'chart-overlay';
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  const popup = document.createElement('div');
+  popup.className = 'chart-popup';
+  popup.style.maxWidth = '480px';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'chart-popup-close';
+  closeBtn.innerHTML = '×';
+  closeBtn.addEventListener('click', ()=>overlay.remove());
+  popup.appendChild(closeBtn);
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'chart-popup-title';
+  titleEl.textContent = `Storno-Verlauf — ${productLabel}`;
+  popup.appendChild(titleEl);
+
+  const table = document.createElement('table');
+  table.className = 'storno-history-table';
+  const thead = document.createElement('tr');
+  ['Datum','Wert','Änderung ggü. Vortag'].forEach(h=>{
+    const th = document.createElement('th'); th.textContent = h; thead.appendChild(th);
+  });
+  table.appendChild(thead);
+
+  dateKeys.forEach((d,i)=>{
+    const row = document.createElement('tr');
+    const val = byDate[d];
+    const tdDate = document.createElement('td'); tdDate.textContent = d;
+    const tdVal = document.createElement('td'); tdVal.textContent = val.toFixed(1) + '%';
+    const tdDiff = document.createElement('td');
+    if(i===0){
+      tdDiff.textContent = '–';
+      tdDiff.className = 'storno-history-diff eq';
+    } else {
+      const diff = val - byDate[dateKeys[i-1]];
+      const isFlat = Math.abs(diff) < 0.05;
+      const arrow = isFlat ? '—' : (diff > 0 ? '▲' : '▼');
+      const cls = isFlat ? 'eq' : (diff > 0 ? 'bad' : 'good');
+      tdDiff.textContent = `${arrow} ${Math.abs(diff).toFixed(1)} Pp`;
+      tdDiff.className = 'storno-history-diff ' + cls;
+    }
+    row.appendChild(tdDate); row.appendChild(tdVal); row.appendChild(tdDiff);
+    table.appendChild(row);
+  });
+
+  popup.appendChild(table);
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+}
+
+
+function buildStornoDeltaList(stornoHistory, stornoCurrent, cols){
+  const heute = new Date().toLocaleDateString('de-DE');
+  const parseDatum = (s) => { const parts = s.split('.'); return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`); };
+  const palette = ['#E20074','#3B6FA0','#0E7C7B','#C2792B','#7C5CBF','#B4423A'];
+
+  const wrap = document.createElement('div');
+  wrap.className = 'storno-delta-list';
+
+  cols.forEach((p,pi)=>{
+    const hist = (stornoHistory[p]||[]).slice();
+    const pts = hist.map(hh=>({datum:hh.datum, wert:hh.wert}));
+    pts.push({datum: heute, wert: stornoCurrent[p]||0});
+    const byDate = {};
+    pts.forEach(pt=>{ byDate[pt.datum] = pt.wert; });
+    const dateKeys = Object.keys(byDate).sort((a,b)=>parseDatum(a)-parseDatum(b));
+    const color = palette[pi % palette.length];
+
+    const row = document.createElement('div');
+    row.className = 'storno-delta-row';
+    row.style.cursor = 'pointer';
+    row.title = 'Klicken für die komplette Tages-Historie';
+    row.addEventListener('click', ()=>showStornoHistoryPopup(p, stornoHistory[p]||[], stornoCurrent[p]||0));
+
+    const labelEl = document.createElement('span');
+    labelEl.className = 'storno-delta-label';
+    labelEl.innerHTML = `<span class="storno-delta-dot" style="background:${color};"></span>${p}`;
+    row.appendChild(labelEl);
+
+    const valsEl = document.createElement('span');
+    valsEl.className = 'storno-delta-vals';
+
+    if(dateKeys.length < 2){
+      const cur = byDate[dateKeys[0]] || 0;
+      valsEl.innerHTML = `<span class="storno-delta-current">${cur.toFixed(1)}%</span> <span class="storno-delta-nohist">(noch keine Vergleichsbasis)</span>`;
+    } else {
+      const prev = byDate[dateKeys[dateKeys.length-2]];
+      const cur = byDate[dateKeys[dateKeys.length-1]];
+      const diff = cur - prev;
+      // Storno: niedriger ist besser - Anstieg = schlecht (rot), Rückgang = gut (grün)
+      const isFlat = Math.abs(diff) < 0.05;
+      const arrow = isFlat ? '—' : (diff > 0 ? '▲' : '▼');
+      const cls = isFlat ? 'eq' : (diff > 0 ? 'bad' : 'good');
+      valsEl.innerHTML = `${prev.toFixed(1)}% → <span class="storno-delta-current">${cur.toFixed(1)}%</span> <span class="storno-delta-diff ${cls}">${arrow} ${Math.abs(diff).toFixed(1)} Pp</span>`;
+    }
+    row.appendChild(valsEl);
+    wrap.appendChild(row);
+  });
+
+  return wrap;
+}
+
 function drawStornoTrendChart(cnv, stornoHistory, stornoCurrent, cols){
   const ctx = cnv.getContext('2d');
   const dprC = window.devicePixelRatio||1;
@@ -5680,35 +5817,16 @@ function renderTeamZiele(){
     }))));
     t.appendChild(stRow);
 
-    // === Storno-Verlauf Diagramm (in die Sidebar, unter die CR-Kästchen) ===
+    // === Storno-Verlauf: kompakte Delta-Anzeige je Produkt (statt Diagramm - bei nur kleinen
+    // Tagesunterschieden war ein Liniendiagramm auf gemeinsamer Skala kaum ablesbar) ===
     const hasHistory = Object.values(tz.stornoHistory).some(arr=>arr && arr.length>0);
     if(hasHistory){
       const stChartWrap = document.createElement('div');
       stChartWrap.className = 'cp-chart-card';
       stChartWrap.style.marginTop = '4px';
       stChartWrap.innerHTML = `<div class="cp-chart-title" style="font-size:12px;">📈 Storno-Verlauf</div>`;
-      const canvas = document.createElement('canvas');
-      canvas.height = 180;
-      canvas.style.cursor = 'zoom-in';
-      canvas.style.width = '100%';
-      canvas.style.display = 'block';
-      stChartWrap.appendChild(canvas);
+      stChartWrap.appendChild(buildStornoDeltaList(tz.stornoHistory, tz.storno, cols));
       sidebar.appendChild(stChartWrap);
-
-      const drawFn = (c) => drawStornoTrendChart(c, tz.stornoHistory, tz.storno, cols);
-      setTimeout(()=>{
-        const dpr = window.devicePixelRatio || 1;
-        const dw = canvas.offsetWidth || 260;
-        const dh = 180;
-        canvas.width = dw * dpr;
-        canvas.height = dh * dpr;
-        canvas.style.width = dw + 'px';
-        canvas.style.height = dh + 'px';
-        const ctx = canvas.getContext('2d');
-        ctx.scale(dpr, dpr);
-        drawFn(canvas);
-      }, 50);
-      canvas.addEventListener('click', ()=>showChartPopup(`Storno-Verlauf — ${label}`, drawFn));
     }
 
     tableWrap.appendChild(t);
