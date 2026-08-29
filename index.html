@@ -1895,24 +1895,40 @@ function buildAgentSummary(agent){
     parts.push('Noch keine Monatsdaten archiviert.');
   }
 
-  // Coaching-Verlauf
+  // Coaching-Verlauf: Zusammenfassung aus den tatsächlichen Notiztexten (nicht Anzahl/Datum)
   const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
   const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop') : [];
-  if(eintraege.length){
-    parts.push(`${eintraege.length} Coaching${eintraege.length>1?'s':''} dokumentiert${agent.coachingDatum ? ', zuletzt am '+agent.coachingDatum : ''}.`);
-    const nokCount = {};
-    eintraege.forEach(e=>{
-      if(!e.checkliste) return;
-      Object.keys(e.checkliste).forEach(item=>{
-        if(e.checkliste[item] === 'nok') nokCount[item] = (nokCount[item]||0) + 1;
-      });
+  const echteNotizen = eintraege
+    .filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)')
+    .sort((a,b)=>{
+      const da = (a.datum||'').split('.').reverse().join('-');
+      const db = (b.datum||'').split('.').reverse().join('-');
+      return db.localeCompare(da);
     });
-    const wiederkehrend = Object.entries(nokCount).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]).slice(0,3);
-    if(wiederkehrend.length){
-      parts.push('Wiederkehrend auffällig: ' + wiederkehrend.map(([item,n])=>`${item} (${n}×)`).join(', ') + '.');
-    }
+
+  if(echteNotizen.length === 0){
+    parts.push(eintraege.length ? 'Coachings dokumentiert, aber bisher ohne Notiztext.' : 'Noch keine Coaching-Notizen vorhanden.');
+  } else if(echteNotizen.length === 1){
+    parts.push('Noch nicht genug Coaching-Notizen für eine Zusammenfassung.');
   } else {
-    parts.push('Noch kein Coaching dokumentiert.');
+    // Wiederkehrende Begriffe über alle Notizen hinweg ermitteln (einfache Häufigkeitsanalyse,
+    // ohne KI-Aufruf - damit das bei jedem Kartenaufbau ohne Tageslimit funktioniert).
+    const stopwords = new Set(['und','der','die','das','den','dem','des','ein','eine','einer','eines','einem','einen','ist','war','sind','waren','hat','hatte','haben','wird','wurde','noch','sehr','auch','aber','mit','für','von','bei','zum','zur','auf','an','im','in','sich','sie','er','es','wir','ich','du','ihr','nicht','kein','keine','mehr','muss','müsste','soll','sollte','kann','könnte','wurde','worden','dass','wie','was','wenn','als','so','zu','um','über','nach','vor','bis','ohne','wieder','immer','etwas','sowie','dabei','dann','dort','hier','dieser','diese','dieses']);
+    const freq = {};
+    echteNotizen.forEach(e=>{
+      const words = e.text.toLowerCase().replace(/[.,;:!?()"„“'\-]/g,' ').split(/\s+/).filter(w=>w.length>=4 && !stopwords.has(w));
+      const seen = new Set();
+      words.forEach(w=>{ if(!seen.has(w)){ freq[w] = (freq[w]||0)+1; seen.add(w); } });
+    });
+    const themen = Object.entries(freq).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([w])=>w);
+    if(themen.length){
+      parts.push(`Wiederkehrende Themen in den Coaching-Notizen: ${themen.join(', ')}.`);
+    } else {
+      parts.push('Noch keine wiederkehrenden Themen in den Coaching-Notizen erkennbar.');
+    }
+    const letzte = echteNotizen[0];
+    const letzteText = letzte.text.length > 140 ? letzte.text.slice(0,140) + '…' : letzte.text;
+    parts.push(`Letzte Notiz${letzte.datum ? ' (' + letzte.datum + ')' : ''}: „${letzteText}“`);
   }
 
   return parts.join(' ');
