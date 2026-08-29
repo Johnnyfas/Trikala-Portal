@@ -96,6 +96,8 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .status-dot.helpline{background:var(--helpline);box-shadow:0 0 0 4px var(--helpline-soft);}
 
 .name-input{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;border:none;background:transparent;padding:4px 0;outline:none;width:180px;border-bottom:1px solid transparent;}
+.pylon-input{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--border);background:var(--panel);border-radius:6px;padding:4px 8px;width:78px;text-align:center;}
+.pylon-input:focus{outline:none;border-color:var(--tmg);color:var(--text);}
 .name-input:focus{border-bottom:1px solid var(--teal);}
 
 .calls-field{display:flex;flex-direction:column;gap:4px;}
@@ -779,7 +781,10 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   <div id="view-coaching">
     <div class="toolbar">
       <span class="count" id="agent-count">0 Mitarbeiter</span>
-      <button class="primary" id="add-agent-btn">+ Mitarbeiter hinzufügen</button>
+      <div style="display:flex;gap:8px;">
+        <button class="primary" id="import-pylon-btn" style="background:var(--sixh);">📋 Pylon-Nummern importieren</button>
+        <button class="primary" id="add-agent-btn">+ Mitarbeiter hinzufügen</button>
+      </div>
     </div>
     <div id="coaching-teams"></div>
   </div>
@@ -2365,6 +2370,15 @@ function renderCoaching(){
         renderAll();
       });
       topLeft.appendChild(catSelect);
+
+      const pylonInput = document.createElement('input');
+      pylonInput.className = 'pylon-input';
+      pylonInput.type = 'text';
+      pylonInput.placeholder = 'Pylon-Nr.';
+      pylonInput.title = 'Pylon-Nummer';
+      pylonInput.value = agent.pylon || '';
+      pylonInput.addEventListener('input', e=>{ agent.pylon = e.target.value.trim(); scheduleSave(); });
+      topLeft.appendChild(pylonInput);
 
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
@@ -6340,6 +6354,119 @@ function renderOverview(){
   foot.innerHTML = 'Grün = Ziel erreicht · Rot = unter Ziel &nbsp;·&nbsp; <span style="background:#E4ECF5;color:var(--sixh);padding:1px 6px;border-radius:4px;font-size:11px;">6-Stündler</span> &nbsp; <span style="background:#EFE9F7;color:var(--helpline);padding:1px 6px;border-radius:4px;font-size:11px;">Helpline</span>';
   container.appendChild(foot);
 }
+
+// Pylon-Nummern (und, falls in derselben Datei enthalten, CHT) aus einer Helpsense-CSV importieren
+// und automatisch den bestehenden Mitarbeitern zuordnen (nach Nachnamen, mit Vornamens-Initiale
+// zur Unterscheidung bei gleichen Nachnamen, z.B. "Antoniou I.").
+function parsePylonCsv(text){
+  const rows = text.split(/\r?\n/).map(r=>r.trim()).filter(r=>r && r !== ';;');
+  const entries = [];
+  rows.forEach(row=>{
+    const parts = row.split(';').map(p=>p.trim());
+    if(parts.length < 2) return;
+    if(parts[0].toLowerCase() === 'fullname') return; // Kopfzeile überspringen
+    const fullname = parts[0];
+    const pylon = parts[1];
+    const cht = parts[2];
+    if(!fullname || !pylon || !/^\d+$/.test(pylon)) return;
+    const nameParts = fullname.split(' ').filter(Boolean);
+    if(nameParts.length < 2) return;
+    const lastName = nameParts[nameParts.length - 1];
+    const firstName = nameParts.slice(0, -1).join(' ');
+    entries.push({ fullname, lastName, firstInitial: firstName.charAt(0).toUpperCase(), pylon, cht: (cht && /^\d+$/.test(cht)) ? cht : null });
+  });
+  return entries;
+}
+
+function matchPylonEntry(agentName, entries){
+  // Board-Namen sind entweder nur der Nachname ("Mitsiou") oder bei Dopplungen
+  // "Nachname Vorname-Initiale." (z.B. "Antoniou I.")
+  const m = agentName.match(/^(.+?)\s+([A-ZÄÖÜ])\.?$/);
+  const baseLast = (m ? m[1] : agentName).trim();
+  const initial = m ? m[2] : null;
+  const candidates = entries.filter(e=>e.lastName.toLowerCase() === baseLast.toLowerCase());
+  if(!candidates.length) return null;
+  if(candidates.length === 1) return candidates[0];
+  if(initial){
+    const exact = candidates.find(e=>e.firstInitial === initial);
+    if(exact) return exact;
+  }
+  return null; // mehrdeutig, nicht automatisch zuordnen
+}
+
+document.getElementById('import-pylon-btn').addEventListener('click', ()=>{
+  const overlay = document.createElement('div');
+  overlay.className = 'chart-overlay';
+  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  const popup = document.createElement('div');
+  popup.className = 'chart-popup';
+  popup.style.maxWidth = '560px';
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'chart-popup-close';
+  closeBtn.innerHTML = '×';
+  closeBtn.addEventListener('click', ()=>overlay.remove());
+  popup.appendChild(closeBtn);
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'chart-popup-title';
+  titleEl.textContent = '📋 Pylon-Nummern importieren';
+  popup.appendChild(titleEl);
+
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-family:Inter,sans-serif;font-size:12.5px;color:var(--muted);margin-bottom:10px;';
+  hint.textContent = 'CSV-Inhalt hier einfügen (Format: Fullname;Pylon;CHT). Wird automatisch nach Nachname den bestehenden Mitarbeitern zugeordnet - die Pylon-Nummer dauerhaft, der CHT-Wert als aktueller Monatsstand (überschreibt den bisherigen CHT-Wert dieses Monats).';
+  popup.appendChild(hint);
+
+  const textarea = document.createElement('textarea');
+  textarea.style.cssText = 'width:100%;min-height:160px;font-family:\'IBM Plex Mono\',monospace;font-size:12px;padding:10px;border:1px solid var(--border);border-radius:8px;box-sizing:border-box;';
+  textarea.placeholder = 'Fullname;Pylon;CHT\nLamprini Mitsiou;30782;725\n...';
+  popup.appendChild(textarea);
+
+  const resultBox = document.createElement('div');
+  resultBox.style.cssText = 'margin-top:12px;font-family:Inter,sans-serif;font-size:13px;';
+  popup.appendChild(resultBox);
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:10px;margin-top:14px;';
+  const importBtn = document.createElement('button');
+  importBtn.className = 'primary';
+  importBtn.textContent = 'Importieren';
+  btnRow.appendChild(importBtn);
+  popup.appendChild(btnRow);
+
+  importBtn.addEventListener('click', ()=>{
+    const entries = parsePylonCsv(textarea.value);
+    if(!entries.length){
+      resultBox.innerHTML = '<span style="color:var(--red);">Keine gültigen Zeilen gefunden.</span>';
+      return;
+    }
+    let matched = 0, chtSet = 0, unmatched = [];
+    state.agents.forEach(agent=>{
+      if(!agent.name || !agent.name.trim()) return;
+      const hit = matchPylonEntry(agent.name.trim(), entries);
+      if(hit){
+        agent.pylon = hit.pylon;
+        if(hit.cht !== null){ agent.cht = parseFloat(hit.cht); chtSet++; }
+        matched++;
+      } else {
+        unmatched.push(agent.name);
+      }
+    });
+    scheduleSave();
+    renderAll();
+    let html = `<span style="color:var(--teal);font-weight:700;">${matched} Mitarbeiter zugeordnet${chtSet ? ` (davon ${chtSet} mit CHT-Wert für diesen Monat übernommen)` : ''}.</span>`;
+    if(unmatched.length){
+      html += `<div style="margin-top:6px;color:var(--muted);">Nicht automatisch zuordenbar (Name unklar/mehrdeutig oder nicht in der CSV): ${unmatched.join(', ')}</div>`;
+    }
+    resultBox.innerHTML = html;
+  });
+
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+  textarea.focus();
+});
 
 document.getElementById('add-agent-btn').addEventListener('click', ()=>{
   const overlay = document.createElement('div');
