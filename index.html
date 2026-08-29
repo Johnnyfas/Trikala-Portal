@@ -156,6 +156,7 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .tw-row:hover{background:#F5F5F7;}
 .tw-name{font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;padding:8px 8px 8px 20px;white-space:nowrap;text-align:left;}
 .tw-input{width:64px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;border:1px solid transparent;border-radius:6px;padding:6px 4px;background:transparent;color:var(--text);}
+.tw-cell-selected{background:var(--tmg-soft)!important;outline:1.5px solid var(--tmg);outline-offset:-1.5px;user-select:none;}
 .tw-input:hover{border-color:var(--border);}
 .tw-input:focus{outline:none;border-color:var(--tmg);background:#fff;box-shadow:0 0 0 3px rgba(226,0,116,.1);}
 .tw-input::placeholder{color:#C8CDD3;}
@@ -885,6 +886,20 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
   }
 } };
 let saveTimer = null;
+
+// === Tageswerte: Mehrfachauswahl von Zellen (wie in Excel per Ziehen markieren, dann gemeinsam löschen) ===
+let twSelectedCells = [];      // aktuell markierte Zellen: [{td, input, setVal}, ...]
+let twIsDragging = false;
+let twClearActiveSelection = null; // Funktion, die die Markierung der zuletzt aktiven Tabelle aufhebt
+document.addEventListener('mouseup', ()=>{ twIsDragging = false; });
+document.addEventListener('keydown', (e)=>{
+  if((e.key === 'Delete' || e.key === 'Backspace') && twSelectedCells.length >= 2 &&
+     document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('tw-input')){
+    e.preventDefault();
+    twSelectedCells.forEach(cell=>{ cell.setVal(null); cell.input.value = ''; });
+    scheduleSave();
+  }
+});
 // Merkt sich lokal gelöschte Coaching-Einträge, damit die Zusammenführung beim Speichern
 // sie nicht versehentlich wieder herstellt, falls der Server noch die alte Version hat.
 const pendingDeletedIds = new Set();
@@ -5948,7 +5963,28 @@ function renderTageswerte(){
     });
     table.appendChild(thead);
 
-    function mkTwInput(getVal, setVal, readOnly){
+    // Für jede Tabelle eigenes Zellraster für die Mehrfachauswahl
+    const cellGrid = [];
+    let selStart = null, selEnd = null;
+    function clearVisual(){
+      cellGrid.forEach(rowArr=>{ if(rowArr) rowArr.forEach(c=>{ if(c) c.td.classList.remove('tw-cell-selected'); }); });
+    }
+    function updateSelectionVisual(){
+      clearVisual();
+      const r1 = Math.min(selStart.r, selEnd.r), r2 = Math.max(selStart.r, selEnd.r);
+      const c1 = Math.min(selStart.c, selEnd.c), c2 = Math.max(selStart.c, selEnd.c);
+      const selected = [];
+      for(let r=r1;r<=r2;r++){
+        for(let c=c1;c<=c2;c++){
+          const cell = cellGrid[r] && cellGrid[r][c];
+          if(cell){ cell.td.classList.add('tw-cell-selected'); selected.push(cell); }
+        }
+      }
+      twSelectedCells = selected;
+      twClearActiveSelection = clearVisual;
+    }
+
+    function mkTwInput(getVal, setVal, readOnly, rowIdx, colIdx){
       const td = document.createElement('td');
       const inp = document.createElement('input');
       inp.type = 'text';
@@ -5966,10 +6002,30 @@ function renderTageswerte(){
         scheduleSave();
       });
       td.appendChild(inp);
+
+      if(!readOnly && rowIdx !== undefined && colIdx !== undefined){
+        if(!cellGrid[rowIdx]) cellGrid[rowIdx] = [];
+        cellGrid[rowIdx][colIdx] = { td, input: inp, setVal };
+        td.addEventListener('mousedown', e=>{
+          e.preventDefault(); // verhindert Browser-Textauswahl über mehrere Felder, wir übernehmen das selbst
+          if(twClearActiveSelection && twClearActiveSelection !== clearVisual) twClearActiveSelection();
+          twIsDragging = true;
+          selStart = {r:rowIdx, c:colIdx};
+          selEnd = {r:rowIdx, c:colIdx};
+          updateSelectionVisual();
+          inp.focus();
+        });
+        td.addEventListener('mouseenter', ()=>{
+          if(twIsDragging && selStart){
+            selEnd = {r:rowIdx, c:colIdx};
+            updateSelectionVisual();
+          }
+        });
+      }
       return td;
     }
 
-    teamAgents.forEach(agent=>{
+    teamAgents.forEach((agent, rowIdx)=>{
       const row = document.createElement('tr');
       row.className = 'tw-row';
       const nameTd = document.createElement('td');
@@ -5979,10 +6035,11 @@ function renderTageswerte(){
 
       if(isTotal){
         // Calls, NPS, LQ: manuell editierbar. Produkte: automatisch aus den Tages-Seiten summiert (nicht editierbar).
-        row.appendChild(mkTwInput(()=>agent.calls, v=>{ agent.calls=v; }, false));
+        let col = 0;
+        row.appendChild(mkTwInput(()=>agent.calls, v=>{ agent.calls=v; }, false, rowIdx, col++));
         orderedProducts.forEach(p=> row.appendChild(mkTwInput(()=>agent.sales[p], ()=>{}, true)));
-        row.appendChild(mkTwInput(()=>agent.nps, v=>{ agent.nps=v; }, false));
-        row.appendChild(mkTwInput(()=>agent.lq, v=>{ agent.lq=v; }, false));
+        row.appendChild(mkTwInput(()=>agent.nps, v=>{ agent.nps=v; }, false, rowIdx, col++));
+        row.appendChild(mkTwInput(()=>agent.lq, v=>{ agent.lq=v; }, false, rowIdx, col++));
       } else {
         if(!agent.tageswerte) agent.tageswerte = {};
         if(!agent.tageswerte[monthKey]) agent.tageswerte[monthKey] = {};
@@ -5990,8 +6047,8 @@ function renderTageswerte(){
         const dv = agent.tageswerte[monthKey][twSelectedDay];
         if(!dv.sales) dv.sales = {};
 
-        orderedProducts.forEach(p=>{
-          row.appendChild(mkTwInput(()=>dv.sales[p], v=>{ dv.sales[p]=v; }, false));
+        orderedProducts.forEach((p, colIdx)=>{
+          row.appendChild(mkTwInput(()=>dv.sales[p], v=>{ dv.sales[p]=v; }, false, rowIdx, colIdx));
         });
       }
 
