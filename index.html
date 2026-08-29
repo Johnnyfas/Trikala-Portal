@@ -534,6 +534,8 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 .panel-section{font-family:'Inter',sans-serif;}
 .panel-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;}
 .panel-avg-row{display:flex;justify-content:space-between;align-items:center;padding:3px 0;}
+.agent-notes{width:100%;min-height:60px;resize:vertical;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:12.5px;color:var(--text);background:#F7F9FA;box-sizing:border-box;}
+.agent-notes:focus{outline:none;border-color:var(--tmg);}
 .panel-avg-label{font-size:12px;color:var(--text);}
 .panel-avg-vals{display:flex;gap:6px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:700;}
 .panel-avg-agent{color:var(--text);}
@@ -1868,6 +1870,54 @@ function evaluateAgent(agent){
   return { tags, status };
 }
 
+// Kurze automatische Zusammenfassung aus KPI-Verlauf (Monatsarchiv) + Coaching-Verlauf,
+// für die kompakte Mitarbeiterkarte im Standort Überblick.
+function buildAgentSummary(agent){
+  const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const parts = [];
+
+  // KPI-Verlauf: Trend über die erfassten Monate
+  const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
+  const monKeys = (vlEntry && vlEntry.monate) ? Object.keys(vlEntry.monate).sort((a,b)=>{
+    const [ya,ma] = a.split('-'); const [yb,mb] = b.split('-');
+    if(ya !== yb) return ya.localeCompare(yb);
+    return MONATE_ORDER.indexOf(ma) - MONATE_ORDER.indexOf(mb);
+  }) : [];
+  if(monKeys.length >= 2){
+    const erstesCr = vlEntry.monate[monKeys[0]].cr || 0;
+    const letztesCr = vlEntry.monate[monKeys[monKeys.length-1]].cr || 0;
+    const diff = letztesCr - erstesCr;
+    const richtung = Math.abs(diff) < 0.3 ? 'stabil' : (diff > 0 ? 'steigend' : 'fallend');
+    parts.push(`CR-Trend über ${monKeys.length} erfasste Monate: ${richtung} (${erstesCr.toFixed(1)}% → ${letztesCr.toFixed(1)}%).`);
+  } else if(monKeys.length === 1){
+    parts.push(`Erst ein Monat archiviert (${monKeys[0].split('-')[1]}) – noch kein Trend erkennbar.`);
+  } else {
+    parts.push('Noch keine Monatsdaten archiviert.');
+  }
+
+  // Coaching-Verlauf
+  const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
+  const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop') : [];
+  if(eintraege.length){
+    parts.push(`${eintraege.length} Coaching${eintraege.length>1?'s':''} dokumentiert${agent.coachingDatum ? ', zuletzt am '+agent.coachingDatum : ''}.`);
+    const nokCount = {};
+    eintraege.forEach(e=>{
+      if(!e.checkliste) return;
+      Object.keys(e.checkliste).forEach(item=>{
+        if(e.checkliste[item] === 'nok') nokCount[item] = (nokCount[item]||0) + 1;
+      });
+    });
+    const wiederkehrend = Object.entries(nokCount).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    if(wiederkehrend.length){
+      parts.push('Wiederkehrend auffällig: ' + wiederkehrend.map(([item,n])=>`${item} (${n}×)`).join(', ') + '.');
+    }
+  } else {
+    parts.push('Noch kein Coaching dokumentiert.');
+  }
+
+  return parts.join(' ');
+}
+
 function numField(labelText, value, onChange, step){
   const wrap = document.createElement('div');
   wrap.className = 'metric-field';
@@ -2044,15 +2094,8 @@ function renderCoaching(){
     const teamAgents = state.agents.filter(a => String(a.team) === String(teamId));
     const block = document.createElement('div');
     block.className = 'team-block';
-    const legendLine = (catKey) => cfg.products.map((p,i)=>`${p} ${cfg.targets[catKey][i]}`).join(' · ') + (catKey==='regular' ? ` · Gesamt-CR ${cfg.crTarget}%` : '');
 
-    block.innerHTML = `
-      <div class="team-title">${cfg.label} — ${cfg.project}</div>
-      <div class="targets-legend">
-        <div class="line"><span class="cat-label standard">Standard</span><span class="vals">${legendLine('regular')}</span></div>
-        <div class="line"><span class="cat-label sixh">6-Stündler</span><span class="vals">${legendLine('6h')}</span></div>
-        <div class="line"><span class="cat-label helpline">Helpline</span><span class="vals">${legendLine('helpline')}</span></div>
-      </div>`;
+    block.innerHTML = `<div class="team-title">${cfg.label} — ${cfg.project}</div>`;
     const cardsWrap = document.createElement('div');
     cardsWrap.className = 'cards';
 
@@ -2093,96 +2136,6 @@ function renderCoaching(){
       });
       topLeft.appendChild(catSelect);
 
-      const callsField = document.createElement('div');
-      callsField.className = 'calls-field';
-      callsField.innerHTML = '<label>Calls</label>';
-      const callsInput = document.createElement('input');
-      callsInput.type = 'number';
-      callsInput.value = agent.calls;
-      callsInput.addEventListener('input', e=>{ agent.calls = parseFloat(e.target.value)||0; scheduleSave(); renderAll(); });
-      callsField.appendChild(callsInput);
-      topLeft.appendChild(callsField);
-
-      const crBadgeWrap = document.createElement('div');
-      crBadgeWrap.className = 'calls-field';
-      crBadgeWrap.innerHTML = '<label>Gesamt-CR</label>';
-      const crTotal = totalCr(agent);
-      const crBadge = document.createElement('div');
-      crBadge.className = 'cr-readout' + (crTotal < cfg.crTarget ? ' bad' : '');
-      crBadge.style.width = '74px'; crBadge.style.textAlign = 'center';
-      crBadge.textContent = crTotal.toFixed(2) + '%';
-      crBadgeWrap.appendChild(crBadge);
-      topLeft.appendChild(crBadgeWrap);
-
-      // === Trend: aktuelle Live-Zahlen vs. letzter gespeicherter Monat ===
-      const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
-      if(vlEntry && vlEntry.monate){
-        const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-        const aktuellerMonatName = new Date().toLocaleString('de-DE', {month:'long'});
-        // Nur Monate berücksichtigen, die NICHT der laufende Monat sind -
-        // sonst würde man den aktuellen Stand mit sich selbst vergleichen.
-        const monKeys = Object.keys(vlEntry.monate)
-          .filter(k => k.split('-')[1] !== aktuellerMonatName)
-          .sort((a,b)=>{
-            const [ya,ma] = a.split('-'); const [yb,mb] = b.split('-');
-            if(ya !== yb) return ya.localeCompare(yb);
-            return MONATE_ORDER.indexOf(ma) - MONATE_ORDER.indexOf(mb);
-          });
-        const referenz = monKeys[monKeys.length-1];
-        if(referenz){
-          const mkTrend = (jetztVal, feld, label, suffix) => {
-            const davor = vlEntry.monate[referenz][feld] || 0;
-            if(!davor) return null;
-            if(jetztVal === null || jetztVal === undefined) return null;
-            const diff = jetztVal - davor;
-            if(Math.abs(diff) < 0.1) return null;
-            const up = diff > 0;
-            const span = document.createElement('span');
-            span.style.cssText = `font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:${up?'var(--teal-soft)':'var(--red-soft)'};color:${up?'var(--teal)':'var(--red)'};`;
-            span.textContent = `${label} ${up?'▲':'▼'} ${Math.abs(diff).toFixed(1)}${suffix} vs ${referenz.split('-')[1]}`;
-            return span;
-          };
-          const trendWrap = document.createElement('div');
-          trendWrap.style.cssText = 'display:flex;gap:6px;align-items:center;flex-wrap:wrap;';
-          const tCr = mkTrend(totalCr(agent), 'cr', 'CR', '%');
-          const tNps = mkTrend(agent.nps, 'nps', 'NPS', '');
-          if(tCr) trendWrap.appendChild(tCr);
-          if(tNps) trendWrap.appendChild(tNps);
-          if(trendWrap.children.length) topLeft.appendChild(trendWrap);
-        }
-      }
-
-      // === Wiederkehrende Schwachstellen aus der Leitfaden-Checkliste ===
-      const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
-      if(cvEntry && cvEntry.eintraege && cvEntry.eintraege.length){
-        const nokCount = {};
-        cvEntry.eintraege.forEach(e=>{
-          if(!e.checkliste) return;
-          Object.keys(e.checkliste).forEach(item=>{
-            if(e.checkliste[item] === 'nok') nokCount[item] = (nokCount[item]||0) + 1;
-          });
-        });
-        const wiederkehrend = Object.entries(nokCount)
-          .filter(([,n]) => n >= 2)
-          .sort((a,b)=>b[1]-a[1])
-          .slice(0,4);
-        if(wiederkehrend.length){
-          const weakWrap = document.createElement('div');
-          weakWrap.style.cssText = 'display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:2px;';
-          const lbl = document.createElement('span');
-          lbl.style.cssText = "font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;";
-          lbl.textContent = '⚠️ Wiederkehrend:';
-          weakWrap.appendChild(lbl);
-          wiederkehrend.forEach(([item,n])=>{
-            const chip = document.createElement('span');
-            chip.style.cssText = "font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--amber-soft);color:var(--amber);";
-            chip.textContent = `${item} (${n}×)`;
-            weakWrap.appendChild(chip);
-          });
-          topLeft.appendChild(weakWrap);
-        }
-      }
-
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
       removeBtn.addEventListener('click', ()=>{
@@ -2195,146 +2148,110 @@ function renderCoaching(){
       topRow.appendChild(topLeft); topRow.appendChild(removeBtn);
       card.appendChild(topRow);
 
-      const metricsRow = document.createElement('div');
-      metricsRow.className = 'metrics-row';
+      // === Kumulierte Werte über alle erfassten Monate (aus dem Verlauf-Archiv), vs. Team ===
+      const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
+      const monatsListe = (vlEntry && vlEntry.monate) ? Object.values(vlEntry.monate) : [];
 
-      const qualityGroup = document.createElement('div');
-      qualityGroup.className = 'metric-group quality';
-      qualityGroup.innerHTML = '<div class="group-label">Qualität</div>';
-      const qFields = document.createElement('div'); qFields.className = 'fields';
-      qFields.appendChild(numField('NPS %', agent.nps, v=>{agent.nps=v;}, true));
-      qFields.appendChild(numField('LQ %', agent.lq, v=>{agent.lq=v;}, true));
-      qualityGroup.appendChild(qFields);
-      metricsRow.appendChild(qualityGroup);
-
-      const salesGroup = document.createElement('div');
-      salesGroup.className = 'metric-group sales';
-      salesGroup.innerHTML = `<div class="group-label">Vertrieb &nbsp; <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;padding:2px 7px;border-radius:5px;background:${crTotal < cfg.crTarget ? 'var(--red-soft);color:var(--red)' : 'var(--teal-soft);color:var(--teal)'};">Gesamt-CR ${crTotal.toFixed(2)}% (Ziel ${cfg.crTarget}%)</span></div>`;
-      const salesFields = document.createElement('div'); salesFields.className = 'fields';
-      const myTargets = agentTargets(agent);
-      cfg.products.forEach((p,i)=>{
-        const pBlock = document.createElement('div');
-        pBlock.className = 'product-block';
-        pBlock.innerHTML = `<div class="product-name">${p}</div><div class="mini-label">Stk (Ziel ${myTargets[i]})</div>`;
-        const inputsRow = document.createElement('div'); inputsRow.className = 'product-inputs';
-        const stkInput = document.createElement('input');
-        stkInput.className = 'stk-input'; stkInput.type = 'number';
-        stkInput.value = agent.sales[p]||0;
-        stkInput.addEventListener('input', e=>{ agent.sales[p] = parseFloat(e.target.value)||0; scheduleSave(); renderAll(); });
-        inputsRow.appendChild(stkInput);
-        pBlock.appendChild(inputsRow);
-        salesFields.appendChild(pBlock);
-      });
-      salesGroup.appendChild(salesFields);
-      metricsRow.appendChild(salesGroup);
-
-      card.appendChild(metricsRow);
-
-      const tagsDiv = document.createElement('div'); tagsDiv.className = 'tags';
-      if(evalRes.tags.length === 0){
-        const tag = document.createElement('span'); tag.className = 'tag ok'; tag.textContent = 'Auf Zielkurs';
-        tagsDiv.appendChild(tag);
-      } else {
-        evalRes.tags.forEach(label=>{
-          const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = label;
-          tagsDiv.appendChild(tag);
-        });
-      }
-      card.appendChild(tagsDiv);
-
-      // === Rechtes Panel: Teamdurchschnitt + letztes Coaching ===
-      const panel = document.createElement('div');
-      panel.className = 'agent-panel';
-
-      // Team-Durchschnitt Vergleich
       const avgSection = document.createElement('div');
       avgSection.className = 'panel-section';
       const avgTitle = document.createElement('div');
       avgTitle.className = 'panel-section-title';
-      avgTitle.textContent = '📊 vs. Teamdurchschnitt';
+      avgTitle.textContent = '📊 vs. Teamdurchschnitt' + (monatsListe.length ? ` (${monatsListe.length} Monate gesamt)` : '');
       avgSection.appendChild(avgTitle);
 
-      // Berechne Teamdurchschnitt
-      const teamAgentsAll = state.agents.filter(a=>a.team===agent.team && a.name.trim());
-      const avgCr = teamAgentsAll.reduce((s,a)=>s+totalCr(a),0)/teamAgentsAll.length;
-      const avgNps = teamAgentsAll.filter(a=>a.nps>0).reduce((s,a)=>s+a.nps,0)/Math.max(1,teamAgentsAll.filter(a=>a.nps>0).length);
-      const avgLq = teamAgentsAll.filter(a=>a.lq>0).reduce((s,a)=>s+a.lq,0)/Math.max(1,teamAgentsAll.filter(a=>a.lq>0).length);
-      const agentCr = totalCr(agent);
-
-      const mkAvgRow = (label, agentVal, teamVal, suffix) => {
-        const row = document.createElement('div');
-        row.className = 'panel-avg-row';
-        const diff = agentVal - teamVal;
-        const arrowCls = diff > 0.1 ? 'up' : diff < -0.1 ? 'down' : 'eq';
-        const arrow = diff > 0.1 ? '▲' : diff < -0.1 ? '▼' : '—';
-        row.innerHTML = `
-          <span class="panel-avg-label">${label}</span>
-          <div class="panel-avg-vals">
-            <span class="panel-avg-agent">${agentVal.toFixed(1)}${suffix}</span>
-            <span class="panel-avg-arrow ${arrowCls}">${arrow}</span>
-            <span class="panel-avg-team">Ø${teamVal.toFixed(1)}${suffix}</span>
-          </div>`;
-        return row;
-      };
-
-      avgSection.appendChild(mkAvgRow('CR', agentCr, avgCr, '%'));
-      if(agent.nps > 0) avgSection.appendChild(mkAvgRow('NPS', agent.nps, avgNps, '%'));
-      if(agent.lq > 0) avgSection.appendChild(mkAvgRow('LQ', agent.lq, avgLq, '%'));
-
-      // Produkt-Stückzahl vs Teamdurchschnitt
-      cfg.products.forEach(p=>{
-        const agentStk = agent.sales[p]||0;
-        const avgStk = teamAgentsAll.reduce((s,a)=>s+(a.sales[p]||0),0)/teamAgentsAll.length;
-        if(agentStk > 0 || avgStk > 0) avgSection.appendChild(mkAvgRow(p, agentStk, avgStk, ''));
-      });
-
-      panel.appendChild(avgSection);
-
-      // Letztes Coaching
-      const coachSection = document.createElement('div');
-      coachSection.className = 'panel-section';
-      const coachTitle = document.createElement('div');
-      coachTitle.className = 'panel-section-title';
-      coachTitle.textContent = '📝 Letztes Coaching';
-      coachSection.appendChild(coachTitle);
-
-      const coachBox = document.createElement('div');
-      coachBox.className = 'panel-coaching';
-
-      if(agent.coachingDatum){
-        const days = Math.floor((new Date()-new Date(agent.coachingDatum.split('.').reverse().join('-')))/(1000*60*60*24));
-        const col = days<=7?'green':days<=14?'orange':'red';
-        const dateEl = document.createElement('div');
-        dateEl.className = 'panel-coaching-date ' + col;
-        dateEl.textContent = agent.coachingDatum + ' (' + days + 'd)';
-        coachBox.appendChild(dateEl);
-
-        // Letzte Coaching-Notiz aus Coaching Verlauf
-        const cvKey = agent.id || agent.name + '_' + agent.team;
-        const cvData = state.coachverlauf && state.coachverlauf[cvKey];
-        const lastEntry = cvData && cvData.eintraege && cvData.eintraege[0];
-        if(lastEntry && lastEntry.text && lastEntry.text !== '(Coaching ohne Notiz)'){
-          const textEl = document.createElement('div');
-          textEl.className = 'panel-coaching-text';
-          textEl.textContent = lastEntry.text;
-          coachBox.appendChild(textEl);
-        }
-      } else {
-        const noneEl = document.createElement('div');
-        noneEl.className = 'panel-coaching-none';
-        noneEl.textContent = 'Kein Coaching eingetragen';
-        coachBox.appendChild(noneEl);
+      function cumulativeFor(a){
+        const vl = Object.values(state.verlauf).find(v=>v.name===a.name && v.team===a.team);
+        const mon = (vl && vl.monate) ? Object.values(vl.monate) : [];
+        if(!mon.length) return null;
+        const avg = (field) => {
+          const vals = mon.map(m=>m[field]).filter(v=>v>0);
+          return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
+        };
+        const prodAvg = {};
+        cfg.products.forEach(p=>{
+          const vals = mon.map(m=>(m.sales && m.sales[p])||0);
+          prodAvg[p] = vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
+        });
+        return { cr: avg('cr'), nps: avg('nps'), lq: avg('lq'), sales: prodAvg };
       }
-      coachSection.appendChild(coachBox);
-      panel.appendChild(coachSection);
 
-      // Card + Panel zusammen in wrap
-      const cardWrap = document.createElement('div');
-      cardWrap.className = 'card-wrap';
-      cardWrap.appendChild(card);
-      cardWrap.appendChild(panel);
-      cardsWrap.appendChild(cardWrap);
+      if(monatsListe.length){
+        const teamAgentsAll = state.agents.filter(a=>a.team===agent.team && a.name.trim());
+        const myCum = cumulativeFor(agent);
+        const teamCums = teamAgentsAll.map(cumulativeFor).filter(Boolean);
+        const teamAvg = (field) => {
+          const vals = teamCums.map(c=>c[field]).filter(v=>v>0);
+          return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
+        };
+        const teamAvgProd = (p) => {
+          const vals = teamCums.map(c=>c.sales[p]||0).filter(v=>v>0);
+          return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
+        };
+
+        const mkAvgRow = (label, agentVal, teamVal, suffix) => {
+          const row = document.createElement('div');
+          row.className = 'panel-avg-row';
+          const diff = agentVal - teamVal;
+          const arrowCls = diff > 0.1 ? 'up' : diff < -0.1 ? 'down' : 'eq';
+          const arrow = diff > 0.1 ? '▲' : diff < -0.1 ? '▼' : '—';
+          row.innerHTML = `
+            <span class="panel-avg-label">${label}</span>
+            <div class="panel-avg-vals">
+              <span class="panel-avg-agent">${agentVal.toFixed(1)}${suffix}</span>
+              <span class="panel-avg-arrow ${arrowCls}">${arrow}</span>
+              <span class="panel-avg-team">Ø${teamVal.toFixed(1)}${suffix}</span>
+            </div>`;
+          return row;
+        };
+
+        if(myCum.cr > 0) avgSection.appendChild(mkAvgRow('CR', myCum.cr, teamAvg('cr'), '%'));
+        if(myCum.nps > 0) avgSection.appendChild(mkAvgRow('NPS', myCum.nps, teamAvg('nps'), '%'));
+        if(myCum.lq > 0) avgSection.appendChild(mkAvgRow('LQ', myCum.lq, teamAvg('lq'), '%'));
+        cfg.products.forEach(p=>{
+          const av = myCum.sales[p]||0;
+          const tv = teamAvgProd(p);
+          if(av > 0 || tv > 0) avgSection.appendChild(mkAvgRow(p, av, tv, ''));
+        });
+      } else {
+        const none = document.createElement('div');
+        none.className = 'panel-coaching-none';
+        none.textContent = 'Noch keine archivierten Monatsdaten (siehe Monatsabschluss).';
+        avgSection.appendChild(none);
+      }
+      card.appendChild(avgSection);
+
+      // === Notizen ===
+      const notesSection = document.createElement('div');
+      notesSection.className = 'panel-section';
+      const notesTitle = document.createElement('div');
+      notesTitle.className = 'panel-section-title';
+      notesTitle.textContent = '📝 Notizen';
+      notesSection.appendChild(notesTitle);
+      const notesArea = document.createElement('textarea');
+      notesArea.className = 'agent-notes';
+      notesArea.placeholder = 'Notizen zu diesem Mitarbeiter...';
+      notesArea.value = agent.notiz || '';
+      notesArea.addEventListener('input', e=>{ agent.notiz = e.target.value; scheduleSave(); });
+      notesSection.appendChild(notesArea);
+      card.appendChild(notesSection);
+
+      // === Kurz-Zusammenfassung (KPI-Verlauf + Coaching-Verlauf) ===
+      const summarySection = document.createElement('div');
+      summarySection.className = 'panel-section';
+      const summaryTitle = document.createElement('div');
+      summaryTitle.className = 'panel-section-title';
+      summaryTitle.textContent = '🧭 Zusammenfassung';
+      summarySection.appendChild(summaryTitle);
+      const summaryText = document.createElement('div');
+      summaryText.className = 'panel-coaching-text';
+      summaryText.style.maxHeight = 'none';
+      summaryText.textContent = buildAgentSummary(agent);
+      summarySection.appendChild(summaryText);
+      card.appendChild(summarySection);
+
+      cardsWrap.appendChild(card);
     });
+
 
     block.appendChild(cardsWrap);
     container.appendChild(block);
