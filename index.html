@@ -2233,7 +2233,17 @@ function renderCoaching(){
       notesArea.value = agent.notiz || '';
       notesArea.addEventListener('input', e=>{ agent.notiz = e.target.value; scheduleSave(); });
       notesSection.appendChild(notesArea);
-      card.appendChild(notesSection);
+
+      // vs. Teamdurchschnitt (kompakt, Werte direkt neben dem Namen) und Notizen (füllt den Rest)
+      // nebeneinander in einer Reihe.
+      const topPairRow = document.createElement('div');
+      topPairRow.style.cssText = 'display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;';
+      avgSection.style.cssText = 'flex:0 0 auto;min-width:220px;';
+      notesSection.style.cssText = 'flex:1 1 240px;display:flex;flex-direction:column;';
+      notesArea.style.flex = '1';
+      topPairRow.appendChild(avgSection);
+      topPairRow.appendChild(notesSection);
+      card.appendChild(topPairRow);
 
       // === Kurz-Zusammenfassung (KPI-Verlauf + Coaching-Verlauf) ===
       const summarySection = document.createElement('div');
