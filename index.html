@@ -741,6 +741,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
     <span id="logged-in-name" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);align-self:center;padding:0 6px;"></span>
     <button class="logout-btn" id="logout-btn" style="display:none;" onclick="signOut()">Abmelden</button>
     <button class="login-btn" id="excel-sync-btn" style="display:none;background:var(--teal);" onclick="loadFromExcel()">↻ Excel aktualisieren</button>
+    <button class="login-btn" id="restore-backup-btn" style="display:none;background:var(--red);" onclick="restoreFromOneDriveBackup()">🛟 Alte Daten wiederherstellen</button>
     <button class="login-btn" id="setup-token-btn" style="display:none;background:var(--red);" onclick="signInAdmin()">🔒 Einloggen</button>
     <span id="excel-sync-label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);"></span>
   </div>
@@ -891,7 +892,10 @@ let saveTimer = null;
 let twSelectedCells = [];      // aktuell markierte Zellen: [{td, input, setVal}, ...]
 let twIsDragging = false;
 let twClearActiveSelection = null; // Funktion, die die Markierung der zuletzt aktiven Tabelle aufhebt
-document.addEventListener('mouseup', ()=>{ twIsDragging = false; });
+let twActiveTableExtend = null;    // Funktion(rowIdx, colIdx), erweitert die Auswahl der aktiven Tabelle
+let twLastMouseX = null, twLastMouseY = null;
+document.addEventListener('mouseup', ()=>{ twIsDragging = false; twActiveTableExtend = null; });
+document.addEventListener('mousemove', (e)=>{ twLastMouseX = e.clientX; twLastMouseY = e.clientY; });
 document.addEventListener('keydown', (e)=>{
   if((e.key === 'Delete' || e.key === 'Backspace') && twSelectedCells.length >= 2 &&
      document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('tw-input')){
@@ -900,6 +904,25 @@ document.addEventListener('keydown', (e)=>{
     scheduleSave();
   }
 });
+// Während des Ziehens: Seite automatisch scrollen, wenn die Maus nah an den oberen/unteren
+// Bildschirmrand kommt, und die Auswahl per Hit-Test an die (sich unter dem stehenden Mauszeiger
+// wegscrollende) Zelle anpassen - ein reines mouseenter-Event würde beim Scrollen ohne
+// Mausbewegung sonst nicht feuern.
+setInterval(()=>{
+  if(!twIsDragging || twLastMouseY === null) return;
+  const margin = 70;
+  const vh = window.innerHeight;
+  if(twLastMouseY < margin){
+    window.scrollBy(0, -(Math.ceil((margin - twLastMouseY) / 4) + 2));
+  } else if(twLastMouseY > vh - margin){
+    window.scrollBy(0, Math.ceil((margin - (vh - twLastMouseY)) / 4) + 2);
+  }
+  if(twActiveTableExtend && twLastMouseX !== null){
+    const el = document.elementFromPoint(twLastMouseX, twLastMouseY);
+    const td = el && el.closest ? el.closest('td[data-tw-row]') : null;
+    if(td) twActiveTableExtend(parseInt(td.dataset.twRow, 10), parseInt(td.dataset.twCol, 10));
+  }
+}, 16);
 // Merkt sich lokal gelöschte Coaching-Einträge, damit die Zusammenführung beim Speichern
 // sie nicht versehentlich wieder herstellt, falls der Server noch die alte Version hat.
 const pendingDeletedIds = new Set();
@@ -1731,6 +1754,106 @@ const EXCEL_FILES = {
   "Trikala01": { path: "Trikala-Portal/MF ScozTR_ 01 Live Ticker.xlsx" },
   "Trikala06": { path: "Trikala-Portal/FN ScozTR_06 Live Ticker.xlsx" }
 };
+
+// Einmalige Notfall-Wiederherstellung: Board-Daten liefen bis zur Umstellung auf Cloudflare KV
+// über diese OneDrive-Datei. Seit der Umstellung wird sie nicht mehr beschrieben, sollte also
+// noch den letzten echten Stand von vorher enthalten. Ergänzt nur, was aktuell leer/fehlend ist -
+// überschreibt nichts, was seit der Umstellung neu eingetragen wurde.
+async function restoreFromOneDriveBackup(){
+  if(!graphToken){
+    alert('Bitte zuerst über "Mit Microsoft anmelden" einloggen (der normale Login-Button, nicht "🔒 Einloggen").');
+    return;
+  }
+  if(!confirm('Lädt den alten Datenstand aus OneDrive (vor der Umstellung auf Cloudflare) und ergänzt damit alles, was aktuell leer ist - Mitarbeiterkennzahlen, Coachings, archivierte Monate, geplante Coachings, Führungskräfte-Namen. Bereits neu eingetragene Daten seit der Umstellung bleiben unangetastet. Fortfahren?')) return;
+
+  try {
+    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/items/${OWNER_FILE_ID}/content?_cb=${Date.now()}`);
+    if(!resp.ok){ alert('Alte Datei konnte nicht geladen werden (HTTP ' + resp.status + ').'); return; }
+    const old = await resp.json();
+    if(!old || !old.agents || !old.agents.length){ alert('Alte Datei enthält keine Mitarbeiterdaten.'); return; }
+
+    let restoredAgents = 0;
+    old.agents.forEach(oldAgent=>{
+      const cur = state.agents.find(a=>a.name===oldAgent.name && String(a.team)===String(oldAgent.team));
+      if(!cur) return;
+      const curEmpty = !cur.calls && !cur.nps && !cur.lq && (!cur.sales || Object.values(cur.sales).every(v=>!v));
+      const oldHasData = oldAgent.calls || oldAgent.nps || oldAgent.lq || (oldAgent.sales && Object.values(oldAgent.sales).some(v=>v));
+      if(curEmpty && oldHasData){
+        cur.calls = oldAgent.calls;
+        cur.nps = oldAgent.nps;
+        cur.lq = oldAgent.lq;
+        cur.sales = oldAgent.sales ? {...oldAgent.sales} : cur.sales;
+        restoredAgents++;
+      }
+    });
+
+    let restoredCoachings = 0;
+    if(old.coachverlauf){
+      if(!state.coachverlauf) state.coachverlauf = {};
+      Object.keys(old.coachverlauf).forEach(key=>{
+        const oldCv = old.coachverlauf[key];
+        if(!state.coachverlauf[key]){
+          state.coachverlauf[key] = oldCv;
+          restoredCoachings += (oldCv.eintraege||[]).length;
+        } else {
+          if(!state.coachverlauf[key].eintraege) state.coachverlauf[key].eintraege = [];
+          const localIds = new Set(state.coachverlauf[key].eintraege.map(e=>e.id));
+          (oldCv.eintraege||[]).forEach(e=>{
+            if(!localIds.has(e.id) && !(state.deletedEntryIds||[]).includes(e.id)){
+              state.coachverlauf[key].eintraege.push(e);
+              restoredCoachings++;
+            }
+          });
+        }
+      });
+    }
+
+    let restoredPlan = 0;
+    if(old.coachingPlan){
+      const localIds = new Set((state.coachingPlan||[]).map(p=>p.id));
+      const extra = old.coachingPlan.filter(p=>!localIds.has(p.id) && !(state.deletedEntryIds||[]).includes(p.id));
+      state.coachingPlan = [...(state.coachingPlan||[]), ...extra];
+      restoredPlan = extra.length;
+    }
+
+    let restoredMonate = 0;
+    if(old.verlauf){
+      if(!state.verlauf) state.verlauf = {};
+      Object.keys(old.verlauf).forEach(key=>{
+        if(!state.verlauf[key]){
+          state.verlauf[key] = old.verlauf[key];
+          restoredMonate += Object.keys(old.verlauf[key].monate||{}).length;
+        } else if(old.verlauf[key].monate){
+          if(!state.verlauf[key].monate) state.verlauf[key].monate = {};
+          Object.keys(old.verlauf[key].monate).forEach(mk=>{
+            if(!state.verlauf[key].monate[mk]){
+              state.verlauf[key].monate[mk] = old.verlauf[key].monate[mk];
+              restoredMonate++;
+            }
+          });
+        }
+      });
+    }
+
+    if(old.fuehrungskraefte){
+      const curFk = state.fuehrungskraefte;
+      const curEmpty = !curFk || Object.values(curFk).every(v=>!v || (Array.isArray(v) ? v.every(x=>!x) : false));
+      if(curEmpty) state.fuehrungskraefte = old.fuehrungskraefte;
+    }
+
+    if(old.teamziele){
+      Object.keys(old.teamziele).forEach(k=>{
+        if(state.teamziele[k]) Object.assign(state.teamziele[k], old.teamziele[k]);
+      });
+    }
+
+    scheduleSave();
+    renderAll();
+    alert(`Wiederhergestellt: ${restoredAgents} Mitarbeiter-Kennzahlen, ${restoredCoachings} Coaching-Einträge, ${restoredPlan} geplante Coachings, ${restoredMonate} archivierte Monate.`);
+  } catch(e){
+    alert('Wiederherstellung fehlgeschlagen: ' + e.message);
+  }
+}
 
 async function loadFromExcel(){
   if(!graphToken) return;
@@ -5894,7 +6017,10 @@ function twRecomputeAgent(agent, cfg){
       if(v!==null && v!==undefined){ salesSum[p]+=v; salesHas[p]=true; }
     });
   });
-  cfg.products.forEach(p=>{ agent.sales[p] = salesHas[p] ? salesSum[p] : null; });
+  // Nur Produkte überschreiben, für die tatsächlich mindestens ein Tageswert eingetragen wurde -
+  // Produkte ohne jede Tageswerte-Eingabe bleiben unangetastet (z.B. weiterhin der Excel-Sync-Wert),
+  // statt auf leer gesetzt zu werden.
+  cfg.products.forEach(p=>{ if(salesHas[p]) agent.sales[p] = salesSum[p]; });
   // Calls, NPS und LQ werden bewusst NICHT hier berechnet - die trägst du direkt am Monatsstand manuell ein.
 }
 
@@ -6006,6 +6132,8 @@ function renderTageswerte(){
       if(!readOnly && rowIdx !== undefined && colIdx !== undefined){
         if(!cellGrid[rowIdx]) cellGrid[rowIdx] = [];
         cellGrid[rowIdx][colIdx] = { td, input: inp, setVal };
+        td.dataset.twRow = rowIdx;
+        td.dataset.twCol = colIdx;
         td.addEventListener('mousedown', e=>{
           e.preventDefault(); // verhindert Browser-Textauswahl über mehrere Felder, wir übernehmen das selbst
           if(twClearActiveSelection && twClearActiveSelection !== clearVisual) twClearActiveSelection();
@@ -6013,6 +6141,7 @@ function renderTageswerte(){
           selStart = {r:rowIdx, c:colIdx};
           selEnd = {r:rowIdx, c:colIdx};
           updateSelectionVisual();
+          twActiveTableExtend = (r,c)=>{ selEnd = {r,c}; updateSelectionVisual(); };
           inp.focus();
         });
         td.addEventListener('mouseenter', ()=>{
@@ -6041,14 +6170,23 @@ function renderTageswerte(){
         row.appendChild(mkTwInput(()=>agent.nps, v=>{ agent.nps=v; }, false, rowIdx, col++));
         row.appendChild(mkTwInput(()=>agent.lq, v=>{ agent.lq=v; }, false, rowIdx, col++));
       } else {
-        if(!agent.tageswerte) agent.tageswerte = {};
-        if(!agent.tageswerte[monthKey]) agent.tageswerte[monthKey] = {};
-        if(!agent.tageswerte[monthKey][twSelectedDay]) agent.tageswerte[monthKey][twSelectedDay] = { sales:{} };
-        const dv = agent.tageswerte[monthKey][twSelectedDay];
-        if(!dv.sales) dv.sales = {};
+        // Wichtig: den Tageseintrag NICHT beim bloßen Rendern/Anschauen anlegen, sondern erst,
+        // wenn wirklich ein Wert eingetragen wird - sonst erzeugt reines Durchklicken der
+        // Tagesreiter leere Einträge, die den Monatsstand-Autosummen später fälschlich auf 0 setzt.
+        const getDv = () => (agent.tageswerte && agent.tageswerte[monthKey] && agent.tageswerte[monthKey][twSelectedDay]) || null;
+        const ensureDv = () => {
+          if(!agent.tageswerte) agent.tageswerte = {};
+          if(!agent.tageswerte[monthKey]) agent.tageswerte[monthKey] = {};
+          if(!agent.tageswerte[monthKey][twSelectedDay]) agent.tageswerte[monthKey][twSelectedDay] = { sales:{} };
+          return agent.tageswerte[monthKey][twSelectedDay];
+        };
 
         orderedProducts.forEach((p, colIdx)=>{
-          row.appendChild(mkTwInput(()=>dv.sales[p], v=>{ dv.sales[p]=v; }, false, rowIdx, colIdx));
+          row.appendChild(mkTwInput(
+            ()=>{ const dv = getDv(); return dv && dv.sales ? dv.sales[p] : null; },
+            v=>{ const dv = ensureDv(); if(!dv.sales) dv.sales = {}; dv.sales[p] = v; },
+            false, rowIdx, colIdx
+          ));
         });
       }
 
@@ -6286,6 +6424,8 @@ async function fetchCurrentUser(){
       // Button daher nur zeigen, wenn wirklich Ioannis eingeloggt ist.
       const eb = document.getElementById('excel-sync-btn');
       if(eb) eb.style.display = (currentUserName === 'Ioannis Fasoulas') ? '' : 'none';
+      const rb = document.getElementById('restore-backup-btn');
+      if(rb) rb.style.display = (currentUserName === 'Ioannis Fasoulas') ? '' : 'none';
       // Falls vorher lokal (ohne Login) Einträge gesammelt wurden, einmalig übernehmen
       if(currentUserId){
         const local = JSON.parse(localStorage.getItem('personal_todos')||'[]');
