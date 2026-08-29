@@ -6247,9 +6247,10 @@ function renderOverview(){
       </div>`;
 
     const totalCols = 1 + 1 + 2 + cfg.products.length + 1 + 1;
-    const nameWidth = '130px';
-    const colWidth = '64px';
-    const gridCols = `${nameWidth} repeat(${totalCols - 1}, ${colWidth})`;
+    const nameWidth = '112px';
+    const colWidth = '52px';
+    const callsColWidth = '44px';
+    const gridCols = `${nameWidth} repeat(${2 + cfg.products.length + 1}, ${colWidth}) repeat(2, ${callsColWidth})`;
 
     function buildGrid(agentsSubset){
       const grid = document.createElement('div');
