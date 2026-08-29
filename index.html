@@ -2184,6 +2184,7 @@ function renderCoaching(){
     cardsWrap.className = 'cards';
 
     teamAgents.forEach(agent=>{
+      const evalRes = evaluateAgent(agent);
       const card = document.createElement('div');
       card.className = 'card';
 
@@ -2192,7 +2193,11 @@ function renderCoaching(){
       const topLeft = document.createElement('div');
       topLeft.className = 'card-top-left';
       const dot = document.createElement('div');
-      dot.className = 'status-dot ' + CATEGORY_CSS[agent.category || 'regular'];
+      // Farbe = Kategorie (Standard/6-Stündler/Helpline), Blink-Ring zusätzlich bei kritischem
+      // Status (2+ verfehlte Ziele im laufenden Monat) - beides gleichzeitig sichtbar, da die
+      // Puls-Animation nur den box-shadow-Ring animiert, nicht die Hintergrundfarbe.
+      dot.className = 'status-dot ' + CATEGORY_CSS[agent.category || 'regular'] + (evalRes.status === 'critical' ? ' critical' : '');
+      dot.title = evalRes.status === 'critical' ? `${evalRes.tags.length} Ziele im laufenden Monat verfehlt` : '';
       const nameInput = document.createElement('input');
       nameInput.className = 'name-input';
       nameInput.type = 'text';
