@@ -662,7 +662,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 .ov-data-row:hover{background:#F5F5F7;}
 .ov-cell{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;font-weight:500;color:#1D1D1F;padding:8px 4px;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;}
 .ov-cell.head{font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:600;color:#86868B;text-transform:none;letter-spacing:0;padding:11px 4px;flex-direction:column;gap:2px;}
-.ov-cell.name-cell{font-weight:600;font-size:14px;color:#1D1D1F;text-align:left;justify-content:flex-start;padding-left:20px;flex:0 1 auto;white-space:nowrap;position:relative;}
+.ov-cell.name-cell{font-weight:600;font-size:14px;color:#1D1D1F;text-align:left;justify-content:flex-start;padding-left:20px;flex:0 1 auto;white-space:normal;overflow-wrap:break-word;line-height:1.2;position:relative;}
 .ov-name-pill{display:inline-flex;align-items:center;padding:5px 9px;border-radius:10px;font-weight:600;font-size:12px;}
 .ov-cat-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:9px;flex-shrink:0;}
 .ov-cell.name-cell.head{justify-content:flex-start;padding-left:20px;}
@@ -6247,10 +6247,16 @@ function renderOverview(){
       </div>`;
 
     const totalCols = 1 + 1 + 2 + cfg.products.length + 1 + 1;
-    // Flexible (fr-basierte) Spaltenbreiten statt fester Pixelwerte, damit sich die Tabelle immer
-    // an die tatsächlich verfügbare Seitenbreite anpasst, statt bei viel Platz unnötig schmal und
-    // bei wenig Platz abgeschnitten zu sein.
-    const gridCols = `1.9fr repeat(${2 + cfg.products.length + 1}, 1fr) 0.95fr 0.8fr`;
+    // Namensspalte: exakt so breit wie der längste Name in diesem Team (statt fest/prozentual),
+    // damit alle übrigen Spalten bei jedem Mitarbeiter an derselben Stelle beginnen. Die restlichen
+    // Spalten bleiben flexibel (fr) und teilen sich den verbleibenden Platz.
+    const nameFont = "600 12px 'Inter', -apple-system, sans-serif";
+    const measureCanvas = document.createElement('canvas');
+    const measureCtx = measureCanvas.getContext('2d');
+    measureCtx.font = nameFont;
+    const longestNameWidth = teamAgents.reduce((max,a)=>Math.max(max, measureCtx.measureText(a.name||'').width), 30);
+    const nameColWidth = Math.ceil(longestNameWidth + 20 /* Zell-Padding links */ + 18 /* Pill-Padding */ + 4 /* Zell-Padding rechts */ + 6 /* Puffer */) + 'px';
+    const gridCols = `${nameColWidth} repeat(${2 + cfg.products.length + 1}, 1fr) 0.95fr 0.8fr`;
 
     function buildGrid(agentsSubset){
       const grid = document.createElement('div');
