@@ -643,7 +643,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 .ov-banner .text strong{font-weight:800;}
 .ov-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;margin:0 0 4px;color:var(--text);}
 .ov-sub{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);margin:0 0 20px;}
-.ov-team{margin-bottom:24px;border-radius:20px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);}
+.ov-team{margin-bottom:24px;border-radius:20px;overflow-x:auto;overflow-y:hidden;box-shadow:0 2px 16px rgba(0,0,0,0.08);}
 .ov-team-head{background:#1D1D1F;color:#fff;padding:18px 22px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
 .ov-team-head .name{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:600;font-size:17px;letter-spacing:-.015em;}
 .ov-team-head .targets{font-family:'Inter',-apple-system,sans-serif;font-size:12px;font-weight:500;color:rgba(255,255,255,.6);}
@@ -651,10 +651,10 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 .ov-column-divider{width:10px;flex-shrink:0;background:#F0F0F2;}
 .ov-grid{width:100%;background:#fff;font-size:0;}
 .ov-header-row,.ov-data-row{display:grid;align-items:stretch;}
-.cht-group-start{border-left:1.5px solid var(--tmg);}
-.cht-group-end{border-right:1.5px solid var(--tmg);}
-.cht-group-first{border-top:1.5px solid var(--tmg);}
-.cht-group-last{border-bottom:1.5px solid var(--tmg);}
+.cht-group-start{border-left:3px solid var(--tmg);}
+.cht-group-end{border-right:3px solid var(--tmg);}
+.cht-group-first{border-top:3px solid var(--tmg);}
+.cht-group-last{border-bottom:3px solid var(--tmg);}
 .ov-header-row{border-bottom:1px solid #E5E5EA;background:#FAFAFA;}
 .ov-data-row{border-bottom:1px solid #F0F0F2;}
 .ov-data-row:last-child{border-bottom:none;}
@@ -6255,8 +6255,8 @@ function renderOverview(){
       const grid = document.createElement('div');
       grid.className = 'ov-grid';
       grid.style.setProperty('--ov-cols', gridCols);
-      grid.style.flex = '1';
-      grid.style.minWidth = '0';
+      grid.style.flex = '0 0 auto';
+      grid.style.width = 'auto';
 
       const headerRow = document.createElement('div');
       headerRow.className = 'ov-header-row';
