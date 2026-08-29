@@ -6059,7 +6059,7 @@ function renderTageswerte(){
   if(isTotal){
     const hint = document.createElement('div');
     hint.className = 'tw-hint';
-    hint.textContent = 'Die Produkt-Spalten werden automatisch aus allen Tages-Seiten dieses Monats summiert (nicht bearbeitbar). Calls, NPS und LQ trägst du hier direkt manuell ein.';
+    hint.textContent = 'Die Produkt-Spalten werden automatisch aus allen Tages-Seiten dieses Monats summiert (nicht bearbeitbar). Calls, CHT, NPS und LQ trägst du hier direkt manuell ein.';
     container.appendChild(hint);
   }
 
@@ -6084,7 +6084,7 @@ function renderTageswerte(){
     thead.className = 'tw-head-row';
     const orderedProducts = displayOrderProducts(cfg.products);
     const headers = isTotal
-      ? ['Mitarbeiter', 'Calls', ...orderedProducts, 'NPS %', 'LQ %']
+      ? ['Mitarbeiter', 'Calls', 'CHT', ...orderedProducts, 'NPS %', 'LQ %']
       : ['Mitarbeiter', ...orderedProducts];
     headers.forEach(h=>{
       const th = document.createElement('th');
@@ -6167,9 +6167,10 @@ function renderTageswerte(){
       row.appendChild(nameTd);
 
       if(isTotal){
-        // Calls, NPS, LQ: manuell editierbar. Produkte: automatisch aus den Tages-Seiten summiert (nicht editierbar).
+        // Calls, CHT, NPS, LQ: manuell editierbar. Produkte: automatisch aus den Tages-Seiten summiert (nicht editierbar).
         let col = 0;
         row.appendChild(mkTwInput(()=>agent.calls, v=>{ agent.calls=v; }, false, rowIdx, col++));
+        row.appendChild(mkTwInput(()=>agent.cht, v=>{ agent.cht=v; }, false, rowIdx, col++));
         orderedProducts.forEach(p=> row.appendChild(mkTwInput(()=>agent.sales[p], ()=>{}, true)));
         row.appendChild(mkTwInput(()=>agent.nps, v=>{ agent.nps=v; }, false, rowIdx, col++));
         row.appendChild(mkTwInput(()=>agent.lq, v=>{ agent.lq=v; }, false, rowIdx, col++));
