@@ -651,6 +651,10 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 .ov-column-divider{width:10px;flex-shrink:0;background:#F0F0F2;}
 .ov-grid{width:100%;background:#fff;font-size:0;}
 .ov-header-row,.ov-data-row{display:grid;align-items:stretch;}
+.cht-group-start{border-left:1.5px solid var(--tmg);}
+.cht-group-end{border-right:1.5px solid var(--tmg);}
+.cht-group-first{border-top:1.5px solid var(--tmg);}
+.cht-group-last{border-bottom:1.5px solid var(--tmg);}
 .ov-header-row{border-bottom:1px solid #E5E5EA;background:#FAFAFA;}
 .ov-data-row{border-bottom:1px solid #F0F0F2;}
 .ov-data-row:last-child{border-bottom:none;}
@@ -6241,7 +6245,7 @@ function renderOverview(){
         <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--helpline);">Helpline: ${legendLine('helpline')}</div>
       </div>`;
 
-    const totalCols = 1 + 1 + 2 + cfg.products.length + 1;
+    const totalCols = 1 + 1 + 2 + cfg.products.length + 1 + 1;
     const nameWidth = '130px';
     const colWidth = '64px';
     const gridCols = `${nameWidth} repeat(${totalCols - 1}, ${colWidth})`;
@@ -6262,10 +6266,12 @@ function renderOverview(){
         `<div class="ov-cell qual-cell head">LQ<span style="font-size:9px;font-weight:400;">Ziel ${cfg.lqTarget}%</span></div>` +
         displayOrderProducts(cfg.products).map(p=>`<div class="ov-cell sales-cell head">${p}</div>`).join('') +
         `<div class="ov-cell cr-cell head">CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>` +
-        `<div class="ov-cell qual-cell head">Calls</div>`;
+        `<div class="ov-cell qual-cell head cht-group-start cht-group-first">Calls</div>` +
+        `<div class="ov-cell qual-cell head cht-group-end cht-group-first">CHT</div>`;
       grid.appendChild(headerRow);
 
-      agentsSubset.forEach(agent=>{
+      agentsSubset.forEach((agent, agentIdx)=>{
+        const isLastRow = agentIdx === agentsSubset.length - 1;
         const row = document.createElement('div');
         row.className = 'ov-data-row';
         row.style.gridTemplateColumns = gridCols;
@@ -6295,7 +6301,8 @@ function renderOverview(){
           html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass ${status}" style="font-size:14px;">${isNull ? '–' : Math.round(val)}</span></div>`;
         });
         html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(1)}%</span></div>`;
-        html += `<div class="ov-cell qual-cell"><span class="ov-badge ${agent.calls===null||agent.calls===undefined?'':'good'}">${(agent.calls===null||agent.calls===undefined) ? '–' : Math.round(agent.calls)}</span></div>`;
+        html += `<div class="ov-cell qual-cell cht-group-start${isLastRow?' cht-group-last':''}"><span class="ov-badge ${agent.calls===null||agent.calls===undefined?'':'good'}">${(agent.calls===null||agent.calls===undefined) ? '–' : Math.round(agent.calls)}</span></div>`;
+        html += `<div class="ov-cell qual-cell cht-group-end${isLastRow?' cht-group-last':''}"><span class="ov-badge ${agent.cht===null||agent.cht===undefined?'':'good'}">${(agent.cht===null||agent.cht===undefined) ? '–' : Math.round(agent.cht)}</span></div>`;
         row.innerHTML = html;
         grid.appendChild(row);
       });
