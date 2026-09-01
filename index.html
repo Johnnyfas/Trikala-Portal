@@ -1637,8 +1637,12 @@ async function loadFromSharePoint(){
         // Erfolgreich geladenen Stand lokal zwischenspeichern (Fallback, falls ein künftiges Laden
         // wegen abgelaufenem Microsoft-Zugang fehlschlägt - siehe Fehlerzweig weiter unten).
         try{ localStorage.setItem('board_cache', JSON.stringify(state)); localStorage.setItem('board_cache_time', new Date().toISOString()); }catch(e){}
-        // Sofort speichern
-        saveToSharePoint();
+        // Kein automatisches Rückspeichern mehr direkt nach dem Laden: das war früher nötig, um
+        // Korrekturen an der Code-Vorlage sofort festzuschreiben - diese Vorlagen-Logik gibt es
+        // nicht mehr. Ein automatisches Speichern bei jedem Laden (auch beim Hintergrund-Sync alle
+        // 2 Minuten) hätte sonst das Risiko, frische Eingaben mit einem zwischenzeitlich leicht
+        // abweichenden Stand zu überschreiben. Speichern passiert jetzt ausschließlich, wenn
+        // tatsächlich etwas bearbeitet wird (scheduleSave()).
         renderAll();
         setSyncStatus('ok');
         return;
