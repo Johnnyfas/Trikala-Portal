@@ -5485,6 +5485,30 @@ function renderMonatsabschluss(){
     const md = data[monat];
     if(!md){ container.appendChild(section); return; }
 
+    // Reset-Button: setzt alle Werte des gerade angezeigten Monats/Teams auf 0 zurück
+    const resetBtn = document.createElement('button');
+    resetBtn.textContent = `🗑️ ${monat} zurücksetzen (auf 0)`;
+    resetBtn.style.cssText = 'margin:0 0 12px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--red);font-family:\'Inter\',sans-serif;font-weight:600;font-size:12px;cursor:pointer;';
+    resetBtn.addEventListener('click', ()=>{
+      if(!confirm(`"${monat}" bei ${label} wirklich komplett auf 0 zurücksetzen? Das betrifft Planmenge, Ziel, Erreicht, CR%, Storno, CR Ziel, NPS Ziel/Erreicht - für alle Produkte.`)) return;
+      const zeroObj = {};
+      Object.keys(md.plan||{}).forEach(p=>{ zeroObj[p] = 0; });
+      md.plan = {...zeroObj};
+      md.ziel = {...zeroObj};
+      md.erreicht = {...zeroObj};
+      md.cr = {...zeroObj};
+      md.storno = {...zeroObj};
+      md.crZiel = {};
+      md.crZielText = {};
+      md.nps_plan = 0;
+      md.nps_ist = 0;
+      md.crGesamtZiel = 0;
+      md.crGesamtErreicht = 0;
+      scheduleSave();
+      renderMonatsabschluss();
+    });
+    section.appendChild(resetBtn);
+
     // Feste Reihenfolge: BB, SU, BOJ, VVM, TV, MF (NA und andere ausgeschlossen)
     const PROD_ORDER = ['BB','NG (BB)','SU','BOJ','VVM','TV','MF NG','MF'];
     const EXCLUDE = ['NA'];
