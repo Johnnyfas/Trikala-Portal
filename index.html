@@ -1619,21 +1619,22 @@ async function loadFromSharePoint(){
           // alleinige Wahrheit; nur komplett fehlende Monate (die es lokal, aber noch nie auf dem
           // Server gab) werden ergänzt - keine Feld-für-Feld-Sonderfälle mehr.
           const merged = data.monatsabschluss;
-          Object.keys(state.monatsabschluss||{}).forEach(team=>{
-            if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
-            Object.keys(state.monatsabschluss[team]).forEach(monat=>{
-              if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
+          if(!monatsabschlussInitialGeladen){
+            // Nur beim allerersten Laden dieser Sitzung: Server-Stand vollständig übernehmen
+            // (füllt fehlende Monate auf).
+            Object.keys(state.monatsabschluss||{}).forEach(team=>{
+              if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
+              Object.keys(state.monatsabschluss[team]).forEach(monat=>{
+                if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
+              });
             });
-          });
-          // Falls währenddessen (während dieser Ladevorgang noch unterwegs war) bereits ein
-          // frischerer Speichervorgang durchgelaufen ist, ist dieses Ladeergebnis potenziell
-          // veraltet (wurde ja VOR dem frischeren Speichern angefragt) - dann NICHT übernehmen,
-          // um nicht einen gerade erst gespeicherten Wert wieder zurückzusetzen.
-          if(saveEpoch === epochAtStart){
             state.monatsabschluss = merged;
-          } else {
-            console.log('DEBUG: Ladeergebnis für Monatsabschluss verworfen (währenddessen frischer gespeichert).');
+            monatsabschlussInitialGeladen = true;
           }
+          // Ab dem zweiten Laden dieser Sitzung: Monatsabschluss NICHT mehr aus einem Ladevorgang
+          // übernehmen - der lokale Stand ist ab jetzt maßgeblich, nur echte Eingaben ändern ihn
+          // noch. Verhindert endgültig, dass irgendein zeitlich überschneidender Vorgang einen
+          // gerade gespeicherten Wert wieder zurücksetzt.
           console.log('DEBUG beim Laden (vom Server) - fn/August/plan/NG (BB):', data.monatsabschluss?.fn?.August?.plan?.['NG (BB)'], '| nps_plan:', data.monatsabschluss?.fn?.August?.nps_plan);
         }
         // Einmalige automatische Bereinigung: September-Dezember enthielten noch alte
@@ -1670,9 +1671,8 @@ async function loadFromSharePoint(){
             ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
           });
         });
-        // Erfolgreich geladenen Stand lokal zwischenspeichern (Fallback, falls ein künftiges Laden
-        // wegen abgelaufenem Microsoft-Zugang fehlschlägt - siehe Fehlerzweig weiter unten).
-        try{ localStorage.setItem('board_cache', JSON.stringify(state)); localStorage.setItem('board_cache_time', new Date().toISOString()); }catch(e){}
+        // (Zwischenspeichern für den 401/403-Fehlerfall wurde entfernt - siehe Fehlerzweig weiter
+        // unten: das Zurückholen eines evtl. veralteten Zwischenstands war riskanter als hilfreich.)
         // Kein automatisches Rückspeichern mehr direkt nach dem Laden: das war früher nötig, um
         // Korrekturen an der Code-Vorlage sofort festzuschreiben - diese Vorlagen-Logik gibt es
         // nicht mehr. Ein automatisches Speichern bei jedem Laden (auch beim Hintergrund-Sync alle
@@ -1699,21 +1699,13 @@ async function loadFromSharePoint(){
     let errDetail = '';
     try{ const errBody = await resp.json(); const em = errBody.error && (errBody.error.message || errBody.error.code); const ec = errBody.error && errBody.error.code; errDetail = em ? ` — ${ec ? ec+': ' : ''}${em}` : ''; }catch(e){}
     if(resp.status === 401 || resp.status === 403){
-      let restored = false;
-      try{
-        const cached = localStorage.getItem('board_cache');
-        if(cached){
-          const cachedState = JSON.parse(cached);
-          if(cachedState && cachedState.agents && cachedState.agents.length){
-            Object.assign(state, cachedState);
-            renderAll();
-            restored = true;
-          }
-        }
-      }catch(e){}
-      const cacheTime = localStorage.getItem('board_cache_time');
-      const cacheInfo = restored ? ` Zeige den zuletzt geladenen Stand${cacheTime ? ' vom ' + new Date(cacheTime).toLocaleString('de-DE') : ''}.` : '';
-      showSyncDebug(`❌ Zugang abgelaufen (HTTP ${resp.status}). Der hinterlegte Microsoft-Zugang von Ioannis ist nicht mehr gültig - bitte Ioannis bitten, im Portal auf "🔒 Einloggen" zu klicken. Danach diese Seite neu laden.${cacheInfo}`, true);
+      // Früher wurde hier automatisch der letzte im Browser zwischengespeicherte Stand
+      // zurückgeholt und ALLES überschrieben (Object.assign(state, cachedState)) - das barg
+      // aber ein ernstes Risiko: dieser zwischengespeicherte Stand kann veraltet sein und hat
+      // wiederholt frisch gespeicherte Werte (z.B. Planmenge) still und heimlich wieder
+      // zurückgesetzt. Jetzt lieber eine ehrliche Fehlermeldung statt einer stillen, riskanten
+      // Überschreibung mit womöglich alten Daten.
+      showSyncDebug(`❌ Zugang abgelaufen (HTTP ${resp.status}). Der hinterlegte Microsoft-Zugang von Ioannis ist nicht mehr gültig - bitte Ioannis bitten, im Portal auf "🔒 Einloggen" zu klicken. Danach diese Seite neu laden.`, true);
     } else {
       showSyncDebug(`❌ Fehler beim Laden: HTTP ${resp.status} ${resp.statusText}${errDetail}. Nichts wurde überschrieben - bitte im Team melden.`, true);
     }
@@ -1997,6 +1989,12 @@ let saveQueued = false;
 // ob währenddessen ein frischerer Speichervorgang durchgekommen ist - falls ja, verwirft er sein
 // eigenes (dann veraltetes) Ergebnis für die Monatsabschluss-Daten, statt es zu übernehmen.
 let saveEpoch = 0;
+// Monatsabschluss wird pro Browser-Sitzung nur EIN einziges Mal vom Server übernommen (siehe
+// loadFromSharePoint). Danach gilt der lokale Stand als maßgeblich, egal was ein späterer
+// Ladevorgang (Hintergrund-Sync, Excel-Sync-Speichern, o.ä.) liefert - nur echte Eingaben von
+// dir können ihn noch ändern. Das schließt jede denkbare zeitliche Überschneidung endgültig aus,
+// unabhängig von der genauen Ursache.
+let monatsabschlussInitialGeladen = false;
 async function runSave(){
   if(saveInProgress){ saveQueued = true; return; }
   saveInProgress = true;
