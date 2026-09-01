@@ -1374,8 +1374,16 @@ async function loadFromSharePoint(){
             if(seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
             if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
             if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
-            // Plan immer aus Seed
-            if(seed.plan) md.plan = JSON.parse(JSON.stringify(seed.plan));
+            // Plan: Seed füllt nur Lücken (Produkte ohne bisherigen Wert), überschreibt aber nie
+            // einen bereits vorhandenen (auch frisch eingetragenen) Wert - vorher wurde hier bei
+            // JEDEM Laden bedingungslos auf die Code-Vorlagenwerte zurückgesetzt und sofort
+            // wieder gespeichert, wodurch Eingaben in "Planenmenge" nie dauerhaft blieben.
+            if(seed.plan){
+              md.plan = md.plan || {};
+              Object.keys(seed.plan).forEach(p=>{
+                if(!md.plan[p] && seed.plan[p] > 0) md.plan[p] = seed.plan[p];
+              });
+            }
             // BOJ
             ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
           });
@@ -1674,8 +1682,16 @@ async function loadFromSharePoint(){
             if(seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
             if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
             if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
-            // Plan immer aus Seed
-            if(seed.plan) md.plan = JSON.parse(JSON.stringify(seed.plan));
+            // Plan: Seed füllt nur Lücken (Produkte ohne bisherigen Wert), überschreibt aber nie
+            // einen bereits vorhandenen (auch frisch eingetragenen) Wert - vorher wurde hier bei
+            // JEDEM Laden bedingungslos auf die Code-Vorlagenwerte zurückgesetzt und sofort
+            // wieder gespeichert, wodurch Eingaben in "Planenmenge" nie dauerhaft blieben.
+            if(seed.plan){
+              md.plan = md.plan || {};
+              Object.keys(seed.plan).forEach(p=>{
+                if(!md.plan[p] && seed.plan[p] > 0) md.plan[p] = seed.plan[p];
+              });
+            }
             // BOJ
             ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
           });
