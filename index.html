@@ -746,12 +746,6 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   <div class="topbar">
     <span id="sync-status" class="sync-badge sync-idle">Nicht verbunden</span>
     <span id="user-label" class="user-label"></span>
-    <button class="login-btn" id="login-btn" onclick="signIn()">Mit Microsoft anmelden</button>
-    <span id="logged-in-name" style="display:none;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);align-self:center;padding:0 6px;"></span>
-    <button class="logout-btn" id="logout-btn" style="display:none;" onclick="signOut()">Abmelden</button>
-    <button class="login-btn" id="excel-sync-btn" style="display:none;background:var(--teal);" onclick="loadFromExcel()">↻ Excel aktualisieren</button>
-    <button class="login-btn" id="setup-token-btn" style="display:none;background:var(--red);" onclick="signInAdmin()">🔒 Einloggen</button>
-    <span id="excel-sync-label" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);"></span>
   </div>
   <div class="tabs-sticky-wrap">
     <div class="tabs">
@@ -1935,8 +1929,8 @@ async function loadFromExcel(){
   }
 }
 
-// Auto-refresh alle 5 Minuten
-setInterval(() => { if(graphToken) loadFromExcel(); }, 5 * 60 * 1000);
+// Excel-Sync wird nicht mehr benötigt (Trikala Portal nutzt Tageswerte statt der Excel-Datei) -
+// automatischer 5-Minuten-Hintergrundlauf entfernt.
 // Gemeinsame Board-Daten (Mitarbeiter, Coachings, Ziele, ...) alle 2 Minuten im Hintergrund neu laden,
 // damit Änderungen anderer Führungskräfte automatisch sichtbar werden, ohne dass man neu laden muss.
 // Wird übersprungen, während gerade ein Coaching-Formular offen ist, um laufende Eingaben nicht zu verlieren.
@@ -1961,8 +1955,9 @@ async function loadState(){
   // Standard-Tab: Coaching Dashboard
   switchTab('coachdash');
   initCoachDashSubTabs();
-  // Microsoft Login - SharePoint Daten werden nach Login automatisch geladen
-  initMsal();
+  // Board-Daten laden - unabhängig von Microsoft (das wird nicht mehr gebraucht, seit die
+  // Board-Daten in Cloudflare D1 liegen und die Excel-Anbindung nicht mehr genutzt wird).
+  if(getKIAppToken()) loadFromSharePoint();
 }
 
 function scheduleSave(){
