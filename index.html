@@ -1614,25 +1614,30 @@ async function loadFromSharePoint(){
             if(state.monatsabschluss[team]){
               Object.keys(data.monatsabschluss[team]).forEach(monat=>{
                 const saved = data.monatsabschluss[team][monat];
-                // Gespeicherte Daten komplett übernehmen
-                // Fehlende Felder aus Seed ergänzen
                 if(!state.monatsabschluss[team][monat]){
                   state.monatsabschluss[team][monat] = saved;
                 } else {
                   const md = state.monatsabschluss[team][monat];
-                  // Plan IMMER aus Seed behalten (hat echte Werte)
+                  // Nicht-destruktiv zusammenführen: Server-Werte füllen nur Lücken (lokal 0/leer),
+                  // überschreiben aber NIE einen bereits vorhandenen lokalen Wert - sonst würde ein
+                  // Refresh kurz nach einer Eingabe (z.B. durch die KV-Verzögerung) die frische
+                  // Eingabe wieder rückgängig machen.
                   const seedPlan = JSON.parse(JSON.stringify(md.plan));
-                  // Editierbare Felder aus SharePoint übernehmen
                   ['erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
-                    if(saved[f]) { md[f] = md[f]||{}; Object.assign(md[f], saved[f]); }
+                    if(saved[f]){
+                      md[f] = md[f]||{};
+                      Object.keys(saved[f]).forEach(p=>{
+                        if(!md[f][p] && saved[f][p]) md[f][p] = saved[f][p];
+                      });
+                    }
                   });
-                  if(saved.nps_ist !== undefined) md.nps_ist = saved.nps_ist;
-                  if(saved.nps_plan > 0) md.nps_plan = saved.nps_plan;
-                  if(saved.crGesamtZiel !== undefined) md.crGesamtZiel = saved.crGesamtZiel;
-                  if(saved.crGesamtErreicht !== undefined) md.crGesamtErreicht = saved.crGesamtErreicht;
+                  if(!md.nps_ist && saved.nps_ist) md.nps_ist = saved.nps_ist;
+                  if(!md.nps_plan && saved.nps_plan > 0) md.nps_plan = saved.nps_plan;
+                  if(!md.crGesamtZiel && saved.crGesamtZiel) md.crGesamtZiel = saved.crGesamtZiel;
+                  if(!md.crGesamtErreicht && saved.crGesamtErreicht) md.crGesamtErreicht = saved.crGesamtErreicht;
                   // Plan aus Seed wiederherstellen (nie überschreiben)
                   md.plan = seedPlan;
-                  if(saved.plan) Object.keys(saved.plan).forEach(p=>{ if(saved.plan[p]>0) md.plan[p]=saved.plan[p]; });
+                  if(saved.plan) Object.keys(saved.plan).forEach(p=>{ if(!md.plan[p] && saved.plan[p]>0) md.plan[p]=saved.plan[p]; });
                   // BOJ sicherstellen
                   ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
                 }
