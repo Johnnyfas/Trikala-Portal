@@ -6458,7 +6458,7 @@ function renderOverview(){
           const i = cfg.products.indexOf(p);
           const val = agent.sales[p];
           const isNull = (val === null || val === undefined);
-          const status = isNull ? '' : trafficStatus(val, myTargets[i]);
+          const status = isNull ? 'zero' : trafficStatus(val, myTargets[i]);
           html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass ${status}" style="font-size:14px;">${isNull ? '0' : Math.round(val)}</span></div>`;
         });
         html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(1)}%</span></div>`;
