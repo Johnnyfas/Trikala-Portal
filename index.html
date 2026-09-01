@@ -1935,7 +1935,7 @@ async function loadFromExcel(){
 // damit Änderungen anderer Führungskräfte automatisch sichtbar werden, ohne dass man neu laden muss.
 // Wird übersprungen, während gerade ein Coaching-Formular offen ist, um laufende Eingaben nicht zu verlieren.
 setInterval(() => {
-  if(getKIAppToken() && !cpShowForm && !saveInProgress && !pendingSave) loadFromSharePoint();
+  if(getKIAppToken() && !cpShowForm && !maInputFocused && !saveInProgress && !pendingSave) loadFromSharePoint();
 }, 2 * 60 * 1000);
 
 // DEBUG (temporär): alle 10s den aktuellen Wert im Speicher protokollieren, um genau zu sehen,
@@ -1997,11 +1997,18 @@ let monatsabschlussInitialGeladen = false;
 // (aus welchem Grund auch immer), wird er automatisch zurückgesetzt und neu gespeichert. Das
 // löst die Ursache nicht, verhindert aber zuverlässig, dass eine Eingabe sichtbar verloren geht.
 const maWatchdog = {}; // Schlüssel "team|monat|feld|produkt" -> zuletzt eingetragener Wert
+// Verhindert, dass Monatsabschluss während einer laufenden Eingabe (Feld hat gerade Fokus) neu
+// aufgebaut wird - genau das konnte eine noch unfertige Eingabe als "fertig" abschneiden und
+// sofort (mit falschem Zwischenwert) speichern.
+let maInputFocused = false;
+document.addEventListener('focusin', e=>{ if(e.target && e.target.classList && e.target.classList.contains('ma-input')) maInputFocused = true; });
+document.addEventListener('focusout', e=>{ if(e.target && e.target.classList && e.target.classList.contains('ma-input')) maInputFocused = false; });
 function maWatch(team, monat, feld, produkt, wert){
   const key = [team, monat, feld, produkt].join('|');
   maWatchdog[key] = wert;
 }
 setInterval(()=>{
+  if(maInputFocused) return; // gerade wird getippt - nichts anfassen
   let fixed = false;
   Object.keys(maWatchdog).forEach(key=>{
     const [team, monat, feld, produkt] = key.split('|');
