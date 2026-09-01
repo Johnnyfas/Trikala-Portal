@@ -1481,6 +1481,7 @@ function showSyncDebug(message, isError){
 
 async function loadFromSharePoint(){
   setSyncStatus('syncing');
+  const epochAtStart = saveEpoch;
   try {
     let appToken = getKIAppToken();
     if(!appToken){
@@ -1624,7 +1625,15 @@ async function loadFromSharePoint(){
               if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
             });
           });
-          state.monatsabschluss = merged;
+          // Falls währenddessen (während dieser Ladevorgang noch unterwegs war) bereits ein
+          // frischerer Speichervorgang durchgelaufen ist, ist dieses Ladeergebnis potenziell
+          // veraltet (wurde ja VOR dem frischeren Speichern angefragt) - dann NICHT übernehmen,
+          // um nicht einen gerade erst gespeicherten Wert wieder zurückzusetzen.
+          if(saveEpoch === epochAtStart){
+            state.monatsabschluss = merged;
+          } else {
+            console.log('DEBUG: Ladeergebnis für Monatsabschluss verworfen (währenddessen frischer gespeichert).');
+          }
           console.log('DEBUG beim Laden (vom Server) - fn/August/plan/NG (BB):', data.monatsabschluss?.fn?.August?.plan?.['NG (BB)'], '| nps_plan:', data.monatsabschluss?.fn?.August?.nps_plan);
         }
         // Einmalige automatische Bereinigung: September-Dezember enthielten noch alte
@@ -1793,6 +1802,7 @@ async function saveToSharePoint(){
     });
     if(resp && resp.ok){
       setSyncStatus('ok');
+      saveEpoch++;
       console.log('Gespeichert:', new Date().toLocaleTimeString());
       console.log('DEBUG beim Speichern - fn/August/plan/NG (BB):', state.monatsabschluss?.fn?.August?.plan?.['NG (BB)'], '| nps_plan:', state.monatsabschluss?.fn?.August?.nps_plan);
     } else {
@@ -1939,7 +1949,7 @@ setInterval(() => { if(graphToken) loadFromExcel(); }, 5 * 60 * 1000);
 // damit Änderungen anderer Führungskräfte automatisch sichtbar werden, ohne dass man neu laden muss.
 // Wird übersprungen, während gerade ein Coaching-Formular offen ist, um laufende Eingaben nicht zu verlieren.
 setInterval(() => {
-  if(getKIAppToken() && !cpShowForm) loadFromSharePoint();
+  if(getKIAppToken() && !cpShowForm && !saveInProgress && !pendingSave) loadFromSharePoint();
 }, 2 * 60 * 1000);
 
 // DEBUG (temporär): alle 10s den aktuellen Wert im Speicher protokollieren, um genau zu sehen,
@@ -1983,6 +1993,10 @@ let pendingSave = false;
 // nachgeholt, sobald der aktuelle fertig ist (nicht öfter, um kein Aufschaukeln zu riskieren).
 let saveInProgress = false;
 let saveQueued = false;
+// Zählt jeden erfolgreichen Speichervorgang hoch. Damit erkennt ein noch laufender Ladevorgang,
+// ob währenddessen ein frischerer Speichervorgang durchgekommen ist - falls ja, verwirft er sein
+// eigenes (dann veraltetes) Ergebnis für die Monatsabschluss-Daten, statt es zu übernehmen.
+let saveEpoch = 0;
 async function runSave(){
   if(saveInProgress){ saveQueued = true; return; }
   saveInProgress = true;
