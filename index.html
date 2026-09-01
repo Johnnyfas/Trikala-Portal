@@ -5237,6 +5237,27 @@ function setMaSelectedMonth(teamKey, monat){
   try{ localStorage.setItem('ma_selected_month', JSON.stringify(maSelectedMonth)); }catch(e){}
 }
 
+// Gibt die Hintergrundfarbe für einen CR%-Wert zurück, passend zu den CR-Stufen aus "Team Ziele"
+// (crZiel1/crZiel2/crZiel3 in state.teamziele). Global nutzbar (auch in Monatsabschluss), damit
+// dieselben Farben verwendet werden wie in Team Ziele.
+function crStuffeProd(p, val, tz){
+  const v = parseFloat(val)||0;
+  const s1 = parseFloat((tz.crZiel1 && tz.crZiel1[p])||0);
+  const s2 = parseFloat((tz.crZiel2 && tz.crZiel2[p])||0);
+  // Stufe 3 nur für das MF-Produkt
+  const s3 = (p === 'MF' && tz.crZiel3) ? parseFloat(tz.crZiel3[p]||0) : null;
+  if(s3 !== null && v >= s3) return 'background:#1B5E20;color:#fff;border-radius:6px;';
+  if(v >= s2) return 'background:#4CAF50;color:#fff;border-radius:6px;';
+  if(v >= s1) return 'background:#81C784;color:#1B5E20;border-radius:6px;';
+  return 'background:#CE93D8;color:#4A148C;border-radius:6px;';
+}
+// Produkt-Namen in Monatsabschluss sind teils anders benannt als in Team Ziele - Zuordnung, damit
+// beide dieselben CR-Stufen-Werte finden.
+const MA_TO_TZ_PRODUCT = {
+  mf: { 'MF NG': 'MF', 'MF': 'MF', 'BB': 'BB', 'SU': 'SU', 'TV': 'TV', 'BOJ': 'BOJ', 'VVM': 'BOJ' },
+  fn: { 'NG (BB)': 'BB', 'BB': 'BB', 'SU': 'SU', 'TV': 'TV', 'MF': 'MF', 'BOJ': 'BOJ', 'VVM': 'VVM' }
+};
+
 function renderMonatsabschluss(){
   const container = document.getElementById('monatsabschluss-container');
   container.innerHTML = '';
@@ -5586,7 +5607,10 @@ function renderMonatsabschluss(){
       produkte.forEach(p => {
         const td = document.createElement('td');
         const val = md[dataKey][p] || 0;
-        if(compareKey){
+        if(dataKey === 'cr' && state.teamziele[teamKey]){
+          const tzProduct = MA_TO_TZ_PRODUCT[teamKey] && MA_TO_TZ_PRODUCT[teamKey][p];
+          if(tzProduct) td.style.cssText = crStuffeProd(tzProduct, val, state.teamziele[teamKey]);
+        } else if(compareKey){
           const cmp = md[compareKey][p] || 0;
           if(val >= cmp && val > 0) td.style.cssText = 'background:#E6F7F4;';
         }
