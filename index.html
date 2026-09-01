@@ -1629,7 +1629,6 @@ async function loadFromSharePoint(){
           // übernehmen - der lokale Stand ist ab jetzt maßgeblich, nur echte Eingaben ändern ihn
           // noch. Verhindert endgültig, dass irgendein zeitlich überschneidender Vorgang einen
           // gerade gespeicherten Wert wieder zurücksetzt.
-          console.log('DEBUG beim Laden (vom Server) - fn/August/plan/NG (BB):', data.monatsabschluss?.fn?.August?.plan?.['NG (BB)'], '| nps_plan:', data.monatsabschluss?.fn?.August?.nps_plan);
         }
         // Einmalige automatische Bereinigung: September-Dezember enthielten noch alte
         // Platzhalter-/Testzahlen aus einer früheren Ersteinrichtung. Wird nur einmal ausgeführt
@@ -1790,7 +1789,6 @@ async function saveToSharePoint(){
       setSyncStatus('ok');
       saveEpoch++;
       console.log('Gespeichert:', new Date().toLocaleTimeString());
-      console.log('DEBUG beim Speichern - fn/August/plan/NG (BB):', state.monatsabschluss?.fn?.August?.plan?.['NG (BB)'], '| nps_plan:', state.monatsabschluss?.fn?.August?.nps_plan);
     } else {
       console.error('Speichern fehlgeschlagen:', resp?.status);
       setSyncStatus('error');
@@ -1937,13 +1935,6 @@ async function loadFromExcel(){
 setInterval(() => {
   if(getKIAppToken() && !cpShowForm && !maInputFocused && !saveInProgress && !pendingSave) loadFromSharePoint();
 }, 2 * 60 * 1000);
-
-// DEBUG (temporär): alle 10s den aktuellen Wert im Speicher protokollieren, um genau zu sehen,
-// in welchem Moment sich Plan/NPS Ziel für August ändern.
-setInterval(()=>{
-  const md = state.monatsabschluss?.fn?.August;
-  console.log('DEBUG Live-Check ' + new Date().toLocaleTimeString() + ' - fn/plan/NG (BB):', md?.plan?.['NG (BB)'], '| nps_plan:', md?.nps_plan);
-}, 10000);
 
 function uid(){ return 'a' + Math.random().toString(36).slice(2,9); }
 
