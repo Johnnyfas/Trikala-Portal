@@ -1626,7 +1626,7 @@ async function loadFromSharePoint(){
             });
           });
           state.monatsabschluss = merged;
-          console.log('DEBUG Monatsabschluss beim Laden (vom Server):', JSON.parse(JSON.stringify(data.monatsabschluss)));
+          console.log('DEBUG beim Laden (vom Server) - mf/August/plan/BB:', data.monatsabschluss?.mf?.August?.plan?.BB, '| nps_plan:', data.monatsabschluss?.mf?.August?.nps_plan);
         }
         // BOJ global sicherstellen (falls in älteren Datensätzen nicht vorhanden)
         Object.keys(state.monatsabschluss||{}).forEach(team=>{
@@ -1763,7 +1763,7 @@ async function saveToSharePoint(){
     if(resp && resp.ok){
       setSyncStatus('ok');
       console.log('Gespeichert:', new Date().toLocaleTimeString());
-      console.log('DEBUG Monatsabschluss beim Speichern:', JSON.parse(JSON.stringify(state.monatsabschluss)));
+      console.log('DEBUG beim Speichern - mf/August/plan/BB:', state.monatsabschluss?.mf?.August?.plan?.BB, '| nps_plan:', state.monatsabschluss?.mf?.August?.nps_plan);
     } else {
       console.error('Speichern fehlgeschlagen:', resp?.status);
       setSyncStatus('error');
