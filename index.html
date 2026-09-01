@@ -6459,7 +6459,7 @@ function renderOverview(){
           const val = agent.sales[p];
           const isNull = (val === null || val === undefined);
           const status = isNull ? '' : trafficStatus(val, myTargets[i]);
-          html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass ${status}" style="font-size:14px;">${isNull ? '–' : Math.round(val)}</span></div>`;
+          html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass ${status}" style="font-size:14px;">${isNull ? '0' : Math.round(val)}</span></div>`;
         });
         html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(1)}%</span></div>`;
         html += `<div class="ov-cell qual-cell cht-group-start${isLastRow?' cht-group-last':''}"><span class="ov-badge ${agent.calls===null||agent.calls===undefined?'':'good'}">${(agent.calls===null||agent.calls===undefined) ? '–' : Math.round(agent.calls)}</span></div>`;
