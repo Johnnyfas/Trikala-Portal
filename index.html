@@ -1966,16 +1966,36 @@ async function loadState(){
 function scheduleSave(){
   clearTimeout(saveTimer);
   // 2.5s statt 400ms: bündelt mehrere schnelle Änderungen (z.B. beim Ausfüllen der Tageswerte)
-  // zu einem einzigen Speichervorgang - wichtig, seit die Board-Daten in Cloudflare KV liegen,
-  // das im kostenlosen Plan nur 1.000 Schreibvorgänge pro Tag erlaubt.
+  // zu einem einzigen Speichervorgang.
   pendingSave = true;
   setSyncStatus('syncing');
   saveTimer = setTimeout(async ()=>{
     pendingSave = false;
-    await saveToSharePoint();
+    await runSave();
   }, 2500);
 }
 let pendingSave = false;
+// Verhindert überlappende Speichervorgänge: saveToSharePoint() fragt vor dem eigentlichen
+// Speichern erst nochmal beim Server nach (dauert einen Moment) - wenn währenddessen ein
+// weiterer Speichervorgang ausgelöst wird, würden beide parallel laufen und könnten sich in
+// der falschen Reihenfolge gegenseitig überschreiben. runSave() sorgt dafür, dass immer nur
+// ein Speichervorgang gleichzeitig läuft; ein währenddessen ausgelöster weiterer wird einmal
+// nachgeholt, sobald der aktuelle fertig ist (nicht öfter, um kein Aufschaukeln zu riskieren).
+let saveInProgress = false;
+let saveQueued = false;
+async function runSave(){
+  if(saveInProgress){ saveQueued = true; return; }
+  saveInProgress = true;
+  try{
+    await saveToSharePoint();
+  } finally {
+    saveInProgress = false;
+    if(saveQueued){
+      saveQueued = false;
+      await runSave();
+    }
+  }
+}
 // Warnt beim Schließen/Neuladen der Seite, falls eine Eingabe noch nicht gespeichert wurde
 // (die letzte Änderung wird erst 2,5s nach der Eingabe tatsächlich gespeichert) - verhindert,
 // dass ein zu schnelles Neuladen eine gerade erst eingetragene Änderung verwirft.
