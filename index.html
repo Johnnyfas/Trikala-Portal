@@ -6130,9 +6130,16 @@ function twDaysInMonth(d){
 // unangetastet, da sie kein Teil von agent.tageswerte sind.
 function twResetMonth(){
   const monthKey = twMonthKey(new Date());
-  if(!confirm(`Wirklich ALLE Tageswerte für ${monthKey} bei allen Mitarbeitern löschen? Das kann nicht rückgängig gemacht werden.`)) return;
+  if(!confirm(`Wirklich den kompletten Monatsstand für ${monthKey} bei allen Mitarbeitern zurücksetzen (Tageswerte, Stückzahlen, Calls, NPS, LQ, CHT)? Das kann nicht rückgängig gemacht werden.`)) return;
   state.agents.forEach(agent=>{
     if(agent.tageswerte && agent.tageswerte[monthKey]) delete agent.tageswerte[monthKey];
+    // Auch die daraus berechneten/eingetragenen Monatsstand-Felder leeren, sonst blieben die
+    // alten Summen stehen, obwohl die Tageswerte dahinter schon gelöscht sind.
+    Object.keys(agent.sales||{}).forEach(p=>{ agent.sales[p] = null; });
+    agent.calls = null;
+    agent.nps = null;
+    agent.lq = null;
+    agent.cht = null;
   });
   twSelectedDay = 'total';
   scheduleSave();
