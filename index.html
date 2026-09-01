@@ -1625,7 +1625,7 @@ async function loadFromSharePoint(){
             });
           });
           state.monatsabschluss = merged;
-          console.log('DEBUG beim Laden (vom Server) - mf/August/plan/BB:', data.monatsabschluss?.mf?.August?.plan?.BB, '| nps_plan:', data.monatsabschluss?.mf?.August?.nps_plan);
+          console.log('DEBUG beim Laden (vom Server) - fn/August/plan/NG (BB):', data.monatsabschluss?.fn?.August?.plan?.['NG (BB)'], '| nps_plan:', data.monatsabschluss?.fn?.August?.nps_plan);
         }
         // Einmalige automatische Bereinigung: September-Dezember enthielten noch alte
         // Platzhalter-/Testzahlen aus einer früheren Ersteinrichtung. Wird nur einmal ausgeführt
@@ -1794,7 +1794,7 @@ async function saveToSharePoint(){
     if(resp && resp.ok){
       setSyncStatus('ok');
       console.log('Gespeichert:', new Date().toLocaleTimeString());
-      console.log('DEBUG beim Speichern - mf/August/plan/BB:', state.monatsabschluss?.mf?.August?.plan?.BB, '| nps_plan:', state.monatsabschluss?.mf?.August?.nps_plan);
+      console.log('DEBUG beim Speichern - fn/August/plan/NG (BB):', state.monatsabschluss?.fn?.August?.plan?.['NG (BB)'], '| nps_plan:', state.monatsabschluss?.fn?.August?.nps_plan);
     } else {
       console.error('Speichern fehlgeschlagen:', resp?.status);
       setSyncStatus('error');
@@ -1945,8 +1945,8 @@ setInterval(() => {
 // DEBUG (temporär): alle 10s den aktuellen Wert im Speicher protokollieren, um genau zu sehen,
 // in welchem Moment sich Plan/NPS Ziel für August ändern.
 setInterval(()=>{
-  const md = state.monatsabschluss?.mf?.August;
-  console.log('DEBUG Live-Check ' + new Date().toLocaleTimeString() + ' - plan.BB:', md?.plan?.BB, '| nps_plan:', md?.nps_plan);
+  const md = state.monatsabschluss?.fn?.August;
+  console.log('DEBUG Live-Check ' + new Date().toLocaleTimeString() + ' - fn/plan/NG (BB):', md?.plan?.['NG (BB)'], '| nps_plan:', md?.nps_plan);
 }, 10000);
 
 function uid(){ return 'a' + Math.random().toString(36).slice(2,9); }
