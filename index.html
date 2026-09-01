@@ -1432,13 +1432,22 @@ function initMsal(){
   // Check for stored token
   const stored = sessionStorage.getItem('graph_token');
   if(stored){ graphToken = stored; updateLoginUI(true); }
-  // Handle redirect
+
+  // Board-Daten (Cloudflare KV) sind unabhängig vom persönlichen Microsoft-Login - werden immer
+  // geladen, sobald das gemeinsame Zugangs-Passwort bekannt ist. Vorher hing das Laden fälschlich
+  // zusätzlich am Microsoft-Login (Rest aus der Zeit vor der KV-Umstellung) - blieb also ohne
+  // aktive Microsoft-Sitzung beim Neuladen komplett leer, obwohl der Speichervorgang selbst
+  // erfolgreich war.
+  if(getKIAppToken()){
+    loadFromSharePoint();
+  }
+
+  // Handle redirect - betrifft nur Microsoft-spezifische Dinge (Identität, Excel-Sync)
   handleAuthRedirect().then(ok=>{
     // fetchCurrentUser() zuerst (und abgewartet), damit loadFromExcel() schon weiß, ob es sich
     // um Ioannis handelt - sonst würde der Excel-Sync auch bei ihm beim Login übersprungen,
     // weil die Identität in dem Moment noch unbekannt wäre.
-    if(ok){ loadFromSharePoint().then(()=>fetchCurrentUser()).then(()=>loadFromExcel()); }
-    else if(graphToken){ loadFromSharePoint().then(()=>fetchCurrentUser()).then(()=>loadFromExcel()); }
+    if(ok || graphToken){ fetchCurrentUser().then(()=>loadFromExcel()); }
   });
 }
 
