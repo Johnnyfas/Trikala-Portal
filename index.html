@@ -6155,12 +6155,15 @@ function twRecomputeAgent(agent, cfg){
   if(!tw){ return; }
   const days = Object.keys(tw);
   if(!days.length) return;
+  // "MA" ist eine Tageswerte-spezifische Zusatzspalte (kein Teil von cfg.products), wird hier
+  // mit summiert.
+  const produkte = [...cfg.products, 'MA'];
   const salesSum = {}; const salesHas = {};
-  cfg.products.forEach(p=>{ salesSum[p]=0; salesHas[p]=false; });
+  produkte.forEach(p=>{ salesSum[p]=0; salesHas[p]=false; });
   days.forEach(dKey=>{
     const dv = tw[dKey];
     if(!dv) return;
-    cfg.products.forEach(p=>{
+    produkte.forEach(p=>{
       const v = dv.sales ? dv.sales[p] : null;
       if(v!==null && v!==undefined){ salesSum[p]+=v; salesHas[p]=true; }
     });
@@ -6168,7 +6171,7 @@ function twRecomputeAgent(agent, cfg){
   // Nur Produkte überschreiben, für die tatsächlich mindestens ein Tageswert eingetragen wurde -
   // Produkte ohne jede Tageswerte-Eingabe bleiben unangetastet (z.B. weiterhin der Excel-Sync-Wert),
   // statt auf leer gesetzt zu werden.
-  cfg.products.forEach(p=>{ if(salesHas[p]) agent.sales[p] = salesSum[p]; });
+  produkte.forEach(p=>{ if(salesHas[p]) agent.sales[p] = salesSum[p]; });
   // Calls, NPS und LQ werden bewusst NICHT hier berechnet - die trägst du direkt am Monatsstand manuell ein.
 }
 
@@ -6227,6 +6230,12 @@ function renderTageswerte(){
     const thead = document.createElement('tr');
     thead.className = 'tw-head-row';
     const orderedProducts = displayOrderProducts(cfg.products);
+    // "MA" ist nur in Tageswerte als zusätzliche Spalte gedacht (nicht Teil der eigentlichen
+    // Team-Produktliste, die auch für Ziele/Quoten in anderen Reitern genutzt wird) - direkt
+    // neben MF eingefügt.
+    const mfIdx = orderedProducts.indexOf('MF');
+    if(mfIdx !== -1) orderedProducts.splice(mfIdx + 1, 0, 'MA');
+    else orderedProducts.push('MA');
     const headers = isTotal
       ? ['Mitarbeiter', 'Calls', 'CHT', ...orderedProducts, 'NPS %', 'LQ %']
       : ['Mitarbeiter', ...orderedProducts];
