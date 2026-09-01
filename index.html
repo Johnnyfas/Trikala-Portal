@@ -1370,8 +1370,8 @@ async function loadFromSharePoint(){
             ['crZiel','crZielText'].forEach(f=>{
               if(seed[f]) { md[f] = md[f]||{}; Object.assign(md[f], seed[f]); }
             });
-            if(seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
-            if(seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
+            if(!md.nps_plan && seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
+            if(!md.nps_ist && seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
             if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
             if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
             // Plan: Seed füllt nur Lücken (Produkte ohne bisherigen Wert), überschreibt aber nie
@@ -1678,8 +1678,8 @@ async function loadFromSharePoint(){
             ['crZiel','crZielText'].forEach(f=>{
               if(seed[f]) { md[f] = md[f]||{}; Object.assign(md[f], seed[f]); }
             });
-            if(seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
-            if(seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
+            if(!md.nps_plan && seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
+            if(!md.nps_ist && seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
             if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
             if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
             // Plan: Seed füllt nur Lücken (Produkte ohne bisherigen Wert), überschreibt aber nie
@@ -5271,7 +5271,20 @@ function renderVerlauf(){
 }
 
 
-let maSelectedMonth = { mf: 'Juli', fn: 'Juli' };
+// Zuletzt ausgewählter Monat pro Team - wird in localStorage gemerkt, damit er auch einen
+// Seiten-Refresh übersteht (vorher stand hier fest "Juli" einprogrammiert).
+let maSelectedMonth = (() => {
+  try {
+    const stored = JSON.parse(localStorage.getItem('ma_selected_month') || 'null');
+    if(stored && stored.mf && stored.fn) return stored;
+  } catch(e){}
+  const current = new Date().toLocaleString('de-DE', {month:'long'});
+  return { mf: current, fn: current };
+})();
+function setMaSelectedMonth(teamKey, monat){
+  maSelectedMonth[teamKey] = monat;
+  try{ localStorage.setItem('ma_selected_month', JSON.stringify(maSelectedMonth)); }catch(e){}
+}
 
 function renderMonatsabschluss(){
   const container = document.getElementById('monatsabschluss-container');
@@ -5497,7 +5510,7 @@ function renderMonatsabschluss(){
       btn.className = 'ma-month-btn' + (maSelectedMonth[teamKey] === m ? ' active' : '');
       btn.textContent = m;
       btn.addEventListener('click', ()=>{
-        maSelectedMonth[teamKey] = m;
+        setMaSelectedMonth(teamKey, m);
         renderMonatsabschluss();
       });
       tabsDiv.appendChild(btn);
