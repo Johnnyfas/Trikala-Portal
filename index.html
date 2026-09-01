@@ -1612,81 +1612,24 @@ async function loadFromSharePoint(){
           });
         }
         if(data.monatsabschluss){
-          Object.keys(data.monatsabschluss).forEach(team=>{
-            if(state.monatsabschluss[team]){
-              Object.keys(data.monatsabschluss[team]).forEach(monat=>{
-                const saved = data.monatsabschluss[team][monat];
-                if(!state.monatsabschluss[team][monat]){
-                  state.monatsabschluss[team][monat] = saved;
-                } else {
-                  const md = state.monatsabschluss[team][monat];
-                  // Nicht-destruktiv zusammenführen: Server-Werte füllen nur Lücken (lokal 0/leer),
-                  // überschreiben aber NIE einen bereits vorhandenen lokalen Wert - sonst würde ein
-                  // Refresh kurz nach einer Eingabe (z.B. durch die KV-Verzögerung) die frische
-                  // Eingabe wieder rückgängig machen.
-                  const seedPlan = JSON.parse(JSON.stringify(md.plan));
-                  ['erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
-                    if(saved[f]){
-                      md[f] = md[f]||{};
-                      Object.keys(saved[f]).forEach(p=>{
-                        if(!md[f][p] && saved[f][p]) md[f][p] = saved[f][p];
-                      });
-                    }
-                  });
-                  if(!md.nps_ist && saved.nps_ist) md.nps_ist = saved.nps_ist;
-                  if(!md.nps_plan && saved.nps_plan > 0) md.nps_plan = saved.nps_plan;
-                  if(!md.crGesamtZiel && saved.crGesamtZiel) md.crGesamtZiel = saved.crGesamtZiel;
-                  if(!md.crGesamtErreicht && saved.crGesamtErreicht) md.crGesamtErreicht = saved.crGesamtErreicht;
-                  // Plan aus Seed wiederherstellen (nie überschreiben)
-                  md.plan = seedPlan;
-                  if(saved.plan) Object.keys(saved.plan).forEach(p=>{ if(!md.plan[p] && saved.plan[p]>0) md.plan[p]=saved.plan[p]; });
-                  // BOJ sicherstellen
-                  ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
-                }
-              });
-            }
+          // Einfache, direkte Übernahme vom Server - wie bei den Mitarbeiterdaten (state.agents).
+          // Die vorherige Feld-für-Feld-Zusammenführung mit der Code-Vorlage (MA_SEED) war über
+          // mehrere Schichten hinweg fehleranfällig und hat wiederholt frische Eingaben (Planmenge,
+          // NPS, Storno) beim Laden wieder verworfen. Der Server-Stand ist jetzt beim Laden die
+          // alleinige Wahrheit; nur komplett fehlende Monate (die es lokal, aber noch nie auf dem
+          // Server gab) werden ergänzt - keine Feld-für-Feld-Sonderfälle mehr.
+          const merged = data.monatsabschluss;
+          Object.keys(state.monatsabschluss||{}).forEach(team=>{
+            if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
+            Object.keys(state.monatsabschluss[team]).forEach(monat=>{
+              if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
+            });
           });
+          state.monatsabschluss = merged;
         }
-        // BOJ global sicherstellen
+        // BOJ global sicherstellen (falls in älteren Datensätzen nicht vorhanden)
         Object.keys(state.monatsabschluss||{}).forEach(team=>{
           Object.values(state.monatsabschluss[team]||{}).forEach(md=>{
-            ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
-          });
-        });
-        // Seed-Werte IMMER übernehmen (haben Vorrang über alte SharePoint-Nullwerte)
-        Object.keys(MA_SEED).forEach(team=>{
-          Object.keys(MA_SEED[team]).forEach(monat=>{
-            const seed = MA_SEED[team][monat];
-            if(!state.monatsabschluss[team]) return;
-            if(!state.monatsabschluss[team][monat]) state.monatsabschluss[team][monat] = JSON.parse(JSON.stringify(seed));
-            const md = state.monatsabschluss[team][monat];
-            // Seed-Werte übernehmen wenn Seed > 0 und gespeicherter Wert = 0
-            ['erreicht','cr','storno'].forEach(f=>{
-              if(seed[f]){
-                if(!md[f]) md[f] = {};
-                Object.keys(seed[f]).forEach(p=>{
-                  if(seed[f][p] !== 0 && (md[f][p] === 0 || md[f][p] === undefined)) md[f][p] = seed[f][p];
-                });
-              }
-            });
-            ['crZiel','crZielText'].forEach(f=>{
-              if(seed[f]) { md[f] = md[f]||{}; Object.assign(md[f], seed[f]); }
-            });
-            if(!md.nps_plan && seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
-            if(!md.nps_ist && seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
-            if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
-            if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
-            // Plan: Seed füllt nur Lücken (Produkte ohne bisherigen Wert), überschreibt aber nie
-            // einen bereits vorhandenen (auch frisch eingetragenen) Wert - vorher wurde hier bei
-            // JEDEM Laden bedingungslos auf die Code-Vorlagenwerte zurückgesetzt und sofort
-            // wieder gespeichert, wodurch Eingaben in "Planenmenge" nie dauerhaft blieben.
-            if(seed.plan){
-              md.plan = md.plan || {};
-              Object.keys(seed.plan).forEach(p=>{
-                if(!md.plan[p] && seed.plan[p] > 0) md.plan[p] = seed.plan[p];
-              });
-            }
-            // BOJ
             ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
           });
         });
