@@ -1627,6 +1627,34 @@ async function loadFromSharePoint(){
           state.monatsabschluss = merged;
           console.log('DEBUG beim Laden (vom Server) - mf/August/plan/BB:', data.monatsabschluss?.mf?.August?.plan?.BB, '| nps_plan:', data.monatsabschluss?.mf?.August?.nps_plan);
         }
+        // Einmalige automatische Bereinigung: September-Dezember enthielten noch alte
+        // Platzhalter-/Testzahlen aus einer früheren Ersteinrichtung. Wird nur einmal ausgeführt
+        // (per localStorage-Merker), danach nie wieder - damit spätere echte Eingaben nicht
+        // versehentlich erneut überschrieben werden.
+        if(!localStorage.getItem('ma_sept_dez_bereinigt')){
+          const futureMonths = ['September','Oktober','November','Dezember'];
+          Object.keys(state.monatsabschluss||{}).forEach(team=>{
+            futureMonths.forEach(monat=>{
+              const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
+              if(!md) return;
+              const zeroObj = {};
+              Object.keys(md.plan||{}).forEach(p=>{ zeroObj[p] = 0; });
+              md.plan = {...zeroObj};
+              if(md.ziel) md.ziel = {...zeroObj};
+              md.erreicht = {...zeroObj};
+              md.cr = {...zeroObj};
+              md.storno = {...zeroObj};
+              md.crZiel = {};
+              md.crZielText = {};
+              md.nps_plan = 0;
+              md.nps_ist = 0;
+              md.crGesamtZiel = 0;
+              md.crGesamtErreicht = 0;
+            });
+          });
+          localStorage.setItem('ma_sept_dez_bereinigt', '1');
+          scheduleSave();
+        }
         // BOJ global sicherstellen (falls in älteren Datensätzen nicht vorhanden)
         Object.keys(state.monatsabschluss||{}).forEach(team=>{
           Object.values(state.monatsabschluss[team]||{}).forEach(md=>{
