@@ -5477,6 +5477,20 @@ function renderMonatsabschluss(){
     const md = data[monat];
     if(!md){ container.appendChild(section); return; }
 
+    // NPS Ziel vom letzten Monat mit einem eingetragenen Wert übernehmen, wenn für diesen Monat
+    // noch keins gesetzt wurde - so bleibt das Ziel automatisch bestehen, solange es niemand
+    // bewusst ändert, statt bei jedem neuen Monat wieder bei 0 anzufangen.
+    if(!md.nps_plan){
+      const idx = MONATE.indexOf(monat);
+      for(let i = idx - 1; i >= 0; i--){
+        const prevMd = data[MONATE[i]];
+        if(prevMd && prevMd.nps_plan){
+          md.nps_plan = prevMd.nps_plan;
+          break;
+        }
+      }
+    }
+
     // Feste Reihenfolge: BB, SU, BOJ, VVM, TV, MF (NA und andere ausgeschlossen)
     const PROD_ORDER = ['BB','NG (BB)','SU','BOJ','VVM','TV','MF NG','MF'];
     const EXCLUDE = ['NA'];
