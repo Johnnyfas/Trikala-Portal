@@ -1990,48 +1990,23 @@ let monatsabschlussInitialGeladen = false;
 // gilt der lokale Stand als der aktuellere, alle anderen kommen frisch vom Server.
 const maSelbstBearbeitet = new Set();
 
-// === Wachhund für Monatsabschluss ===
-// Merkt sich jeden Wert, den du selbst über die Eingabefelder in Monatsabschluss einträgst, und
-// prüft alle paar Sekunden, ob state.monatsabschluss noch genau diesen Wert hat. Falls nicht
-// (aus welchem Grund auch immer), wird er automatisch zurückgesetzt und neu gespeichert. Das
-// löst die Ursache nicht, verhindert aber zuverlässig, dass eine Eingabe sichtbar verloren geht.
-const maWatchdog = {}; // Schlüssel "team|monat|feld|produkt" -> zuletzt eingetragener Wert
 // Verhindert, dass Monatsabschluss während einer laufenden Eingabe (Feld hat gerade Fokus) neu
 // aufgebaut wird - genau das konnte eine noch unfertige Eingabe als "fertig" abschneiden und
-// sofort (mit falschem Zwischenwert) speichern. Prüft direkt das aktuell fokussierte Element,
-// statt sich nur auf Fokus-Ereignisse zu verlassen (die in Einzelfällen verloren gehen könnten).
+// sofort (mit falschem Zwischenwert) speichern.
 function maIsTyping(){
   const el = document.activeElement;
   return !!(el && el.classList && el.classList.contains('ma-input'));
 }
+// Merkt den bearbeiteten Monat (damit ein Ladevorgang den lokalen Stand dafür nicht überschreibt)
+// und den Zeitstempel der Änderung (für den Abgleich bei mehreren offenen Tabs).
+// Der frühere "Wachhund", der Werte alle 2s aktiv zurückschrieb, wurde entfernt: er war eine
+// Notlösung aus der Zeit, als die eigentliche Ursache (fehlerhaftes Speichern im Worker) noch
+// unbekannt war - und konnte selbst veraltete Werte wieder hineinschreiben.
 function maWatch(team, monat, feld, produkt, wert){
-  const key = [team, monat, feld, produkt].join('|');
-  maWatchdog[key] = wert;
   maSelbstBearbeitet.add(team + '|' + monat);
-  // Zeitstempel der letzten Änderung an diesem Monat merken - wird beim Speichern gebraucht,
-  // um bei mehreren offenen Tabs zu erkennen, welcher Stand wirklich der neuere ist.
   const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
   if(md) md._updatedAt = Date.now();
 }
-setInterval(()=>{
-  if(maIsTyping()) return; // gerade wird getippt - nichts anfassen
-  let fixed = false;
-  Object.keys(maWatchdog).forEach(key=>{
-    const [team, monat, feld, produkt] = key.split('|');
-    const md = state.monatsabschluss && state.monatsabschluss[team] && state.monatsabschluss[team][monat];
-    if(!md) return;
-    const expected = maWatchdog[key];
-    const current = (produkt === '_' ) ? md[feld] : (md[feld] ? md[feld][produkt] : undefined);
-    if(current !== expected){
-      console.log(`DEBUG Wachhund: ${key} war ${current}, wird auf ${expected} zurückgesetzt.`);
-      if(produkt === '_') md[feld] = expected;
-      else { if(!md[feld]) md[feld] = {}; md[feld][produkt] = expected; }
-      fixed = true;
-    }
-  });
-  if(fixed){ renderMonatsabschluss(); scheduleSave(); }
-}, 2000);
-
 async function runSave(){
   if(saveInProgress){ saveQueued = true; return; }
   saveInProgress = true;
