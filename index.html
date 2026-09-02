@@ -795,7 +795,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   <div id="view-monatsabschluss" style="display:none;">
     <div class="toolbar">
       <span></span>
-      <button class="primary" id="ma-reset-plan-nps-btn" style="background:var(--red);">🗑️ Planmenge &amp; NPS Ziel für alle Monate löschen</button>
+      <button class="primary" id="ma-reset-plan-nps-btn" style="background:var(--red);">🗑️ Planmenge &amp; NPS Ziel (August–Dezember) löschen</button>
     </div>
     <div id="monatsabschluss-container"></div>
   </div>
@@ -6143,9 +6143,11 @@ document.getElementById('tw-reset-btn').addEventListener('click', twResetMonth);
 // aktuellen Monat") - damit es nirgendwo mehr einen alten Wert gibt, der versehentlich
 // zurückkommen könnte.
 document.getElementById('ma-reset-plan-nps-btn').addEventListener('click', ()=>{
-  if(!confirm('Wirklich Planmenge und NPS Ziel für ALLE Monate (Januar-Dezember) bei beiden Teams komplett löschen? Das kann nicht rückgängig gemacht werden.')) return;
+  if(!confirm('Wirklich Planmenge und NPS Ziel für August bis Dezember bei beiden Teams komplett löschen? Das kann nicht rückgängig gemacht werden.')) return;
+  const targetMonths = ['August','September','Oktober','November','Dezember'];
   Object.keys(state.monatsabschluss||{}).forEach(team=>{
     Object.keys(state.monatsabschluss[team]).forEach(monat=>{
+      if(!targetMonths.includes(monat)) return;
       const md = state.monatsabschluss[team][monat];
       if(md.plan) Object.keys(md.plan).forEach(p=>{ md.plan[p] = 0; });
       md.nps_plan = 0;
