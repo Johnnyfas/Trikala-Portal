@@ -16,7 +16,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
 :root{
-  --bg:#F5F5F5;a
+  --bg:#F5F5F5;
   --panel:#FFFFFF;
   --border:#E0E0E0;
   --text:#1C2733;
@@ -894,7 +894,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 7;
+const BOARD_VERSION = 8;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -6179,9 +6179,10 @@ function renderTageswerte(){
     // Liste hinzugefügt und dann gemeinsam in die Team-Anzeigereihenfolge sortiert (dort steht
     // MA jeweils am Ende).
     const orderedProducts = displayOrderProducts([...cfg.products, 'MA'], teamId);
+    const productHeaders = orderedProducts.map(p=>productLabel(p, teamId));
     const headers = isTotal
-      ? ['Mitarbeiter', 'Calls', 'CHT', ...orderedProducts, 'NPS %', 'LQ %']
-      : ['Mitarbeiter', ...orderedProducts];
+      ? ['Mitarbeiter', 'Calls', 'CHT', ...productHeaders, 'NPS %', 'LQ %']
+      : ['Mitarbeiter', ...productHeaders];
     headers.forEach(h=>{
       const th = document.createElement('th');
       th.textContent = h;
@@ -6314,6 +6315,16 @@ const PRODUCT_DISPLAY_ORDER_BY_TEAM = {
   Trikala06: ['BB','SU','TV','MF','VVM+BOJ','VVM+NVM','MA']
 };
 const PRODUCT_DISPLAY_ORDER = ['BB','SU','VVM+BOJ','VVM+NVM','TV','MF','MA'];
+// Anzeige-Namen einzelner Produkte pro Team. Der interne Datenschlüssel bleibt unverändert
+// (z.B. "VVM+BOJ"), damit bereits erfasste Zahlen und Zielwerte weiterhin korrekt zugeordnet
+// sind - nur die Beschriftung in der Tabelle ändert sich.
+const PRODUCT_LABELS_BY_TEAM = {
+  Trikala01: { 'VVM+BOJ': 'HV' }
+};
+function productLabel(p, teamId){
+  const map = teamId && PRODUCT_LABELS_BY_TEAM[teamId];
+  return (map && map[p]) || p;
+}
 function displayOrderProducts(products, teamId){
   const order = (teamId && PRODUCT_DISPLAY_ORDER_BY_TEAM[teamId]) || PRODUCT_DISPLAY_ORDER;
   const idx = p => { const i = order.indexOf(p); return i === -1 ? 999 : i; };
@@ -6377,7 +6388,7 @@ function renderOverview(){
         `<div class="ov-cell name-cell head">Mitarbeiter</div>` +
         `<div class="ov-cell qual-cell head">NPS<span style="font-size:9px;font-weight:400;">Ziel ${cfg.npsTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head">LQ<span style="font-size:9px;font-weight:400;">Ziel ${cfg.lqTarget}%</span></div>` +
-        displayOrderProducts(cfg.products, teamId).map(p=>`<div class="ov-cell sales-cell head">${p}</div>`).join('') +
+        displayOrderProducts(cfg.products, teamId).map(p=>`<div class="ov-cell sales-cell head">${productLabel(p, teamId)}</div>`).join('') +
         `<div class="ov-cell cr-cell head">★ CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head cht-group-start cht-group-first">Calls</div>` +
         `<div class="ov-cell qual-cell head cht-group-end cht-group-first">CHT</div>`;
