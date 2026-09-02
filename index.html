@@ -1632,6 +1632,7 @@ async function loadFromSharePoint(){
               md.nps_ist = 0;
               md.crGesamtZiel = 0;
               md.crGesamtErreicht = 0;
+              md._updatedAt = Date.now();
             });
           });
           localStorage.setItem('ma_sept_dez_bereinigt', '1');
@@ -6151,6 +6152,7 @@ document.getElementById('ma-reset-plan-nps-btn').addEventListener('click', ()=>{
       const md = state.monatsabschluss[team][monat];
       if(md.plan) Object.keys(md.plan).forEach(p=>{ md.plan[p] = 0; });
       md.nps_plan = 0;
+      md._updatedAt = Date.now();
     });
   });
   scheduleSave();
