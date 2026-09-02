@@ -16,7 +16,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap');
 
 :root{
-  --bg:#F5F5F5;
+  --bg:#F5F5F5;a
   --panel:#FFFFFF;
   --border:#E0E0E0;
   --text:#1C2733;
@@ -894,7 +894,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 6;
+const BOARD_VERSION = 7;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -6174,13 +6174,11 @@ function renderTageswerte(){
 
     const thead = document.createElement('tr');
     thead.className = 'tw-head-row';
-    const orderedProducts = displayOrderProducts(cfg.products);
     // "MA" ist nur in Tageswerte als zusätzliche Spalte gedacht (nicht Teil der eigentlichen
-    // Team-Produktliste, die auch für Ziele/Quoten in anderen Reitern genutzt wird) - direkt
-    // neben MF eingefügt.
-    const mfIdx = orderedProducts.indexOf('MF');
-    if(mfIdx !== -1) orderedProducts.splice(mfIdx + 1, 0, 'MA');
-    else orderedProducts.push('MA');
+    // Team-Produktliste, die auch für Ziele/Quoten in anderen Reitern genutzt wird) - wird der
+    // Liste hinzugefügt und dann gemeinsam in die Team-Anzeigereihenfolge sortiert (dort steht
+    // MA jeweils am Ende).
+    const orderedProducts = displayOrderProducts([...cfg.products, 'MA'], teamId);
     const headers = isTotal
       ? ['Mitarbeiter', 'Calls', 'CHT', ...orderedProducts, 'NPS %', 'LQ %']
       : ['Mitarbeiter', ...orderedProducts];
@@ -6308,9 +6306,18 @@ function renderTageswerte(){
 // Gewünschte Anzeige-Reihenfolge der Produkte in MA Stand & Tageswerte (links nach rechts).
 // Ändert NICHT die Reihenfolge in TEAM_CONFIGS.products (die ist an die Zielwerte gekoppelt) -
 // liefert nur die Anzeige-Reihenfolge; die Ziel-Zuordnung erfolgt weiterhin über den echten Index.
-const PRODUCT_DISPLAY_ORDER = ['BB','SU','VVM+BOJ','VVM+NVM','TV','MF'];
-function displayOrderProducts(products){
-  return products.slice().sort((a,b)=> PRODUCT_DISPLAY_ORDER.indexOf(a) - PRODUCT_DISPLAY_ORDER.indexOf(b));
+// Anzeige-Reihenfolge der Produkte, pro Team unterschiedlich (Trikala01 = Mobilfunk,
+// Trikala06 = Festnetz). Wird in "Mitarbeiter Ziele" und "Tageswerte" verwendet; die interne
+// Zuordnung der Zielwerte bleibt davon unberührt, nur die Anzeige wird umsortiert.
+const PRODUCT_DISPLAY_ORDER_BY_TEAM = {
+  Trikala01: ['MF','BB','TV','SU','VVM+BOJ','VVM+NVM','MA'],
+  Trikala06: ['BB','SU','TV','MF','VVM+BOJ','VVM+NVM','MA']
+};
+const PRODUCT_DISPLAY_ORDER = ['BB','SU','VVM+BOJ','VVM+NVM','TV','MF','MA'];
+function displayOrderProducts(products, teamId){
+  const order = (teamId && PRODUCT_DISPLAY_ORDER_BY_TEAM[teamId]) || PRODUCT_DISPLAY_ORDER;
+  const idx = p => { const i = order.indexOf(p); return i === -1 ? 999 : i; };
+  return products.slice().sort((a,b)=> idx(a) - idx(b));
 }
 
 function renderOverview(){
@@ -6370,7 +6377,7 @@ function renderOverview(){
         `<div class="ov-cell name-cell head">Mitarbeiter</div>` +
         `<div class="ov-cell qual-cell head">NPS<span style="font-size:9px;font-weight:400;">Ziel ${cfg.npsTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head">LQ<span style="font-size:9px;font-weight:400;">Ziel ${cfg.lqTarget}%</span></div>` +
-        displayOrderProducts(cfg.products).map(p=>`<div class="ov-cell sales-cell head">${p}</div>`).join('') +
+        displayOrderProducts(cfg.products, teamId).map(p=>`<div class="ov-cell sales-cell head">${p}</div>`).join('') +
         `<div class="ov-cell cr-cell head">★ CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head cht-group-start cht-group-first">Calls</div>` +
         `<div class="ov-cell qual-cell head cht-group-end cht-group-first">CHT</div>`;
@@ -6399,7 +6406,7 @@ function renderOverview(){
         let html = `<div class="ov-cell name-cell"><span class="ov-name-pill" style="${catBg}">${agent.name}</span></div>`;
         html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal === null ? '–' : npsVal.toFixed(1)+'%'}</span></div>`;
         html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal === null ? '–' : lqVal.toFixed(1)+'%'}</span></div>`;
-        displayOrderProducts(cfg.products).forEach((p)=>{
+        displayOrderProducts(cfg.products, teamId).forEach((p)=>{
           const i = cfg.products.indexOf(p);
           const val = agent.sales[p];
           const isNull = (val === null || val === undefined);
