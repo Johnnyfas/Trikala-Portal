@@ -1936,7 +1936,7 @@ async function loadFromExcel(){
 // damit Änderungen anderer Führungskräfte automatisch sichtbar werden, ohne dass man neu laden muss.
 // Wird übersprungen, während gerade ein Coaching-Formular offen ist, um laufende Eingaben nicht zu verlieren.
 setInterval(() => {
-  if(getKIAppToken() && !cpShowForm && !maInputFocused && !saveInProgress && !pendingSave) loadFromSharePoint();
+  if(getKIAppToken() && !cpShowForm && !maIsTyping() && !saveInProgress && !pendingSave) loadFromSharePoint();
 }, 2 * 60 * 1000);
 
 function uid(){ return 'a' + Math.random().toString(36).slice(2,9); }
@@ -1993,16 +1993,18 @@ let monatsabschlussInitialGeladen = false;
 const maWatchdog = {}; // Schlüssel "team|monat|feld|produkt" -> zuletzt eingetragener Wert
 // Verhindert, dass Monatsabschluss während einer laufenden Eingabe (Feld hat gerade Fokus) neu
 // aufgebaut wird - genau das konnte eine noch unfertige Eingabe als "fertig" abschneiden und
-// sofort (mit falschem Zwischenwert) speichern.
-let maInputFocused = false;
-document.addEventListener('focusin', e=>{ if(e.target && e.target.classList && e.target.classList.contains('ma-input')) maInputFocused = true; });
-document.addEventListener('focusout', e=>{ if(e.target && e.target.classList && e.target.classList.contains('ma-input')) maInputFocused = false; });
+// sofort (mit falschem Zwischenwert) speichern. Prüft direkt das aktuell fokussierte Element,
+// statt sich nur auf Fokus-Ereignisse zu verlassen (die in Einzelfällen verloren gehen könnten).
+function maIsTyping(){
+  const el = document.activeElement;
+  return !!(el && el.classList && el.classList.contains('ma-input'));
+}
 function maWatch(team, monat, feld, produkt, wert){
   const key = [team, monat, feld, produkt].join('|');
   maWatchdog[key] = wert;
 }
 setInterval(()=>{
-  if(maInputFocused) return; // gerade wird getippt - nichts anfassen
+  if(maIsTyping()) return; // gerade wird getippt - nichts anfassen
   let fixed = false;
   Object.keys(maWatchdog).forEach(key=>{
     const [team, monat, feld, produkt] = key.split('|');
@@ -2018,7 +2020,7 @@ setInterval(()=>{
     }
   });
   if(fixed){ renderMonatsabschluss(); scheduleSave(); }
-}, 5000);
+}, 2000);
 
 async function runSave(){
   if(saveInProgress){ saveQueued = true; return; }
