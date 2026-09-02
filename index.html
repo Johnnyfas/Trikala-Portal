@@ -1595,23 +1595,20 @@ async function loadFromSharePoint(){
           // NPS, Storno) beim Laden wieder verworfen. Der Server-Stand ist jetzt beim Laden die
           // alleinige Wahrheit; nur komplett fehlende Monate (die es lokal, aber noch nie auf dem
           // Server gab) werden ergänzt - keine Feld-für-Feld-Sonderfälle mehr.
+          // Server-Stand übernehmen - AUSSER für Monate, die in dieser Sitzung selbst bearbeitet
+          // wurden (die werden per saveFieldDirect() ohnehin sofort und einzeln in die Datenbank
+          // geschrieben, ihr lokaler Stand ist also der aktuellere).
           const merged = data.monatsabschluss;
-          if(!monatsabschlussInitialGeladen){
-            // Nur beim allerersten Laden dieser Sitzung: Server-Stand vollständig übernehmen
-            // (füllt fehlende Monate auf).
-            Object.keys(state.monatsabschluss||{}).forEach(team=>{
-              if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
-              Object.keys(state.monatsabschluss[team]).forEach(monat=>{
-                if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
-              });
+          Object.keys(state.monatsabschluss||{}).forEach(team=>{
+            if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
+            Object.keys(state.monatsabschluss[team]).forEach(monat=>{
+              const lokal = state.monatsabschluss[team][monat];
+              if(!merged[team][monat]){ merged[team][monat] = lokal; return; }
+              // In dieser Sitzung selbst bearbeitet? Dann lokalen Stand behalten.
+              if(maSelbstBearbeitet.has(team + '|' + monat)) merged[team][monat] = lokal;
             });
-            state.monatsabschluss = merged;
-            monatsabschlussInitialGeladen = true;
-          }
-          // Ab dem zweiten Laden dieser Sitzung: Monatsabschluss NICHT mehr aus einem Ladevorgang
-          // übernehmen - der lokale Stand ist ab jetzt maßgeblich, nur echte Eingaben ändern ihn
-          // noch. Verhindert endgültig, dass irgendein zeitlich überschneidender Vorgang einen
-          // gerade gespeicherten Wert wieder zurücksetzt.
+          });
+          state.monatsabschluss = merged;
         }
         // Einmalige automatische Bereinigung: September-Dezember enthielten noch alte
         // Platzhalter-/Testzahlen aus einer früheren Ersteinrichtung. Wird nur einmal ausgeführt
@@ -1989,6 +1986,9 @@ let saveEpoch = 0;
 // dir können ihn noch ändern. Das schließt jede denkbare zeitliche Überschneidung endgültig aus,
 // unabhängig von der genauen Ursache.
 let monatsabschlussInitialGeladen = false;
+// Merkt sich, welche Monate in DIESER Sitzung selbst bearbeitet wurden ("team|monat") - für die
+// gilt der lokale Stand als der aktuellere, alle anderen kommen frisch vom Server.
+const maSelbstBearbeitet = new Set();
 
 // === Wachhund für Monatsabschluss ===
 // Merkt sich jeden Wert, den du selbst über die Eingabefelder in Monatsabschluss einträgst, und
@@ -2007,6 +2007,7 @@ function maIsTyping(){
 function maWatch(team, monat, feld, produkt, wert){
   const key = [team, monat, feld, produkt].join('|');
   maWatchdog[key] = wert;
+  maSelbstBearbeitet.add(team + '|' + monat);
   // Zeitstempel der letzten Änderung an diesem Monat merken - wird beim Speichern gebraucht,
   // um bei mehreren offenen Tabs zu erkennen, welcher Stand wirklich der neuere ist.
   const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
