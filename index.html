@@ -1772,6 +1772,30 @@ async function saveToSharePoint(){
           state.coachingPlan = [...(state.coachingPlan||[]), ...extra].filter(p=>!deletedSet.has(p.id));
         }
 
+        // Monatsabschluss: pro Monat den wirklich neueren Stand behalten (Zeitstempel-Vergleich).
+        // Wichtig bei mehreren offenen Tabs - ohne das würde der komplette Monatsabschluss-Stand
+        // dieses Tabs (auch wenn er schon veraltet ist, weil er ihn nur einmal pro Sitzung lädt)
+        // beim Speichern blind alles überschreiben, was zwischenzeitlich anderswo eingetragen wurde.
+        if(serverData.monatsabschluss){
+          Object.keys(serverData.monatsabschluss).forEach(team=>{
+            if(!state.monatsabschluss[team]){ state.monatsabschluss[team] = serverData.monatsabschluss[team]; return; }
+            Object.keys(serverData.monatsabschluss[team]).forEach(monat=>{
+              const serverMd = serverData.monatsabschluss[team][monat];
+              const localMd = state.monatsabschluss[team][monat];
+              if(!localMd){ state.monatsabschluss[team][monat] = serverMd; return; }
+              const serverTs = serverMd._updatedAt || 0;
+              const localTs = localMd._updatedAt || 0;
+              if(serverTs > localTs){
+                // Server hat einen neueren Stand (von einem anderen Tab/einer anderen Person) -
+                // den übernehmen statt den eigenen (älteren) Stand draufzuspeichern.
+                state.monatsabschluss[team][monat] = serverMd;
+              }
+              // sonst: lokaler Stand ist gleich neu oder neuer - unverändert lassen, wird gleich
+              // mitgespeichert.
+            });
+          });
+        }
+
         // To-Do's: jede Person behält nur ihre eigenen lokal, fremde Personen vom Server übernehmen
         if(serverData.todosByUser){
           Object.keys(serverData.todosByUser).forEach(uid=>{
@@ -2002,6 +2026,10 @@ function maIsTyping(){
 function maWatch(team, monat, feld, produkt, wert){
   const key = [team, monat, feld, produkt].join('|');
   maWatchdog[key] = wert;
+  // Zeitstempel der letzten Änderung an diesem Monat merken - wird beim Speichern gebraucht,
+  // um bei mehreren offenen Tabs zu erkennen, welcher Stand wirklich der neuere ist.
+  const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
+  if(md) md._updatedAt = Date.now();
 }
 setInterval(()=>{
   if(maIsTyping()) return; // gerade wird getippt - nichts anfassen
