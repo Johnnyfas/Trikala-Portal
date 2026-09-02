@@ -1276,35 +1276,19 @@ async function loadFromSharePoint(){
           });
         }
         if(data.monatsabschluss){
-          Object.keys(data.monatsabschluss).forEach(team=>{
-            if(state.monatsabschluss[team]){
-              Object.keys(data.monatsabschluss[team]).forEach(monat=>{
-                const saved = data.monatsabschluss[team][monat];
-                // Gespeicherte Daten komplett übernehmen
-                // Fehlende Felder aus Seed ergänzen
-                if(!state.monatsabschluss[team][monat]){
-                  state.monatsabschluss[team][monat] = saved;
-                } else {
-                  const md = state.monatsabschluss[team][monat];
-                  // Plan IMMER aus Seed behalten (hat echte Werte)
-                  const seedPlan = JSON.parse(JSON.stringify(md.plan));
-                  // Editierbare Felder aus SharePoint übernehmen
-                  ['erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
-                    if(saved[f]) { md[f] = md[f]||{}; Object.assign(md[f], saved[f]); }
-                  });
-                  if(saved.nps_ist !== undefined) md.nps_ist = saved.nps_ist;
-                  if(saved.nps_plan > 0) md.nps_plan = saved.nps_plan;
-                  if(saved.crGesamtZiel !== undefined) md.crGesamtZiel = saved.crGesamtZiel;
-                  if(saved.crGesamtErreicht !== undefined) md.crGesamtErreicht = saved.crGesamtErreicht;
-                  // Plan aus Seed wiederherstellen (nie überschreiben)
-                  md.plan = seedPlan;
-                  if(saved.plan) Object.keys(saved.plan).forEach(p=>{ if(saved.plan[p]>0) md.plan[p]=saved.plan[p]; });
-                  // BOJ sicherstellen
-                  ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
-                }
-              });
-            }
+          // Server-Stand direkt übernehmen - identisch zur aktiven Ladefunktion weiter unten.
+          // Die frühere Logik hier hat md.plan bedingungslos aus der Code-Vorlage (Seed)
+          // zurückgesetzt ("Plan IMMER aus Seed behalten") und damit gespeicherte Planmengen
+          // beim Laden immer wieder verworfen - "erreicht" war davon nie betroffen, was genau
+          // das beobachtete Verhalten erklaerte.
+          const merged = data.monatsabschluss;
+          Object.keys(state.monatsabschluss||{}).forEach(team=>{
+            if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
+            Object.keys(state.monatsabschluss[team]).forEach(monat=>{
+              if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
+            });
           });
+          state.monatsabschluss = merged;
         }
         // BOJ global sicherstellen
         Object.keys(state.monatsabschluss||{}).forEach(team=>{
@@ -1349,8 +1333,8 @@ async function loadFromSharePoint(){
             ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
           });
         });
-        // Sofort speichern
-        saveToSharePoint();
+        // Kein automatisches Speichern direkt nach dem Laden mehr - das hat den beim Laden
+        // zurechtgebogenen Stand sofort festgeschrieben und konnte frische Eingaben überschreiben.
         renderAll();
         setSyncStatus('ok');
         return;
