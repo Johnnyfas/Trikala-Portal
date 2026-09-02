@@ -887,6 +887,15 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
     storno: {BB:22.26, SU:16.67, BOJ:26.43, VVM:30.03, TV:21.19, MF:4.35}
   }
 } };
+// Version dieser Board-Fassung. Wird beim Laden mit der Version verglichen, die zuletzt in der
+// Datenbank gespeichert wurde: Läuft in einem Browser noch eine ältere Fassung (z.B. ein Tab, der
+// seit Tagen offen ist und den letzten Commit nie geladen hat), darf dieser Tab NICHT mehr
+// speichern - sonst schreibt er seinen veralteten Stand über die aktuellen Daten. Genau das war
+// die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
+// ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
+// automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
+const BOARD_VERSION = 6;
+let saveBlockedByVersion = false;
 let saveTimer = null;
 
 // === Allgemeines Rückgängig (wie Strg+Z / Rückgängig-Button in Excel) ===
@@ -1573,6 +1582,15 @@ async function loadFromSharePoint(){
           });
         }
         if(data.monatsabschluss){
+          // Versionsprüfung: läuft hier eine ältere Board-Fassung als die zuletzt gespeicherte,
+          // darf dieser Tab nichts mehr speichern (siehe BOARD_VERSION oben).
+          if(typeof data.boardVersion === 'number' && data.boardVersion > BOARD_VERSION){
+            if(!saveBlockedByVersion){
+              saveBlockedByVersion = true;
+              showSyncDebug('⚠️ Dieses Fenster nutzt eine veraltete Fassung des Boards. Speichern ist gesperrt, damit keine alten Daten zurückgeschrieben werden. Bitte die Seite neu laden (Strg+F5).', true);
+            }
+            return;
+          }
           // Server-Stand direkt übernehmen - genau wie bei den Mitarbeiterdaten (state.agents),
           // die zuverlässig funktionieren. Nur komplett fehlende Monate werden lokal ergänzt.
           const merged = data.monatsabschluss;
@@ -1666,6 +1684,11 @@ async function loadFromSharePoint(){
 }
 
 async function saveToSharePoint(){
+  if(saveBlockedByVersion){
+    console.warn('Speichern gesperrt: dieses Fenster nutzt eine veraltete Board-Fassung.');
+    setSyncStatus('error');
+    return;
+  }
   const appToken = getKIAppToken();
   if(!appToken){
     console.warn('Kein Zugangs-Passwort hinterlegt - Speichern übersprungen.');
@@ -1737,7 +1760,7 @@ async function saveToSharePoint(){
     const resp = await fetch(KI_PROXY_URL + '/data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
-      body: JSON.stringify({ action: 'save', data: state })
+      body: JSON.stringify({ action: 'save', data: { ...state, boardVersion: BOARD_VERSION } })
     });
     if(resp && resp.ok){
       setSyncStatus('ok');
