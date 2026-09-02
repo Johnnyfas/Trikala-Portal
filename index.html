@@ -1589,23 +1589,13 @@ async function loadFromSharePoint(){
           });
         }
         if(data.monatsabschluss){
-          // Einfache, direkte Übernahme vom Server - wie bei den Mitarbeiterdaten (state.agents).
-          // Die vorherige Feld-für-Feld-Zusammenführung mit der Code-Vorlage (MA_SEED) war über
-          // mehrere Schichten hinweg fehleranfällig und hat wiederholt frische Eingaben (Planmenge,
-          // NPS, Storno) beim Laden wieder verworfen. Der Server-Stand ist jetzt beim Laden die
-          // alleinige Wahrheit; nur komplett fehlende Monate (die es lokal, aber noch nie auf dem
-          // Server gab) werden ergänzt - keine Feld-für-Feld-Sonderfälle mehr.
-          // Server-Stand übernehmen - AUSSER für Monate, die in dieser Sitzung selbst bearbeitet
-          // wurden (die werden per saveFieldDirect() ohnehin sofort und einzeln in die Datenbank
-          // geschrieben, ihr lokaler Stand ist also der aktuellere).
+          // Server-Stand direkt übernehmen - genau wie bei den Mitarbeiterdaten (state.agents),
+          // die zuverlässig funktionieren. Nur komplett fehlende Monate werden lokal ergänzt.
           const merged = data.monatsabschluss;
           Object.keys(state.monatsabschluss||{}).forEach(team=>{
             if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
             Object.keys(state.monatsabschluss[team]).forEach(monat=>{
-              const lokal = state.monatsabschluss[team][monat];
-              if(!merged[team][monat]){ merged[team][monat] = lokal; return; }
-              // In dieser Sitzung selbst bearbeitet? Dann lokalen Stand behalten.
-              if(maSelbstBearbeitet.has(team + '|' + monat)) merged[team][monat] = lokal;
+              if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
             });
           });
           state.monatsabschluss = merged;
@@ -1633,7 +1623,6 @@ async function loadFromSharePoint(){
               md.nps_ist = 0;
               md.crGesamtZiel = 0;
               md.crGesamtErreicht = 0;
-              md._updatedAt = Date.now();
             });
           });
           localStorage.setItem('ma_sept_dez_bereinigt', '1');
@@ -1748,30 +1737,6 @@ async function saveToSharePoint(){
           const localIds = new Set((state.coachingPlan||[]).map(p=>p.id));
           const extra = serverData.coachingPlan.filter(p=>!localIds.has(p.id) && !deletedSet.has(p.id));
           state.coachingPlan = [...(state.coachingPlan||[]), ...extra].filter(p=>!deletedSet.has(p.id));
-        }
-
-        // Monatsabschluss: pro Monat den wirklich neueren Stand behalten (Zeitstempel-Vergleich).
-        // Wichtig bei mehreren offenen Tabs - ohne das würde der komplette Monatsabschluss-Stand
-        // dieses Tabs (auch wenn er schon veraltet ist, weil er ihn nur einmal pro Sitzung lädt)
-        // beim Speichern blind alles überschreiben, was zwischenzeitlich anderswo eingetragen wurde.
-        if(serverData.monatsabschluss){
-          Object.keys(serverData.monatsabschluss).forEach(team=>{
-            if(!state.monatsabschluss[team]){ state.monatsabschluss[team] = serverData.monatsabschluss[team]; return; }
-            Object.keys(serverData.monatsabschluss[team]).forEach(monat=>{
-              const serverMd = serverData.monatsabschluss[team][monat];
-              const localMd = state.monatsabschluss[team][monat];
-              if(!localMd){ state.monatsabschluss[team][monat] = serverMd; return; }
-              const serverTs = serverMd._updatedAt || 0;
-              const localTs = localMd._updatedAt || 0;
-              if(serverTs > localTs){
-                // Server hat einen neueren Stand (von einem anderen Tab/einer anderen Person) -
-                // den übernehmen statt den eigenen (älteren) Stand draufzuspeichern.
-                state.monatsabschluss[team][monat] = serverMd;
-              }
-              // sonst: lokaler Stand ist gleich neu oder neuer - unverändert lassen, wird gleich
-              // mitgespeichert.
-            });
-          });
         }
 
         // To-Do's: jede Person behält nur ihre eigenen lokal, fremde Personen vom Server übernehmen
@@ -1985,27 +1950,11 @@ let saveEpoch = 0;
 // Ladevorgang (Hintergrund-Sync, Excel-Sync-Speichern, o.ä.) liefert - nur echte Eingaben von
 // dir können ihn noch ändern. Das schließt jede denkbare zeitliche Überschneidung endgültig aus,
 // unabhängig von der genauen Ursache.
-let monatsabschlussInitialGeladen = false;
-// Merkt sich, welche Monate in DIESER Sitzung selbst bearbeitet wurden ("team|monat") - für die
-// gilt der lokale Stand als der aktuellere, alle anderen kommen frisch vom Server.
-const maSelbstBearbeitet = new Set();
-
-// Verhindert, dass Monatsabschluss während einer laufenden Eingabe (Feld hat gerade Fokus) neu
-// aufgebaut wird - genau das konnte eine noch unfertige Eingabe als "fertig" abschneiden und
-// sofort (mit falschem Zwischenwert) speichern.
+// Verhindert, dass Monatsabschluss während einer laufenden Eingabe (Feld hat gerade Fokus) im
+// Hintergrund neu geladen wird - das könnte eine noch unfertige Eingabe überschreiben.
 function maIsTyping(){
   const el = document.activeElement;
   return !!(el && el.classList && el.classList.contains('ma-input'));
-}
-// Merkt den bearbeiteten Monat (damit ein Ladevorgang den lokalen Stand dafür nicht überschreibt)
-// und den Zeitstempel der Änderung (für den Abgleich bei mehreren offenen Tabs).
-// Der frühere "Wachhund", der Werte alle 2s aktiv zurückschrieb, wurde entfernt: er war eine
-// Notlösung aus der Zeit, als die eigentliche Ursache (fehlerhaftes Speichern im Worker) noch
-// unbekannt war - und konnte selbst veraltete Werte wieder hineinschreiben.
-function maWatch(team, monat, feld, produkt, wert){
-  maSelbstBearbeitet.add(team + '|' + monat);
-  const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
-  if(md) md._updatedAt = Date.now();
 }
 async function runSave(){
   if(saveInProgress){ saveQueued = true; return; }
@@ -2708,21 +2657,6 @@ let kiHistory = [];
 
 // >>> Nach dem Deployment deines Cloudflare Workers hier die Worker-URL eintragen: <<<
 const KI_PROXY_URL = 'https://coaching-proxy.g-fasoulas1989.workers.dev';
-
-// Speichert EIN einzelnes Feld sofort und direkt (per JSON-Pfad), ohne den ganzen restlichen
-// Datensatz anzufassen - für Planmenge/NPS Ziel, die durch das übliche Zusammenführen beim
-// normalen Speichern wiederholt zurückgesetzt wurden.
-async function saveFieldDirect(path, value){
-  try{
-    const appToken = getKIAppToken();
-    if(!appToken) return;
-    await fetch(KI_PROXY_URL + '/data', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
-      body: JSON.stringify({ action: 'save-field', path, value })
-    });
-  }catch(e){ console.error('Direktes Feld-Speichern fehlgeschlagen:', e); }
-}
 
 function getKIAppToken(){
   return localStorage.getItem('ki_app_token') || '';
@@ -5533,9 +5467,6 @@ function renderMonatsabschluss(){
         inp.addEventListener('focus', e=>e.target.select());
         inp.addEventListener('change', e=>{
           md[dataKey][p] = parseFloat(e.target.value)||0;
-          maWatch(teamKey, monat, dataKey, p, md[dataKey][p]);
-          md._updatedAt = Date.now();
-          if(dataKey === 'plan') saveFieldDirect(['monatsabschluss', teamKey, monat, 'plan', p], md.plan[p]);
           scheduleSave();
           renderMonatsabschluss();
         });
@@ -5611,7 +5542,6 @@ function renderMonatsabschluss(){
         inp.addEventListener('focus', e=>e.target.select());
         inp.addEventListener('change', e=>{
           md[dataKey][p] = parseFloat(e.target.value.replace('%','').replace(',','.'))||0;
-          maWatch(teamKey, monat, dataKey, p, md[dataKey][p]);
           scheduleSave(); renderMonatsabschluss();
         });
         td.appendChild(inp);
@@ -5722,8 +5652,8 @@ function renderMonatsabschluss(){
     // NPS Box links
     const npsLeftBox = document.createElement('div');
     npsLeftBox.className = 'ma-side-box';
-    npsLeftBox.appendChild(mkNpsBox('ziel', 'NPS Ziel', md.nps_plan, v=>{ md.nps_plan=v; maWatch(teamKey, monat, 'nps_plan', '_', v); md._updatedAt = Date.now(); saveFieldDirect(['monatsabschluss', teamKey, monat, 'nps_plan'], v); }));
-    npsLeftBox.appendChild(mkNpsBox('ist', 'NPS Erreicht', md.nps_ist, v=>{ md.nps_ist=v; maWatch(teamKey, monat, 'nps_ist', '_', v); md._updatedAt = Date.now(); }));
+    npsLeftBox.appendChild(mkNpsBox('ziel', 'NPS Ziel', md.nps_plan, v=>{ md.nps_plan=v; }));
+    npsLeftBox.appendChild(mkNpsBox('ist', 'NPS Erreicht', md.nps_ist, v=>{ md.nps_ist=v; }));
 
     // CR Box rechts
     const crRightBox = document.createElement('div');
@@ -6147,13 +6077,8 @@ document.getElementById('ma-reset-plan-nps-btn').addEventListener('click', ()=>{
     Object.keys(state.monatsabschluss[team]).forEach(monat=>{
       if(!targetMonths.includes(monat)) return;
       const md = state.monatsabschluss[team][monat];
-      if(md.plan) Object.keys(md.plan).forEach(p=>{
-        md.plan[p] = 0;
-        saveFieldDirect(['monatsabschluss', team, monat, 'plan', p], 0);
-      });
+      if(md.plan) Object.keys(md.plan).forEach(p=>{ md.plan[p] = 0; });
       md.nps_plan = 0;
-      saveFieldDirect(['monatsabschluss', team, monat, 'nps_plan'], 0);
-      md._updatedAt = Date.now();
     });
   });
   scheduleSave();
