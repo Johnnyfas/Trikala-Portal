@@ -892,7 +892,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 11;
+const BOARD_VERSION = 12;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -5615,9 +5615,14 @@ function renderMonatsabschluss(){
     const md = data[monat];
     if(!md){ container.appendChild(section); return; }
 
-    // Feste Reihenfolge: BB, SU, BOJ, VVM, TV, MF (NA und andere ausgeschlossen)
-    const PROD_ORDER = ['BB','NG (BB)','SU','BOJ','VVM','TV','MF NG','MF'];
+    // Feste Reihenfolge: MF NG, BB, SU, HV (BOJ), VVM Gesamt (VVM), TV, MF (NA ausgeschlossen)
+    const PROD_ORDER = ['MF NG','BB','SU','NG (BB)','BOJ','VVM','TV','MF'];
     const EXCLUDE = ['NA'];
+    // Anzeige-Labels pro Schlüssel (team-spezifisch): BOJ → HV, VVM → VVM Gesamt für mf-Team
+    const PROD_LABELS = teamKey === 'mf'
+      ? { 'BOJ': 'HV', 'VVM': 'VVM Gesamt', 'MF NG': 'MF NG' }
+      : {};
+    const prodLabel = p => PROD_LABELS[p] || p;
     const allProds = Object.keys(md.plan).filter(p => !EXCLUDE.includes(p));
     const produkte = PROD_ORDER.filter(p => allProds.includes(p))
       .concat(allProds.filter(p => !PROD_ORDER.includes(p) && !EXCLUDE.includes(p)));
@@ -5626,7 +5631,7 @@ function renderMonatsabschluss(){
     t.className = 'ma-table';
 
     // Header
-    t.innerHTML = `<tr><th>${monat}</th>${produkte.map(p=>`<th>${p}</th>`).join('')}</tr>`;
+    t.innerHTML = `<tr><th>${monat}</th>${produkte.map(p=>`<th>${prodLabel(p)}</th>`).join('')}</tr>`;
 
     const mkEditRow = (label, dataKey, rowClass) => {
       const row = document.createElement('tr');
@@ -6211,8 +6216,8 @@ function renderTeamZiele(){
   };
 
   renderTeam('mf', 'MF Trikala — Mobilfunk PK',
-    ['BB','SU','BOJ','TV','MF'],
-    {BB:'BB',SU:'SU',BOJ:'BOJ',TV:'TV',MF:'MF'}
+    ['BB','SU','BOJ','VVM','TV','MF'],
+    {BB:'BB',SU:'SU',BOJ:'HV',VVM:'VVM Gesamt',TV:'TV',MF:'MF'}
   );
   renderTeam('fn', 'FN Team — Festnetz PK',
     ['BB','SU','BOJ','VVM','TV','MF'],
