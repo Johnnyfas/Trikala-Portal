@@ -894,7 +894,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 8;
+const BOARD_VERSION = 9;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -6286,7 +6286,12 @@ function renderTageswerte(){
         orderedProducts.forEach((p, colIdx)=>{
           row.appendChild(mkTwInput(
             ()=>{ const dv = getDv(); return dv && dv.sales ? dv.sales[p] : null; },
-            v=>{ const dv = ensureDv(); if(!dv.sales) dv.sales = {}; dv.sales[p] = v; },
+            v=>{
+              const dv = ensureDv(); if(!dv.sales) dv.sales = {}; dv.sales[p] = v;
+              // Monatssumme sofort neu berechnen, damit "Mitarbeiter Ziele" den Wert direkt
+              // übernimmt - vorher passierte das erst beim Öffnen der Monatsstand-Seite.
+              twRecomputeAgent(agent, cfg);
+            },
             false, rowIdx, colIdx
           ));
         });
