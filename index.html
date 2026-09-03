@@ -892,7 +892,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 12;
+const BOARD_VERSION = 13;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -5573,7 +5573,7 @@ function renderMonatsabschluss(){
   }
 
   mkBox('Gesamt CR — Monatsverlauf', ()=>[
-    { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; if(!md) return 0; return md.crGesamtErreicht||Object.values(md.cr||{}).reduce((s,v)=>s+v,0); }) },
+    { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; if(!md) return 0; return md.crGesamtErreicht||Object.entries(md.cr||{}).filter(([k])=>k!=='BOJ').reduce((s,[,v])=>s+v,0); }) },
     { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; if(!md) return 0; return md.crGesamtErreicht||Object.entries(md.cr||{}).filter(([k])=>k!=='BOJ').reduce((s,[,v])=>s+v,0); }) }
   ], true, 20);
 
@@ -5848,8 +5848,9 @@ function renderMonatsabschluss(){
     // CR Box rechts
     const crRightBox = document.createElement('div');
     crRightBox.className = 'ma-side-box';
-    // CR Gesamt automatisch berechnen aus Produkt-CRs
-    const EXCL_CR = teamKey === 'fn' ? ['BOJ'] : [];
+    // CR Gesamt automatisch berechnen aus Produkt-CRs - HV (intern: BOJ) wird bei beiden Teams
+    // ausgeschlossen, da HV/BOJ eine eigene Produktkategorie ist und nicht in die Gesamt-CR fließt.
+    const EXCL_CR = ['BOJ'];
     const crGesamtCalc = Object.entries(md.cr||{})
       .filter(([k])=>!EXCL_CR.includes(k))
       .reduce((s,[,v])=>s+(parseFloat(v)||0), 0);
@@ -6004,12 +6005,8 @@ function renderTeamZiele(){
 
     sidebar.appendChild(mkCrSideBox('gestern', 'CR Gestern', tz.crGestern||0, v=>{ tz.crGestern=v; }, false));
     const crAktSide = tz.crAktuell || {};
-    let crMonatSide;
-    if(key === 'fn'){
-      crMonatSide = cols.filter(p=>p!=='BOJ').reduce((s,p)=>s+(parseFloat(crAktSide[p]||0)),0);
-    } else {
-      crMonatSide = cols.reduce((s,p)=>s+(parseFloat(crAktSide[p]||0)),0);
-    }
+    // BOJ (= HV) wird bei beiden Teams aus der CR-Gesamt-Berechnung ausgeschlossen
+    const crMonatSide = cols.filter(p=>p!=='BOJ').reduce((s,p)=>s+(parseFloat(crAktSide[p]||0)),0);
     sidebar.appendChild(mkCrSideBox('monat', 'CR Monat', crMonatSide, null, true));
     sidebar.appendChild(mkCrSideBox('ziel', 'CR Ziel', tz.crZiel||0, v=>{ tz.crZiel=v; }, false));
 
