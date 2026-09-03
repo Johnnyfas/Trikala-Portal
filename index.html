@@ -772,11 +772,13 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
         <button class="tab-btn active" id="sub-coachplan" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Coaching Plan</button>
         <button class="tab-btn" id="sub-coachverlauf" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Coaching Verlauf</button>
         <button class="tab-btn" id="sub-workshops" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/><circle cx="17" cy="8" r="2.5"/><path d="M17 13c2.5 0 5 1.5 5 4"/></svg>Workshops</button>
+        <button class="tab-btn" id="sub-gespraeche" style="font-size:13px;padding:7px 16px;">💬 Einzelgespräche</button>
         <button class="tab-btn" id="sub-termine" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Termin Kalender</button>
       </div>
       <div id="coachplan-container"></div>
       <div id="coachverlauf-container" style="display:none;"></div>
       <div id="workshops-container" style="display:none;"></div>
+      <div id="gespraeche-container" style="display:none;"></div>
       <div id="termine-container" style="display:none;"></div>
     </div>
   </div>
@@ -894,7 +896,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 9;
+const BOARD_VERSION = 10;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -2058,7 +2060,7 @@ function agentsWithNotesForTeam(teamAgents){
   return teamAgents.filter(agent=>{
     if(!agent.name.trim()) return false;
     const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop') : [];
+    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') : [];
     const echteNotizen = eintraege.filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)');
     return echteNotizen.length >= 2;
   });
@@ -2078,7 +2080,7 @@ async function generateTeamKiSummaries(teamId, cfg, teamAgents, btn){
 
   const payload = kandidaten.map(agent=>{
     const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop') : [];
+    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') : [];
     const notizen = eintraege
       .filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)')
       .sort((a,b)=>{
@@ -2180,6 +2182,7 @@ const COACHDASH_SUBS = {
   coachplan:    { btn: 'sub-coachplan',    container: 'coachplan-container',    render: ()=>renderCoachPlan() },
   coachverlauf: { btn: 'sub-coachverlauf', container: 'coachverlauf-container', render: ()=>renderCoachVerlauf() },
   workshops:    { btn: 'sub-workshops',    container: 'workshops-container',    render: ()=>renderWorkshops() },
+  gespraeche:   { btn: 'sub-gespraeche',   container: 'gespraeche-container',   render: ()=>renderEinzelgespraeche() },
   termine:      { btn: 'sub-termine',      container: 'termine-container',      render: ()=>renderTermineKalender() }
 };
 function switchCoachDashSub(sub){
@@ -3033,6 +3036,100 @@ Beachte:
 let cvSelectedTeam = 'all';
 let cvSearchText = '';
 
+function renderEinzelgespraeche(){
+  const container = document.getElementById('gespraeche-container');
+  container.innerHTML = '';
+
+  // Alle Einzelgespräch-Einträge sammeln (mit Mitarbeiter-Bezug)
+  const list = [];
+  Object.values(state.coachverlauf).forEach(cv=>{
+    (cv.eintraege||[]).forEach(e=>{
+      if(e.stil !== 'Einzelgespräch') return;
+      list.push({ ...e, agentName: cv.name, agentTeam: cv.team });
+    });
+  });
+  list.sort((a,b)=>{
+    const da = (a.datum||'').split('.').reverse().join('-');
+    const db = (b.datum||'').split('.').reverse().join('-');
+    return db.localeCompare(da);
+  });
+
+  if(!list.length){
+    container.appendChild(emptyStateEl('Noch keine Einzelgespräche erfasst', 'Lege eines über "+ Neues Coaching → Einzelgespräch" an.'));
+    return;
+  }
+
+  list.forEach(g=>{
+    const block = document.createElement('div');
+    block.className = 'cv-agent-block';
+
+    const teamLabel = TEAM_CONFIGS[g.agentTeam] ? TEAM_CONFIGS[g.agentTeam].label : g.agentTeam;
+    const head = document.createElement('div');
+    head.className = 'cv-agent-head';
+    head.innerHTML = `<span class="cv-agent-name">💬 ${g.agentName}</span><span style="font-size:11px;opacity:.85;">${teamLabel} · ${g.datum}</span>`;
+    block.appendChild(head);
+
+    const body = document.createElement('div');
+    body.className = 'cv-entry';
+
+    const top = document.createElement('div');
+    top.className = 'cv-entry-top';
+    const meta = document.createElement('div');
+    meta.className = 'cv-entry-meta';
+    const dateEl = document.createElement('span');
+    dateEl.className = 'cv-entry-date';
+    dateEl.textContent = g.datum;
+    meta.appendChild(dateEl);
+    if(g.coach){
+      const b = document.createElement('span');
+      b.className = 'cv-meta-badge';
+      b.style.cssText = 'background:var(--tmg)22;color:var(--tmg);';
+      b.textContent = '👤 ' + g.coach;
+      meta.appendChild(b);
+    }
+    top.appendChild(meta);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'cv-entry-delete';
+    delBtn.innerHTML = '🗑';
+    delBtn.title = 'Einzelgespräch löschen';
+    delBtn.addEventListener('click', ()=>{
+      if(!confirm(`Einzelgespräch mit ${g.agentName} vom ${g.datum} wirklich löschen?`)) return;
+      markDeleted(g.id);
+      const realCv = Object.values(state.coachverlauf).find(v => v.name === g.agentName && v.team === g.agentTeam);
+      if(realCv) realCv.eintraege = (realCv.eintraege||[]).filter(e=>e.id !== g.id);
+      scheduleSave();
+      renderAll();
+    });
+    top.appendChild(delBtn);
+    body.appendChild(top);
+
+    const notizLabel = document.createElement('div');
+    notizLabel.style.cssText = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:8px 0 4px;';
+    notizLabel.textContent = '📝 Notizen';
+    body.appendChild(notizLabel);
+    const notizText = document.createElement('div');
+    notizText.className = 'cv-entry-text';
+    notizText.textContent = g.text || '(keine Notiz)';
+    body.appendChild(notizText);
+
+    if(g.vereinbarung && g.vereinbarung.trim()){
+      const verLabel = document.createElement('div');
+      verLabel.style.cssText = 'font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:12px 0 4px;';
+      verLabel.textContent = '🤝 Coaching Vereinbarung';
+      body.appendChild(verLabel);
+      const verText = document.createElement('div');
+      verText.className = 'cv-entry-text';
+      verText.style.cssText = 'background:var(--teal-soft);border-left:3px solid var(--teal);padding:8px 10px;border-radius:6px;';
+      verText.textContent = g.vereinbarung;
+      body.appendChild(verText);
+    }
+
+    block.appendChild(body);
+    container.appendChild(block);
+  });
+}
+
 function renderWorkshops(){
   const container = document.getElementById('workshops-container');
   container.innerHTML = '';
@@ -3187,7 +3284,7 @@ function renderCoachVerlauf(){
   // Einträge anzeigen (Workshops werden separat im Workshops-Reiter gezeigt)
   let totalEntries = 0;
   const entries = Object.values(state.coachverlauf)
-    .map(cv => ({ ...cv, eintraege: (cv.eintraege||[]).filter(e => e.stil !== 'Workshop') }))
+    .map(cv => ({ ...cv, eintraege: (cv.eintraege||[]).filter(e => e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') }))
     .filter(cv => {
       if(cvSelectedTeam !== 'all' && cv.team !== cvSelectedTeam) return false;
       if(cvSearchText && !cv.name.toLowerCase().includes(cvSearchText.toLowerCase())) return false;
@@ -3404,7 +3501,7 @@ function computeCoachStats(){
   Object.values(state.coachverlauf).forEach(cv=>{
     const cfg = TEAM_CONFIGS[cv.team];
     const label = cfg ? cfg.label : null;
-    (cv.eintraege||[]).filter(e=>e.stil !== 'Workshop').forEach(e=>{
+    (cv.eintraege||[]).filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch').forEach(e=>{
       if(label && countByTeam.hasOwnProperty(label)){
         countByTeam[label]++;
         dauerByTeam[label] += (e.dauer||0);
@@ -3777,6 +3874,86 @@ function buildWorkshopForm(){
   return wrap;
 }
 
+function buildEinzelgespraechForm(){
+  const wrap = document.createElement('div');
+  wrap.className = 'cp-form cf-wrap';
+  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
+
+  const agentSel = document.createElement('select');
+  agentSel.className = 'cp-form-select';
+  agentSel.innerHTML = Object.keys(TEAM_CONFIGS).map(teamId=>{
+    const teamAgents = allAgents.filter(a=>a.team===teamId);
+    if(!teamAgents.length) return '';
+    return `<optgroup label="${TEAM_CONFIGS[teamId].label}">` +
+      teamAgents.map(a=>`<option value="${a.id}">${a.name}</option>`).join('') +
+      `</optgroup>`;
+  }).join('');
+
+  const row1 = document.createElement('div');
+  row1.className = 'cp-form-row';
+  row1.appendChild(labeledField('Mitarbeiter', agentSel));
+  wrap.appendChild(row1);
+
+  const notesTitle = document.createElement('div');
+  notesTitle.className = 'cf-section-title';
+  notesTitle.textContent = '📝 Notizen';
+  wrap.appendChild(notesTitle);
+  const notesArea = document.createElement('textarea');
+  notesArea.className = 'cp-form-textarea';
+  notesArea.placeholder = 'Worum ging es im Gespräch? Anliegen, Situation, Beobachtungen...';
+  wrap.appendChild(notesArea);
+
+  const vereinbarungTitle = document.createElement('div');
+  vereinbarungTitle.className = 'cf-section-title';
+  vereinbarungTitle.textContent = '🤝 Coaching Vereinbarung';
+  wrap.appendChild(vereinbarungTitle);
+  const vereinbarungArea = document.createElement('textarea');
+  vereinbarungArea.className = 'cp-form-textarea';
+  vereinbarungArea.placeholder = 'Was wurde konkret vereinbart? Nächste Schritte, Ziele, Termine...';
+  wrap.appendChild(vereinbarungArea);
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'cf-btn-row';
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'primary';
+  saveBtn.textContent = '💾 Einzelgespräch speichern';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'secondary';
+  cancelBtn.textContent = '✕ Abbrechen';
+
+  saveBtn.addEventListener('click', ()=>{
+    const agent = state.agents.find(a=>a.id===agentSel.value);
+    if(!agent){ alert('Bitte einen Mitarbeiter auswählen.'); return; }
+    if(!notesArea.value.trim() && !vereinbarungArea.value.trim()){
+      alert('Bitte mindestens eine Notiz oder eine Vereinbarung eintragen.');
+      return;
+    }
+    const datum = new Date().toLocaleDateString('de-DE');
+    if(!state.coachverlauf[agent.id]){
+      state.coachverlauf[agent.id] = { name: agent.name, team: agent.team, eintraege: [] };
+    }
+    state.coachverlauf[agent.id].eintraege.unshift({
+      id: uid(),
+      datum: datum,
+      text: notesArea.value.trim() || '(Einzelgespräch ohne Notiz)',
+      vereinbarung: vereinbarungArea.value.trim(),
+      stil: 'Einzelgespräch',
+      coach: getCoachName()
+    });
+    scheduleSave();
+    cpShowForm = false;
+    cpFormType = 'coaching';
+    renderAll();
+  });
+  cancelBtn.addEventListener('click', ()=>{ cpShowForm = false; cpFormType = 'coaching'; renderCoachPlan(); });
+
+  btnRow.appendChild(saveBtn);
+  btnRow.appendChild(cancelBtn);
+  wrap.appendChild(btnRow);
+
+  return wrap;
+}
+
 function buildCoachingRecordForm(prefill){
   prefill = prefill || {};
   const wrap = document.createElement('div');
@@ -3975,6 +4152,7 @@ function renderCoachPlan(){
     };
     menu.appendChild(mkItem('🗣️', 'Coaching (Einzel)', 'coaching'));
     menu.appendChild(mkItem('👥', 'Workshop (Gruppe)', 'workshop'));
+    menu.appendChild(mkItem('💬', 'Einzelgespräch', 'einzelgespraech'));
     actionRow.appendChild(menu);
     setTimeout(()=>{
       document.addEventListener('click', function closeMenu(){
@@ -3988,7 +4166,11 @@ function renderCoachPlan(){
   container.appendChild(actionRow);
 
   if(cpShowForm){
-    container.appendChild(cpFormType === 'workshop' ? buildWorkshopForm() : buildCoachingRecordForm(cpPrefill));
+    container.appendChild(
+      cpFormType === 'workshop' ? buildWorkshopForm() :
+      cpFormType === 'einzelgespraech' ? buildEinzelgespraechForm() :
+      buildCoachingRecordForm(cpPrefill)
+    );
   }
 
   container.appendChild(buildPriorityList());
