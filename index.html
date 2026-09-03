@@ -892,7 +892,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 13;
+const BOARD_VERSION = 14;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -2548,6 +2548,16 @@ function renderHallOfFame(){
     const npsOk = (md.nps || 0) >= npsZielMonat;
     if(!npsOk) return null;
 
+    // LQ Ziel prüfen (ab September 2026)
+    const [monatJahr, monatName] = monatKey.split('-');
+    const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    const monatIdx = MONATE_ORDER.indexOf(monatName);
+    const isAbSeptember2026 = parseInt(monatJahr) > 2026 || (parseInt(monatJahr) === 2026 && monatIdx >= 8);
+    if(isAbSeptember2026 && md.lq !== undefined && md.lq > 0){
+      const lqOk = md.lq >= cfg.lqTarget;
+      if(!lqOk) return null;
+    }
+
     // CR Ziel prüfen (nur wenn CR-Daten vorhanden)
     if(md.cr && md.cr > 0){
       const crOk = md.cr >= cfg.crTarget;
@@ -2569,7 +2579,9 @@ function renderHallOfFame(){
       name: agent.name,
       team: agent.team,
       nps: md.nps,
+      lq: md.lq,
       npsTarget: npsZielMonat,
+      lqTarget: cfg.lqTarget,
       crTarget: cfg.crTarget,
       goalsHit,
       totalGoals: prods.length,
@@ -2643,6 +2655,7 @@ function renderHallOfFame(){
             <span class="hof-name">${w.name}</span>
             <div class="hof-stats">
               <span class="hof-stat good">NPS ${w.nps.toFixed(1)}%</span>
+              ${w.lq !== undefined && w.lq > 0 ? `<span class="hof-stat good">LQ ${w.lq.toFixed(1)}%</span>` : ''}
               <span class="hof-stat good">${w.goalsHit}/${w.totalGoals} Ziele</span>
               ${w.cr > 0 ? `<span class="hof-stat ok">CR ${w.cr.toFixed(2)}%</span>` : ''}
             </div>
