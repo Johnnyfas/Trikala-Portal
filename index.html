@@ -892,7 +892,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 14;
+const BOARD_VERSION = 15;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -5628,8 +5628,11 @@ function renderMonatsabschluss(){
     const md = data[monat];
     if(!md){ container.appendChild(section); return; }
 
-    // Feste Reihenfolge: MF NG, BB, SU, HV (BOJ), VVM Gesamt (VVM), TV, MF (NA ausgeschlossen)
-    const PROD_ORDER = ['MF NG','BB','SU','NG (BB)','BOJ','VVM','TV','MF'];
+    // Reihenfolge wie in Team Ziele: MF Team: MF NG, BB, SU, HV(BOJ), VVM Gesamt(VVM), TV, MF
+    //                                  FN Team: NG(BB), SU, BOJ, VVM, TV, MF
+    const PROD_ORDER = teamKey === 'mf'
+      ? ['MF NG', 'BB', 'SU', 'BOJ', 'VVM', 'TV', 'MF']
+      : ['NG (BB)', 'SU', 'BOJ', 'VVM', 'TV', 'MF'];
     const EXCLUDE = ['NA'];
     // Anzeige-Labels pro Schlüssel (team-spezifisch): BOJ → HV, VVM → VVM Gesamt für mf-Team
     const PROD_LABELS = teamKey === 'mf'
