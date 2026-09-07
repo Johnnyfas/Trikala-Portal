@@ -6633,7 +6633,12 @@ function renderOverview(){
         `<div class="ov-cell name-cell head">Mitarbeiter</div>` +
         `<div class="ov-cell qual-cell head">NPS<span style="font-size:9px;font-weight:400;">Ziel ${cfg.npsTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head">LQ<span style="font-size:9px;font-weight:400;">Ziel ${cfg.lqTarget}%</span></div>` +
-        displayOrderProducts(cfg.products, teamId).map(p=>`<div class="ov-cell sales-cell head">${productLabel(p, teamId)}</div>`).join('') +
+        displayOrderProducts(cfg.products, teamId).map(p=>{
+          const lbl = productLabel(p, teamId);
+          // Lange Namen mit "+" umbrechen (z.B. "VVM+NVM" → "VVM<br>+<br>NVM")
+          const fmt = lbl.includes('+') ? lbl.split('+').join('<br>+<br>') : lbl;
+          return `<div class="ov-cell sales-cell head">${fmt}</div>`;
+        }).join('') +
         `<div class="ov-cell cr-cell head">★ CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head cht-group-start cht-group-first">Calls</div>` +
         `<div class="ov-cell qual-cell head cht-group-end cht-group-first">CHT</div>`;
