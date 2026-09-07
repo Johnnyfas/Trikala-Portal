@@ -5927,16 +5927,16 @@ function renderMonatsabschluss(){
     // CHT & Calls Luftbalsen (unter der NPS-Seite)
     const mkSimpleBox = (labelTxt, val, onChange, colorFn) => {
       const box = document.createElement('div');
-      box.style.cssText = 'border-radius:16px;padding:14px 18px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.09);';
+      box.style.cssText = 'border-radius:16px;padding:10px 8px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.09);';
       box.style.background = colorFn ? colorFn(val) : 'linear-gradient(135deg,#F3E5F5,#CE93D8)';
       const lbl = document.createElement('div');
-      lbl.style.cssText = 'font-family:"Inter",sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;opacity:.75;';
+      lbl.style.cssText = 'font-family:"Inter",sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;opacity:.75;';
       lbl.textContent = labelTxt;
       const valDiv = document.createElement('div');
-      valDiv.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;';
+      valDiv.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:16px;font-weight:700;';
       const inp = document.createElement('input');
       inp.type = 'text'; inp.inputMode = 'decimal';
-      inp.style.cssText = 'background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;width:100%;text-align:center;color:inherit;';
+      inp.style.cssText = 'background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:16px;font-weight:700;width:100%;text-align:center;color:inherit;';
       inp.value = Math.round(val||0);
       inp.addEventListener('focus', e=>e.target.select());
       inp.addEventListener('change', e=>{
@@ -5951,7 +5951,7 @@ function renderMonatsabschluss(){
     };
 
     const chtCalls = document.createElement('div');
-    chtCalls.style.cssText = 'display:flex;flex-direction:column;gap:10px;min-width:110px;';
+    chtCalls.style.cssText = 'display:flex;flex-direction:column;gap:10px;min-width:80px;max-width:80px;flex-shrink:0;';
 
     const chtColor = v => {
       if(!v) return 'linear-gradient(135deg,#F3E5F5,#CE93D8)';
