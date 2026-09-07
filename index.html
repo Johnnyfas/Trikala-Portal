@@ -1999,7 +1999,8 @@ function makeAgent(team){
 
 function totalStk(agent){
   const cfg = TEAM_CONFIGS[agent.team];
-  return cfg.products.reduce((s,p)=> s + (agent.sales[p]||0), 0);
+  // BOJ (= HV) wird aus der Gesamt-CR ausgeschlossen - genau wie in Team Ziele und Monatsabschluss
+  return cfg.products.filter(p => p !== 'BOJ').reduce((s,p)=> s + (agent.sales[p]||0), 0);
 }
 function totalCr(agent){
   if(!agent.calls || agent.calls <= 0) return 0;
