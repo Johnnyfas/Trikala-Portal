@@ -6617,7 +6617,7 @@ function renderOverview(){
     measureCtx.font = nameFont;
     const longestNameWidth = teamAgents.reduce((max,a)=>Math.max(max, measureCtx.measureText(a.name||'').width), 30);
     const nameColWidth = Math.ceil(longestNameWidth + 20 /* Zell-Padding links */ + 18 /* Pill-Padding */ + 4 /* Zell-Padding rechts */ + 6 /* Puffer */) + 'px';
-    const gridCols = `${nameColWidth} repeat(${2 + cfg.products.length + 1}, 1fr) 0.95fr 0.8fr`;
+    const gridCols = `${nameColWidth} repeat(${2 + cfg.products.length + 3}, 1fr)`;
 
     function buildGrid(agentsSubset){
       const grid = document.createElement('div');
