@@ -892,7 +892,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 15;
+const BOARD_VERSION = 16;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -2409,7 +2409,7 @@ function renderCoaching(){
           const vals = mon.map(m=>(m.sales && m.sales[p])||0);
           prodAvg[p] = vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
         });
-        return { cr: avg('cr'), nps: avg('nps'), lq: avg('lq'), sales: prodAvg };
+        return { cr: avg('cr'), nps: avg('nps'), lq: avg('lq'), cht: avg('cht'), sales: prodAvg };
       }
 
       if(monatsListe.length){
@@ -2444,6 +2444,25 @@ function renderCoaching(){
         if(myCum.cr > 0) avgSection.appendChild(mkAvgRow('CR', myCum.cr, teamAvg('cr'), '%'));
         if(myCum.nps > 0) avgSection.appendChild(mkAvgRow('NPS', myCum.nps, teamAvg('nps'), '%'));
         if(myCum.lq > 0) avgSection.appendChild(mkAvgRow('LQ', myCum.lq, teamAvg('lq'), '%'));
+        if(myCum.cht > 0){
+          // CHT: für die Farbrichtung ist niedriger besser (umgekehrt zu NPS/CR),
+          // deshalb kehren wir das Arrow-Vorzeichen in mkAvgRow um
+          const chtTeam = teamAvg('cht');
+          const chtRow = document.createElement('div');
+          chtRow.className = 'panel-avg-row';
+          const diff = myCum.cht - chtTeam;
+          // Für CHT: ▼ = gut (kürzer als Schnitt), ▲ = schlecht
+          const arrowCls = diff < -5 ? 'up' : diff > 5 ? 'down' : 'eq';
+          const arrow = diff < -5 ? '▼' : diff > 5 ? '▲' : '—';
+          chtRow.innerHTML = `
+            <span class="panel-avg-label">CHT</span>
+            <div class="panel-avg-vals">
+              <span class="panel-avg-agent">${Math.round(myCum.cht)}</span>
+              <span class="panel-avg-arrow ${arrowCls}">${arrow}</span>
+              <span class="panel-avg-team">Ø${Math.round(chtTeam)}</span>
+            </div>`;
+          avgSection.appendChild(chtRow);
+        }
         cfg.products.forEach(p=>{
           const av = myCum.sales[p]||0;
           const tv = teamAvgProd(p);
