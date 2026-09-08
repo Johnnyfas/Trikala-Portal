@@ -6435,7 +6435,12 @@ document.getElementById('tw-import-helpsense-input').addEventListener('change', 
         const text = await file.text();
         const sep = text.includes('\t') ? '\t' : (text.includes(';') ? ';' : ',');
         const rows = text.split(/\r?\n/).map(r=>r.split(sep).map(c=>c.trim().replace(/^"+|"+$/g,'')));
+        // Diagnose: zeigt die ersten 3 Zeilen in der Konsole
+        console.log('Datei:', file.name, '| Trennzeichen:', sep==='	'?'TAB':sep, '| Zeilen:', rows.length);
+        console.log('Zeile 0 (Header):', rows[0]);
+        console.log('Zeile 1:', rows[1]);
         if(rows.length < 2 || !rows[0].some(h=>h.toLowerCase().includes('pylon'))){
+          console.warn('Header enthält kein "pylon":', rows[0]);
           alert(`"${file.name}" konnte nicht gelesen werden – bitte als .csv speichern und nochmal versuchen.`);
           continue;
         }
