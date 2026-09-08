@@ -896,7 +896,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 19;
+const BOARD_VERSION = 20;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -6413,23 +6413,40 @@ function applyHelpsenseData(mergedData){
 document.getElementById('tw-import-helpsense-input').addEventListener('change', async function(){
   const files = Array.from(this.files);
   if(!files.length) return;
-  const XLSX = await import('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/xlsx.mjs');
   const mergedData = {};
+
   for(const file of files){
     const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, {type:'array'});
-    wb.SheetNames.forEach(sheetName=>{
-      const ws = wb.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
-      if(rows.length < 2) return;
-      const parsed = parseHelpsenseSheet(rows);
-      Object.keys(parsed).forEach(pylon=>{
-        if(!mergedData[pylon]) mergedData[pylon] = {};
-        Object.assign(mergedData[pylon], parsed[pylon]);
-      });
-    });
+    let rows = [];
+    try {
+      // SheetJS ist global als XLSX verfügbar (eingebunden im <head>)
+      const wb = XLSX.read(buf, {type:'array'});
+      for(const sheetName of wb.SheetNames){
+        const ws = wb.Sheets[sheetName];
+        const sheetRows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        if(sheetRows.length < 2) continue;
+        const parsed = parseHelpsenseSheet(sheetRows);
+        Object.keys(parsed).forEach(p=>{ if(!mergedData[p]) mergedData[p]={}; Object.assign(mergedData[p], parsed[p]); });
+      }
+    } catch(e) {
+      // Fallback für CSV (Tab oder Semikolon getrennt)
+      const text = await file.text().catch(()=>'');
+      if(text){
+        const sep = text.includes('\t') ? '\t' : ';';
+        rows = text.split(/\r?\n/).map(r=>r.split(sep).map(c=>c.trim()));
+        const parsed = parseHelpsenseSheet(rows);
+        Object.keys(parsed).forEach(p=>{ if(!mergedData[p]) mergedData[p]={}; Object.assign(mergedData[p], parsed[p]); });
+      } else {
+        alert(`Fehler beim Lesen von "${file.name}": ${e.message}`);
+      }
+    }
   }
+
   this.value = '';
+  if(!Object.keys(mergedData).length){
+    alert('Keine gültigen Daten gefunden. Bitte prüfe, ob die Spalten "Pylon", "CHT", "Calls" usw. vorhanden sind.');
+    return;
+  }
   applyHelpsenseData(mergedData);
 });
 
