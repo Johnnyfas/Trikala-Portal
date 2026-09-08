@@ -896,7 +896,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 20;
+const BOARD_VERSION = 21;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -6419,7 +6419,8 @@ document.getElementById('tw-import-helpsense-input').addEventListener('change', 
     const buf = await file.arrayBuffer();
     let rows = [];
     try {
-      // SheetJS ist global als XLSX verfügbar (eingebunden im <head>)
+      // Warten bis SheetJS wirklich bereit ist (ist global als XLSX eingebunden)
+      if(typeof XLSX === 'undefined') throw new Error('SheetJS nicht geladen');
       const wb = XLSX.read(buf, {type:'array'});
       for(const sheetName of wb.SheetNames){
         const ws = wb.Sheets[sheetName];
@@ -6429,15 +6430,19 @@ document.getElementById('tw-import-helpsense-input').addEventListener('change', 
         Object.keys(parsed).forEach(p=>{ if(!mergedData[p]) mergedData[p]={}; Object.assign(mergedData[p], parsed[p]); });
       }
     } catch(e) {
-      // Fallback für CSV (Tab oder Semikolon getrennt)
-      const text = await file.text().catch(()=>'');
-      if(text){
-        const sep = text.includes('\t') ? '\t' : ';';
-        rows = text.split(/\r?\n/).map(r=>r.split(sep).map(c=>c.trim()));
+      // Fallback: Datei als Text lesen (Tab- oder Semikolon-CSV)
+      try {
+        const text = await file.text();
+        const sep = text.includes('\t') ? '\t' : (text.includes(';') ? ';' : ',');
+        const rows = text.split(/\r?\n/).map(r=>r.split(sep).map(c=>c.trim().replace(/^"+|"+$/g,'')));
+        if(rows.length < 2 || !rows[0].some(h=>h.toLowerCase().includes('pylon'))){
+          alert(`"${file.name}" konnte nicht gelesen werden – bitte als .csv speichern und nochmal versuchen.`);
+          continue;
+        }
         const parsed = parseHelpsenseSheet(rows);
         Object.keys(parsed).forEach(p=>{ if(!mergedData[p]) mergedData[p]={}; Object.assign(mergedData[p], parsed[p]); });
-      } else {
-        alert(`Fehler beim Lesen von "${file.name}": ${e.message}`);
+      } catch(e2) {
+        alert(`Fehler beim Lesen von "${file.name}". Bitte als .csv speichern und nochmal versuchen.`);
       }
     }
   }
