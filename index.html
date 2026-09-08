@@ -839,7 +839,10 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
         <span class="count" id="tw-count"></span>
         <div style="display:flex;align-items:center;gap:14px;">
           <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);">Änderungen werden automatisch gespeichert</span>
-          <button class="primary" id="tw-import-helpsense-btn" style="background:var(--teal);">📥 Helpsense importieren</button>
+          <label class="primary" style="background:var(--teal);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+            📥 Helpsense importieren
+            <input type="file" id="tw-import-helpsense-input" accept=".xlsx,.xls,.csv" multiple style="display:none;">
+          </label>
           <button class="primary" id="tw-reset-btn" style="background:var(--red);">🗑️ Monat zurücksetzen</button>
         </div>
       </div>
@@ -893,7 +896,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 18;
+const BOARD_VERSION = 19;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -6359,64 +6362,75 @@ function twResetMonth(){
 document.getElementById('tw-reset-btn').addEventListener('click', twResetMonth);
 
 // Helpsense-Import: überträgt CHT, Calls, NPS, LQ per Pylon-Nummer in den Monatsstand.
-// Die Werte kommen direkt aus den hochgeladenen Helpsense-Reports und werden einmalig
-// hier fest eingebaut, damit kein Datei-Upload nötig ist. Für neue Berichte diesen
-// Datensatz einfach aktualisieren.
-const HELPSENSE_DATA = {
-  30782: {cht:823,calls:65,nps:80.0,lq:75.0},
-  40810: {cht:766,calls:56,nps:53.85,lq:83.33},
-  40838: {cht:1103,calls:3,nps:100.0,lq:100.0},
-  40826: {cht:673,calls:110,nps:82.61,lq:72.73},
-  40820: {cht:563,calls:146,nps:84.62,lq:89.47},
-  40835: {cht:562,calls:145,nps:74.36,lq:76.32},
-  40840: {cht:774,calls:58,nps:89.47,lq:88.89},
-  41026: {cht:827,calls:96,nps:85.19,lq:74.07},
-  41032: {cht:935,calls:50,nps:62.5,lq:100.0},
-  41028: {cht:784,calls:82,nps:89.47,lq:84.21},
-  41234: {cht:472,calls:186,nps:44.44,lq:76.47},
-  51141: {cht:776,calls:46,nps:100.0,lq:100.0},
-  51206: {cht:594,calls:202,nps:77.78,lq:78.79},
-  51205: {cht:479,calls:197,nps:18.75,lq:53.33},
-  51234: {cht:756,calls:129,nps:80.0,lq:73.91},
-  51235: {cht:849,calls:59,nps:66.67,lq:83.33},
-  51237: {cht:553,calls:73,nps:27.78,lq:50.0},
-  51291: {cht:331,calls:24},
-  51292: {cht:887,calls:133,nps:50.0,lq:63.33},
-  51298: {cht:797,calls:120,nps:91.67,lq:88.89},
-  51350: {cht:746,calls:128,nps:79.17,lq:73.91},
-  51346: {cht:659,calls:76,nps:85.71,lq:80.0},
-  51347: {cht:732,calls:50,nps:90.0,lq:80.0},
-  51372: {cht:629,calls:153,nps:74.19,lq:76.67},
-  51373: {cht:1270,calls:56,nps:73.33,lq:66.67},
-  51615: {cht:647,calls:32},
-  51617: {cht:534,calls:126,nps:73.68,lq:66.67},
-  51618: {cht:667,calls:28},
-  51619: {cht:506,calls:171,nps:47.37,lq:70.27},
-  51616: {cht:482,calls:160,nps:69.57,lq:76.19},
-  51657: {cht:659,calls:137,nps:63.33,lq:67.86},
-  51703: {cht:573,calls:133,nps:45.0,lq:75.0},
-  51881: {cht:881,calls:107,nps:81.82,lq:81.82},
-  51885: {cht:505,calls:136,nps:50.0,lq:70.59},
-  51886: {cht:594,calls:130,nps:72.97,lq:66.67},
-};
-document.getElementById('tw-import-helpsense-btn').addEventListener('click', ()=>{
-  if(!confirm('Helpsense-Werte (CHT, Calls, NPS, LQ) per Pylon-Nummer in den Monatsstand übertragen? Bereits vorhandene Werte werden überschrieben.')) return;
+// Helpsense-Import: liest Performance- und Quality-Reports (xlsx/csv) direkt im Browser ein
+// und überträgt CHT, Calls, NPS, LQ per Pylon-Nummer in den Monatsstand.
+// Erkennt automatisch, ob es ein Performance-Report (Spalten: Pylon, CHT, Calls) oder
+// Quality-Report (Spalten: user_pylon, nps, ...) ist.
+function parseHelpsenseSheet(rows){
+  const result = {}; // pylon → {cht, calls, nps, lq}
+  if(!rows.length) return result;
+  const header = rows[0].map(h => (h||'').toString().trim().toLowerCase());
+  const col = name => header.findIndex(h => h.includes(name));
+  const pylonCol = col('pylon');
+  if(pylonCol === -1) return result;
+  const chtCol   = col('cht');
+  const callsCol = col('call');
+  const npsCol   = col('nps');
+  const lqCol    = col('lq') !== -1 ? col('lq') : col('anliegen');
+  rows.slice(1).forEach(row=>{
+    const pylonVal = row[pylonCol];
+    if(!pylonVal) return;
+    const pylon = parseInt(pylonVal);
+    if(isNaN(pylon)) return;
+    if(!result[pylon]) result[pylon] = {};
+    if(chtCol   !== -1 && row[chtCol]   !== '' && row[chtCol]   !== null && row[chtCol]   !== undefined) result[pylon].cht   = parseFloat(row[chtCol]);
+    if(callsCol !== -1 && row[callsCol] !== '' && row[callsCol] !== null && row[callsCol] !== undefined) result[pylon].calls = parseFloat(row[callsCol]);
+    if(npsCol   !== -1 && row[npsCol]   !== '' && row[npsCol]   !== null && row[npsCol]   !== undefined) result[pylon].nps   = parseFloat(row[npsCol]);
+    if(lqCol    !== -1 && row[lqCol]    !== '' && row[lqCol]    !== null && row[lqCol]    !== undefined) result[pylon].lq    = parseFloat(row[lqCol]);
+  });
+  return result;
+}
+
+function applyHelpsenseData(mergedData){
   let matched = 0, unmatched = [];
   state.agents.forEach(agent=>{
     if(!agent.pylon) return;
     const pylon = parseInt(agent.pylon);
-    const data = HELPSENSE_DATA[pylon];
-    if(!data){ unmatched.push(`${agent.name} (Pylon ${pylon})`); return; }
-    if(data.cht !== undefined) agent.cht = data.cht;
-    if(data.calls !== undefined) agent.calls = data.calls;
-    if(data.nps !== undefined) agent.nps = data.nps;
-    if(data.lq !== undefined) agent.lq = data.lq;
+    const data = mergedData[pylon];
+    if(!data || Object.keys(data).length === 0){ unmatched.push(`${agent.name} (Pylon ${pylon})`); return; }
+    if(data.cht   !== undefined && !isNaN(data.cht))   agent.cht   = data.cht;
+    if(data.calls !== undefined && !isNaN(data.calls)) agent.calls = data.calls;
+    if(data.nps   !== undefined && !isNaN(data.nps))   agent.nps   = data.nps;
+    if(data.lq    !== undefined && !isNaN(data.lq))    agent.lq    = data.lq;
     matched++;
   });
   scheduleSave();
   renderAll();
-  const unmatchedMsg = unmatched.length ? `\n\nNicht gefunden (keine Pylon-Nr. oder nicht im Report): ${unmatched.join(', ')}` : '';
+  const unmatchedMsg = unmatched.length ? `\n\nNicht gefunden (keine Pylon-Nr. oder nicht im Report):\n${unmatched.join(', ')}` : '';
   alert(`✅ ${matched} Mitarbeiter erfolgreich importiert.${unmatchedMsg}`);
+}
+
+document.getElementById('tw-import-helpsense-input').addEventListener('change', async function(){
+  const files = Array.from(this.files);
+  if(!files.length) return;
+  const XLSX = await import('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/xlsx.mjs');
+  const mergedData = {};
+  for(const file of files){
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    wb.SheetNames.forEach(sheetName=>{
+      const ws = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+      if(rows.length < 2) return;
+      const parsed = parseHelpsenseSheet(rows);
+      Object.keys(parsed).forEach(pylon=>{
+        if(!mergedData[pylon]) mergedData[pylon] = {};
+        Object.assign(mergedData[pylon], parsed[pylon]);
+      });
+    });
+  }
+  this.value = '';
+  applyHelpsenseData(mergedData);
 });
 
 // Summiert (Calls/Produkte) bzw. mittelt (NPS/LQ) alle Tageswerte des aktuellen Monats
