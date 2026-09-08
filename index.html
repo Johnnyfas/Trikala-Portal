@@ -2374,6 +2374,31 @@ function renderCoaching(){
       pylonInput.addEventListener('input', e=>{ agent.pylon = e.target.value.trim(); scheduleSave(); });
       topLeft.appendChild(pylonInput);
 
+      // A-Kennung
+      const aKennungInput = document.createElement('input');
+      aKennungInput.className = 'pylon-input';
+      aKennungInput.type = 'text';
+      aKennungInput.placeholder = 'A-Kennung';
+      aKennungInput.title = 'A-Kennung';
+      aKennungInput.value = agent.aKennung || '';
+      aKennungInput.addEventListener('input', e=>{ agent.aKennung = e.target.value.trim(); scheduleSave(); });
+      topLeft.appendChild(aKennungInput);
+
+      // Büro / Homeoffice Auswahl
+      const ortSelect = document.createElement('select');
+      ortSelect.className = 'pylon-input';
+      ortSelect.title = 'Arbeitsort';
+      ortSelect.style.cursor = 'pointer';
+      ortSelect.style.width = 'auto';
+      [['', '🏢/🏠'], ['buero', '🏢 Büro'], ['homeoffice', '🏠 Homeoffice']].forEach(([val, lbl])=>{
+        const opt = document.createElement('option');
+        opt.value = val; opt.textContent = lbl;
+        if((agent.arbeitsort||'') === val) opt.selected = true;
+        ortSelect.appendChild(opt);
+      });
+      ortSelect.addEventListener('change', e=>{ agent.arbeitsort = e.target.value; scheduleSave(); });
+      topLeft.appendChild(ortSelect);
+
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
       removeBtn.addEventListener('click', ()=>{
