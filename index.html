@@ -898,7 +898,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 23;
+const BOARD_VERSION = 24;
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -5754,7 +5754,7 @@ function renderMonatsabschluss(){
     const EXCLUDE = ['NA'];
     // Anzeige-Labels pro Schlüssel (team-spezifisch): BOJ → HV, VVM → VVM Gesamt für mf-Team
     const PROD_LABELS = teamKey === 'mf'
-      ? { 'BOJ': 'HV', 'VVM': 'VVM Gesamt', 'MF NG': 'MF NG' }
+      ? { 'BOJ': 'HV', 'VVM': 'Avia', 'MF NG': 'MF NG' }
       : {};
     const prodLabel = p => PROD_LABELS[p] || p;
     const allProds = Object.keys(md.plan).filter(p => !EXCLUDE.includes(p));
@@ -6390,7 +6390,7 @@ function renderTeamZiele(){
 
   renderTeam('mf', 'MF Trikala — Mobilfunk PK',
     ['BB','SU','BOJ','VVM','TV','MF'],
-    {BB:'BB',SU:'SU',BOJ:'HV',VVM:'VVM Gesamt',TV:'TV',MF:'MF'}
+    {BB:'BB',SU:'SU',BOJ:'HV',VVM:'Avia',TV:'TV',MF:'MF'}
   );
   renderTeam('fn', 'FN Team — Festnetz PK',
     ['BB','SU','BOJ','VVM','TV','MF'],
@@ -6543,7 +6543,8 @@ function twRecomputeAgent(agent, cfg){
   if(!days.length) return;
   // "MA" ist eine Tageswerte-spezifische Zusatzspalte (kein Teil von cfg.products), wird hier
   // mit summiert.
-  const produkte = [...cfg.products, 'MA'];
+  const extraRecompute = cfg === TEAM_CONFIGS['Trikala01'] ? ['VVM', 'MA'] : ['MA'];
+  const produkte = [...cfg.products, ...extraRecompute];
   const salesSum = {}; const salesHas = {};
   produkte.forEach(p=>{ salesSum[p]=0; salesHas[p]=false; });
   days.forEach(dKey=>{
@@ -6619,7 +6620,9 @@ function renderTageswerte(){
     // Team-Produktliste, die auch für Ziele/Quoten in anderen Reitern genutzt wird) - wird der
     // Liste hinzugefügt und dann gemeinsam in die Team-Anzeigereihenfolge sortiert (dort steht
     // MA jeweils am Ende).
-    const orderedProducts = displayOrderProducts([...cfg.products, 'MA'], teamId);
+    // Zusätzliche Produkte pro Team in Tageswerte: MA für alle, Avia (VVM) für MF-Team nach SU
+    const extraProds = teamId === 'Trikala01' ? ['VVM', 'MA'] : ['MA'];
+    const orderedProducts = displayOrderProducts([...cfg.products, ...extraProds], teamId);
     const productHeaders = orderedProducts.map(p=>productLabel(p, teamId));
     const headers = isTotal
       ? ['Mitarbeiter', 'Calls', 'CHT', ...productHeaders, 'NPS %', 'LQ %']
@@ -6757,7 +6760,7 @@ function renderTageswerte(){
 // Trikala06 = Festnetz). Wird in "Mitarbeiter Ziele" und "Tageswerte" verwendet; die interne
 // Zuordnung der Zielwerte bleibt davon unberührt, nur die Anzeige wird umsortiert.
 const PRODUCT_DISPLAY_ORDER_BY_TEAM = {
-  Trikala01: ['MF','BB','TV','SU','VVM+BOJ','VVM+NVM','MA'],
+  Trikala01: ['MF','BB','TV','SU','VVM','VVM+BOJ','VVM+NVM','MA'],
   Trikala06: ['BB','SU','TV','MF','VVM+BOJ','VVM+NVM','MA']
 };
 const PRODUCT_DISPLAY_ORDER = ['BB','SU','VVM+BOJ','VVM+NVM','TV','MF','MA'];
@@ -6765,7 +6768,7 @@ const PRODUCT_DISPLAY_ORDER = ['BB','SU','VVM+BOJ','VVM+NVM','TV','MF','MA'];
 // (z.B. "VVM+BOJ"), damit bereits erfasste Zahlen und Zielwerte weiterhin korrekt zugeordnet
 // sind - nur die Beschriftung in der Tabelle ändert sich.
 const PRODUCT_LABELS_BY_TEAM = {
-  Trikala01: { 'VVM+BOJ': 'HV' }
+  Trikala01: { 'VVM+BOJ': 'HV', 'VVM': 'Avia' }
 };
 function productLabel(p, teamId){
   const map = teamId && PRODUCT_LABELS_BY_TEAM[teamId];
