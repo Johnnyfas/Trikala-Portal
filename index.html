@@ -5069,7 +5069,7 @@ function renderVerlauf(){
 
   Object.keys(TEAM_CONFIGS).forEach(teamId => {
     const cfg = TEAM_CONFIGS[teamId];
-    const teamAgents = state.agents.filter(a => a.team === teamId);
+    const teamAgents = state.agents.filter(a => a.team === teamId && a.category !== 'schulung');
     if(!teamAgents.length) return;
 
     const rankWrap = document.createElement('div');
