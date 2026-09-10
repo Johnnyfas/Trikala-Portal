@@ -2588,6 +2588,16 @@ function renderCoaching(){
       nameEl.textContent = agent.name;
       topLeft.appendChild(nameEl);
 
+      // A-Kennung für Schulungs-Mitarbeiter
+      const aKennungInp = document.createElement('input');
+      aKennungInp.className = 'pylon-input';
+      aKennungInp.type = 'text';
+      aKennungInp.placeholder = 'A-Kennung';
+      aKennungInp.title = 'A-Kennung';
+      aKennungInp.value = agent.aKennung || '';
+      aKennungInp.addEventListener('input', e=>{ agent.aKennung = e.target.value.trim(); scheduleSave(); });
+      topLeft.appendChild(aKennungInp);
+
       // Team-Auswahl zum schnellen Zuordnen
       const teamSel = document.createElement('select');
       teamSel.className = 'cat-badge schulung';
