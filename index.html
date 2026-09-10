@@ -2316,7 +2316,7 @@ function renderCoaching(){
 
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
     const cfg = TEAM_CONFIGS[teamId];
-    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId));
+    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.category !== 'schulung');
     const block = document.createElement('div');
     block.className = 'team-block';
 
