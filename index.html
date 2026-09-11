@@ -99,6 +99,7 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 
 .name-input{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;border:none;background:transparent;padding:4px 0;outline:none;width:180px;border-bottom:1px solid transparent;}
 .pylon-input{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--border);background:var(--panel);border-radius:6px;padding:4px 8px;width:78px;text-align:center;}
+.akennung-input{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--border);background:var(--panel);border-radius:6px;padding:4px 8px;width:120px;text-align:center;}
 .pylon-input:focus{outline:none;border-color:var(--tmg);color:var(--text);}
 .name-input:focus{border-bottom:1px solid var(--teal);}
 
@@ -2382,7 +2383,7 @@ function renderCoaching(){
 
       // A-Kennung
       const aKennungInput = document.createElement('input');
-      aKennungInput.className = 'pylon-input';
+      aKennungInput.className = 'akennung-input';
       aKennungInput.type = 'text';
       aKennungInput.placeholder = 'A-Kennung';
       aKennungInput.title = 'A-Kennung';
@@ -2590,7 +2591,7 @@ function renderCoaching(){
 
       // A-Kennung für Schulungs-Mitarbeiter
       const aKennungInp = document.createElement('input');
-      aKennungInp.className = 'pylon-input';
+      aKennungInp.className = 'akennung-input';
       aKennungInp.type = 'text';
       aKennungInp.placeholder = 'A-Kennung';
       aKennungInp.title = 'A-Kennung';
