@@ -6813,6 +6813,8 @@ function renderOverview(){
       </div>`;
 
     const totalCols = 1 + 1 + 2 + cfg.products.length + 1 + 1;
+    // Angezeigte Produkte (inkl. team-spezifische Extras wie Avia/VVM für MF-Team)
+    const displayedProducts = displayOrderProducts(cfg.products, teamId);
     // Namensspalte: exakt so breit wie der längste Name in diesem Team (statt fest/prozentual),
     // damit alle übrigen Spalten bei jedem Mitarbeiter an derselben Stelle beginnen. Die restlichen
     // Spalten bleiben flexibel (fr) und teilen sich den verbleibenden Platz.
@@ -6822,7 +6824,8 @@ function renderOverview(){
     measureCtx.font = nameFont;
     const longestNameWidth = teamAgents.reduce((max,a)=>Math.max(max, measureCtx.measureText(a.name||'').width), 30);
     const nameColWidth = Math.ceil(longestNameWidth + 20 /* Zell-Padding links */ + 18 /* Pill-Padding */ + 4 /* Zell-Padding rechts */ + 6 /* Puffer */) + 'px';
-    const gridCols = `${nameColWidth} repeat(${2 + cfg.products.length + 3}, 1fr)`;
+    // +2 = NPS + LQ, +1 = CR, +2 = Calls + CHT
+    const gridCols = `${nameColWidth} repeat(${2 + displayedProducts.length + 1 + 2}, 1fr)`;
 
     function buildGrid(agentsSubset){
       const grid = document.createElement('div');
@@ -6838,7 +6841,7 @@ function renderOverview(){
         `<div class="ov-cell name-cell head">Mitarbeiter</div>` +
         `<div class="ov-cell qual-cell head">NPS<span style="font-size:9px;font-weight:400;">Ziel ${cfg.npsTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head">LQ<span style="font-size:9px;font-weight:400;">Ziel ${cfg.lqTarget}%</span></div>` +
-        displayOrderProducts(cfg.products, teamId).map(p=>{
+        displayedProducts.map(p=>{
           const lbl = productLabel(p, teamId);
           // Lange Namen mit "+" umbrechen (z.B. "VVM+NVM" → "VVM<br>+<br>NVM")
           const fmt = lbl.includes('+') ? lbl.split('+').join('<br>+<br>') : lbl;
@@ -6872,7 +6875,7 @@ function renderOverview(){
         let html = `<div class="ov-cell name-cell"><span class="ov-name-pill" style="${catBg}">${agent.name}</span></div>`;
         html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal === null ? '–' : npsVal.toFixed(1)+'%'}</span></div>`;
         html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal === null ? '–' : lqVal.toFixed(1)+'%'}</span></div>`;
-        displayOrderProducts(cfg.products, teamId).forEach((p)=>{
+        displayedProducts.forEach((p)=>{
           const i = cfg.products.indexOf(p);
           const val = agent.sales[p];
           const isNull = (val === null || val === undefined);
