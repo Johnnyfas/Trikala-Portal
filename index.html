@@ -6444,8 +6444,7 @@ function parseHelpsenseSheet(rows){
   if(headerIdx === -1) return result;
   const header = rows[headerIdx].map(h => (h||'').toString().trim().toLowerCase());
   const col = name => header.findIndex(h => h.includes(name));
-  const pylonCol = col('pylon');
-  if(pylonCol === -1) return result;
+  const pylonCol = col('pylon'); // findet sowohl 'pylon' als auch 'user_pylon'
   const chtCol   = col('cht');
   const callsCol = col('call');
   const npsCol   = col('nps');
@@ -6500,7 +6499,10 @@ document.getElementById('tw-import-helpsense-input').addEventListener('change', 
         const sheetRows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
         if(sheetRows.length < 2) continue;
         const parsed = parseHelpsenseSheet(sheetRows);
-        Object.keys(parsed).forEach(p=>{ if(!mergedData[p]) mergedData[p]={}; Object.assign(mergedData[p], parsed[p]); });
+        Object.keys(parsed).forEach(p=>{
+          if(!mergedData[p]) mergedData[p]={};
+          Object.keys(parsed[p]).forEach(k=>{ if(parsed[p][k] !== undefined && !isNaN(parsed[p][k])) mergedData[p][k] = parsed[p][k]; });
+        });
       }
     } catch(e) {
       // Fallback: Datei als Text lesen (Tab- oder Semikolon-CSV)
@@ -6518,7 +6520,10 @@ document.getElementById('tw-import-helpsense-input').addEventListener('change', 
           continue;
         }
         const parsed = parseHelpsenseSheet(rows);
-        Object.keys(parsed).forEach(p=>{ if(!mergedData[p]) mergedData[p]={}; Object.assign(mergedData[p], parsed[p]); });
+        Object.keys(parsed).forEach(p=>{
+          if(!mergedData[p]) mergedData[p]={};
+          Object.keys(parsed[p]).forEach(k=>{ if(parsed[p][k] !== undefined && !isNaN(parsed[p][k])) mergedData[p][k] = parsed[p][k]; });
+        });
       } catch(e2) {
         alert(`Fehler beim Lesen von "${file.name}". Bitte als .csv speichern und nochmal versuchen.`);
       }
