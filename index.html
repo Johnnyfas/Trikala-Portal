@@ -6447,7 +6447,7 @@ function parseHelpsenseSheet(rows){
   
   // Spalten finden - bei kombinierten Dateien gibt es ZWEI Pylon-Spalten
   // (Spalte 'pylon' für Performance, 'user_pylon' für Quality)
-  const toNum = v => parseFloat(String(v).replace(/\./g,'').replace(',','.'));
+  const toNum = v => { const s = String(v).trim(); return parseFloat(s.includes(',') ? s.replace(/\./g,'').replace(',','.') : s); };
   const perfPylonCol  = header.findIndex(h => h === 'pylon');
   const qualPylonCol  = header.findIndex(h => h === 'user_pylon');
   const chtCol        = header.findIndex(h => h.includes('cht'));
