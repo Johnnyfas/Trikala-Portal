@@ -6598,7 +6598,7 @@ function renderTageswerte(){
 
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
     const cfg = TEAM_CONFIGS[teamId];
-    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim()!=='');
+    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim()!=='' && a.category !== 'schulung');
     if(!teamAgents.length) return;
 
     if(isTotal){ teamAgents.forEach(a=>twRecomputeAgent(a, cfg)); }
