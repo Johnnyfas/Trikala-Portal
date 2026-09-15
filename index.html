@@ -6497,8 +6497,10 @@ document.getElementById('tw-import-helpsense-input').addEventListener('change', 
       for(const sheetName of wb.SheetNames){
         const ws = wb.Sheets[sheetName];
         const sheetRows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        console.log(`[Import] ${file.name} | Sheet: ${sheetName} | Z0:`, sheetRows[0], '| Z1:', sheetRows[1], '| Z2:', sheetRows[2]);
         if(sheetRows.length < 2) continue;
         const parsed = parseHelpsenseSheet(sheetRows);
+        console.log(`[Import] ${file.name} parsed:`, parsed);
         Object.keys(parsed).forEach(p=>{
           if(!mergedData[p]) mergedData[p]={};
           Object.keys(parsed[p]).forEach(k=>{ if(parsed[p][k] !== undefined && !isNaN(parsed[p][k])) mergedData[p][k] = parsed[p][k]; });
