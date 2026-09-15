@@ -6447,6 +6447,7 @@ function parseHelpsenseSheet(rows){
   
   // Spalten finden - bei kombinierten Dateien gibt es ZWEI Pylon-Spalten
   // (Spalte 'pylon' für Performance, 'user_pylon' für Quality)
+  const toNum = v => parseFloat(String(v).replace(/\./g,'').replace(',','.'));
   const perfPylonCol  = header.findIndex(h => h === 'pylon');
   const qualPylonCol  = header.findIndex(h => h === 'user_pylon');
   const chtCol        = header.findIndex(h => h.includes('cht'));
@@ -6462,8 +6463,8 @@ function parseHelpsenseSheet(rows){
       const pylon = parseInt(row[perfPylonCol]);
       if(!isNaN(pylon)){
         if(!result[pylon]) result[pylon] = {};
-        if(chtCol   !== -1 && row[chtCol]   !== '' && row[chtCol]   !== null && row[chtCol]   !== undefined) result[pylon].cht   = parseFloat(row[chtCol]);
-        if(callsCol !== -1 && row[callsCol] !== '' && row[callsCol] !== null && row[callsCol] !== undefined) result[pylon].calls = parseFloat(row[callsCol]);
+        if(chtCol   !== -1 && row[chtCol]   !== '' && row[chtCol]   !== null && row[chtCol]   !== undefined) result[pylon].cht   = toNum(row[chtCol]);
+        if(callsCol !== -1 && row[callsCol] !== '' && row[callsCol] !== null && row[callsCol] !== undefined) result[pylon].calls = toNum(row[callsCol]);
       }
     }
     // Quality-Daten (user_pylon, nps, anliegen)
@@ -6471,8 +6472,8 @@ function parseHelpsenseSheet(rows){
       const pylon = parseInt(row[qualPylonCol]);
       if(!isNaN(pylon)){
         if(!result[pylon]) result[pylon] = {};
-        if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = parseFloat(row[npsCol]);
-        if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = parseFloat(row[lqCol]);
+        if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = toNum(row[npsCol]);
+        if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = toNum(row[lqCol]);
       }
     }
     // Fallback: nur eine Pylon-Spalte (separate Dateien)
@@ -6480,8 +6481,8 @@ function parseHelpsenseSheet(rows){
       const pylon = parseInt(row[qualPylonCol]);
       if(!isNaN(pylon)){
         if(!result[pylon]) result[pylon] = {};
-        if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = parseFloat(row[npsCol]);
-        if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = parseFloat(row[lqCol]);
+        if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = toNum(row[npsCol]);
+        if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = toNum(row[lqCol]);
       }
     }
   });
