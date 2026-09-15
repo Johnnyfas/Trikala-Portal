@@ -843,7 +843,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
         <div style="display:flex;align-items:center;gap:14px;">
           <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);">Änderungen werden automatisch gespeichert</span>
           <label class="primary" style="background:var(--teal);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
-            📥 Helpsense importieren
+            📥 Datei importieren
             <input type="file" id="tw-import-helpsense-input" accept=".xlsx,.xls,.csv" multiple style="display:none;">
           </label>
           <button class="primary" id="tw-reset-btn" style="background:var(--red);">🗑️ Monat zurücksetzen</button>
@@ -6542,24 +6542,22 @@ function twRecomputeAgent(agent, cfg){
   if(!tw){ return; }
   const days = Object.keys(tw);
   if(!days.length) return;
-  // "MA" ist eine Tageswerte-spezifische Zusatzspalte (kein Teil von cfg.products), wird hier
-  // mit summiert.
   const extraRecompute = cfg === TEAM_CONFIGS['Trikala01'] ? ['VVM', 'MA'] : ['MA'];
   const produkte = [...cfg.products, ...extraRecompute];
-  const salesSum = {}; const salesHas = {};
-  produkte.forEach(p=>{ salesSum[p]=0; salesHas[p]=false; });
+  const salesSum = {};
+  // Sobald Tageswerte existieren, ist Tageswerte die einzige Quelle für Produktverkäufe:
+  // alle Produkte auf 0 zurücksetzen, dann aus den Tageswerten summieren. So werden alte,
+  // manuell eingetragene Werte nicht fälschlich angezeigt.
+  produkte.forEach(p=>{ salesSum[p]=0; });
   days.forEach(dKey=>{
     const dv = tw[dKey];
     if(!dv) return;
     produkte.forEach(p=>{
       const v = dv.sales ? dv.sales[p] : null;
-      if(v!==null && v!==undefined){ salesSum[p]+=v; salesHas[p]=true; }
+      if(v!==null && v!==undefined) salesSum[p]+=v;
     });
   });
-  // Nur Produkte überschreiben, für die tatsächlich mindestens ein Tageswert eingetragen wurde -
-  // Produkte ohne jede Tageswerte-Eingabe bleiben unangetastet (z.B. weiterhin der Excel-Sync-Wert),
-  // statt auf leer gesetzt zu werden.
-  produkte.forEach(p=>{ if(salesHas[p]) agent.sales[p] = salesSum[p]; });
+  produkte.forEach(p=>{ agent.sales[p] = salesSum[p]; });
   // Calls, NPS und LQ werden bewusst NICHT hier berechnet - die trägst du direkt am Monatsstand manuell ein.
 }
 
