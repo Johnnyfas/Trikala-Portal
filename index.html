@@ -6439,26 +6439,51 @@ document.getElementById('tw-reset-btn').addEventListener('click', twResetMonth);
 function parseHelpsenseSheet(rows){
   const result = {}; // pylon → {cht, calls, nps, lq}
   if(!rows.length) return result;
-  // Ersten nicht-leeren Kopfzeile suchen (manche Helpsense-Exporte haben eine Leerzeile oben)
+  // Header suchen: erste Zeile die 'pylon' enthält
   let headerIdx = rows.findIndex(r => r.some(c => (c||'').toString().toLowerCase().includes('pylon')));
   if(headerIdx === -1) return result;
   const header = rows[headerIdx].map(h => (h||'').toString().trim().toLowerCase());
-  const col = name => header.findIndex(h => h.includes(name));
-  const pylonCol = col('pylon'); // findet sowohl 'pylon' als auch 'user_pylon'
-  const chtCol   = col('cht');
-  const callsCol = col('call');
-  const npsCol   = col('nps');
-  const lqCol    = col('lq') !== -1 ? col('lq') : col('anliegen');
+  console.log('[parseHelpsenseSheet] header:', header);
+  
+  // Spalten finden - bei kombinierten Dateien gibt es ZWEI Pylon-Spalten
+  // (Spalte 'pylon' für Performance, 'user_pylon' für Quality)
+  const perfPylonCol  = header.findIndex(h => h === 'pylon');
+  const qualPylonCol  = header.findIndex(h => h === 'user_pylon');
+  const chtCol        = header.findIndex(h => h.includes('cht'));
+  const callsCol      = header.findIndex(h => h.includes('call'));
+  const npsCol        = header.findIndex(h => h === 'nps');
+  const lqCol         = header.findIndex(h => h === 'lq') !== -1
+                          ? header.findIndex(h => h === 'lq')
+                          : header.findIndex(h => h === 'anliegen');
+
   rows.slice(headerIdx + 1).forEach(row=>{
-    const pylonVal = row[pylonCol];
-    if(!pylonVal) return;
-    const pylon = parseInt(pylonVal);
-    if(isNaN(pylon)) return;
-    if(!result[pylon]) result[pylon] = {};
-    if(chtCol   !== -1 && row[chtCol]   !== '' && row[chtCol]   !== null && row[chtCol]   !== undefined) result[pylon].cht   = parseFloat(row[chtCol]);
-    if(callsCol !== -1 && row[callsCol] !== '' && row[callsCol] !== null && row[callsCol] !== undefined) result[pylon].calls = parseFloat(row[callsCol]);
-    if(npsCol   !== -1 && row[npsCol]   !== '' && row[npsCol]   !== null && row[npsCol]   !== undefined) result[pylon].nps   = parseFloat(row[npsCol]);
-    if(lqCol    !== -1 && row[lqCol]    !== '' && row[lqCol]    !== null && row[lqCol]    !== undefined) result[pylon].lq    = parseFloat(row[lqCol]);
+    // Performance-Daten (Pylon, CHT, Calls)
+    if(perfPylonCol !== -1 && row[perfPylonCol]){
+      const pylon = parseInt(row[perfPylonCol]);
+      if(!isNaN(pylon)){
+        if(!result[pylon]) result[pylon] = {};
+        if(chtCol   !== -1 && row[chtCol]   !== '' && row[chtCol]   !== null && row[chtCol]   !== undefined) result[pylon].cht   = parseFloat(row[chtCol]);
+        if(callsCol !== -1 && row[callsCol] !== '' && row[callsCol] !== null && row[callsCol] !== undefined) result[pylon].calls = parseFloat(row[callsCol]);
+      }
+    }
+    // Quality-Daten (user_pylon, nps, anliegen)
+    if(qualPylonCol !== -1 && row[qualPylonCol]){
+      const pylon = parseInt(row[qualPylonCol]);
+      if(!isNaN(pylon)){
+        if(!result[pylon]) result[pylon] = {};
+        if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = parseFloat(row[npsCol]);
+        if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = parseFloat(row[lqCol]);
+      }
+    }
+    // Fallback: nur eine Pylon-Spalte (separate Dateien)
+    if(perfPylonCol === -1 && qualPylonCol !== -1 && row[qualPylonCol]){
+      const pylon = parseInt(row[qualPylonCol]);
+      if(!isNaN(pylon)){
+        if(!result[pylon]) result[pylon] = {};
+        if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = parseFloat(row[npsCol]);
+        if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = parseFloat(row[lqCol]);
+      }
+    }
   });
   return result;
 }
