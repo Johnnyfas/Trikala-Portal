@@ -911,20 +911,17 @@ function applyChtVerlaufData(){
     if(!agent.pylon) return;
     const chtData = CHT_VERLAUF_DATA[String(parseInt(agent.pylon))];
     if(!chtData) return;
-    // Verlaufseintrag für diesen Mitarbeiter suchen oder anlegen
+    // Verlaufseintrag für diesen Mitarbeiter suchen
     let vl = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    if(!vl){
-      const key = 'cht_' + agent.id;
-      state.verlauf[key] = { name: agent.name, team: agent.team, monate: {} };
-      vl = state.verlauf[key];
-    }
-    // CHT-Werte pro Monat in die Monatsdaten einpflegen
+    if(!vl) return; // Nur in bestehende Verlaufseinträge einpflegen
+    // CHT-Werte pro Monat in die Monatsdaten einpflegen (Schlüssel: "2026-Januar" etc.)
     Object.entries(chtData).forEach(([monat, cht])=>{
-      const idx = MONATE_IDX[monat];
-      if(!idx) return;
-      const key = `2026-${String(idx).padStart(2,'0')}`;
-      if(!vl.monate[key]) vl.monate[key] = { sales: {}, calls: 0, nps: 0, lq: 0, cr: 0 };
-      vl.monate[key].cht = cht;
+      const key = `2026-${monat}`;
+      if(vl.monate[key]){
+        vl.monate[key].cht = cht; // vorhandenen Eintrag ergänzen
+      } else {
+        vl.monate[key] = { sales: {}, calls: 0, nps: 0, lq: 0, cr: 0, cht }; // neuen anlegen
+      }
     });
   });
 }
@@ -5754,9 +5751,9 @@ function renderMonatsabschluss(){
     const vals = [];
     agents.forEach(a=>{
       const vl = Object.values(state.verlauf).find(v=>v.name===a.name && v.team===a.team);
-      if(vl && vl.monate && vl.monate[`2026-${String(chtMonate.indexOf(monat)+1).padStart(2,'0')}`]){
-        const md = vl.monate[`2026-${String(chtMonate.indexOf(monat)+1).padStart(2,'0')}`];
-        if(md.cht && md.cht > 0) vals.push(md.cht);
+      const key = `2026-${monat}`;
+      if(vl && vl.monate && vl.monate[key] && vl.monate[key].cht > 0){
+        vals.push(vl.monate[key].cht);
       }
     });
     return vals.length ? Math.round(vals.reduce((s,v)=>s+v,0)/vals.length) : 0;
