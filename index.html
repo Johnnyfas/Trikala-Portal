@@ -6847,7 +6847,15 @@ function renderOverview(){
     const teamDiv = document.createElement('div');
     teamDiv.className = 'ov-team';
     teamDiv.id = 'ov-team-' + teamId;
-    const legendLine = (catKey) => cfg.products.map((p,i)=>`${p} ${cfg.targets[catKey][i]}`).join(' · ') + (catKey==='regular' ? ` · CR ${cfg.crTarget}%` : '');
+    const legendLine = (catKey) => {
+      const targets = cfg.targets[catKey];
+      return displayedProducts.map(p=>{
+        const origIdx = cfg.products.indexOf(p);
+        const target = origIdx !== -1 ? targets[origIdx] : '';
+        const lbl = productLabel(p, teamId);
+        return target !== '' ? `${lbl} ${target}` : null;
+      }).filter(Boolean).join(' · ') + (catKey==='regular' ? ` · CR ${cfg.crTarget}%` : '');
+    };
     teamDiv.innerHTML = `
       <div class="ov-team-head">
         <span class="name">${cfg.label} — ${cfg.project}</span>
