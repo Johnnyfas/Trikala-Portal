@@ -899,7 +899,35 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 24;
+const BOARD_VERSION = 25;
+
+// Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
+// Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
+// Monatsabschluss Verlaufsdaten anzeigen kann.
+const CHT_VERLAUF_DATA = {"30782":{"Januar":724,"Februar":731,"März":736,"April":661,"Mai":717},"40818":{"Januar":753,"März":783,"April":708,"Mai":760},"40810":{"Februar":591,"Januar":602,"März":614,"April":558,"Mai":584},"40838":{"Februar":587,"Januar":723,"März":620,"April":574,"Mai":632},"40820":{"Februar":633,"Januar":615,"März":612,"April":618,"Mai":608},"40826":{"Januar":622,"März":626,"April":596,"Mai":632},"40835":{"Februar":648,"Januar":693,"März":724,"April":630,"Mai":742},"40840":{"Februar":621,"Januar":666,"März":618,"April":691,"Mai":778},"41026":{"Februar":862,"Januar":834,"März":834,"April":791,"Mai":806},"41032":{"Februar":703,"Januar":793,"März":831,"April":751,"Mai":853},"41028":{"Februar":843,"Januar":834,"März":815,"April":843,"Mai":836},"41234":{"Februar":642,"Januar":672,"März":581,"April":534,"Mai":607},"51141":{"Februar":866,"Januar":736,"März":711,"April":733},"51165":{"Februar":914,"Januar":940,"März":931,"April":944,"Mai":968},"51206":{"Februar":613,"Januar":611,"März":570,"April":553,"Mai":644},"51205":{"Februar":544,"Januar":534,"März":552,"April":544,"Mai":599},"51234":{"Februar":810,"Januar":909,"März":820,"April":677,"Mai":849},"51235":{"Februar":842,"Januar":816,"März":825,"April":773,"Mai":859},"51237":{"Februar":679,"Januar":748,"März":549,"April":561,"Mai":571},"51291":{"Februar":542,"Januar":521,"März":451,"April":438,"Mai":457},"51292":{"Februar":692,"Januar":862,"März":600,"April":644,"Mai":711},"51298":{"Februar":1020,"Januar":782,"März":796,"April":690,"Mai":704},"51350":{"Februar":896,"Januar":753,"März":734,"April":728,"Mai":733},"51346":{"Februar":701,"Januar":705,"März":734,"April":683,"Mai":695},"51347":{"Februar":594,"Januar":671,"März":595,"April":604,"Mai":650},"51372":{"Februar":612,"Januar":604,"März":581,"April":509,"Mai":592},"51373":{"Februar":976,"Januar":1044,"März":1060,"April":1083,"Mai":1131},"51463":{"Februar":606,"Januar":652,"März":487,"April":570,"Mai":574},"51615":{"Februar":707,"Januar":692,"März":666,"April":670,"Mai":625},"51617":{"Februar":570,"Januar":593,"März":550,"April":509,"Mai":556},"51618":{"Februar":698,"Januar":840,"März":663,"April":670,"Mai":615},"51619":{"Februar":760,"Januar":674,"März":616,"April":635,"Mai":586},"51616":{"Februar":502,"Januar":591,"März":541,"April":485,"Mai":586},"51657":{"Februar":686,"Januar":779,"März":673,"April":667,"Mai":755},"51703":{"Februar":523,"Januar":584,"März":577,"April":540,"Mai":567},"51881":{"Mai":860},"51885":{"Mai":705},"51886":{"Mai":800}};
+const MONATE_IDX = {Januar:1,Februar:2,März:3,April:4,Mai:5,Juni:6,Juli:7,August:8,September:9,Oktober:10,November:11,Dezember:12};
+function applyChtVerlaufData(){
+  state.agents.forEach(agent=>{
+    if(!agent.pylon) return;
+    const chtData = CHT_VERLAUF_DATA[String(parseInt(agent.pylon))];
+    if(!chtData) return;
+    // Verlaufseintrag für diesen Mitarbeiter suchen oder anlegen
+    let vl = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
+    if(!vl){
+      const key = 'cht_' + agent.id;
+      state.verlauf[key] = { name: agent.name, team: agent.team, monate: {} };
+      vl = state.verlauf[key];
+    }
+    // CHT-Werte pro Monat in die Monatsdaten einpflegen
+    Object.entries(chtData).forEach(([monat, cht])=>{
+      const idx = MONATE_IDX[monat];
+      if(!idx) return;
+      const key = `2026-${String(idx).padStart(2,'0')}`;
+      if(!vl.monate[key]) vl.monate[key] = { sales: {}, calls: 0, nps: 0, lq: 0, cr: 0 };
+      vl.monate[key].cht = cht;
+    });
+  });
+}
 let saveBlockedByVersion = false;
 let saveTimer = null;
 
@@ -1649,11 +1677,10 @@ async function loadFromSharePoint(){
         // 2 Minuten) hätte sonst das Risiko, frische Eingaben mit einem zwischenzeitlich leicht
         // abweichenden Stand zu überschreiben. Speichern passiert jetzt ausschließlich, wenn
         // tatsächlich etwas bearbeitet wird (scheduleSave()).
+        applyChtVerlaufData();
         renderAll();
         setSyncStatus('ok');
         return;
-      }
-      // Datei existiert und antwortet OK, aber ohne Mitarbeiterdaten - NICHT automatisch überschreiben
       showSyncDebug(`⚠️ Datei geladen (HTTP ${resp.status}), aber keine Mitarbeiterdaten enthalten. Nichts wurde überschrieben.`, true);
       setSyncStatus('error');
       return;
@@ -5718,6 +5745,25 @@ function renderMonatsabschluss(){
     { label:'MF', color:'#E20074', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; return md?md.nps_ist||0:0; }) },
     { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; return md?md.nps_ist||0:0; }) }
   ], true, 100);
+
+  // CHT-Monatsverlauf: Durchschnitt aus verlauf-Archiv (pro Monat) berechnen
+  const chtMonate = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const chtTeamAvg = (teamId) => chtMonate.map(monat=>{
+    const agents = state.agents.filter(a=>a.team===teamId && a.category !== 'schulung');
+    const vals = [];
+    agents.forEach(a=>{
+      const vl = Object.values(state.verlauf).find(v=>v.name===a.name && v.team===a.team);
+      if(vl && vl.monate && vl.monate[`2026-${String(chtMonate.indexOf(monat)+1).padStart(2,'0')}`]){
+        const md = vl.monate[`2026-${String(chtMonate.indexOf(monat)+1).padStart(2,'0')}`];
+        if(md.cht && md.cht > 0) vals.push(md.cht);
+      }
+    });
+    return vals.length ? Math.round(vals.reduce((s,v)=>s+v,0)/vals.length) : 0;
+  });
+  mkBox('CHT — Monatsverlauf (Ø pro Team)', ()=>[
+    { label:'MF', color:'#E20074', labels:chtMonate, values:chtTeamAvg('Trikala01') },
+    { label:'FN', color:'#0E7C7B', labels:chtMonate, values:chtTeamAvg('Trikala06') }
+  ], false);
 
   container.appendChild(chartsWrap);
 
