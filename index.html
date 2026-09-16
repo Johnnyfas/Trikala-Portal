@@ -1681,6 +1681,7 @@ async function loadFromSharePoint(){
         renderAll();
         setSyncStatus('ok');
         return;
+      }
       showSyncDebug(`⚠️ Datei geladen (HTTP ${resp.status}), aber keine Mitarbeiterdaten enthalten. Nichts wurde überschrieben.`, true);
       setSyncStatus('error');
       return;
