@@ -6847,6 +6847,8 @@ function renderOverview(){
     const teamDiv = document.createElement('div');
     teamDiv.className = 'ov-team';
     teamDiv.id = 'ov-team-' + teamId;
+    // Angezeigte Produkte (inkl. team-spezifische Extras wie Avia/VVM für MF-Team)
+    const displayedProducts = displayOrderProducts(cfg.products, teamId);
     const legendLine = (catKey) => {
       const targets = cfg.targets[catKey];
       return displayedProducts.map(p=>{
@@ -6868,8 +6870,6 @@ function renderOverview(){
       </div>`;
 
     const totalCols = 1 + 1 + 2 + cfg.products.length + 1 + 1;
-    // Angezeigte Produkte (inkl. team-spezifische Extras wie Avia/VVM für MF-Team)
-    const displayedProducts = displayOrderProducts(cfg.products, teamId);
     // Namensspalte: exakt so breit wie der längste Name in diesem Team (statt fest/prozentual),
     // damit alle übrigen Spalten bei jedem Mitarbeiter an derselben Stelle beginnen. Die restlichen
     // Spalten bleiben flexibel (fr) und teilen sich den verbleibenden Platz.
