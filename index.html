@@ -6447,7 +6447,23 @@ function parseHelpsenseSheet(rows){
   
   // Spalten finden - bei kombinierten Dateien gibt es ZWEI Pylon-Spalten
   // (Spalte 'pylon' für Performance, 'user_pylon' für Quality)
-  const toNum = v => { const s = String(v).trim(); return parseFloat(s.includes(',') ? s.replace(/\./g,'').replace(',','.') : s); };
+  const toNum = v => {
+    const s = String(v).trim();
+    let n = parseFloat(s.includes(',') ? s.replace(/\./g,'').replace(',','.') : s);
+    // Wenn der Wert > 100 ist und eine NPS/LQ-Prozentzahl sein soll, wurde das Komma
+    // als Tausender-Trennzeichen fehlinterpretiert (z.B. 7778 statt 77.78) → durch 100 teilen
+    return n;
+  };
+  const toPct = v => {
+    const s = String(v).trim();
+    // Zahl hat Komma → Dezimaltrennzeichen: "77,78" → 77.78
+    if(s.includes(',')) return parseFloat(s.replace(/\./g,'').replace(',','.'));
+    const n = parseFloat(s);
+    // Wenn SheetJS die Zahl bereits als Integer geliefert hat (z.B. 7778 statt 77.78),
+    // wurde das Komma als Tausender gelesen → durch 100 teilen
+    if(!isNaN(n) && n > 100) return n / 100;
+    return n;
+  };
   const perfPylonCol  = header.findIndex(h => h === 'pylon');
   const qualPylonCol  = header.findIndex(h => h === 'user_pylon');
   const chtCol        = header.findIndex(h => h.includes('cht'));
@@ -6472,8 +6488,8 @@ function parseHelpsenseSheet(rows){
       const pylon = parseInt(row[qualPylonCol]);
       if(!isNaN(pylon)){
         if(!result[pylon]) result[pylon] = {};
-        if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = toNum(row[npsCol]);
-        if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = toNum(row[lqCol]);
+        if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = toPct(row[npsCol]);
+        if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = toPct(row[lqCol]);
       }
     }
     // Fallback: nur eine Pylon-Spalte (separate Dateien)
@@ -6481,8 +6497,8 @@ function parseHelpsenseSheet(rows){
       const pylon = parseInt(row[qualPylonCol]);
       if(!isNaN(pylon)){
         if(!result[pylon]) result[pylon] = {};
-        if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = toNum(row[npsCol]);
-        if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = toNum(row[lqCol]);
+        if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = toPct(row[npsCol]);
+        if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = toPct(row[lqCol]);
       }
     }
   });
