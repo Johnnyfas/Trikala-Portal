@@ -5268,6 +5268,24 @@ function renderVerlauf(){
     canvasNPS.height = 200;
     chartWrapNPS.appendChild(canvasNPS);
     chartsRow.appendChild(chartWrapNPS);
+
+    // Diagramm 4: CHT
+    const chtValues = monate.map(m => agentData.monate[m].cht || null);
+    const hasChtData = chtValues.some(v => v !== null && v > 0);
+    if(hasChtData){
+      const chartWrapCHT = document.createElement('div');
+      chartWrapCHT.className = 'vl-chart-wrap';
+      chartWrapCHT.style.flex = '1';
+      chartWrapCHT.style.minWidth = '280px';
+      chartWrapCHT.innerHTML = `<div class="vl-chart-title">${agentData.name} — CHT Entwicklung</div>`;
+      chartWrapCHT.addEventListener('click', ()=>showChartPopup(agentData.name+' — CHT Entwicklung', c=>drawCHTChart(c, monate, chtValues)));
+      const canvasCHT = document.createElement('canvas');
+      canvasCHT.height = 200;
+      chartWrapCHT.appendChild(canvasCHT);
+      chartsRow.appendChild(chartWrapCHT);
+      setTimeout(()=>{ drawCHTChart(canvasCHT, monate, chtValues); }, 50);
+    }
+
     teamBlock.appendChild(chartsRow);
 
     // Chart mit Canvas zeichnen
@@ -5458,6 +5476,49 @@ function renderVerlauf(){
         ctxN.fillText(val+'%',padN.l-4,y+3);
         ctxN.strokeStyle='#F5F5F5'; ctxN.beginPath(); ctxN.moveTo(padN.l,y); ctxN.lineTo(padN.l+cwN,y); ctxN.stroke();
       }
+    }
+
+    function drawCHTChart(cnv, monate, chtValues){
+      const ctx = cnv.getContext('2d');
+      const dpr = window.devicePixelRatio||1; const w = cnv.offsetWidth||400; const h = 200;
+      cnv.width = w*dpr; cnv.height = h*dpr; cnv.style.width = w+'px'; cnv.style.height = h+'px';
+      ctx.scale(dpr, dpr);
+      const pad = {l:44,r:12,t:18,b:32};
+      const cw = w-pad.l-pad.r; const ch = h-pad.t-pad.b;
+      const vals = chtValues.map(v => v || 0);
+      const maxV = Math.max(...vals.filter(v=>v>0), 900);
+      const n = monate.length;
+      ctx.clearRect(0,0,w,h);
+      ctx.font = `${11*dpr}px Inter,sans-serif`; ctx.textAlign='center';
+      // Farbschwellen: ≤550 grün, 551-680 orange, ≥681 rot
+      const chtColor = v => v <= 550 ? '#1D8A3E' : v <= 680 ? '#B9770E' : '#C4291C';
+      // Gitternetz
+      ctx.strokeStyle='#F5F5F5'; ctx.lineWidth=1;
+      for(let i=0;i<=4;i++){
+        const y = pad.t + ch - (i/4)*ch;
+        ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+        ctx.fillStyle='#999'; ctx.textAlign='right'; ctx.fillText(Math.round(maxV*i/4), pad.l-4, y+3);
+      }
+      // Balken
+      const bw = Math.max(8, cw/n*0.6);
+      monate.forEach((m,i)=>{
+        const v = vals[i];
+        if(!v) return;
+        const x = pad.l + (i+0.5)*(cw/n) - bw/2;
+        const bh = (v/maxV)*ch;
+        const by = pad.t+ch-bh;
+        ctx.fillStyle = chtColor(v);
+        ctx.beginPath();
+        ctx.roundRect ? ctx.roundRect(x, by, bw, bh, [4,4,0,0]) : ctx.rect(x, by, bw, bh);
+        ctx.fill();
+        // Wert über dem Balken
+        ctx.fillStyle = chtColor(v); ctx.textAlign='center'; ctx.font=`bold ${10*dpr}px Inter,sans-serif`;
+        ctx.fillText(v, x+bw/2, by-4);
+        // Monatsname unten
+        ctx.fillStyle='#999'; ctx.font=`${10*dpr}px Inter,sans-serif`;
+        const label = m.replace('2026-','').substring(0,3);
+        ctx.fillText(label, pad.l+(i+0.5)*(cw/n), h-8);
+      });
     }
 
     // Charts zeichnen
