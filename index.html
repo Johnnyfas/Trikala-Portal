@@ -844,7 +844,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
           <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);">Änderungen werden automatisch gespeichert</span>
           <label class="primary" style="background:var(--teal);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
             📥 Datei importieren
-            <input type="file" id="tw-import-helpsense-input" accept=".xlsx,.xls,.csv" multiple style="display:none;">
+            <input type="file" id="tw-import-helpsense-input" accept=".xlsx,.xls,.csv,.CSV,.txt,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;">
           </label>
           <button class="primary" id="tw-reset-btn" style="background:var(--red);">🗑️ Monat zurücksetzen</button>
         </div>
@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 26;
+const BOARD_VERSION = 27;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
