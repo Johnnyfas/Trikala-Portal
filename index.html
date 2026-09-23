@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 28;
+const BOARD_VERSION = 29;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2440,6 +2440,31 @@ function renderCoaching(){
       ortSelect.addEventListener('change', e=>{ agent.arbeitsort = e.target.value; scheduleSave(); });
       topLeft.appendChild(ortSelect);
 
+      // Sicherheitsantwort (versteckt, Auge zum Einblenden)
+      const saWrapper = document.createElement('span');
+      saWrapper.style.cssText = 'display:inline-flex;align-items:center;gap:2px;';
+      const saInput = document.createElement('input');
+      saInput.className = 'akennung-input';
+      saInput.type = 'password';
+      saInput.placeholder = 'Sicherheitsantwort';
+      saInput.title = 'Sicherheitsantwort';
+      saInput.style.width = '140px';
+      saInput.value = agent.sicherheitsantwort || '';
+      saInput.addEventListener('input', e=>{ agent.sicherheitsantwort = e.target.value; scheduleSave(); });
+      const saEye = document.createElement('button');
+      saEye.type = 'button';
+      saEye.title = 'Einblenden / Ausblenden';
+      saEye.style.cssText = 'background:none;border:none;cursor:pointer;padding:2px 4px;font-size:14px;color:var(--muted);line-height:1;';
+      saEye.textContent = '👁';
+      saEye.addEventListener('click', ()=>{
+        saInput.type = saInput.type === 'password' ? 'text' : 'password';
+        saEye.style.opacity = saInput.type === 'text' ? '1' : '0.4';
+      });
+      saEye.style.opacity = '0.4';
+      saWrapper.appendChild(saInput);
+      saWrapper.appendChild(saEye);
+      topLeft.appendChild(saWrapper);
+
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
       removeBtn.addEventListener('click', ()=>{
@@ -2632,6 +2657,30 @@ function renderCoaching(){
       aKennungInp.value = agent.aKennung || '';
       aKennungInp.addEventListener('input', e=>{ agent.aKennung = e.target.value.trim(); scheduleSave(); });
       topLeft.appendChild(aKennungInp);
+
+      // Sicherheitsantwort für Schulungs-Mitarbeiter
+      const saWrapperS = document.createElement('span');
+      saWrapperS.style.cssText = 'display:inline-flex;align-items:center;gap:2px;';
+      const saInputS = document.createElement('input');
+      saInputS.className = 'akennung-input';
+      saInputS.type = 'password';
+      saInputS.placeholder = 'Sicherheitsantwort';
+      saInputS.title = 'Sicherheitsantwort';
+      saInputS.style.width = '140px';
+      saInputS.value = agent.sicherheitsantwort || '';
+      saInputS.addEventListener('input', e=>{ agent.sicherheitsantwort = e.target.value; scheduleSave(); });
+      const saEyeS = document.createElement('button');
+      saEyeS.type = 'button';
+      saEyeS.title = 'Einblenden / Ausblenden';
+      saEyeS.style.cssText = 'background:none;border:none;cursor:pointer;padding:2px 4px;font-size:14px;color:var(--muted);line-height:1;opacity:0.4;';
+      saEyeS.textContent = '👁';
+      saEyeS.addEventListener('click', ()=>{
+        saInputS.type = saInputS.type === 'password' ? 'text' : 'password';
+        saEyeS.style.opacity = saInputS.type === 'text' ? '1' : '0.4';
+      });
+      saWrapperS.appendChild(saInputS);
+      saWrapperS.appendChild(saEyeS);
+      topLeft.appendChild(saWrapperS);
 
       // Team-Auswahl zum schnellen Zuordnen
       const teamSel = document.createElement('select');
