@@ -91,7 +91,7 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .cards{display:flex;flex-direction:column;gap:14px;}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:14px;}
 .card-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
-.card-top-left{display:flex;align-items:center;gap:12px;flex:1;min-width:200px;flex-wrap:wrap;}
+.card-top-left{display:flex;align-items:flex-end;gap:12px;flex:1;min-width:200px;flex-wrap:wrap;}
 .status-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;background:var(--tmg-gray);box-shadow:0 0 0 4px var(--tmg-light);}
 .status-dot.regular{background:var(--tmg-gray);box-shadow:0 0 0 4px var(--tmg-light);}
 .status-dot.sixh{background:var(--sixh);box-shadow:0 0 0 4px var(--sixh-soft);}
@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 29;
+const BOARD_VERSION = 30;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2386,7 +2386,20 @@ function renderCoaching(){
       nameInput.placeholder = 'Name';
       nameInput.value = agent.name;
       nameInput.addEventListener('input', e=>{ agent.name = e.target.value; scheduleSave(); document.getElementById('agent-count').textContent = state.agents.length + ' Mitarbeiter'; });
-      topLeft.appendChild(dot); topLeft.appendChild(nameInput);
+      // Hilfsfunktion: Feld mit Kopfzeile
+      const mkField = (label, el) => {
+        const wrap = document.createElement('label');
+        wrap.style.cssText = 'display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;';
+        const lbl = document.createElement('span');
+        lbl.textContent = label;
+        lbl.style.cssText = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding-left:2px;';
+        wrap.appendChild(lbl);
+        wrap.appendChild(el);
+        return wrap;
+      };
+
+      topLeft.appendChild(dot);
+      topLeft.appendChild(mkField('Name', nameInput));
 
       const catSelect = document.createElement('select');
       catSelect.className = 'cat-badge ' + CATEGORY_CSS[agent.category || 'regular'];
@@ -2404,7 +2417,7 @@ function renderCoaching(){
         scheduleSave();
         renderAll();
       });
-      topLeft.appendChild(catSelect);
+      topLeft.appendChild(mkField('Kategorie', catSelect));
 
       const pylonInput = document.createElement('input');
       pylonInput.className = 'pylon-input';
@@ -2413,7 +2426,7 @@ function renderCoaching(){
       pylonInput.title = 'Pylon-Nummer';
       pylonInput.value = agent.pylon || '';
       pylonInput.addEventListener('input', e=>{ agent.pylon = e.target.value.trim(); scheduleSave(); });
-      topLeft.appendChild(pylonInput);
+      topLeft.appendChild(mkField('Pylon-Nr.', pylonInput));
 
       // A-Kennung
       const aKennungInput = document.createElement('input');
@@ -2423,7 +2436,7 @@ function renderCoaching(){
       aKennungInput.title = 'A-Kennung';
       aKennungInput.value = agent.aKennung || '';
       aKennungInput.addEventListener('input', e=>{ agent.aKennung = e.target.value.trim(); scheduleSave(); });
-      topLeft.appendChild(aKennungInput);
+      topLeft.appendChild(mkField('A-Kennung', aKennungInput));
 
       // Büro / Homeoffice Auswahl
       const ortSelect = document.createElement('select');
@@ -2438,7 +2451,7 @@ function renderCoaching(){
         ortSelect.appendChild(opt);
       });
       ortSelect.addEventListener('change', e=>{ agent.arbeitsort = e.target.value; scheduleSave(); });
-      topLeft.appendChild(ortSelect);
+      topLeft.appendChild(mkField('Arbeitsort', ortSelect));
 
       // Sicherheitsantwort (versteckt, Auge zum Einblenden)
       const saWrapper = document.createElement('span');
@@ -2454,16 +2467,15 @@ function renderCoaching(){
       const saEye = document.createElement('button');
       saEye.type = 'button';
       saEye.title = 'Einblenden / Ausblenden';
-      saEye.style.cssText = 'background:none;border:none;cursor:pointer;padding:2px 4px;font-size:14px;color:var(--muted);line-height:1;';
+      saEye.style.cssText = 'background:none;border:none;cursor:pointer;padding:2px 4px;font-size:14px;color:var(--muted);line-height:1;opacity:0.4;';
       saEye.textContent = '👁';
       saEye.addEventListener('click', ()=>{
         saInput.type = saInput.type === 'password' ? 'text' : 'password';
         saEye.style.opacity = saInput.type === 'text' ? '1' : '0.4';
       });
-      saEye.style.opacity = '0.4';
       saWrapper.appendChild(saInput);
       saWrapper.appendChild(saEye);
-      topLeft.appendChild(saWrapper);
+      topLeft.appendChild(mkField('Sicherheitsantwort', saWrapper));
 
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
