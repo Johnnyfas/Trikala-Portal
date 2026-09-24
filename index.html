@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 30;
+const BOARD_VERSION = 31;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6652,26 +6652,20 @@ function parseHelpsenseSheet(rows){
                           : header.findIndex(h => h === 'anliegen');
 
   rows.slice(headerIdx + 1).forEach(row=>{
-    // Performance-Daten (Pylon, CHT, Calls)
+    // Haupt-Pylon-Spalte (pylon / pylon nr.) → liest CHT, Calls UND NPS/LQ wenn vorhanden
     if(perfPylonCol !== -1 && row[perfPylonCol]){
       const pylon = parseInt(row[perfPylonCol]);
       if(!isNaN(pylon)){
         if(!result[pylon]) result[pylon] = {};
         if(chtCol   !== -1 && row[chtCol]   !== '' && row[chtCol]   !== null && row[chtCol]   !== undefined) result[pylon].cht   = toNum(row[chtCol]);
         if(callsCol !== -1 && row[callsCol] !== '' && row[callsCol] !== null && row[callsCol] !== undefined) result[pylon].calls = toNum(row[callsCol]);
-      }
-    }
-    // Quality-Daten (user_pylon, nps, anliegen)
-    if(qualPylonCol !== -1 && row[qualPylonCol]){
-      const pylon = parseInt(row[qualPylonCol]);
-      if(!isNaN(pylon)){
-        if(!result[pylon]) result[pylon] = {};
+        // NPS/LQ direkt aus derselben Zeile lesen (z.B. Datei mit Spalten Pylon,Name,NPS,LQ)
         if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = toPct(row[npsCol]);
         if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = toPct(row[lqCol]);
       }
     }
-    // Fallback: nur eine Pylon-Spalte (separate Dateien)
-    if(perfPylonCol === -1 && qualPylonCol !== -1 && row[qualPylonCol]){
+    // Quality-Daten mit user_pylon-Spalte (kombinierte Dateien)
+    if(qualPylonCol !== -1 && row[qualPylonCol]){
       const pylon = parseInt(row[qualPylonCol]);
       if(!isNaN(pylon)){
         if(!result[pylon]) result[pylon] = {};
