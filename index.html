@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 31;
+const BOARD_VERSION = 32;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2128,7 +2128,16 @@ async function generateTeamKiSummaries(teamId, cfg, teamAgents, btn){
       })
       .slice(0,6)
       .map(e=>({ datum: e.datum, notiz: e.text }));
-    return { name: agent.name, coaching_notizen: notizen };
+    return {
+      name: agent.name,
+      coaching_notizen: notizen,
+      coaching_profil: {
+        staerken: agent.staerken || null,
+        entwicklungsfelder: agent.entwicklung || null,
+        lernstil: agent.lernstil || null,
+        notizen: agent.notiz || null
+      }
+    };
   });
 
   const systemPrompt = `Du bist Assistent eines Salescoaches bei der Telekom (Inbound Mobilfunk/Festnetz Privatkunden). Für jeden Mitarbeiter unten bekommst du seine letzten Coaching-Notizen. Schreibe pro Mitarbeiter EIN kurzes, konkretes Feedback (max. 20 Wörter, ein Satz), das die inhaltlichen Muster über die Notizen hinweg zusammenfasst - keine reine Wortliste, keine wörtliche Wiedergabe der Notizen. Sag klar, worauf es hinausläuft (z.B. eine wiederkehrende Schwäche, ein klarer Fortschritt, oder ein gemischtes Bild) und wenn möglich einen kurzen Hinweis fürs nächste Coaching. Antworte AUSSCHLIESSLICH mit einem validen JSON-Array, ohne Markdown-Codeblock, ohne weiteren Text, in genau diesem Format:
@@ -2580,13 +2589,44 @@ function renderCoaching(){
       }
       card.appendChild(avgSection);
 
-      // === Notizen ===
+      // === Notizen + Coaching-Profil ===
       const notesSection = document.createElement('div');
       notesSection.className = 'panel-section';
       const notesTitle = document.createElement('div');
       notesTitle.className = 'panel-section-title';
-      notesTitle.textContent = '📝 Notizen';
+      notesTitle.textContent = '📝 Notizen & Coaching-Profil';
       notesSection.appendChild(notesTitle);
+
+      // 3 Profilfelder für KI-Coaching
+      const profilGrid = document.createElement('div');
+      profilGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;';
+      [
+        ['staerken',        '💪 Stärken',            'z.B. Gesprächseinstieg, Empathie…'],
+        ['entwicklung',     '🎯 Entwicklungsfelder',  'z.B. Upselling-Timing, Abschluss…'],
+        ['lernstil',        '🧠 Lernstil',            'z.B. Rollenspiele, Leitfaden, Feedback…']
+      ].forEach(([field, label, ph])=>{
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+        const lbl = document.createElement('span');
+        lbl.textContent = label;
+        lbl.style.cssText = 'font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;';
+        const ta = document.createElement('textarea');
+        ta.className = 'agent-notes';
+        ta.style.cssText = 'min-height:48px;font-size:12px;resize:vertical;';
+        ta.placeholder = ph;
+        ta.value = agent[field] || '';
+        ta.addEventListener('input', e=>{ agent[field] = e.target.value; scheduleSave(); });
+        wrap.appendChild(lbl);
+        wrap.appendChild(ta);
+        profilGrid.appendChild(wrap);
+      });
+      notesSection.appendChild(profilGrid);
+
+      // Freies Notizfeld wie bisher
+      const notesLbl = document.createElement('span');
+      notesLbl.textContent = '📋 Allgemeine Notizen';
+      notesLbl.style.cssText = 'font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px;';
+      notesSection.appendChild(notesLbl);
       const notesArea = document.createElement('textarea');
       notesArea.className = 'agent-notes';
       notesArea.placeholder = 'Notizen zu diesem Mitarbeiter...';
@@ -2942,7 +2982,13 @@ function buildKIContext(){
           sales: a.sales,
           letztes_coaching: a.coachingDatum || 'nie',
           coaching_historie: coachingHistorie,
-          monatsverlauf_alle_monate: monatsverlauf
+          monatsverlauf_alle_monate: monatsverlauf,
+          coaching_profil: {
+            staerken: a.staerken || null,
+            entwicklungsfelder: a.entwicklung || null,
+            lernstil: a.lernstil || null,
+            notizen: a.notiz || null
+          }
         };
       }),
       monatsabschluss: {}
@@ -3202,7 +3248,12 @@ Beachte:
 - Trikala06 = Festnetz PK (CR-Ziel: 11%, NPS-Ziel: 68%, LQ-Ziel: 74%)
 - Kategorien: Standard, 6-Stündler, Helpline (unterschiedliche Ziele)
 - coaching_historie enthält die letzten Coachings je Mitarbeiter (neueste zuerst)
-- leitfaden_checkliste: pro Kriterium "ok" (erfüllt), "nok" (nicht erfüllt) oder "na" (nicht bewertet)`;
+- leitfaden_checkliste: pro Kriterium "ok" (erfüllt), "nok" (nicht erfüllt) oder "na" (nicht bewertet)
+- coaching_profil: vom Coach manuell hinterlegte Einschätzung zu Stärken, Entwicklungsfeldern, Lernstil und allgemeinen Notizen — nutze diese Angaben aktiv:
+  * staerken: bereits bekannte Stärken des Mitarbeiters → bestätige/erweitere sie in deiner Analyse
+  * entwicklungsfelder: vom Coach identifizierte Schwachstellen → priorisiere passende Maßnahmen
+  * lernstil: wie der Mitarbeiter am besten lernt → passe Coaching-Empfehlungen entsprechend an (z.B. bei "Rollenspiele" → konkrete Übungsszenarien vorschlagen, bei "Leitfaden" → schriftliche Checklisten empfehlen)
+  * notizen: freie Notizen des Coaches → nutze als Kontext für individuelle Besonderheiten`;
 
     try {
       const response = await fetch(KI_PROXY_URL + '/analyze', {
