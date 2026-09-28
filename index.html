@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 32;
+const BOARD_VERSION = 33;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1998,9 +1998,15 @@ let saveEpoch = 0;
 // unabhängig von der genauen Ursache.
 // Verhindert, dass Monatsabschluss während einer laufenden Eingabe (Feld hat gerade Fokus) im
 // Hintergrund neu geladen wird - das könnte eine noch unfertige Eingabe überschreiben.
+// Timestamp der letzten Tageswerte-Eingabe — blockiert Hintergrund-Sync für 6 Sekunden danach,
+// damit ein gespeicherter Wert nicht sofort durch einen parallelen Reload überschrieben wird.
+let twLastInputTs = 0;
+function twMarkInput(){ twLastInputTs = Date.now(); }
+function twRecentlyEdited(){ return (Date.now() - twLastInputTs) < 6000; }
+
 function maIsTyping(){
   const el = document.activeElement;
-  return !!(el && el.classList && (el.classList.contains('ma-input') || el.classList.contains('tw-input')));
+  return !!(el && el.classList && (el.classList.contains('ma-input') || el.classList.contains('tw-input'))) || twRecentlyEdited();
 }
 async function runSave(){
   if(saveInProgress){ saveQueued = true; return; }
@@ -6937,7 +6943,9 @@ function renderTageswerte(){
       inp.className = 'tw-input';
       inp.disabled = !!readOnly;
       inp.addEventListener('focus', e=>e.target.select());
+      inp.addEventListener('input', ()=>twMarkInput());
       inp.addEventListener('change', e=>{
+        twMarkInput();
         const raw = e.target.value.trim().replace(',', '.');
         const val = raw === '' ? null : (parseFloat(raw)||0);
         setVal(val);
