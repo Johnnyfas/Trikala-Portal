@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 35;
+const BOARD_VERSION = 36;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2505,6 +2505,7 @@ function renderCoaching(){
       removeBtn.addEventListener('click', ()=>{
         if(!confirm(`"${agent.name || 'Dieser Mitarbeiter'}" wirklich löschen? Das entfernt nur die Karte hier, Coaching-Verlauf und Monatsdaten bleiben erhalten.`)) return;
         state.agents = state.agents.filter(a=>a.id!==agent.id);
+        twBlockUntil = Date.now() + 15000; // Hintergrund-Sync 15s sperren, damit die Löschung nicht überschrieben wird
         scheduleSave();
         renderAll();
       });
@@ -7283,6 +7284,7 @@ document.getElementById('add-agent-btn').addEventListener('click', ()=>{
     btn.textContent = `${cfg.label} — ${cfg.project}`;
     btn.addEventListener('click', ()=>{
       state.agents.push(makeAgent(teamId));
+      twBlockUntil = Date.now() + 15000; // Hintergrund-Sync 15s sperren
       scheduleSave();
       overlay.remove();
       renderAll();
