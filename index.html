@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 33;
+const BOARD_VERSION = 34;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2006,7 +2006,12 @@ function twRecentlyEdited(){ return (Date.now() - twLastInputTs) < 6000; }
 
 function maIsTyping(){
   const el = document.activeElement;
-  return !!(el && el.classList && (el.classList.contains('ma-input') || el.classList.contains('tw-input'))) || twRecentlyEdited();
+  if(!el) return twRecentlyEdited();
+  // Jedes Eingabefeld schützt vor Hintergrund-Sync — egal in welchem Reiter
+  const tag = el.tagName;
+  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+  // Zusätzlich: 6-Sekunden-Schutz nach letzter Tageswerte-Eingabe (für Feldwechsel-Lücken)
+  return twRecentlyEdited();
 }
 async function runSave(){
   if(saveInProgress){ saveQueued = true; return; }
