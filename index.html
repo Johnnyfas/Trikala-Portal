@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 34;
+const BOARD_VERSION = 35;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1998,11 +1998,14 @@ let saveEpoch = 0;
 // unabhängig von der genauen Ursache.
 // Verhindert, dass Monatsabschluss während einer laufenden Eingabe (Feld hat gerade Fokus) im
 // Hintergrund neu geladen wird - das könnte eine noch unfertige Eingabe überschreiben.
-// Timestamp der letzten Tageswerte-Eingabe — blockiert Hintergrund-Sync für 6 Sekunden danach,
-// damit ein gespeicherter Wert nicht sofort durch einen parallelen Reload überschrieben wird.
-let twLastInputTs = 0;
-function twMarkInput(){ twLastInputTs = Date.now(); }
-function twRecentlyEdited(){ return (Date.now() - twLastInputTs) < 6000; }
+// Sperrt den Hintergrund-Sync bis zu einem bestimmten Zeitpunkt.
+// twMarkInput() setzt 6s Sperre (Tageswerte-Feldwechsel-Lücken).
+// Für längere Sperren (z.B. nach Import) direkt twBlockUntil = Date.now() + ms setzen.
+let twBlockUntil = 0;
+function twMarkInput(){ twBlockUntil = Date.now() + 6000; }
+function twRecentlyEdited(){ return Date.now() < twBlockUntil; }
+// Rückwärtskompatibilität: twLastInputTs wird an einigen Stellen noch direkt gesetzt
+Object.defineProperty(window, 'twLastInputTs', { set(v){ twBlockUntil = v + 6000; }, get(){ return twBlockUntil - 6000; }, configurable:true });
 
 function maIsTyping(){
   const el = document.activeElement;
@@ -6752,6 +6755,9 @@ function applyHelpsenseData(mergedData){
     if(data.lq    !== undefined && !isNaN(data.lq))    agent.lq    = data.lq;
     matched++;
   });
+  // Hintergrund-Sync für 15 Sekunden blockieren, damit der Import vollständig
+  // gespeichert wird, bevor ein paralleler Reload ihn überschreiben kann.
+  twBlockUntil = Date.now() + 15000;
   scheduleSave();
   renderAll();
   const unmatchedMsg = unmatched.length ? `\n\nNicht gefunden (keine Pylon-Nr. oder nicht im Report):\n${unmatched.join(', ')}` : '';
