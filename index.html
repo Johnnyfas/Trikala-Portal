@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 39;
+const BOARD_VERSION = 41;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -5774,8 +5774,9 @@ function crStuffeProd(p, val, tz){
 }
 // Produkt-Namen in Monatsabschluss sind teils anders benannt als in Team Ziele - Zuordnung, damit
 // beide dieselben CR-Stufen-Werte finden.
+// HV (MF-Team ab September) hat fixe Stufen in CR_FIXED_STUFEN und braucht kein teamziele-Mapping.
 const MA_TO_TZ_PRODUCT = {
-  mf: { 'MF NG': 'MF', 'MF': 'MF', 'BB': 'BB', 'SU': 'SU', 'TV': 'TV', 'BOJ': 'BOJ', 'VVM': 'BOJ' },
+  mf: { 'MF NG': 'MF', 'MF': 'MF', 'BB': 'BB', 'SU': 'SU', 'TV': 'TV', 'BOJ': 'BOJ', 'VVM': 'BOJ', 'HV': 'HV' },
   fn: { 'NG (BB)': 'BB', 'BB': 'BB', 'SU': 'SU', 'TV': 'TV', 'MF': 'MF', 'BOJ': 'BOJ', 'VVM': 'VVM' }
 };
 
@@ -6151,7 +6152,17 @@ function renderMonatsabschluss(){
         const val = md[dataKey][p] || 0;
         if(dataKey === 'cr' && state.teamziele[teamKey]){
           const tzProduct = MA_TO_TZ_PRODUCT[teamKey] && MA_TO_TZ_PRODUCT[teamKey][p];
-          if(tzProduct) td.style.cssText = crStuffeProd(tzProduct, val, state.teamziele[teamKey]);
+          const tz = state.teamziele[teamKey];
+          const hasZiel = tzProduct && (parseFloat((tz.crZiel1 && tz.crZiel1[tzProduct])||0) > 0 || parseFloat((tz.crZiel2 && tz.crZiel2[tzProduct])||0) > 0);
+          if(tzProduct && hasZiel){
+            td.style.cssText = crStuffeProd(tzProduct, val, tz);
+          } else {
+            // Kein Team-Ziel-Eintrag (z.B. HV) → gegen md.crZiel[p] vergleichen (CR-Ziel-Textfeld)
+            const cmp = parseFloat(md.crZiel && md.crZiel[p]) || 0;
+            if(cmp > 0){
+              td.style.cssText = val >= cmp ? 'background:#4CAF50;color:#fff;border-radius:6px;' : 'background:#CE93D8;color:#4A148C;border-radius:6px;';
+            }
+          }
         } else if(compareKey){
           const cmp = md[compareKey][p] || 0;
           if(val >= cmp && val > 0) td.style.cssText = 'background:#E6F7F4;';
