@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 41;
+const BOARD_VERSION = 42;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6157,10 +6157,18 @@ function renderMonatsabschluss(){
           if(tzProduct && hasZiel){
             td.style.cssText = crStuffeProd(tzProduct, val, tz);
           } else {
-            // Kein Team-Ziel-Eintrag (z.B. HV) → gegen md.crZiel[p] vergleichen (CR-Ziel-Textfeld)
-            const cmp = parseFloat(md.crZiel && md.crZiel[p]) || 0;
-            if(cmp > 0){
-              td.style.cssText = val >= cmp ? 'background:#4CAF50;color:#fff;border-radius:6px;' : 'background:#CE93D8;color:#4A148C;border-radius:6px;';
+            // Kein Team-Ziel-Eintrag (z.B. HV) → beide Stufen aus crZielText auslesen (z.B. "0.15%/0.20%")
+            const zielText = (md.crZielText && md.crZielText[p]) || '';
+            const nums = zielText.replace(/,/g,'.').match(/[\d.]+/g) || [];
+            const zs1 = parseFloat(nums[0]) || 0;
+            const zs2 = parseFloat(nums[1]) || 0;
+            if(zs1 > 0 || zs2 > 0){
+              const v = parseFloat(val) || 0;
+              const hi = zs2 || zs1; // zweite Zahl = Stufe 2; wenn nur eine → gilt als Stufe 2
+              const lo = zs2 ? zs1 : 0; // erste Zahl = Stufe 1 (nur wenn zwei Zahlen)
+              if(v >= hi)       td.style.cssText = 'background:#4CAF50;color:#fff;border-radius:6px;';
+              else if(v >= lo && lo > 0) td.style.cssText = 'background:#81C784;color:#1B5E20;border-radius:6px;';
+              else              td.style.cssText = 'background:#CE93D8;color:#4A148C;border-radius:6px;';
             }
           }
         } else if(compareKey){
