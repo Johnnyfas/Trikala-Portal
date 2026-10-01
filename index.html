@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 46;
+const BOARD_VERSION = 47;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2947,10 +2947,12 @@ function renderHallOfFame(){
       if(!lqOk) return null;
     }
 
-    // CR Ziel prüfen: CR über Ziel ODER CHT im grünen Bereich (≤ 550 s)
+    // CR Ziel prüfen: CR über Ziel ODER CHT im grünen Bereich
+    // MF (Trikala01) = CHT ≤ 600 s, FN (Trikala06) = CHT ≤ 650 s
     if(md.cr && md.cr > 0){
       const crOk = md.cr >= cfg.crTarget;
-      const chtOk = md.cht > 0 && md.cht <= 550;
+      const chtLimit = agent.team === 'Trikala06' ? 650 : 600;
+      const chtOk = md.cht > 0 && md.cht <= chtLimit;
       if(!crOk && !chtOk) return null;
     }
 
@@ -3049,7 +3051,7 @@ function renderHallOfFame(){
               ${w.lq !== undefined && w.lq > 0 ? `<span class="hof-stat good">LQ ${w.lq.toFixed(1)}%</span>` : ''}
               <span class="hof-stat good">${w.goalsHit}/${w.totalGoals} Ziele</span>
               ${w.cr > 0 ? `<span class="hof-stat ${w.cr >= w.crTarget ? 'good' : 'ok'}">CR ${w.cr.toFixed(2)}%</span>` : ''}
-              ${w.cht > 0 ? `<span class="hof-stat ${w.cht <= 550 ? 'good' : 'ok'}">CHT ${Math.round(w.cht)}s</span>` : ''}
+              ${w.cht > 0 ? `<span class="hof-stat ${w.cht <= (w.team === 'Trikala06' ? 650 : 600) ? 'good' : 'ok'}">CHT ${Math.round(w.cht)}s</span>` : ''}
             </div>
           `;
           card.appendChild(entry);
