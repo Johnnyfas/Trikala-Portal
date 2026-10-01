@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 42;
+const BOARD_VERSION = 43;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6715,6 +6715,7 @@ function renderTeamZiele(){
 
 
 let twSelectedDay = 'total'; // 'total' = Monatsstand, sonst Tag-Nummer als String ('1'..'31')
+let twSelectedMonth = null;  // null = aktueller Monat; 'YYYY-MM' = ausgewählter Monat
 
 function twMonthKey(d){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
@@ -6722,13 +6723,33 @@ function twMonthKey(d){
 function twDaysInMonth(d){
   return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
 }
+// Gibt das Date-Objekt für den aktuell gewählten Monat zurück
+function twActiveMonthDate(){
+  if(!twSelectedMonth) return new Date();
+  const [y,m] = twSelectedMonth.split('-').map(Number);
+  return new Date(y, m-1, 1);
+}
+// Alle Monate die mindestens ein Tageswert-Eintrag haben (für Monatsauswahl)
+function twAvailableMonths(){
+  const keys = new Set();
+  keys.add(twMonthKey(new Date())); // aktueller Monat immer anzeigen
+  state.agents.forEach(a=>{
+    Object.keys(a.tageswerte||{}).forEach(k=>keys.add(k));
+  });
+  return Array.from(keys).sort().reverse(); // neuester zuerst
+}
+const MONTH_LABELS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+function twMonthLabel(key){
+  const [y,m] = key.split('-').map(Number);
+  return `${MONTH_LABELS[m-1]} ${y}`;
+}
 // Setzt alle Tageswerte-Einträge des aktuellen Monats für alle Mitarbeiter zurück (leert alle
 // Tage), damit für einen neuen Monat wieder bei null angefangen werden kann. Betrifft nur die
 // Tages-Einträge selbst - Calls/NPS/LQ (die direkt im Monatsstand eingetragen werden) bleiben
 // unangetastet, da sie kein Teil von agent.tageswerte sind.
 function twResetMonth(){
-  const monthKey = twMonthKey(new Date());
-  if(!confirm(`Wirklich den kompletten Monatsstand für ${monthKey} bei allen Mitarbeitern zurücksetzen (Tageswerte, Stückzahlen, Calls, NPS, LQ, CHT)? Das kann nicht rückgängig gemacht werden.`)) return;
+  const monthKey = twMonthKey(twActiveMonthDate());
+  if(!confirm(`Wirklich den kompletten Monatsstand für ${twMonthLabel(monthKey)} bei allen Mitarbeitern zurücksetzen (Tageswerte, Stückzahlen, Calls, NPS, LQ, CHT)? Das kann nicht rückgängig gemacht werden.`)) return;
   state.agents.forEach(agent=>{
     if(agent.tageswerte && agent.tageswerte[monthKey]) delete agent.tageswerte[monthKey];
     // Auch die daraus berechneten/eingetragenen Monatsstand-Felder leeren, sonst blieben die
@@ -6901,7 +6922,7 @@ document.getElementById('tw-import-helpsense-input').addEventListener('change', 
 // und schreibt das Ergebnis in die "echten" Live-Felder (agent.calls/sales/nps/lq),
 // damit MA Stand, Team Ziele, CR-Berechnung usw. automatisch den Monatsstand nutzen.
 function twRecomputeAgent(agent, cfg){
-  const monthKey = twMonthKey(new Date());
+  const monthKey = twMonthKey(twActiveMonthDate());
   const tw = agent.tageswerte && agent.tageswerte[monthKey];
   if(!tw){ return; }
   const days = Object.keys(tw);
@@ -6931,9 +6952,31 @@ function renderTageswerte(){
   container.innerHTML = '';
 
   const now = new Date();
-  const monthKey = twMonthKey(now);
-  const daysInMonth = twDaysInMonth(now);
-  const todayNum = now.getDate();
+  const activeMonth = twActiveMonthDate();
+  const monthKey = twMonthKey(activeMonth);
+  const daysInMonth = twDaysInMonth(activeMonth);
+  const todayNum = (twMonthKey(now) === monthKey) ? now.getDate() : -1;
+
+  // === Monatsauswahl ===
+  const monthBar = document.createElement('div');
+  monthBar.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;';
+  const monthLabel = document.createElement('span');
+  monthLabel.textContent = 'Monat:';
+  monthLabel.style.cssText = 'font-size:13px;color:var(--muted);font-weight:500;';
+  monthBar.appendChild(monthLabel);
+  twAvailableMonths().forEach(key=>{
+    const btn = document.createElement('button');
+    btn.textContent = twMonthLabel(key);
+    const isActive = key === monthKey;
+    btn.style.cssText = `padding:4px 12px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-weight:${isActive?'700':'400'};background:${isActive?'var(--teal)':'var(--surface2)'};color:${isActive?'#fff':'var(--text)'};`;
+    btn.addEventListener('click', ()=>{
+      twSelectedMonth = key;
+      twSelectedDay = 'total';
+      renderTageswerte();
+    });
+    monthBar.appendChild(btn);
+  });
+  container.appendChild(monthBar);
 
   // === Tages-Reiter ===
   const dayTabs = document.createElement('div');
