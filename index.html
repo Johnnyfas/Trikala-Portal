@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 44;
+const BOARD_VERSION = 45;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -993,6 +993,8 @@ let twLastMouseX = null, twLastMouseY = null;
 // Kopier-Puffer: 2D-Array der kopierten Werte (Zeilen × Spalten)
 let twCopyBuffer = null; // null = kein Puffer; [[val,...], ...] = Werte
 let twCopyRows = 0, twCopyCols = 0;
+// Globales Zell-Register: key = "row,col" → {td, input, setVal} — wird bei jedem render neu befüllt
+let twCellRegistry = {};
 
 // Zeigt kurz einen Toast-Hinweis an
 function twToast(msg){
@@ -1046,30 +1048,28 @@ document.addEventListener('keydown', (e)=>{
   // Einfügen: Ctrl+V / Cmd+V
   if((e.ctrlKey || e.metaKey) && e.key === 'v'){
     if(!twCopyBuffer) return;
-    // Startpunkt: die aktive Zelle (oder erste markierte)
+    // Startpunkt: die aktive Zelle
     const anchor = document.activeElement.closest('td');
     if(!anchor || !anchor.dataset.twRow) return;
     const startR = parseInt(anchor.dataset.twRow);
     const startC = parseInt(anchor.dataset.twCol);
-    // Alle editierbaren Zellen der aktiven Tabelle einsammeln (cellGrid ist lokal, aber wir nutzen data-Attribute)
-    const allTds = [...document.querySelectorAll('td[data-tw-row][data-tw-col]')];
     captureUndoSnapshot();
     twMarkInput();
     let pasted = 0;
     twCopyBuffer.forEach((rowVals, dr)=>{
       rowVals.forEach((val, dc)=>{
-        const tr = startR + dr, tc = startC + dc;
-        const td = allTds.find(t=>parseInt(t.dataset.twRow)===tr && parseInt(t.dataset.twCol)===tc);
-        if(!td) return;
-        const inp = td.querySelector('input.tw-input');
-        if(!inp || inp.disabled) return;
-        // setVal über das change-Event auslösen
-        inp.value = val === null ? '' : val;
-        inp.dispatchEvent(new Event('change', {bubbles:true}));
+        const key = `${startR + dr},${startC + dc}`;
+        const cell = twCellRegistry[key];
+        if(!cell || cell.input.disabled) return;
+        // Direkt setVal aufrufen (hat Zugriff auf den richtigen agent/tag-Scope)
+        cell.setVal(val);
+        cell.input.value = val === null ? '' : val;
         pasted++;
       });
     });
     scheduleSave();
+    // Tageswerte neu rendern damit Summen etc. stimmen, aber Fokus-Schutz aktiv halten
+    renderTageswerte();
     twToast(`✅ ${pasted} Zelle(n) eingefügt`);
     e.preventDefault();
     return;
@@ -7025,6 +7025,7 @@ function renderTageswerte(){
   document.getElementById('tw-count').textContent = state.agents.length + ' Mitarbeiter';
   const container = document.getElementById('tageswerte-capture');
   container.innerHTML = '';
+  twCellRegistry = {}; // Register neu aufbauen
 
   const now = new Date();
   const activeMonth = twActiveMonthDate();
@@ -7162,6 +7163,7 @@ function renderTageswerte(){
         cellGrid[rowIdx][colIdx] = { td, input: inp, setVal };
         td.dataset.twRow = rowIdx;
         td.dataset.twCol = colIdx;
+        twCellRegistry[`${rowIdx},${colIdx}`] = { td, input: inp, setVal };
         td.addEventListener('mousedown', e=>{
           e.preventDefault(); // verhindert Browser-Textauswahl über mehrere Felder, wir übernehmen das selbst
           if(twClearActiveSelection && twClearActiveSelection !== clearVisual) twClearActiveSelection();
