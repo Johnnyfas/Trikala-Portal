@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 53;
+const BOARD_VERSION = 54;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -5649,46 +5649,138 @@ function renderVerlauf(){
     setTimeout(()=>{ drawCRChart(canvas, monate, crValues, cfg, agentData); }, 50);
     setTimeout(()=>{ drawNPSChart(canvasNPS, monate, npsValues, cfg, agentData); }, 50);
 
-    // Tabelle mit allen Monaten
-    const t = document.createElement('table');
-    t.className = 'vl-table';
-    const prods = cfg.products;
-    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>CR</th><th>Calls</th><th>CHT</th><th>NPS</th><th>Trend</th></tr>`;
-    monate.forEach(m => {
-      const md = agentData.monate[m];
-      const cr = md.cr || 0;
-      const crOk = cr >= cfg.crTarget;
-      const tr = document.createElement('tr');
-      let html = `<td>${m.includes('-') ? m.split('-')[1]+' '+m.split('-')[0] : m}</td>`;
-      prods.forEach((p,i) => {
-        const val = md.sales[p]||0;
-        const tgt = agentTargets({team:teamId, category:agentCategoryForCharts})[i];
-        const cls = val >= tgt ? 'ok' : val > 0 ? 'mid' : 'bad';
-        html += `<td><span class="vl-badge ${cls}">${Math.round(val)}</span></td>`;
-      });
-      html += `<td><span class="vl-badge ${crOk?'ok':'bad'}">${cr.toFixed(2)}%</span></td>`;
-      html += `<td><span class="vl-badge">${Math.round(md.calls||0)}</span></td>`;
-      const chtVal = (md.cht === null || md.cht === undefined) ? null : md.cht;
-      const chtCls = chtVal === null ? '' : (chtVal <= 550 ? 'ok' : chtVal <= 680 ? 'mid' : 'bad');
-      html += `<td><span class="vl-badge ${chtCls}">${chtVal === null ? '–' : Math.round(chtVal)}</span></td>`;
-      html += `<td><span class="vl-badge ${(md.nps||0)>=cfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
-      // Trend: Vergleich mit Vormonat
-      const prevM = monate[monate.indexOf(m)-1];
-      let trendHtml = '<span class="trend-flat">—</span>';
-      if(prevM){
-        const prevCr = agentData.monate[prevM].cr||0;
-        const diff = cr - prevCr;
-        if(Math.abs(diff) >= 0.1){
-          const cls = diff>0?'trend-up':'trend-down';
-          const arrow = diff>0?'▲':'▼';
-          trendHtml = `<span class="${cls}">${arrow} ${Math.abs(diff).toFixed(2)}%</span>`;
+    // Tabelle mit allen Monaten + Bearbeiten-Modus
+    let vlEditMode = false;
+    const tableWrap = document.createElement('div');
+
+    const editToggleBtn = document.createElement('button');
+    editToggleBtn.className = 'secondary';
+    editToggleBtn.style.cssText = 'margin-bottom:8px;font-size:12px;padding:6px 12px;';
+    editToggleBtn.textContent = '✏️ Daten bearbeiten';
+
+    const renderVerlaufTable = () => {
+      tableWrap.innerHTML = '';
+      const t = document.createElement('table');
+      t.className = 'vl-table';
+      const prods = cfg.products;
+
+      // Header
+      const headerRow = document.createElement('tr');
+      headerRow.innerHTML = `<th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>CR %</th><th>Calls</th><th>CHT</th><th>NPS %</th>${vlEditMode ? '' : '<th>Trend</th>'}`;
+      t.appendChild(headerRow);
+
+      monate.forEach(m => {
+        const md = agentData.monate[m];
+        if(!md) return;
+        const cr = md.cr || 0;
+        const crOk = cr >= cfg.crTarget;
+        const tr = document.createElement('tr');
+
+        const monatLabel = m.includes('-') ? m.split('-')[1]+' '+m.split('-')[0] : m;
+
+        if(!vlEditMode){
+          // Anzeigemodus
+          let html = `<td>${monatLabel}</td>`;
+          prods.forEach((p,i) => {
+            const val = md.sales ? (md.sales[p]||0) : 0;
+            const tgt = agentTargets({team:teamId, category:agentCategoryForCharts})[i];
+            const cls = val >= tgt ? 'ok' : val > 0 ? 'mid' : 'bad';
+            html += `<td><span class="vl-badge ${cls}">${Math.round(val)}</span></td>`;
+          });
+          html += `<td><span class="vl-badge ${crOk?'ok':'bad'}">${cr.toFixed(2)}%</span></td>`;
+          html += `<td><span class="vl-badge">${Math.round(md.calls||0)}</span></td>`;
+          const chtVal = (md.cht === null || md.cht === undefined) ? null : md.cht;
+          const chtCls = chtVal === null ? '' : (chtVal <= 550 ? 'ok' : chtVal <= 680 ? 'mid' : 'bad');
+          html += `<td><span class="vl-badge ${chtCls}">${chtVal === null ? '–' : Math.round(chtVal)}</span></td>`;
+          html += `<td><span class="vl-badge ${(md.nps||0)>=cfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
+          const prevM = monate[monate.indexOf(m)-1];
+          let trendHtml = '<span class="trend-flat">—</span>';
+          if(prevM && agentData.monate[prevM]){
+            const prevCr = agentData.monate[prevM].cr||0;
+            const diff = cr - prevCr;
+            if(Math.abs(diff) >= 0.1){
+              const cls2 = diff>0?'trend-up':'trend-down';
+              const arrow = diff>0?'▲':'▼';
+              trendHtml = `<span class="${cls2}">${arrow} ${Math.abs(diff).toFixed(2)}%</span>`;
+            }
+          }
+          html += `<td>${trendHtml}</td>`;
+          tr.innerHTML = html;
+        } else {
+          // Bearbeitungsmodus — editierbare Felder
+          const mkNumCell = (getValue, setValue, opts={}) => {
+            const td = document.createElement('td');
+            const inp = document.createElement('input');
+            inp.type = 'text';
+            inp.inputMode = 'decimal';
+            inp.value = getValue();
+            inp.style.cssText = 'width:60px;background:var(--tmg-soft);border:1px solid var(--tmg);border-radius:5px;padding:2px 4px;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;text-align:center;color:var(--text);outline:none;';
+            inp.addEventListener('focus', e=>e.target.select());
+            inp.addEventListener('change', e=>{
+              const v = parseFloat(e.target.value.replace(',','.')) || 0;
+              setValue(v);
+              scheduleSave();
+            });
+            td.appendChild(inp);
+            return td;
+          };
+
+          const tdMonat = document.createElement('td');
+          tdMonat.textContent = monatLabel;
+          tdMonat.style.fontWeight = '600';
+          tr.appendChild(tdMonat);
+
+          // Produkte (sales)
+          if(!md.sales) md.sales = {};
+          prods.forEach(p=>{
+            tr.appendChild(mkNumCell(
+              ()=> Math.round(md.sales[p]||0),
+              v=>{ md.sales[p] = v; }
+            ));
+          });
+
+          // CR
+          tr.appendChild(mkNumCell(
+            ()=> (md.cr||0).toFixed(2),
+            v=>{ md.cr = v; }
+          ));
+
+          // Calls
+          tr.appendChild(mkNumCell(
+            ()=> Math.round(md.calls||0),
+            v=>{ md.calls = v; }
+          ));
+
+          // CHT
+          tr.appendChild(mkNumCell(
+            ()=> md.cht != null ? Math.round(md.cht) : '',
+            v=>{ md.cht = v > 0 ? v : null; }
+          ));
+
+          // NPS
+          tr.appendChild(mkNumCell(
+            ()=> (md.nps||0).toFixed(1),
+            v=>{ md.nps = v; }
+          ));
         }
-      }
-      html += `<td>${trendHtml}</td>`;
-      tr.innerHTML = html;
-      t.appendChild(tr);
+
+        t.appendChild(tr);
+      });
+      tableWrap.appendChild(t);
+    };
+
+    editToggleBtn.addEventListener('click', ()=>{
+      vlEditMode = !vlEditMode;
+      editToggleBtn.textContent = vlEditMode ? '✅ Bearbeitung beenden' : '✏️ Daten bearbeiten';
+      editToggleBtn.style.background = vlEditMode ? 'var(--tmg-soft)' : '';
+      editToggleBtn.style.borderColor = vlEditMode ? 'var(--tmg)' : '';
+      editToggleBtn.style.color = vlEditMode ? 'var(--tmg)' : '';
+      renderVerlaufTable();
     });
-    teamBlock.appendChild(t);
+
+    renderVerlaufTable();
+    teamBlock.appendChild(editToggleBtn);
+    teamBlock.appendChild(tableWrap);
     container.appendChild(teamBlock);
   });
 }
