@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 50;
+const BOARD_VERSION = 52;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1331,193 +1331,12 @@ async function graphFetch(url, options={}){
   return resp;
 }
 
-async function loadFromSharePoint(){
-  setSyncStatus('syncing');
-  try {
-    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/items/${OWNER_FILE_ID}/content?_cb=${Date.now()}`);
-    if(resp.ok){
-      const data = await resp.json();
-      if(data && data.agents && data.agents.length){
-        state.agents = data.agents;
-        if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
-        if(data.teamziele){
-          Object.keys(data.teamziele).forEach(k=>{
-            if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
-          });
-        }
-        // Ungültige Verlauf-Einträge entfernen
-        const INVALID_NAMES = ['6','Helpline','helpline','Michas','Lekaki','Manachiari','Tstisoula'];
-        // Alte Alias-Keys entfernen
-        ['Antoniou_Trikala01','Antoniou_Pia_Trikala01','Antoniou Ioannis_Trikala01','Antoniou Pia_Trikala01'].forEach(k=>{ if(state.verlauf[k]) delete state.verlauf[k]; });
-        Object.keys(state.verlauf).forEach(k=>{
-          if(INVALID_NAMES.includes(state.verlauf[k].name)) delete state.verlauf[k];
-        });
-        // Seed-Daten für alle MA sicherstellen (fehlende Monate aus Seed ergänzen)
-        Object.keys(VERLAUF_SEED).forEach(k=>{
-          if(!state.verlauf[k]){
-            state.verlauf[k] = JSON.parse(JSON.stringify(VERLAUF_SEED[k]));
-          } else {
-            // Fehlende Monate aus Seed ergänzen
-            Object.keys(VERLAUF_SEED[k].monate).forEach(m=>{
-              if(!state.verlauf[k].monate[m]){
-                state.verlauf[k].monate[m] = JSON.parse(JSON.stringify(VERLAUF_SEED[k].monate[m]));
-              } else {
-                // NPS aus Seed wenn 0 in gespeicherter Version
-                const seed = VERLAUF_SEED[k].monate[m];
-                if(seed.nps > 0 && state.verlauf[k].monate[m].nps === 0)
-                  state.verlauf[k].monate[m].nps = seed.nps;
-                if(seed.cr > 0 && state.verlauf[k].monate[m].cr === 0)
-                  state.verlauf[k].monate[m].cr = seed.cr;
-              }
-            });
-          }
-        });
-
-        if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
-        if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
-        if(data.verlauf && Object.keys(data.verlauf).length > 0){
-          // Gespeicherte Verlauf-Snapshots mit Seed zusammenführen (Seed bleibt Basis)
-          Object.keys(data.verlauf).forEach(k=>{
-            if(!state.verlauf[k]) state.verlauf[k] = { name: data.verlauf[k].name, team: data.verlauf[k].team, monate: {} };
-            // Monat für Monat zusammenführen - Seed-Werte (NPS etc.) bleiben erhalten
-            Object.keys(data.verlauf[k].monate||{}).forEach(m=>{
-              if(!state.verlauf[k].monate[m]){
-                state.verlauf[k].monate[m] = data.verlauf[k].monate[m];
-              } else {
-                // Nur Felder übernehmen die im Seed 0 sind
-                const saved = data.verlauf[k].monate[m];
-                const seed = state.verlauf[k].monate[m];
-                if(saved.calls > 0) seed.calls = saved.calls;
-                if(saved.cr > 0) seed.cr = saved.cr;
-                if(saved.lq > 0) seed.lq = saved.lq;
-                if(saved.nps > 0 && seed.nps === 0) seed.nps = saved.nps;
-                Object.keys(saved.sales||{}).forEach(p=>{
-                  if(saved.sales[p] > 0) seed.sales[p] = saved.sales[p];
-                });
-              }
-            });
-          });
-        }
-        if(data.monatsabschluss){
-          // Server-Stand direkt übernehmen - identisch zur aktiven Ladefunktion weiter unten.
-          // Die frühere Logik hier hat md.plan bedingungslos aus der Code-Vorlage (Seed)
-          // zurückgesetzt ("Plan IMMER aus Seed behalten") und damit gespeicherte Planmengen
-          // beim Laden immer wieder verworfen - "erreicht" war davon nie betroffen, was genau
-          // das beobachtete Verhalten erklaerte.
-          const merged = data.monatsabschluss;
-          Object.keys(state.monatsabschluss||{}).forEach(team=>{
-            if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
-            Object.keys(state.monatsabschluss[team]).forEach(monat=>{
-              if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
-            });
-          });
-          state.monatsabschluss = merged;
-        }
-        // BOJ/HV nachrüsten und MF-Sep+-Migration: BOJ→HV umbenennen
-        const _MF_SEP_PLUS = ['September','Oktober','November','Dezember'];
-        Object.keys(state.monatsabschluss||{}).forEach(team=>{
-          Object.entries(state.monatsabschluss[team]||{}).forEach(([monat, md])=>{
-            const isMfSepPlus = team === 'mf' && _MF_SEP_PLUS.includes(monat);
-            if(isMfSepPlus){
-              // MF ab September: sicherstellen dass HV vorhanden, BOJ entfernen
-              ['plan','ziel','erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
-                if(!md[f]) return;
-                if(!('HV' in md[f])) md[f]['HV'] = md[f]['BOJ'] !== undefined ? md[f]['BOJ'] : 0;
-                delete md[f]['BOJ'];
-              });
-            } else {
-              // FN alle Monate + MF Jan–Aug: BOJ sicherstellen
-              ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
-            }
-          });
-        });
-        // Fiber Gesamt ab September nachrüsten (neue Spalte ab Sep 2026)
-        const FIBER_MONATE = ['September','Oktober','November','Dezember'];
-        FIBER_MONATE.forEach(monat=>{
-          ['mf','fn'].forEach(team=>{
-            const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
-            if(!md) return;
-            ['plan','ziel','erreicht','cr'].forEach(f=>{
-              if(md[f] && !('Fiber Gesamt' in md[f])) md[f]['Fiber Gesamt'] = 0;
-            });
-          });
-        });
-        // Seed-Werte IMMER übernehmen (haben Vorrang über alte SharePoint-Nullwerte)
-        Object.keys(MA_SEED).forEach(team=>{
-          Object.keys(MA_SEED[team]).forEach(monat=>{
-            const seed = MA_SEED[team][monat];
-            if(!state.monatsabschluss[team]) return;
-            if(!state.monatsabschluss[team][monat]) state.monatsabschluss[team][monat] = JSON.parse(JSON.stringify(seed));
-            const md = state.monatsabschluss[team][monat];
-            // Seed-Werte übernehmen wenn Seed > 0 und gespeicherter Wert = 0
-            ['erreicht','cr','storno'].forEach(f=>{
-              if(seed[f]){
-                if(!md[f]) md[f] = {};
-                Object.keys(seed[f]).forEach(p=>{
-                  if(seed[f][p] !== 0 && (md[f][p] === 0 || md[f][p] === undefined)) md[f][p] = seed[f][p];
-                });
-              }
-            });
-            ['crZiel','crZielText'].forEach(f=>{
-              if(seed[f]) { md[f] = md[f]||{}; Object.assign(md[f], seed[f]); }
-            });
-            if(!md.nps_plan && seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
-            if(!md.nps_ist && seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
-            if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
-            if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
-            // Plan: Seed füllt nur Lücken (Produkte ohne bisherigen Wert), überschreibt aber nie
-            // einen bereits vorhandenen (auch frisch eingetragenen) Wert - vorher wurde hier bei
-            // JEDEM Laden bedingungslos auf die Code-Vorlagenwerte zurückgesetzt und sofort
-            // wieder gespeichert, wodurch Eingaben in "Planenmenge" nie dauerhaft blieben.
-            if(seed.plan){
-              md.plan = md.plan || {};
-              Object.keys(seed.plan).forEach(p=>{
-                if(!md.plan[p] && seed.plan[p] > 0) md.plan[p] = seed.plan[p];
-              });
-            }
-            // BOJ/HV – wird bereits im globalen Migrations-Block oben behandelt
-          });
-        });
-        // Kein automatisches Speichern direkt nach dem Laden mehr - das hat den beim Laden
-        // zurechtgebogenen Stand sofort festgeschrieben und konnte frische Eingaben überschreiben.
-        renderAll();
-        setSyncStatus('ok');
-        return;
-      }
-    }
-    await saveToSharePoint();
-    setSyncStatus('ok');
-  } catch(e){
-    console.error('SharePoint load error', e);
-    setSyncStatus('error');
-  }
-}
-
-async function saveToSharePoint(){
-  if(!graphToken){
-    const ok = await getToken();
-    if(!ok) return;
-  }
-  setSyncStatus('syncing');
-  try {
-    const body = JSON.stringify(state);
-    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/items/${OWNER_FILE_ID}/content`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: body
-    });
-    if(resp && resp.ok){
-      setSyncStatus('ok');
-      console.log('SharePoint gespeichert:', new Date().toLocaleTimeString());
-    } else {
-      console.error('SharePoint save failed:', resp?.status);
-      setSyncStatus('error');
-    }
-  } catch(e){
-    console.error('SharePoint save error', e);
-    setSyncStatus('error');
-  }
-}
+// HINWEIS (K-2 Audit-Fix): Die frühere erste Definition von loadFromSharePoint() und
+// saveToSharePoint() (für Microsoft SharePoint / Graph API) wurde hier entfernt.
+// Diese Funktionen waren toter Code – durch JavaScript-Hoisting überschrieb die zweite
+// Definiton weiter unten (KI-Proxy / Cloudflare Worker) die erste vollständig, sodass
+// niemals die SharePoint-Variante ausgeführt wurde. Die aktiven Funktionen befinden sich
+// weiter unten ab "async function loadFromSharePoint()" (KI_PROXY_URL).
 
 function setSyncStatus(s){
   syncStatus = s;
@@ -1610,51 +1429,9 @@ async function loadFromSharePoint(){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
         showSyncDebug(`✅ Daten geladen: ${data.agents.length} Mitarbeiter (HTTP ${resp.status}, ${new Date().toLocaleTimeString('de-DE')})`, false);
-        // Tageswerte beim Hintergrund-Sync nicht blind überschreiben:
-        // Server-Stand für alle Felder übernehmen, aber Tageswerte pro Monat/Tag zusammenführen
-        // (lokale Werte > 0 behalten Vorrang, damit gleichzeitige Eingaben nicht verloren gehen).
-        {
-          const localAgentMap = {};
-          state.agents.forEach(a=>{ localAgentMap[a.name + '_' + a.team] = a; });
-          data.agents.forEach(serverAgent=>{
-            const key = serverAgent.name + '_' + serverAgent.team;
-            const local = localAgentMap[key];
-            if(!local) return; // Neuer MA, wird beim state.agents = data.agents übernommen
-            // Tageswerte zusammenführen: für jeden Monat/Tag den Server-Stand nehmen,
-            // aber lokale Werte behalten wenn jemand gerade tippt oder lokaler Wert > 0
-            const serverTw = serverAgent.tageswerte || {};
-            const localTw = local.tageswerte || {};
-            const mergedTw = {};
-            const allMonths = new Set([...Object.keys(serverTw), ...Object.keys(localTw)]);
-            allMonths.forEach(month=>{
-              if(!serverTw[month]){ mergedTw[month] = localTw[month]; return; }
-              if(!localTw[month]){ mergedTw[month] = serverTw[month]; return; }
-              // Beide haben diesen Monat: Tag für Tag zusammenführen
-              mergedTw[month] = Object.assign({}, serverTw[month]);
-              Object.keys(localTw[month]).forEach(day=>{
-                const localDay = localTw[month][day];
-                const serverDay = serverTw[month][day];
-                if(!serverDay){ mergedTw[month][day] = localDay; return; }
-                // Produkte: lokaler Wert > 0 hat Vorrang (schützt laufende Eingaben)
-                const mergedDay = Object.assign({}, serverDay);
-                mergedDay.sales = Object.assign({}, serverDay.sales||{});
-                Object.keys(localDay.sales||{}).forEach(p=>{
-                  if((localDay.sales[p]||0) > 0) mergedDay.sales[p] = localDay.sales[p];
-                });
-                // Auch calls/cht/nps/lq aus lokalem Stand schützen wenn gerade am Tippen
-                if(twRecentlyEdited()){
-                  if(localDay.calls > 0) mergedDay.calls = localDay.calls;
-                  if(localDay.cht   > 0) mergedDay.cht   = localDay.cht;
-                  if(localDay.nps   > 0) mergedDay.nps   = localDay.nps;
-                  if(localDay.lq    > 0) mergedDay.lq    = localDay.lq;
-                }
-                mergedTw[month][day] = mergedDay;
-              });
-            });
-            serverAgent.tageswerte = mergedTw;
-          });
-          state.agents = data.agents;
-        }
+        // Tageswerte beim Laden nicht blind überschreiben — lokale Werte > 0 behalten Vorrang.
+        mergeTageswerte(state.agents, data.agents);
+        state.agents = data.agents;
         if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
         if(data.teamziele){
           Object.keys(data.teamziele).forEach(k=>{
@@ -1927,6 +1704,14 @@ async function saveToSharePoint(){
             if(uid !== currentUserId) state.todosByUser[uid] = serverData.todosByUser[uid];
           });
         }
+
+        // Tageswerte: Server-Stand mit lokalem Stand zusammenführen, damit gleichzeitige
+        // Eingaben verschiedener Personen im gespeicherten Ergebnis erhalten bleiben.
+        // WICHTIG: lokale Werte (state.agents) haben Vorrang vor Server-Werten (serverData.agents),
+        // daher state.agents als erster Parameter ("local") und serverData.agents als zweiter ("server").
+        if(serverData.agents && serverData.agents.length){
+          mergeTageswerte(state.agents, serverData.agents);
+        }
       }
     } catch(mergeErr){
       console.warn('Zusammenführen vor dem Speichern fehlgeschlagen, speichere trotzdem lokalen Stand:', mergeErr);
@@ -2101,6 +1886,45 @@ async function loadState(){
   // Board-Daten laden - unabhängig von Microsoft (das wird nicht mehr gebraucht, seit die
   // Board-Daten in Cloudflare D1 liegen und die Excel-Anbindung nicht mehr genutzt wird).
   if(getKIAppToken()) loadFromSharePoint();
+}
+
+// Tageswerte zweier agents-Arrays zusammenführen: lokale Werte > 0 behalten Vorrang.
+// Wird sowohl beim Laden (loadFromSharePoint) als auch beim Speichern (saveToSharePoint) genutzt,
+// damit gleichzeitige Eingaben verschiedener Personen niemals verloren gehen.
+function mergeTageswerte(localAgents, serverAgents){
+  const localMap = {};
+  localAgents.forEach(a=>{ localMap[a.name + '_' + a.team] = a; });
+  serverAgents.forEach(serverAgent=>{
+    const key = serverAgent.name + '_' + serverAgent.team;
+    const local = localMap[key];
+    if(!local) return; // Neuer MA — wird durch state.agents = serverAgents übernommen
+    const serverTw = serverAgent.tageswerte || {};
+    const localTw  = local.tageswerte  || {};
+    const merged = {};
+    const allMonths = new Set([...Object.keys(serverTw), ...Object.keys(localTw)]);
+    allMonths.forEach(month=>{
+      if(!serverTw[month]){ merged[month] = localTw[month]; return; }
+      if(!localTw[month])  { merged[month] = serverTw[month]; return; }
+      merged[month] = Object.assign({}, serverTw[month]);
+      Object.keys(localTw[month]).forEach(day=>{
+        const lDay = localTw[month][day];
+        const sDay = serverTw[month][day];
+        if(!sDay){ merged[month][day] = lDay; return; }
+        const mergedDay = Object.assign({}, sDay);
+        mergedDay.sales = Object.assign({}, sDay.sales||{});
+        Object.keys(lDay.sales||{}).forEach(p=>{
+          if((lDay.sales[p]||0) > 0) mergedDay.sales[p] = lDay.sales[p];
+        });
+        // Calls/CHT/NPS/LQ: lokaler Wert > 0 gewinnt
+        if((lDay.calls||0) > 0) mergedDay.calls = lDay.calls;
+        if((lDay.cht  ||0) > 0) mergedDay.cht   = lDay.cht;
+        if((lDay.nps  ||0) > 0) mergedDay.nps   = lDay.nps;
+        if((lDay.lq   ||0) > 0) mergedDay.lq    = lDay.lq;
+        merged[month][day] = mergedDay;
+      });
+    });
+    serverAgent.tageswerte = merged;
+  });
 }
 
 function scheduleSave(){
@@ -3667,7 +3491,7 @@ function renderWorkshops(){
         const chip = document.createElement('span');
         chip.className = 'ws-list-chip';
         const teamLabel = TEAM_CONFIGS[t.team]?.label || t.team;
-        chip.textContent = `${t.name} · ${label}`;
+        chip.textContent = `${t.name} · ${teamLabel}`;
         partWrap.appendChild(chip);
       });
     body.appendChild(partWrap);
@@ -4799,7 +4623,7 @@ function buildPlanRow(p){
     <div class="cp-plan-row-main">
       <div class="cp-plan-row-name">${p.name}</div>
       <div class="cp-plan-row-meta">
-        <span class="cat-badge regular">${label}</span>
+        <span class="cat-badge regular">${teamLabel}</span>
         <span class="cp-theme-badge" style="background:${themeColor}22;color:${themeColor};">${p.thema}</span>
         <span class="cp-plan-date">📅 ${dateDisplay} · ${p.dauerGeplant||0} Min</span>
       </div>
@@ -7034,7 +6858,8 @@ function renderTageswerte(){
   document.getElementById('tw-count').textContent = state.agents.length + ' Mitarbeiter';
   const container = document.getElementById('tageswerte-capture');
   container.innerHTML = '';
-  twCellRegistry = {}; // Register neu aufbauen
+  twCellRegistry = {};   // Register neu aufbauen
+  twSelectedCells = [];  // Auswahl zurücksetzen (verhindert versehentliches Einfügen in falschen Monat nach Monatswechsel)
 
   const now = new Date();
   const activeMonth = twActiveMonthDate();
