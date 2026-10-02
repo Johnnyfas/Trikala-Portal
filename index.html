@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 47;
+const BOARD_VERSION = 49;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1737,34 +1737,6 @@ async function loadFromSharePoint(){
             });
           });
           state.monatsabschluss = merged;
-        }
-        // Einmalige automatische Bereinigung: September-Dezember enthielten noch alte
-        // Platzhalter-/Testzahlen aus einer früheren Ersteinrichtung. Wird nur einmal ausgeführt
-        // (per localStorage-Merker), danach nie wieder - damit spätere echte Eingaben nicht
-        // versehentlich erneut überschrieben werden.
-        if(!localStorage.getItem('ma_sept_dez_bereinigt')){
-          const futureMonths = ['September','Oktober','November','Dezember'];
-          Object.keys(state.monatsabschluss||{}).forEach(team=>{
-            futureMonths.forEach(monat=>{
-              const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
-              if(!md) return;
-              const zeroObj = {};
-              Object.keys(md.plan||{}).forEach(p=>{ zeroObj[p] = 0; });
-              md.plan = {...zeroObj};
-              if(md.ziel) md.ziel = {...zeroObj};
-              md.erreicht = {...zeroObj};
-              md.cr = {...zeroObj};
-              md.storno = {...zeroObj};
-              md.crZiel = {};
-              md.crZielText = {};
-              md.nps_plan = 0;
-              md.nps_ist = 0;
-              md.crGesamtZiel = 0;
-              md.crGesamtErreicht = 0;
-            });
-          });
-          localStorage.setItem('ma_sept_dez_bereinigt', '1');
-          scheduleSave();
         }
         // BOJ/HV nachrüsten und MF-Sep+-Migration: BOJ→HV umbenennen
         const _MF_SEP_PLUS_2 = ['September','Oktober','November','Dezember'];
@@ -6071,23 +6043,11 @@ function renderMonatsabschluss(){
     { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; return md?md.nps_ist||0:0; }) }
   ], true, 100);
 
-  // CHT-Monatsverlauf: Durchschnitt aus verlauf-Archiv (pro Monat) berechnen
+  // CHT-Monatsverlauf: hinterlegter Wert aus Monatsabschluss
   const chtMonate = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-  const chtTeamAvg = (teamId) => chtMonate.map(monat=>{
-    const agents = state.agents.filter(a=>a.team===teamId && a.category !== 'schulung');
-    const vals = [];
-    agents.forEach(a=>{
-      const vl = Object.values(state.verlauf).find(v=>v.name===a.name && v.team===a.team);
-      const key = `2026-${monat}`;
-      if(vl && vl.monate && vl.monate[key] && vl.monate[key].cht > 0){
-        vals.push(vl.monate[key].cht);
-      }
-    });
-    return vals.length ? Math.round(vals.reduce((s,v)=>s+v,0)/vals.length) : 0;
-  });
-  mkBox('CHT — Monatsverlauf (Ø pro Team)', ()=>[
-    { label:'MF', color:'#E20074', labels:chtMonate, values:chtTeamAvg('Trikala01') },
-    { label:'FN', color:'#0E7C7B', labels:chtMonate, values:chtTeamAvg('Trikala06') }
+  mkBox('CHT — Monatsverlauf', ()=>[
+    { label:'MF', color:'#E20074', labels:chtMonate, values:chtMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; return md&&md.cht>0?md.cht:0; }) },
+    { label:'FN', color:'#0E7C7B', labels:chtMonate, values:chtMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; return md&&md.cht>0?md.cht:0; }) }
   ], false);
 
   container.appendChild(chartsWrap);
