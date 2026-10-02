@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 52;
+const BOARD_VERSION = 53;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2470,7 +2470,38 @@ function renderCoaching(){
         renderAll();
       });
 
-      topRow.appendChild(topLeft); topRow.appendChild(removeBtn);
+      // ↑↓ Reihenfolge-Buttons (nur innerhalb desselben Teams)
+      const moveWrap = document.createElement('div');
+      moveWrap.style.cssText = 'display:flex;flex-direction:column;gap:2px;margin-right:4px;';
+      const sameTeam = ()=> state.agents.filter(a=> a.team === agent.team && a.category !== 'schulung');
+      [['↑', -1], ['↓', 1]].forEach(([label, dir])=>{
+        const btn = document.createElement('button');
+        btn.textContent = label;
+        btn.title = dir === -1 ? 'Nach oben' : 'Nach unten';
+        btn.style.cssText = 'background:var(--panel);border:1px solid var(--border);border-radius:5px;width:22px;height:20px;font-size:11px;cursor:pointer;line-height:1;padding:0;color:var(--muted);';
+        btn.addEventListener('click', ()=>{
+          const globalIdx = state.agents.indexOf(agent);
+          const teammates = sameTeam();
+          const teamIdx = teammates.indexOf(agent);
+          const targetTeamIdx = teamIdx + dir;
+          if(targetTeamIdx < 0 || targetTeamIdx >= teammates.length) return;
+          const targetAgent = teammates[targetTeamIdx];
+          const targetGlobalIdx = state.agents.indexOf(targetAgent);
+          // Tauschen im globalen Array
+          state.agents[globalIdx] = targetAgent;
+          state.agents[targetGlobalIdx] = agent;
+          scheduleSave();
+          renderAll();
+        });
+        moveWrap.appendChild(btn);
+      });
+
+      const topRight = document.createElement('div');
+      topRight.style.cssText = 'display:flex;align-items:center;gap:4px;';
+      topRight.appendChild(moveWrap);
+      topRight.appendChild(removeBtn);
+
+      topRow.appendChild(topLeft); topRow.appendChild(topRight);
       card.appendChild(topRow);
 
       // === Kumulierte Werte über alle erfassten Monate (aus dem Verlauf-Archiv), vs. Team ===
