@@ -899,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 49;
+const BOARD_VERSION = 50;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1610,7 +1610,51 @@ async function loadFromSharePoint(){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
         showSyncDebug(`✅ Daten geladen: ${data.agents.length} Mitarbeiter (HTTP ${resp.status}, ${new Date().toLocaleTimeString('de-DE')})`, false);
-        state.agents = data.agents;
+        // Tageswerte beim Hintergrund-Sync nicht blind überschreiben:
+        // Server-Stand für alle Felder übernehmen, aber Tageswerte pro Monat/Tag zusammenführen
+        // (lokale Werte > 0 behalten Vorrang, damit gleichzeitige Eingaben nicht verloren gehen).
+        {
+          const localAgentMap = {};
+          state.agents.forEach(a=>{ localAgentMap[a.name + '_' + a.team] = a; });
+          data.agents.forEach(serverAgent=>{
+            const key = serverAgent.name + '_' + serverAgent.team;
+            const local = localAgentMap[key];
+            if(!local) return; // Neuer MA, wird beim state.agents = data.agents übernommen
+            // Tageswerte zusammenführen: für jeden Monat/Tag den Server-Stand nehmen,
+            // aber lokale Werte behalten wenn jemand gerade tippt oder lokaler Wert > 0
+            const serverTw = serverAgent.tageswerte || {};
+            const localTw = local.tageswerte || {};
+            const mergedTw = {};
+            const allMonths = new Set([...Object.keys(serverTw), ...Object.keys(localTw)]);
+            allMonths.forEach(month=>{
+              if(!serverTw[month]){ mergedTw[month] = localTw[month]; return; }
+              if(!localTw[month]){ mergedTw[month] = serverTw[month]; return; }
+              // Beide haben diesen Monat: Tag für Tag zusammenführen
+              mergedTw[month] = Object.assign({}, serverTw[month]);
+              Object.keys(localTw[month]).forEach(day=>{
+                const localDay = localTw[month][day];
+                const serverDay = serverTw[month][day];
+                if(!serverDay){ mergedTw[month][day] = localDay; return; }
+                // Produkte: lokaler Wert > 0 hat Vorrang (schützt laufende Eingaben)
+                const mergedDay = Object.assign({}, serverDay);
+                mergedDay.sales = Object.assign({}, serverDay.sales||{});
+                Object.keys(localDay.sales||{}).forEach(p=>{
+                  if((localDay.sales[p]||0) > 0) mergedDay.sales[p] = localDay.sales[p];
+                });
+                // Auch calls/cht/nps/lq aus lokalem Stand schützen wenn gerade am Tippen
+                if(twRecentlyEdited()){
+                  if(localDay.calls > 0) mergedDay.calls = localDay.calls;
+                  if(localDay.cht   > 0) mergedDay.cht   = localDay.cht;
+                  if(localDay.nps   > 0) mergedDay.nps   = localDay.nps;
+                  if(localDay.lq    > 0) mergedDay.lq    = localDay.lq;
+                }
+                mergedTw[month][day] = mergedDay;
+              });
+            });
+            serverAgent.tageswerte = mergedTw;
+          });
+          state.agents = data.agents;
+        }
         if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
         if(data.teamziele){
           Object.keys(data.teamziele).forEach(k=>{
