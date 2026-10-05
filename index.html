@@ -737,6 +737,14 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 </head>
 <body>
 <div class="wrap">
+
+  <!-- Versions-Banner: wird eingeblendet wenn eine neuere Version auf GitHub Pages verfügbar ist -->
+  <div id="version-banner" style="display:none;position:sticky;top:0;z-index:9999;background:#1a56db;color:#fff;padding:10px 16px;text-align:center;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.25);align-items:center;justify-content:center;gap:12px;">
+    <span>🔄 Neue Version verfügbar — bitte Seite neu laden, damit alle Änderungen korrekt gespeichert werden.</span>
+    <button onclick="location.reload(true)" style="background:#fff;color:#1a56db;border:none;border-radius:6px;padding:5px 14px;font-size:13px;font-weight:700;cursor:pointer;margin-left:10px;">Jetzt neu laden</button>
+    <button onclick="document.getElementById('version-banner').style.display='none'" style="background:transparent;color:rgba(255,255,255,.7);border:none;font-size:18px;cursor:pointer;margin-left:6px;line-height:1;padding:0 4px;" title="Schließen">×</button>
+  </div>
+
   <div class="top-fab-row">
     <button class="todo-fab coachdash-fab" id="tab-coachdash">📋 Coaching Dashboard</button>
     <button class="todo-fab" id="todo-fab">✅ To-Do's <span class="todo-fab-badge" id="todo-fab-badge" style="display:none;">0</span></button>
@@ -899,7 +907,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 54;
+const BOARD_VERSION = 55;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1872,6 +1880,33 @@ async function loadFromExcel(){
 setInterval(() => {
   if(getKIAppToken() && !cpShowForm && !maIsTyping() && !saveInProgress && !pendingSave) loadFromSharePoint();
 }, 2 * 60 * 1000);
+
+// Versions-Check: Ruft die live index.html von GitHub Pages ab und vergleicht die dortige
+// BOARD_VERSION mit der aktuell laufenden. Ist die Live-Version neuer, wird ein Banner eingeblendet,
+// das alle Nutzer auffordert, die Seite neu zu laden – damit nie eine veraltete Version aktive
+// Daten überschreiben kann.
+async function checkRemoteVersion(){
+  try {
+    // Cache-Buster, damit der Browser nicht seinen eigenen Cache zurückgibt
+    const url = 'https://johnnyfas.github.io/Trikala-Portal/index.html?_v=' + Date.now();
+    const resp = await fetch(url, { cache: 'no-store' });
+    if(!resp.ok) return;
+    const text = await resp.text();
+    const m = text.match(/const BOARD_VERSION\s*=\s*(\d+)/);
+    if(!m) return;
+    const remoteVersion = parseInt(m[1], 10);
+    if(remoteVersion > BOARD_VERSION){
+      const banner = document.getElementById('version-banner');
+      if(banner) banner.style.display = 'flex';
+    }
+  } catch(e){
+    // Netzwerkfehler ignorieren – der Check ist best-effort
+  }
+}
+// Einmal beim Start prüfen (nach kurzem Delay, damit die Seite erst geladen ist)
+setTimeout(checkRemoteVersion, 5000);
+// Danach alle 10 Minuten wiederholen
+setInterval(checkRemoteVersion, 10 * 60 * 1000);
 
 function uid(){ return 'a' + Math.random().toString(36).slice(2,9); }
 
