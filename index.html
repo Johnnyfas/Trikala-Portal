@@ -909,7 +909,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 57;
+const BOARD_VERSION = 58;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1606,6 +1606,14 @@ async function loadFromSharePoint(){
         // 2 Minuten) hätte sonst das Risiko, frische Eingaben mit einem zwischenzeitlich leicht
         // abweichenden Stand zu überschreiben. Speichern passiert jetzt ausschließlich, wenn
         // tatsächlich etwas bearbeitet wird (scheduleSave()).
+        // Sicherheits-Guard: Wurde während dieses Ladevorgangs ein frischerer Speichervorgang
+        // abgeschlossen? Dann stammen die gerade geladenen Daten von vor der aktuellen Eingabe
+        // und würden gerade eingetippte Werte zurücksetzen. In diesem Fall Laden abbrechen.
+        if(saveEpoch !== epochAtStart){
+          showSyncDebug('ℹ️ Gleichzeitige Speicherung erkannt — veralteten Ladestand verworfen, aktuelle Eingaben behalten.', false);
+          setSyncStatus('ok');
+          return;
+        }
         applyChtVerlaufData();
         renderAll();
         setSyncStatus('ok');
@@ -1733,20 +1741,14 @@ async function saveToSharePoint(){
             const localTeam  = state.monatsabschluss[team];
             Object.keys(serverTeam).forEach(monat=>{
               if(!localTeam[monat]){
-                // Monat lokal nicht vorhanden → Server-Stand übernehmen
                 localTeam[monat] = serverTeam[monat];
               } else {
-                // Monat auf beiden Seiten vorhanden → Felder zusammenführen
                 const sMonth = serverTeam[monat];
                 const lMonth = localTeam[monat];
-                // Numerische Top-Level-Felder (nps_ist, nps_ziel, crGesamtZiel, crGesamtErreicht,
-                // cht, calls): Server-Wert gewinnt, wenn er > 0 ist, sonst lokaler Wert
                 ['nps_ist','nps_ziel','crGesamtZiel','crGesamtErreicht','cht','calls'].forEach(f=>{
                   if(sMonth[f] > 0) lMonth[f] = sMonth[f];
                   else if(lMonth[f] === undefined) lMonth[f] = sMonth[f] || 0;
                 });
-                // Objekt-Felder (plan, erreicht, cr, crZiel, storno usw.):
-                // Für jeden Produktschlüssel gewinnt der Server-Wert wenn er > 0 ist
                 ['plan','erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
                   if(!sMonth[f]) return;
                   if(!lMonth[f]) { lMonth[f] = sMonth[f]; return; }
@@ -1759,9 +1761,52 @@ async function saveToSharePoint(){
             });
           });
         }
+
+        // Verlauf: Server-Werte haben Vorrang (> 0 gewinnt), lokal nur fehlende Monate/Felder ergänzen.
+        // Verhindert dass eine Person mit älterem Stand die Verlauf-Eingaben einer anderen überschreibt.
+        if(serverData.verlauf && Object.keys(serverData.verlauf).length > 0){
+          Object.keys(serverData.verlauf).forEach(k=>{
+            if(!state.verlauf[k]){
+              state.verlauf[k] = serverData.verlauf[k];
+            } else {
+              Object.keys(serverData.verlauf[k].monate||{}).forEach(m=>{
+                if(!state.verlauf[k].monate) state.verlauf[k].monate = {};
+                if(!state.verlauf[k].monate[m]){
+                  state.verlauf[k].monate[m] = serverData.verlauf[k].monate[m];
+                } else {
+                  const s = serverData.verlauf[k].monate[m];
+                  const l = state.verlauf[k].monate[m];
+                  if(s.calls > 0) l.calls = s.calls;
+                  if(s.cr   > 0) l.cr    = s.cr;
+                  if(s.lq   > 0) l.lq    = s.lq;
+                  if(s.cht  > 0) l.cht   = s.cht;
+                  if(s.nps  > 0) l.nps   = s.nps;
+                  Object.keys(s.sales||{}).forEach(p=>{ if(s.sales[p] > 0) { if(!l.sales) l.sales={}; l.sales[p]=s.sales[p]; } });
+                }
+              });
+            }
+          });
+        }
+
+        // Teamziele: Server-Werte haben Vorrang - verhindert dass lokal fehlende Ziele
+        // die Server-Einträge beim Speichern überschreiben.
+        if(serverData.teamziele){
+          Object.keys(serverData.teamziele).forEach(k=>{
+            if(!state.teamziele[k]){
+              state.teamziele[k] = serverData.teamziele[k];
+            } else {
+              Object.assign(state.teamziele[k], serverData.teamziele[k]);
+            }
+          });
+        }
       }
     } catch(mergeErr){
-      console.warn('Zusammenführen vor dem Speichern fehlgeschlagen, speichere trotzdem lokalen Stand:', mergeErr);
+      // Bei Netzwerkfehler im Pre-Merge: Speichern abbrechen statt blind zu überschreiben.
+      // Sicherer als einen möglicherweise veralteten lokalen Stand zu speichern.
+      console.warn('Pre-Merge vor dem Speichern fehlgeschlagen — Speichern wird abgebrochen um Datenverlust zu vermeiden:', mergeErr);
+      setSyncStatus('error');
+      showSyncDebug('⚠️ Verbindungsproblem: Speichern wurde pausiert. Bitte Netzwerk prüfen und erneut versuchen.', true);
+      return;
     }
 
     const resp = await fetch(KI_PROXY_URL + '/data', {
