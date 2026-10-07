@@ -909,7 +909,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 58;
+const BOARD_VERSION = 59;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1731,9 +1731,9 @@ async function saveToSharePoint(){
           mergeTageswerte(state.agents, serverData.agents);
         }
 
-        // Monatsabschluss: Server-Werte haben Vorrang (sie wurden von einer anderen Person eingetragen),
-        // lokale Werte füllen nur komplett fehlende Einträge auf - verhindert dass eine Person mit
-        // leerem Stand die Eingaben einer anderen Person beim Speichern überschreibt.
+        // Monatsabschluss: LOKALE Werte haben Vorrang — die Person die gerade speichert hat
+        // zuletzt etwas eingetippt, das soll erhalten bleiben. Vom Server werden nur Felder
+        // übernommen die lokal 0 oder undefined sind (= nie eingetragen).
         if(serverData.monatsabschluss){
           Object.keys(serverData.monatsabschluss).forEach(team=>{
             if(!state.monatsabschluss[team]){ state.monatsabschluss[team] = serverData.monatsabschluss[team]; return; }
@@ -1741,19 +1741,22 @@ async function saveToSharePoint(){
             const localTeam  = state.monatsabschluss[team];
             Object.keys(serverTeam).forEach(monat=>{
               if(!localTeam[monat]){
+                // Monat lokal komplett fehlend → Server-Stand übernehmen
                 localTeam[monat] = serverTeam[monat];
               } else {
                 const sMonth = serverTeam[monat];
                 const lMonth = localTeam[monat];
+                // Lokaler Wert > 0 → behalten; nur wenn lokal 0/undefined → Server-Wert nehmen
                 ['nps_ist','nps_ziel','crGesamtZiel','crGesamtErreicht','cht','calls'].forEach(f=>{
-                  if(sMonth[f] > 0) lMonth[f] = sMonth[f];
+                  if(!(lMonth[f] > 0) && sMonth[f] > 0) lMonth[f] = sMonth[f];
                   else if(lMonth[f] === undefined) lMonth[f] = sMonth[f] || 0;
                 });
                 ['plan','erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
                   if(!sMonth[f]) return;
                   if(!lMonth[f]) { lMonth[f] = sMonth[f]; return; }
                   Object.keys(sMonth[f]).forEach(k=>{
-                    if(sMonth[f][k] > 0) lMonth[f][k] = sMonth[f][k];
+                    // Lokal 0/undefined → Server-Wert übernehmen; lokal > 0 → behalten
+                    if(!(lMonth[f][k] > 0) && sMonth[f][k] > 0) lMonth[f][k] = sMonth[f][k];
                     else if(lMonth[f][k] === undefined) lMonth[f][k] = sMonth[f][k];
                   });
                 });
@@ -1762,8 +1765,7 @@ async function saveToSharePoint(){
           });
         }
 
-        // Verlauf: Server-Werte haben Vorrang (> 0 gewinnt), lokal nur fehlende Monate/Felder ergänzen.
-        // Verhindert dass eine Person mit älterem Stand die Verlauf-Eingaben einer anderen überschreibt.
+        // Verlauf: LOKALE Werte haben Vorrang — lokal > 0 bleibt, Server füllt nur leere Felder.
         if(serverData.verlauf && Object.keys(serverData.verlauf).length > 0){
           Object.keys(serverData.verlauf).forEach(k=>{
             if(!state.verlauf[k]){
@@ -1776,26 +1778,31 @@ async function saveToSharePoint(){
                 } else {
                   const s = serverData.verlauf[k].monate[m];
                   const l = state.verlauf[k].monate[m];
-                  if(s.calls > 0) l.calls = s.calls;
-                  if(s.cr   > 0) l.cr    = s.cr;
-                  if(s.lq   > 0) l.lq    = s.lq;
-                  if(s.cht  > 0) l.cht   = s.cht;
-                  if(s.nps  > 0) l.nps   = s.nps;
-                  Object.keys(s.sales||{}).forEach(p=>{ if(s.sales[p] > 0) { if(!l.sales) l.sales={}; l.sales[p]=s.sales[p]; } });
+                  if(!(l.calls > 0) && s.calls > 0) l.calls = s.calls;
+                  if(!(l.cr   > 0) && s.cr   > 0) l.cr    = s.cr;
+                  if(!(l.lq   > 0) && s.lq   > 0) l.lq    = s.lq;
+                  if(!(l.cht  > 0) && s.cht  > 0) l.cht   = s.cht;
+                  if(!(l.nps  > 0) && s.nps  > 0) l.nps   = s.nps;
+                  Object.keys(s.sales||{}).forEach(p=>{
+                    if(!l.sales) l.sales={};
+                    if(!(l.sales[p] > 0) && s.sales[p] > 0) l.sales[p] = s.sales[p];
+                  });
                 }
               });
             }
           });
         }
 
-        // Teamziele: Server-Werte haben Vorrang - verhindert dass lokal fehlende Ziele
-        // die Server-Einträge beim Speichern überschreiben.
+        // Teamziele: LOKALE Werte haben Vorrang — Server füllt nur fehlende Keys auf.
         if(serverData.teamziele){
           Object.keys(serverData.teamziele).forEach(k=>{
             if(!state.teamziele[k]){
               state.teamziele[k] = serverData.teamziele[k];
             } else {
-              Object.assign(state.teamziele[k], serverData.teamziele[k]);
+              // Nur Keys übernehmen die lokal fehlen
+              Object.keys(serverData.teamziele[k]).forEach(f=>{
+                if(state.teamziele[k][f] === undefined) state.teamziele[k][f] = serverData.teamziele[k][f];
+              });
             }
           });
         }
