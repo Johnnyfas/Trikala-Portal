@@ -909,7 +909,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 60;
+const BOARD_VERSION = 61;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1444,8 +1444,11 @@ async function loadFromSharePoint(){
         state.agents = data.agents;
         if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
         if(data.teamziele){
+          // Object.assign würde lokale Änderungen blind überschreiben.
+          // mergeTeamzieleDeep() lässt lokale Werte gewinnen, füllt nur fehlende auf.
           Object.keys(data.teamziele).forEach(k=>{
-            if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
+            if(!state.teamziele[k]) state.teamziele[k] = data.teamziele[k];
+            else mergeTeamzieleDeep(state.teamziele[k], data.teamziele[k]);
           });
         }
         // Dauerhafte Löschliste zusammenführen (server + lokal), BEVOR Einträge gemerged werden -
@@ -1794,15 +1797,13 @@ async function saveToSharePoint(){
         }
 
         // Teamziele: LOKALE Werte haben Vorrang — Server füllt nur fehlende Keys auf.
+        // mergeTeamzieleTiefe() schützt auch verschachtelte Objekte (soll, ist, crZiel1 usw.)
         if(serverData.teamziele){
           Object.keys(serverData.teamziele).forEach(k=>{
             if(!state.teamziele[k]){
               state.teamziele[k] = serverData.teamziele[k];
             } else {
-              // Nur Keys übernehmen die lokal fehlen
-              Object.keys(serverData.teamziele[k]).forEach(f=>{
-                if(state.teamziele[k][f] === undefined) state.teamziele[k][f] = serverData.teamziele[k][f];
-              });
+              mergeTeamzieleDeep(state.teamziele[k], serverData.teamziele[k]);
             }
           });
         }
@@ -2015,6 +2016,27 @@ async function loadState(){
 }
 
 // Tageswerte zweier agents-Arrays zusammenführen: lokale Werte > 0 behalten Vorrang.
+// Deep-Merge für ein einzelnes Teamziele-Objekt (z.B. state.teamziele.mf).
+// Lokale Werte haben immer Vorrang. Server füllt nur Felder/Sub-Keys auf, die lokal noch fehlen
+// (=== undefined). Gilt auch für verschachtelte Objekte wie soll, ist, crZiel1, storno usw.
+function mergeTeamzieleDeep(local, server){
+  if(!server || typeof server !== 'object') return;
+  Object.keys(server).forEach(f=>{
+    if(local[f] === undefined){
+      // Lokal fehlt komplett → Server übernehmen
+      local[f] = server[f];
+    } else if(local[f] !== null && typeof local[f] === 'object' && !Array.isArray(local[f])
+              && server[f] !== null && typeof server[f] === 'object'){
+      // Beide sind Objekte → rekursiv mergen (z.B. soll, ist, crZiel1, storno)
+      Object.keys(server[f]).forEach(subKey=>{
+        if(local[f][subKey] === undefined) local[f][subKey] = server[f][subKey];
+        // lokale Sub-Werte (auch 0) gewinnen immer — kein Überschreiben
+      });
+    }
+    // Primitive lokale Werte (auch 0, auch leerer String) werden nie überschrieben
+  });
+}
+
 // Wird sowohl beim Laden (loadFromSharePoint) als auch beim Speichern (saveToSharePoint) genutzt,
 // damit gleichzeitige Eingaben verschiedener Personen niemals verloren gehen.
 function mergeTageswerte(localAgents, serverAgents){
