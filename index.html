@@ -909,7 +909,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 64;
+const BOARD_VERSION = 65;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6697,12 +6697,15 @@ function renderTeamZiele(){
   function crStuffeStyle(val, tz){
     const v = parseFloat(val)||0;
     // Stufe 3 (höchste) - nur MF
-    if(tz.crZiel3 && v >= parseFloat(Object.values(tz.crZiel3)[0]||0)) return 'background:#1B5E20;color:#fff;';
+    const s3val = tz.crZiel3 ? parseFloat(Object.values(tz.crZiel3)[0]||0) : 0;
+    if(tz.crZiel3 && s3val > 0 && v >= s3val) return 'background:#1B5E20;color:#fff;';
     // Stufe 2
-    if(tz.crZiel2 && v >= parseFloat(Object.values(tz.crZiel2)[0]||0)) return 'background:#4CAF50;color:#fff;';
+    const s2val = tz.crZiel2 ? parseFloat(Object.values(tz.crZiel2)[0]||0) : 0;
+    if(tz.crZiel2 && s2val > 0 && v >= s2val) return 'background:#4CAF50;color:#fff;';
     // Stufe 1
-    if(tz.crZiel1 && v >= parseFloat(Object.values(tz.crZiel1)[0]||0)) return 'background:#81C784;color:#1B5E20;';
-    // Unter Stufe 1
+    const s1val = tz.crZiel1 ? parseFloat(Object.values(tz.crZiel1)[0]||0) : 0;
+    if(tz.crZiel1 && s1val > 0 && v >= s1val) return 'background:#81C784;color:#1B5E20;';
+    // Unter Stufe 1 oder kein Ziel eingetragen
     return 'background:#CE93D8;color:#4A148C;';
   }
 
@@ -6712,9 +6715,9 @@ function renderTeamZiele(){
     const s2 = parseFloat(tz.crZiel2[p]||0);
     // Stufe 3 nur für MF-Produkt
     const s3 = (p === 'MF' && tz.crZiel3) ? parseFloat(tz.crZiel3[p]||0) : null;
-    if(s3 !== null && v >= s3) return 'background:#1B5E20;color:#fff;border-radius:6px;';
-    if(v >= s2) return 'background:#4CAF50;color:#fff;border-radius:6px;';
-    if(v >= s1) return 'background:#81C784;color:#1B5E20;border-radius:6px;';
+    if(s3 !== null && s3 > 0 && v >= s3) return 'background:#1B5E20;color:#fff;border-radius:6px;';
+    if(s2 > 0 && v >= s2) return 'background:#4CAF50;color:#fff;border-radius:6px;';
+    if(s1 > 0 && v >= s1) return 'background:#81C784;color:#1B5E20;border-radius:6px;';
     return 'background:#CE93D8;color:#4A148C;border-radius:6px;';
   }
 
