@@ -910,7 +910,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 69;
+const BOARD_VERSION = 70;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2061,10 +2061,15 @@ function mergeTeamzieleDeep(local, server){
 // damit gleichzeitige Eingaben verschiedener Personen niemals verloren gehen.
 function mergeTageswerte(localAgents, serverAgents){
   const localMap = {};
-  localAgents.forEach(a=>{ localMap[a.name + '_' + a.team] = a; });
+  // Lookup per id (bevorzugt) UND per name+team (Fallback für ältere Einträge)
+  localAgents.forEach(a=>{
+    if(a.id) localMap['id_' + a.id] = a;
+    localMap[a.name + '_' + a.team] = a;
+  });
   serverAgents.forEach(serverAgent=>{
-    const key = serverAgent.name + '_' + serverAgent.team;
-    const local = localMap[key];
+    // Erst per id suchen, dann per ursprünglichem name+team
+    const local = (serverAgent.id && localMap['id_' + serverAgent.id])
+                  || localMap[serverAgent.name + '_' + serverAgent.team];
     if(!local) return; // Neuer MA — wird durch state.agents = serverAgents übernommen
 
     // Monatliche Top-Level-Felder am Agent (NPS, LQ, calls, category, coachingplan usw.):
@@ -2077,6 +2082,8 @@ function mergeTageswerte(localAgents, serverAgents){
     if(local.coachingplan)    serverAgent.coachingplan = local.coachingplan;
     if(local.coachingDatum)   serverAgent.coachingDatum = local.coachingDatum;
     if(local.aKennung)        serverAgent.aKennung = local.aKennung;
+    // Name: lokale Änderung hat Vorrang — der User hat den Namen bewusst angepasst
+    if(local.name && local.name !== serverAgent.name) serverAgent.name = local.name;
 
     // Tageswerte: pro Monat und Tag zusammenführen
     const serverTw = serverAgent.tageswerte || {};
