@@ -909,7 +909,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 63;
+const BOARD_VERSION = 64;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1444,12 +1444,21 @@ async function loadFromSharePoint(){
         state.agents = data.agents;
         if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
         if(data.teamziele){
-          // Object.assign würde lokale Änderungen blind überschreiben.
-          // mergeTeamzieleDeep() lässt lokale Werte gewinnen, füllt nur fehlende auf.
-          Object.keys(data.teamziele).forEach(k=>{
-            if(!state.teamziele[k]) state.teamziele[k] = data.teamziele[k];
-            else mergeTeamzieleDeep(state.teamziele[k], data.teamziele[k]);
-          });
+          if(!teamzieleInitialized){
+            // Erstes Laden: Server-Stand direkt übernehmen — die Code-Vorlage im initialen
+            // state hat feste Zahlen (z.B. soll.MF:770) die keine echten Nutzereingaben sind.
+            // mergeTeamzieleDeep würde sie fälschlich als "lokal" schützen und Server-Werte ignorieren.
+            Object.keys(data.teamziele).forEach(k=>{
+              state.teamziele[k] = data.teamziele[k];
+            });
+            teamzieleInitialized = true;
+          } else {
+            // Hintergrund-Sync: lokale Eingaben haben Vorrang, Server füllt nur fehlende Keys.
+            Object.keys(data.teamziele).forEach(k=>{
+              if(!state.teamziele[k]) state.teamziele[k] = data.teamziele[k];
+              else mergeTeamzieleDeep(state.teamziele[k], data.teamziele[k]);
+            });
+          }
         }
         // Dauerhafte Löschliste zusammenführen (server + lokal), BEVOR Einträge gemerged werden -
         // damit Löschungen auch nach einem Neuladen oder bei einer anderen Person mit älterem
@@ -2112,6 +2121,9 @@ let saveQueued = false;
 // ob währenddessen ein frischerer Speichervorgang durchgekommen ist - falls ja, verwirft er sein
 // eigenes (dann veraltetes) Ergebnis für die Monatsabschluss-Daten, statt es zu übernehmen.
 let saveEpoch = 0;
+// Beim ersten Laden werden die Team-Ziele direkt vom Server übernommen (Code-Vorlage wird
+// ersetzt). Ab dem zweiten Laden (Hintergrund-Sync) gewinnen lokale Werte beim Merge.
+let teamzieleInitialized = false;
 // Monatsabschluss wird pro Browser-Sitzung nur EIN einziges Mal vom Server übernommen (siehe
 // loadFromSharePoint). Danach gilt der lokale Stand als maßgeblich, egal was ein späterer
 // Ladevorgang (Hintergrund-Sync, Excel-Sync-Speichern, o.ä.) liefert - nur echte Eingaben von
