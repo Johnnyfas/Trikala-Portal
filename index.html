@@ -910,7 +910,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 71;
+const BOARD_VERSION = 72;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6437,25 +6437,28 @@ function renderMonatsabschluss(){
       produkte.forEach(p => {
         const td = document.createElement('td');
         const val = md[dataKey][p] || 0;
-        if(dataKey === 'cr' && state.teamziele[teamKey]){
-          const tzProduct = MA_TO_TZ_PRODUCT[teamKey] && MA_TO_TZ_PRODUCT[teamKey][p];
-          const tz = state.teamziele[teamKey];
-          const hasZiel = tzProduct && (parseFloat((tz.crZiel1 && tz.crZiel1[tzProduct])||0) > 0 || parseFloat((tz.crZiel2 && tz.crZiel2[tzProduct])||0) > 0);
-          if(tzProduct && hasZiel){
-            td.style.cssText = crStuffeProd(tzProduct, val, tz);
-          } else {
-            // Kein Team-Ziel-Eintrag (z.B. HV) → beide Stufen aus crZielText auslesen (z.B. "0.15%/0.20%")
-            const zielText = (md.crZielText && md.crZielText[p]) || '';
-            const nums = zielText.replace(/,/g,'.').match(/[\d.]+/g) || [];
-            const zs1 = parseFloat(nums[0]) || 0;
-            const zs2 = parseFloat(nums[1]) || 0;
-            if(zs1 > 0 || zs2 > 0){
-              const v = parseFloat(val) || 0;
-              const hi = zs2 || zs1; // zweite Zahl = Stufe 2; wenn nur eine → gilt als Stufe 2
-              const lo = zs2 ? zs1 : 0; // erste Zahl = Stufe 1 (nur wenn zwei Zahlen)
-              if(v >= hi)       td.style.cssText = 'background:#4CAF50;color:#fff;border-radius:6px;';
-              else if(v >= lo && lo > 0) td.style.cssText = 'background:#81C784;color:#1B5E20;border-radius:6px;';
-              else              td.style.cssText = 'background:#CE93D8;color:#4A148C;border-radius:6px;';
+        if(dataKey === 'cr'){
+          // PRIORITÄT: crZielText (manuelle Eingabe im MA-Tab) hat immer Vorrang,
+          // da state.teamziele.crZiel1/2 veraltete DB-Werte enthalten kann.
+          const zielText = (md.crZielText && md.crZielText[p]) || '';
+          const nums = zielText.replace(/,/g,'.').match(/[\d.]+/g) || [];
+          const zs1 = parseFloat(nums[0]) || 0;
+          const zs2 = parseFloat(nums[1]) || 0;
+          if(zs1 > 0 || zs2 > 0){
+            // crZielText vorhanden → direkt daraus färben
+            const v = parseFloat(val) || 0;
+            const hi = zs2 || zs1; // zweite Zahl = Stufe 2; wenn nur eine → gilt als Stufe 2
+            const lo = zs2 ? zs1 : 0; // erste Zahl = Stufe 1 (nur wenn zwei Zahlen)
+            if(v >= hi)       td.style.cssText = 'background:#4CAF50;color:#fff;border-radius:6px;';
+            else if(lo > 0 && v >= lo) td.style.cssText = 'background:#81C784;color:#1B5E20;border-radius:6px;';
+            else              td.style.cssText = 'background:#CE93D8;color:#4A148C;border-radius:6px;';
+          } else if(state.teamziele[teamKey]){
+            // Fallback: crZielText leer → state.teamziele.crZiel1/2 verwenden
+            const tzProduct = MA_TO_TZ_PRODUCT[teamKey] && MA_TO_TZ_PRODUCT[teamKey][p];
+            const tz = state.teamziele[teamKey];
+            const hasZiel = tzProduct && (parseFloat((tz.crZiel1 && tz.crZiel1[tzProduct])||0) > 0 || parseFloat((tz.crZiel2 && tz.crZiel2[tzProduct])||0) > 0);
+            if(tzProduct && hasZiel){
+              td.style.cssText = crStuffeProd(tzProduct, val, tz);
             }
           }
         } else if(compareKey){
@@ -6682,19 +6685,6 @@ function renderTeamZiele(){
   const container = document.getElementById('teamziele-container');
   container.innerHTML = '';
 
-  // === DEBUG BOX (temporär) — zeigt echte crZiel-Werte aus dem State ===
-  const dbg = document.createElement('pre');
-  dbg.style.cssText = 'background:#111;color:#0f0;font-size:11px;padding:10px;border-radius:8px;margin-bottom:12px;white-space:pre-wrap;word-break:break-all;';
-  const mf = state.teamziele.mf || {};
-  const fn = state.teamziele.fn || {};
-  dbg.textContent = 'MF crZiel1: ' + JSON.stringify(mf.crZiel1) + '\n'
-                  + 'MF crZiel2: ' + JSON.stringify(mf.crZiel2) + '\n'
-                  + 'MF crZiel3: ' + JSON.stringify(mf.crZiel3) + '\n\n'
-                  + 'FN crZiel1: ' + JSON.stringify(fn.crZiel1) + '\n'
-                  + 'FN crZiel2: ' + JSON.stringify(fn.crZiel2) + '\n'
-                  + '_crZielMigriert: ' + JSON.stringify(state._crZielMigriert);
-  container.appendChild(dbg);
-  // === ENDE DEBUG BOX ===
 
   // Monat immer auf den echten aktuellen Kalendermonat abgleichen (statt eines evtl. veralteten gespeicherten Werts)
   const aktuellerMonatLabel = new Date().toLocaleString('de-DE', {month:'long'});
