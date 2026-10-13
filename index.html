@@ -868,7 +868,8 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 </div>
 
 <script>
-document.getElementById('copyright-year').textContent = new Date().getFullYear();
+const copyrightEl = document.getElementById('copyright-year');
+if(copyrightEl) copyrightEl.textContent = new Date().getFullYear();
 </script>
 
 <script>
@@ -882,24 +883,24 @@ const MA_SEED = {"mf":{"Januar":{"plan":{"MF NG":685.0,"BB":97.0,"SU":52.0,"TV":
 const VERLAUF_SEED = {};
 let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, deletedEntryIds: [], verlauf: JSON.parse(JSON.stringify(VERLAUF_SEED)), monatsabschluss: JSON.parse(JSON.stringify(MA_SEED)), teamziele: {
   mf: {
-    datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 69, cht: 600, na: 1,
-    soll: {MF:770, BB:109, SU:67, TV:52, BOJ:17},
+    datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 0, cht: 0, na: 1,
+    soll: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
     ist: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
-    crGestern: 4.15, crMonat: 3.79, crZiel: 6.20,
-    crZiel1: {MF:2.94, BB:0.40, SU:0.21, TV:0.19, BOJ:0.05},
-    crZiel2: {MF:3.30, BB:0.50, SU:0.40, TV:0.30, BOJ:0.10},
-    crZiel3: {MF:4.00, BB:0.80, SU:0.70, TV:0.60, BOJ:0.30},
-    crZiel4MF: 4.5,
-    storno: {MF:25.29, BB:31.07, SU:23.40, TV:23.26, BOJ:61.90}
+    crGestern: 0, crMonat: 0, crZiel: 0,
+    crZiel1: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
+    crZiel2: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
+    crZiel3: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
+    crZiel4MF: 0,
+    storno: {MF:0, BB:0, SU:0, TV:0, BOJ:0}
   },
   fn: {
     datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 68,
     soll: {BB:271, SU:318, BOJ:155, VVM:0, TV:153, MF:20},
     ist: {BB:0, SU:0, BOJ:0, VVM:0, TV:0, MF:0},
-    crGestern: 10.40, crMonat: 8.16, crZiel: 12.00,
-    crZiel1: {BB:2.80, SU:3.00, BOJ:1.40, VVM:3.50, TV:1.60, MF:0.40},
-    crZiel2: {BB:3.40, SU:3.50, BOJ:2.40, VVM:4.50, TV:2.00, MF:0.60},
-    storno: {BB:22.26, SU:16.67, BOJ:26.43, VVM:30.03, TV:21.19, MF:4.35}
+    crGestern: 0, crMonat: 0, crZiel: 0,
+    crZiel1: {BB:0, SU:0, BOJ:0, VVM:0, TV:0, MF:0},
+    crZiel2: {BB:0, SU:0, BOJ:0, VVM:0, TV:0, MF:0},
+    storno: {BB:0, SU:0, BOJ:0, VVM:0, TV:0, MF:0}
   }
 } };
 // Version dieser Board-Fassung. Wird beim Laden mit der Version verglichen, die zuletzt in der
@@ -909,7 +910,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 67;
+const BOARD_VERSION = 68;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
