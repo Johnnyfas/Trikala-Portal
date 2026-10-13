@@ -909,7 +909,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 61;
+const BOARD_VERSION = 62;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6669,7 +6669,7 @@ function renderTeamZiele(){
     inp.value = val;
     inp.style.cssText = 'width:100%;background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:700;text-align:center;color:inherit;';
     inp.addEventListener('focus', e=>e.target.select());
-    inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); scheduleSave(); renderTeamZiele(); });
+    inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); twMarkInput(); scheduleSave(); renderTeamZiele(); });
     return inp;
   }
   function cell(content, cls, colspan, rowspan){
@@ -6743,7 +6743,7 @@ function renderTeamZiele(){
         inp.type = 'text'; inp.inputMode = 'decimal';
         inp.value = parseFloat(val||0).toFixed(2) + '%';
         inp.addEventListener('focus', e=>e.target.select());
-        inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.').replace('%',''))||0); scheduleSave(); renderTeamZiele(); });
+        inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.').replace('%',''))||0); twMarkInput(); scheduleSave(); renderTeamZiele(); });
         valDiv.appendChild(inp);
       }
       box.appendChild(lbl); box.appendChild(valDiv);
@@ -6794,7 +6794,7 @@ function renderTeamZiele(){
       inp.style.cssText='width:52px;background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:700;text-align:center;color:inherit;';
       inp.value = val;
       inp.addEventListener('focus', e=>e.target.select());
-      inp.addEventListener('change', e=>{ tz.ist[p]=parseFloat(e.target.value)||0; scheduleSave(); renderTeamZiele(); });
+      inp.addEventListener('change', e=>{ tz.ist[p]=parseFloat(e.target.value)||0; twMarkInput(); scheduleSave(); renderTeamZiele(); });
 
       if(erreicht){
         const circle = document.createElement('div');
@@ -6901,6 +6901,7 @@ function renderTeamZiele(){
           const v = parseFloat(e.target.value.replace(',','.').replace('%',''))||0;
           if(!tz[dataKey]) tz[dataKey] = {};
           tz[dataKey][p] = v;
+          twMarkInput();
           scheduleSave();
           renderTeamZiele();
         });
