@@ -910,7 +910,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 68;
+const BOARD_VERSION = 69;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1450,7 +1450,17 @@ async function loadFromSharePoint(){
             // state hat feste Zahlen (z.B. soll.MF:770) die keine echten Nutzereingaben sind.
             // mergeTeamzieleDeep würde sie fälschlich als "lokal" schützen und Server-Werte ignorieren.
             Object.keys(data.teamziele).forEach(k=>{
-              state.teamziele[k] = data.teamziele[k];
+              const srv = data.teamziele[k];
+              // Migration v68: Alte Template-Zielwerte (crZiel1/2/3) aus der DB ignorieren wenn
+              // sie noch nicht vom User bewusst gesetzt wurden (_crZielMigriert fehlt).
+              // Ohne diesen Check würden alte Template-Werte (z.B. BB:0.40) als "echte" Ziele
+              // behandelt und bewirken dass 0.46% grün erscheint obwohl das Ziel 0.50% ist.
+              if(!data._crZielMigriert && srv){
+                ['crZiel1','crZiel2','crZiel3'].forEach(key=>{
+                  if(srv[key]) delete srv[key];
+                });
+              }
+              state.teamziele[k] = srv;
             });
             teamzieleInitialized = true;
           } else {
@@ -1830,7 +1840,7 @@ async function saveToSharePoint(){
     const resp = await fetch(KI_PROXY_URL + '/data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
-      body: JSON.stringify({ action: 'save', data: { ...state, boardVersion: BOARD_VERSION } })
+      body: JSON.stringify({ action: 'save', data: { ...state, boardVersion: BOARD_VERSION, _crZielMigriert: true } })
     });
     if(resp && resp.ok){
       setSyncStatus('ok');
