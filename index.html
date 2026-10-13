@@ -909,7 +909,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 66;
+const BOARD_VERSION = 67;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6925,6 +6925,10 @@ function renderTeamZiele(){
 
         // Farbe basierend auf erreichter Stufe (nur für CR-Zeile)
         if(isCR){
+          const s1dbg = parseFloat(tz.crZiel1 && tz.crZiel1[p]||0);
+          const s2dbg = parseFloat(tz.crZiel2 && tz.crZiel2[p]||0);
+          const s3dbg = (p==='MF' && tz.crZiel3) ? parseFloat(tz.crZiel3[p]||0) : null;
+          console.log(`[CR-Farbe] ${key}.${p}: aktuell=${val.toFixed(3)} | Ziel1=${s1dbg} | Ziel2=${s2dbg} | Ziel3=${s3dbg} → ${crStuffeProd(p,val,tz).substring(0,30)}`);
           td.style.cssText = crStuffeProd(p, val, tz);
           inp.style.color = 'inherit';
         }
