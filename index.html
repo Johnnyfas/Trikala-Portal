@@ -314,8 +314,25 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 button.login-btn{background:var(--tmg);color:#fff;border:none;padding:8px 14px;border-radius:7px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;}
 button.login-btn:hover{background:var(--tmg-dark);}
 button.logout-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 12px;border-radius:7px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;}
+.backup-restore-btn{background:#EDE7F6;color:#5E35B1;border:1px solid #B39DDB;padding:5px 11px;border-radius:7px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s;}
+.backup-restore-btn:hover{background:#D1C4E9;}
 
-
+/* ===== Backup Modal ===== */
+#backup-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;}
+#backup-modal{background:var(--panel);border-radius:14px;border:1px solid var(--border);width:100%;max-width:680px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.18);}
+.backup-modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);}
+.backup-modal-header h3{margin:0;font-family:'Space Grotesk',sans-serif;font-size:17px;}
+.backup-modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:2px 6px;border-radius:5px;}
+.backup-modal-close:hover{background:var(--border);}
+.backup-modal-body{overflow-y:auto;padding:16px 20px;flex:1;}
+.backup-slot{border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.backup-slot:hover{border-color:#B39DDB;background:#F9F6FF;}
+.backup-slot-info{flex:1;}
+.backup-slot-date{font-weight:600;font-size:13.5px;color:var(--text);}
+.backup-slot-meta{font-size:12px;color:var(--muted);margin-top:2px;}
+.backup-slot-restore{background:#5E35B1;color:#fff;border:none;padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;}
+.backup-slot-restore:hover{background:#4527A0;}
+.backup-empty{text-align:center;color:var(--muted);padding:30px 0;font-size:14px;}
 
 /* ===== Team Ziele ===== */
 .tz-section{margin-bottom:28px;}
@@ -765,6 +782,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   <div class="topbar">
     <button class="undo-mini" id="undo-btn" disabled title="Letzte Änderung rückgängig machen (Strg+Z)" onclick="performUndo()">↶</button>
     <span id="sync-status" class="sync-badge sync-idle">Nicht verbunden</span>
+    <button class="backup-restore-btn" id="backup-restore-btn" onclick="openBackupModal()" title="Lokale Backups anzeigen / wiederherstellen">🗂 Backups</button>
     <span id="user-label" class="user-label"></span>
   </div>
   <div class="tabs-sticky-wrap">
@@ -910,7 +928,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 76;
+const BOARD_VERSION = 78;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1440,6 +1458,28 @@ async function loadFromSharePoint(){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
         showSyncDebug(`✅ Daten geladen: ${data.agents.length} Mitarbeiter (HTTP ${resp.status}, ${new Date().toLocaleTimeString('de-DE')})`, false);
+        // === BACKUP BEIM LADEN (verhindert Datenverlust durch Überschreiben) ===
+        try {
+          const BACKUP_KEY = 'standort_backup_slots';
+          const BACKUP_LOAD_KEY = 'standort_backup_load_slots';
+          // Separater Ring-Buffer für Lade-Snapshots (letzte 20, täglich 1 behalten)
+          const ts = new Date().toISOString();
+          const todayStr = ts.slice(0, 10); // "2026-10-15"
+          const loadSnap = {
+            ts, label: 'Auto-Backup (Laden) ' + new Date().toLocaleString('de-DE'),
+            source: 'load',
+            agents: data.agents.map(a => ({ id: a.id, name: a.name, team: a.team, tageswerte: a.tageswerte || {} })),
+            teamziele: data.teamziele || {}
+          };
+          let loadSlots = [];
+          try { loadSlots = JSON.parse(localStorage.getItem(BACKUP_LOAD_KEY) || '[]'); } catch(e){}
+          // Maximal 1 Snapshot pro Tag behalten (den neuesten), plus insgesamt 30 Tage
+          loadSlots = loadSlots.filter(s => s.ts && s.ts.slice(0,10) !== todayStr);
+          loadSlots.unshift(loadSnap);
+          if(loadSlots.length > 30) loadSlots = loadSlots.slice(0, 30);
+          localStorage.setItem(BACKUP_LOAD_KEY, JSON.stringify(loadSlots));
+        } catch(e){ console.warn('Lade-Backup Fehler (unkritisch):', e); }
+        // === ENDE LADE-BACKUP ===
         // Tageswerte beim Laden nicht blind überschreiben — lokale Werte > 0 behalten Vorrang.
         mergeTageswerte(state.agents, data.agents);
         state.agents = data.agents;
@@ -1846,6 +1886,28 @@ async function saveToSharePoint(){
       setSyncStatus('ok');
       saveEpoch++;
       console.log('Gespeichert:', new Date().toLocaleTimeString());
+      // === LOKALES BACKUP nach jedem erfolgreichen Save ===
+      try {
+        const backupSlots = 10; // letzte 10 Snapshots behalten
+        const backupKey = 'standort_backup_slots';
+        const ts = new Date().toISOString();
+        // Nur Tageswerte + Agenten + Teamziele sichern (kompakt, ohne Verlauf-Bulk)
+        const snapshot = {
+          ts,
+          label: new Date().toLocaleString('de-DE'),
+          agents: state.agents.map(a => ({
+            id: a.id, name: a.name, team: a.team,
+            tageswerte: a.tageswerte || {}
+          })),
+          teamziele: state.teamziele
+        };
+        let slots = [];
+        try { slots = JSON.parse(localStorage.getItem(backupKey) || '[]'); } catch(e){}
+        slots.unshift(snapshot);
+        if(slots.length > backupSlots) slots = slots.slice(0, backupSlots);
+        localStorage.setItem(backupKey, JSON.stringify(slots));
+      } catch(e){ console.warn('Backup-Fehler (unkritisch):', e); }
+      // === ENDE BACKUP ===
     } else {
       console.error('Speichern fehlgeschlagen:', resp?.status);
       setSyncStatus('error');
@@ -8470,6 +8532,135 @@ html[data-fx-theme="dark"] svg text{fill:var(--muted);}
 })();
 </script>
 
+<!-- ===== BACKUP MODAL ===== -->
+<div id="backup-modal-overlay" style="display:none;" onclick="if(event.target===this)closeBackupModal()">
+  <div id="backup-modal">
+    <div class="backup-modal-header">
+      <h3>🗂 Lokale Backups</h3>
+      <button class="backup-modal-close" onclick="closeBackupModal()">✕</button>
+    </div>
+    <div class="backup-modal-body" id="backup-modal-body">
+      <div class="backup-empty">Keine Backups vorhanden.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const BACKUP_KEY = 'standort_backup_slots';
+  const BACKUP_LOAD_KEY = 'standort_backup_load_slots';
+
+  function getSlots(){
+    try { return JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]'); } catch(e){ return []; }
+  }
+  function getLoadSlots(){
+    try { return JSON.parse(localStorage.getItem(BACKUP_LOAD_KEY) || '[]'); } catch(e){ return []; }
+  }
+
+  function renderSlotList(slots, sourceTag, body){
+    slots.forEach(function(slot, idx){
+      const agentCount = (slot.agents || []).length;
+      let twCount = 0;
+      (slot.agents || []).forEach(function(a){
+        const tw = a.tageswerte || {};
+        Object.values(tw).forEach(function(days){ twCount += Object.keys(days).length; });
+      });
+      const div = document.createElement('div');
+      div.className = 'backup-slot';
+      const badge = sourceTag === 'load'
+        ? '<span style="font-size:10px;background:#E3F2FD;color:#1565C0;border-radius:4px;padding:1px 5px;margin-left:6px;">Auto-Laden</span>'
+        : '<span style="font-size:10px;background:#E8F5E9;color:#2E7D32;border-radius:4px;padding:1px 5px;margin-left:6px;">Nach Speichern</span>';
+      div.innerHTML = '<div class="backup-slot-info">'
+        + '<div class="backup-slot-date">' + (slot.label || slot.ts) + badge + '</div>'
+        + '<div class="backup-slot-meta">' + agentCount + ' Agenten · ' + twCount + ' Tageswert-Einträge</div>'
+        + '</div>'
+        + '<button class="backup-slot-restore" onclick="restoreBackupSlot(\'' + sourceTag + '\',' + idx + ')">Wiederherstellen</button>';
+      body.appendChild(div);
+    });
+  }
+
+  window.openBackupModal = function(){
+    const overlay = document.getElementById('backup-modal-overlay');
+    const body = document.getElementById('backup-modal-body');
+    const saveSlots = getSlots();
+    const loadSlots = getLoadSlots();
+    const allSlots = saveSlots.length + loadSlots.length;
+    if(!allSlots){
+      body.innerHTML = '<div class="backup-empty">Noch keine Backups vorhanden.<br><small>Ab sofort werden Backups automatisch beim Laden und Speichern erstellt.</small></div>';
+    } else {
+      body.innerHTML = '';
+      if(loadSlots.length){
+        const h = document.createElement('div');
+        h.style.cssText = 'font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;margin-top:4px;';
+        h.textContent = 'Automatische Lade-Snapshots (täglich)';
+        body.appendChild(h);
+        renderSlotList(loadSlots, 'load', body);
+      }
+      if(saveSlots.length){
+        const h = document.createElement('div');
+        h.style.cssText = 'font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;margin-top:14px;';
+        h.textContent = 'Manuelle Speicher-Snapshots (letzte 10)';
+        body.appendChild(h);
+        renderSlotList(saveSlots, 'save', body);
+      }
+    }
+    overlay.style.display = 'flex';
+  };
+
+  window.closeBackupModal = function(){
+    document.getElementById('backup-modal-overlay').style.display = 'none';
+  };
+
+  window.restoreBackupSlot = function(sourceTag, idx){
+    const slots = sourceTag === 'load' ? getLoadSlots() : getSlots();
+    const slot = slots[idx];
+    if(!slot){ alert('Backup nicht gefunden.'); return; }
+    if(!confirm('Tageswerte aus diesem Backup wiederherstellen?\n\n' + (slot.label || slot.ts) + '\n\nDies überschreibt die aktuellen Tageswerte im Speicher (nicht automatisch gespeichert).')){ return; }
+    // Merge tageswerte from backup into current state
+    let restored = 0;
+    (slot.agents || []).forEach(function(backupAgent){
+      const liveAgent = (window.state && window.state.agents || []).find(function(a){ return a.id === backupAgent.id; });
+      if(liveAgent && backupAgent.tageswerte){
+        // Deep merge: backup fills in missing months/days, does not overwrite existing
+        Object.entries(backupAgent.tageswerte).forEach(function([monthKey, days]){
+          if(!liveAgent.tageswerte) liveAgent.tageswerte = {};
+          if(!liveAgent.tageswerte[monthKey]) liveAgent.tageswerte[monthKey] = {};
+          Object.entries(days).forEach(function([dayKey, val]){
+            if(!liveAgent.tageswerte[monthKey][dayKey]){
+              liveAgent.tageswerte[monthKey][dayKey] = val;
+              restored++;
+            }
+          });
+        });
+      }
+    });
+    closeBackupModal();
+    alert('Wiederherstellung abgeschlossen: ' + restored + ' fehlende Tageswert-Einträge eingefügt.\n\nBitte jetzt manuell speichern (💾), um die Daten auf dem Server zu sichern!');
+    // Trigger re-render if possible
+    if(typeof window.renderAll === 'function') window.renderAll();
+    else if(typeof window.boot === 'function') {}
+  };
+
+  // Console helper
+  window.showBackups = function(){
+    const saveSlots = getSlots();
+    const loadSlots = getLoadSlots();
+    function summarize(slots, label){
+      if(!slots.length){ console.log(label + ': Keine vorhanden'); return; }
+      console.log('=== ' + label + ' (' + slots.length + ') ===');
+      slots.forEach(function(s, i){
+        let tw = 0;
+        (s.agents||[]).forEach(function(a){ Object.values(a.tageswerte||{}).forEach(function(d){ tw+=Object.keys(d).length; }); });
+        console.log('  ' + i + ': ' + s.label + ' | Agenten: ' + (s.agents||[]).length + ' | Tageswerte: ' + tw);
+      });
+    }
+    summarize(loadSlots, 'Auto-Lade-Snapshots');
+    summarize(saveSlots, 'Speicher-Snapshots');
+    console.log('Zum Wiederherstellen: openBackupModal()');
+    return { loadSlots, saveSlots };
+  };
+})();
+</script>
 
 </body>
 </html>
