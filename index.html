@@ -910,7 +910,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 73;
+const BOARD_VERSION = 74;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6799,12 +6799,43 @@ function renderTeamZiele(){
     t.className = 'tz-table';
     t.style.cssText = 'width:100%;border-collapse:collapse;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);';
 
+    // Sicherstellen dass da-Objekt vorhanden ist (nur MF)
+    if(key === 'mf' && !tz.da) tz.da = { nettoStand: 0, qteAssisted: 0 };
+
+    // Hilfsfunktion: kleine DA-Eingabe-Zelle
+    function mkDaCell(labelTxt, val, onChange){
+      const td = document.createElement('td');
+      td.style.cssText = 'text-align:center;vertical-align:middle;';
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:1px;';
+      const lbl = document.createElement('div');
+      lbl.textContent = labelTxt;
+      lbl.style.cssText = 'font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7C4DFF;opacity:0.8;';
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.inputMode = 'decimal';
+      inp.value = val;
+      inp.style.cssText = 'width:56px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:700;color:#7C4DFF;background:transparent;border:none;border-bottom:2px solid #7C4DFF;outline:none;padding:1px 0;';
+      inp.addEventListener('focus', e=>e.target.select());
+      inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); twMarkInput(); scheduleSave(); });
+      wrap.appendChild(lbl); wrap.appendChild(inp);
+      td.appendChild(wrap);
+      return td;
+    }
+
     // === HEADER ===
     const hRow = document.createElement('tr');
     hRow.className = 'tz-row-header';
     hRow.appendChild(cell(heute, 'tz-label'));
-    hRow.appendChild(cell('Monat'));
-    hRow.appendChild(cell(tz.monat));
+    if(key === 'mf'){
+      const daTh = document.createElement('td');
+      daTh.colSpan = 2;
+      daTh.style.cssText = 'text-align:center;font-weight:800;letter-spacing:0.1em;color:#7C4DFF;font-size:13px;';
+      daTh.textContent = 'DA';
+      hRow.appendChild(daTh);
+    } else {
+      hRow.appendChild(cell('Monat'));
+      hRow.appendChild(cell(tz.monat));
+    }
 
     cols.forEach(p => hRow.appendChild(cell(colLabels[p]||p)));
     t.appendChild(hRow);
@@ -6812,7 +6843,12 @@ function renderTeamZiele(){
     // === SOLL NETTO ===
     const sollRow = document.createElement('tr'); sollRow.className = 'tz-row-soll';
     sollRow.appendChild(cell('Soll Netto', 'tz-label'));
-    sollRow.appendChild(cell('')); sollRow.appendChild(cell(''));
+    if(key === 'mf'){
+      sollRow.appendChild(mkDaCell('Netto Stand', tz.da.nettoStand||0, v=>{ tz.da.nettoStand=v; }));
+      sollRow.appendChild(cell(''));
+    } else {
+      sollRow.appendChild(cell('')); sollRow.appendChild(cell(''));
+    }
 
     cols.forEach(p => sollRow.appendChild(cell(mkInput(tz.soll[p]||0, v=>{ tz.soll[p]=v; }))));
     t.appendChild(sollRow);
@@ -6820,7 +6856,12 @@ function renderTeamZiele(){
     // === IST NETTO ===
     const istRow = document.createElement('tr'); istRow.className = 'tz-row-ist';
     istRow.appendChild(cell('Ist Netto', 'tz-label'));
-    istRow.appendChild(cell('')); istRow.appendChild(cell(''));
+    if(key === 'mf'){
+      istRow.appendChild(mkDaCell('Qte. Assisted', tz.da.qteAssisted||0, v=>{ tz.da.qteAssisted=v; }));
+      istRow.appendChild(cell(''));
+    } else {
+      istRow.appendChild(cell('')); istRow.appendChild(cell(''));
+    }
     cols.forEach(p => {
       const td = document.createElement('td');
       const val = tz.ist[p]||0;
@@ -6996,50 +7037,6 @@ function renderTeamZiele(){
     }
 
     tableWrap.appendChild(t);
-
-    // === DA-Blase (nur MF-Team) ===
-    if(key === 'mf'){
-      if(!tz.da) tz.da = { nettoStand: 0, qteAssisted: 0 };
-      const daCard = document.createElement('div');
-      daCard.style.cssText = 'margin-top:12px;background:var(--card-bg,rgba(255,255,255,0.7));border-radius:16px;padding:14px 18px;box-shadow:0 2px 10px rgba(0,0,0,0.08);display:inline-flex;flex-direction:column;align-items:center;gap:8px;min-width:140px;border:2px solid #7C4DFF;';
-
-      const daTitle = document.createElement('div');
-      daTitle.textContent = 'DA';
-      daTitle.style.cssText = 'font-size:13px;font-weight:800;letter-spacing:0.08em;color:#7C4DFF;text-transform:uppercase;';
-
-      const daNettoWrap = document.createElement('div');
-      daNettoWrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;';
-      const daNettoLbl = document.createElement('div');
-      daNettoLbl.textContent = 'Netto Stand';
-      daNettoLbl.style.cssText = 'font-size:10px;font-weight:600;color:var(--muted,#888);letter-spacing:0.05em;text-transform:uppercase;';
-      const daNettoInp = document.createElement('input');
-      daNettoInp.type = 'text'; daNettoInp.inputMode = 'decimal';
-      daNettoInp.value = tz.da.nettoStand || 0;
-      daNettoInp.style.cssText = 'width:80px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:700;color:#7C4DFF;background:transparent;border:none;border-bottom:2px solid #7C4DFF;outline:none;padding:2px 0;';
-      daNettoInp.addEventListener('focus', e=>e.target.select());
-      daNettoInp.addEventListener('change', e=>{ tz.da.nettoStand = parseFloat(e.target.value.replace(',','.'))||0; twMarkInput(); scheduleSave(); });
-      daNettoWrap.appendChild(daNettoLbl);
-      daNettoWrap.appendChild(daNettoInp);
-
-      const daQteWrap = document.createElement('div');
-      daQteWrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;margin-top:4px;';
-      const daQteLbl = document.createElement('div');
-      daQteLbl.textContent = 'Qte. Assisted';
-      daQteLbl.style.cssText = 'font-size:10px;font-weight:600;color:var(--muted,#888);letter-spacing:0.05em;text-transform:uppercase;';
-      const daQteInp = document.createElement('input');
-      daQteInp.type = 'text'; daQteInp.inputMode = 'decimal';
-      daQteInp.value = tz.da.qteAssisted || 0;
-      daQteInp.style.cssText = 'width:80px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:700;color:#7C4DFF;background:transparent;border:none;border-bottom:2px solid #7C4DFF;outline:none;padding:2px 0;';
-      daQteInp.addEventListener('focus', e=>e.target.select());
-      daQteInp.addEventListener('change', e=>{ tz.da.qteAssisted = parseFloat(e.target.value.replace(',','.'))||0; twMarkInput(); scheduleSave(); });
-      daQteWrap.appendChild(daQteLbl);
-      daQteWrap.appendChild(daQteInp);
-
-      daCard.appendChild(daTitle);
-      daCard.appendChild(daNettoWrap);
-      daCard.appendChild(daQteWrap);
-      tableWrap.appendChild(daCard);
-    }
 
     teamLayout.appendChild(tableWrap);
     teamLayout.appendChild(sidebar);
