@@ -929,7 +929,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 80;
+const BOARD_VERSION = 81;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -5536,7 +5536,14 @@ function renderVerlauf(){
   rankOuter.className = 'ranking-outer';
 
   function avgFromVerlauf(agent, field){
-    const entry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
+    const agentLast = agent.name.split(' ')[0].toLowerCase();
+    const entry = Object.values(state.verlauf).find(v=>{
+      if(v.team !== agent.team) return false;
+      if(v.name === agent.name) return true;
+      // Fallback: Verlauf hat Kurzname (z.B. "Aggelis"), Agent hat vollen Namen ("Aggelis Georgios")
+      const verlaufLast = v.name.split(' ')[0].toLowerCase();
+      return verlaufLast === agentLast;
+    });
     if(!entry) return null;
     const vals = Object.values(entry.monate||{}).map(m=>m[field]).filter(v=>v !== undefined && v !== null && v > 0);
     if(!vals.length) return null;
