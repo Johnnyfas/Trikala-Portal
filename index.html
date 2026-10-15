@@ -910,7 +910,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 74;
+const BOARD_VERSION = 75;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6802,23 +6802,38 @@ function renderTeamZiele(){
     // Sicherstellen dass da-Objekt vorhanden ist (nur MF)
     if(key === 'mf' && !tz.da) tz.da = { nettoStand: 0, qteAssisted: 0 };
 
-    // Hilfsfunktion: kleine DA-Eingabe-Zelle
-    function mkDaCell(labelTxt, val, onChange){
-      const td = document.createElement('td');
-      td.style.cssText = 'text-align:center;vertical-align:middle;';
-      const wrap = document.createElement('div');
-      wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:1px;';
-      const lbl = document.createElement('div');
-      lbl.textContent = labelTxt;
-      lbl.style.cssText = 'font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7C4DFF;opacity:0.8;';
+    // DA-Spalten-Stil: fette lila Umrandung links+rechts der DA-Spalte
+    const DA_BORDER = '3px solid #7C4DFF';
+    const DA_BG     = 'rgba(124,77,255,0.06)';
+
+    function mkDaInlineInput(val, onChange){
       const inp = document.createElement('input');
       inp.type = 'text'; inp.inputMode = 'decimal';
       inp.value = val;
-      inp.style.cssText = 'width:56px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:700;color:#7C4DFF;background:transparent;border:none;border-bottom:2px solid #7C4DFF;outline:none;padding:1px 0;';
+      inp.style.cssText = 'width:60px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:700;color:#7C4DFF;background:transparent;border:none;border-bottom:2px solid #7C4DFF;outline:none;padding:1px 0;display:block;margin:0 auto;';
       inp.addEventListener('focus', e=>e.target.select());
       inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); twMarkInput(); scheduleSave(); });
-      wrap.appendChild(lbl); wrap.appendChild(inp);
-      td.appendChild(wrap);
+      return inp;
+    }
+
+    function mkDaLbl(txt){
+      const d = document.createElement('div');
+      d.textContent = txt;
+      d.style.cssText = 'font-size:9px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#7C4DFF;opacity:0.75;margin-bottom:2px;';
+      return d;
+    }
+
+    // Spalte 2 = DA-Spalte (rowspan für alle Zeilen → NEIN, einzelne Zellen pro Zeile mit gleichem Stil)
+    // Spalte 3 = leer (wird für alle Zeilen als schmale Trennzelle genutzt, damit col-alignment stimmt)
+    function daMainCell(content){ // Zelle mit DA-Styling (links+rechts Rahmen, leichter Hintergrund)
+      const td = document.createElement('td');
+      td.style.cssText = `text-align:center;vertical-align:middle;background:${DA_BG};border-left:${DA_BORDER};border-right:${DA_BORDER};padding:4px 6px;`;
+      if(content) td.appendChild(content);
+      return td;
+    }
+    function daEmptyCell(){ // leere dritte Spalte — kein Inhalt, kein Rahmen
+      const td = document.createElement('td');
+      td.style.display = 'none'; // komplett ausblenden — wir nutzen nur eine DA-Spalte
       return td;
     }
 
@@ -6828,10 +6843,10 @@ function renderTeamZiele(){
     hRow.appendChild(cell(heute, 'tz-label'));
     if(key === 'mf'){
       const daTh = document.createElement('td');
-      daTh.colSpan = 2;
-      daTh.style.cssText = 'text-align:center;font-weight:800;letter-spacing:0.1em;color:#7C4DFF;font-size:13px;';
+      daTh.style.cssText = `text-align:center;font-weight:800;letter-spacing:0.1em;color:#7C4DFF;font-size:13px;background:${DA_BG};border-left:${DA_BORDER};border-right:${DA_BORDER};border-top:${DA_BORDER};border-radius:8px 8px 0 0;`;
       daTh.textContent = 'DA';
       hRow.appendChild(daTh);
+      hRow.appendChild(daEmptyCell());
     } else {
       hRow.appendChild(cell('Monat'));
       hRow.appendChild(cell(tz.monat));
@@ -6844,8 +6859,12 @@ function renderTeamZiele(){
     const sollRow = document.createElement('tr'); sollRow.className = 'tz-row-soll';
     sollRow.appendChild(cell('Soll Netto', 'tz-label'));
     if(key === 'mf'){
-      sollRow.appendChild(mkDaCell('Netto Stand', tz.da.nettoStand||0, v=>{ tz.da.nettoStand=v; }));
-      sollRow.appendChild(cell(''));
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;';
+      wrap.appendChild(mkDaLbl('Netto Stand'));
+      wrap.appendChild(mkDaInlineInput(tz.da.nettoStand||0, v=>{ tz.da.nettoStand=v; }));
+      sollRow.appendChild(daMainCell(wrap));
+      sollRow.appendChild(daEmptyCell());
     } else {
       sollRow.appendChild(cell('')); sollRow.appendChild(cell(''));
     }
@@ -6857,8 +6876,12 @@ function renderTeamZiele(){
     const istRow = document.createElement('tr'); istRow.className = 'tz-row-ist';
     istRow.appendChild(cell('Ist Netto', 'tz-label'));
     if(key === 'mf'){
-      istRow.appendChild(mkDaCell('Qte. Assisted', tz.da.qteAssisted||0, v=>{ tz.da.qteAssisted=v; }));
-      istRow.appendChild(cell(''));
+      const wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:2px;';
+      wrap.appendChild(mkDaLbl('Qte. Assisted'));
+      wrap.appendChild(mkDaInlineInput(tz.da.qteAssisted||0, v=>{ tz.da.qteAssisted=v; }));
+      istRow.appendChild(daMainCell(wrap));
+      istRow.appendChild(daEmptyCell());
     } else {
       istRow.appendChild(cell('')); istRow.appendChild(cell(''));
     }
@@ -6893,7 +6916,8 @@ function renderTeamZiele(){
     // === NOCH NETTO (berechnet) ===
     const nochRow = document.createElement('tr'); nochRow.className = 'tz-row-noch';
     nochRow.appendChild(cell('Noch Netto', 'tz-label'));
-    nochRow.appendChild(cell('')); nochRow.appendChild(cell(''));
+    if(key==='mf'){ nochRow.appendChild(daMainCell(null)); nochRow.appendChild(daEmptyCell()); }
+    else { nochRow.appendChild(cell('')); nochRow.appendChild(cell('')); }
     cols.forEach(p => {
       const noch = (tz.soll[p]||0)-(tz.ist[p]||0);
       const td = cell(noch);
@@ -6918,7 +6942,8 @@ function renderTeamZiele(){
     const verbleibendeAT = computeRemainingWorkdaysMoFr();
     const proTagRow = document.createElement('tr'); proTagRow.className = 'tz-row-protag';
     proTagRow.appendChild(cell(`Absätze/Tag (${verbleibendeAT} verb. AT, Mo–Fr)`, 'tz-label'));
-    proTagRow.appendChild(cell('')); proTagRow.appendChild(cell(''));
+    if(key==='mf'){ proTagRow.appendChild(daMainCell(null)); proTagRow.appendChild(daEmptyCell()); }
+    else { proTagRow.appendChild(cell('')); proTagRow.appendChild(cell('')); }
     cols.forEach(p => {
       const soll = tz.soll[p]||0;
       const ist = tz.ist[p]||0;
@@ -6956,7 +6981,8 @@ function renderTeamZiele(){
     stufen.forEach(({cls, label:lbl, dataKey}) => {
       const r = document.createElement('tr'); r.className = cls;
       r.appendChild(cell(lbl, 'tz-label'));
-      r.appendChild(cell('')); r.appendChild(cell(''));
+      if(key==='mf'){ r.appendChild(daMainCell(null)); r.appendChild(daEmptyCell()); }
+      else { r.appendChild(cell('')); r.appendChild(cell('')); }
 
       cols.forEach(p => {
         const val = (tz[dataKey] && tz[dataKey][p] !== undefined) ? parseFloat(tz[dataKey][p]) : 0;
@@ -7004,7 +7030,14 @@ function renderTeamZiele(){
     if(!tz.stornoHistory) tz.stornoHistory = {};
     const stRow = document.createElement('tr'); stRow.className = 'tz-row-storno';
     stRow.appendChild(cell('Storno', 'tz-label'));
-    stRow.appendChild(cell('')); stRow.appendChild(cell(''));
+    if(key==='mf'){
+      // Letzte Zeile → unteren Rahmen schließen
+      const lastDaCell = daMainCell(null);
+      lastDaCell.style.borderBottom = DA_BORDER;
+      lastDaCell.style.borderRadius = '0 0 8px 8px';
+      stRow.appendChild(lastDaCell);
+      stRow.appendChild(daEmptyCell());
+    } else { stRow.appendChild(cell('')); stRow.appendChild(cell('')); }
     cols.forEach(p => stRow.appendChild(cell(mkInput((parseFloat(tz.storno[p]||0)).toFixed(2)+'%', v=>{
       const neu = parseFloat(v)||0;
       const alt = parseFloat(tz.storno[p]||0);
