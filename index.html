@@ -155,9 +155,9 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .tw-team{background:#fff;border-radius:16px;overflow:visible;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
 .tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;border-radius:16px 16px 0 0;position:sticky;top:58px;z-index:11;}
 .tw-table-scroll{overflow-x:auto;}
-.tw-table{width:100%;border-collapse:collapse;}
+.tw-table{width:100%;border-collapse:separate;border-spacing:0;}
 .tw-table td{text-align:center;padding:4px 8px;}
-.tw-head-row th{background:#FAFAFA;border-bottom:1px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;}
+.tw-head-row th{position:sticky;top:105px;z-index:9;background:#FAFAFA;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;}
 .tw-head-row th:first-child{text-align:left;padding-left:20px;}
 .tw-row{border-bottom:1px solid #F0F0F2;}
 .tw-row:nth-child(even){background:#FBFBFC;}
@@ -929,7 +929,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 81;
+const BOARD_VERSION = 82;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
