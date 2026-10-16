@@ -153,11 +153,16 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .empty-illus-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
 .empty-illus-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:340px;}
 .tw-team{background:#fff;border-radius:16px;overflow:visible;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
-.tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;border-radius:16px 16px 0 0;position:sticky;top:58px;z-index:11;}
+.tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;border-radius:16px 16px 0 0;}
+.tw-sticky-bar{position:sticky;top:var(--tw-tabs-top, 58px);z-index:11;}
+.tw-col-header{display:flex;background:#F0F0F2;border-bottom:2px solid var(--border);overflow:hidden;}
+.tw-col-header-cell{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:8px 8px;text-align:center;flex:1;white-space:nowrap;}
+.tw-col-header-cell:first-child{text-align:left;padding-left:20px;flex:3;}
 .tw-table-scroll{overflow-x:auto;}
 .tw-table{width:100%;border-collapse:separate;border-spacing:0;}
 .tw-table td{text-align:center;padding:4px 8px;}
-.tw-head-row th{position:sticky;top:var(--tw-header-top, 58px);z-index:9;background:#FAFAFA;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;}
+.tw-head-row{display:none;}
+.tw-head-row th{background:#FAFAFA;border-bottom:1px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;}
 .tw-head-row th:first-child{text-align:left;padding-left:20px;}
 .tw-row{border-bottom:1px solid #F0F0F2;}
 .tw-row:nth-child(even){background:#FBFBFC;}
@@ -929,7 +934,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 83;
+const BOARD_VERSION = 84;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -7454,16 +7459,15 @@ function renderTageswerte(){
 
     const teamDiv = document.createElement('div');
     teamDiv.className = 'tw-team';
+
+    // Sticky bar: team header + column labels — sits OUTSIDE the overflow-x:auto scroll wrapper
+    const stickyBar = document.createElement('div');
+    stickyBar.className = 'tw-sticky-bar';
     const head = document.createElement('div');
     head.className = 'tw-team-head';
     head.textContent = `${cfg.label} — ${cfg.project}`;
-    teamDiv.appendChild(head);
+    stickyBar.appendChild(head);
 
-    const table = document.createElement('table');
-    table.className = 'tw-table';
-
-    const thead = document.createElement('tr');
-    thead.className = 'tw-head-row';
     // "MA" ist nur in Tageswerte als zusätzliche Spalte gedacht (nicht Teil der eigentlichen
     // Team-Produktliste, die auch für Ziele/Quoten in anderen Reitern genutzt wird) - wird der
     // Liste hinzugefügt und dann gemeinsam in die Team-Anzeigereihenfolge sortiert (dort steht
@@ -7475,6 +7479,25 @@ function renderTageswerte(){
     const headers = isTotal
       ? ['Mitarbeiter', 'Calls', 'CHT', ...productHeaders, 'NPS %', 'LQ %']
       : ['Mitarbeiter', ...productHeaders];
+
+    const colHeaderRow = document.createElement('div');
+    colHeaderRow.className = 'tw-col-header';
+    headers.forEach((h, i)=>{
+      const cell = document.createElement('div');
+      cell.className = 'tw-col-header-cell';
+      if(i === 0) cell.style.flex = '3';
+      cell.textContent = h;
+      colHeaderRow.appendChild(cell);
+    });
+    stickyBar.appendChild(colHeaderRow);
+    teamDiv.appendChild(stickyBar);
+
+    const table = document.createElement('table');
+    table.className = 'tw-table';
+
+    // Hidden thead keeps table semantics; visible header is in stickyBar above
+    const thead = document.createElement('tr');
+    thead.className = 'tw-head-row';
     headers.forEach(h=>{
       const th = document.createElement('th');
       th.textContent = h;
@@ -7606,13 +7629,11 @@ function renderTageswerte(){
     container.appendChild(emptyStateEl('Noch keine Mitarbeiter angelegt', 'Lege zuerst Mitarbeiter im Reiter "Mitarbeiter Ziele" an.'));
   }
 
-  // Sticky-Top für Spaltenheader: Tab-Leiste + Teamtitel-Höhe dynamisch messen
+  // Sticky-Top: Tab-Leiste messen und CSS-Variable setzen
   requestAnimationFrame(()=>{
     const tabsWrap = document.querySelector('.tabs-sticky-wrap');
     const tabsH = tabsWrap ? tabsWrap.getBoundingClientRect().height : 58;
-    const teamHead = container.querySelector('.tw-team-head');
-    const teamHeadH = teamHead ? teamHead.getBoundingClientRect().height : 47;
-    document.documentElement.style.setProperty('--tw-header-top', (tabsH + teamHeadH) + 'px');
+    document.documentElement.style.setProperty('--tw-tabs-top', tabsH + 'px');
   });
 }
 
