@@ -157,7 +157,7 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .tw-table-scroll{overflow-x:auto;}
 .tw-table{width:100%;border-collapse:separate;border-spacing:0;}
 .tw-table td{text-align:center;padding:4px 8px;}
-.tw-head-row th{position:sticky;top:105px;z-index:9;background:#FAFAFA;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;}
+.tw-head-row th{position:sticky;top:var(--tw-header-top, 58px);z-index:9;background:#FAFAFA;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;}
 .tw-head-row th:first-child{text-align:left;padding-left:20px;}
 .tw-row{border-bottom:1px solid #F0F0F2;}
 .tw-row:nth-child(even){background:#FBFBFC;}
@@ -929,7 +929,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 82;
+const BOARD_VERSION = 83;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -7605,6 +7605,15 @@ function renderTageswerte(){
   if(!state.agents.some(a=>a.name.trim()!=='')){
     container.appendChild(emptyStateEl('Noch keine Mitarbeiter angelegt', 'Lege zuerst Mitarbeiter im Reiter "Mitarbeiter Ziele" an.'));
   }
+
+  // Sticky-Top für Spaltenheader: Tab-Leiste + Teamtitel-Höhe dynamisch messen
+  requestAnimationFrame(()=>{
+    const tabsWrap = document.querySelector('.tabs-sticky-wrap');
+    const tabsH = tabsWrap ? tabsWrap.getBoundingClientRect().height : 58;
+    const teamHead = container.querySelector('.tw-team-head');
+    const teamHeadH = teamHead ? teamHead.getBoundingClientRect().height : 47;
+    document.documentElement.style.setProperty('--tw-header-top', (tabsH + teamHeadH) + 'px');
+  });
 }
 
 // Gewünschte Anzeige-Reihenfolge der Produkte in MA Stand & Tageswerte (links nach rechts).
