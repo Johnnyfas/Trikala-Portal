@@ -7753,8 +7753,10 @@ function renderOverview(){
     measureCtx.font = nameFont;
     const longestNameWidth = teamAgents.reduce((max,a)=>Math.max(max, measureCtx.measureText(a.name||'').width), 30);
     const nameColWidth = Math.ceil(longestNameWidth + 20 /* Zell-Padding links */ + 18 /* Pill-Padding */ + 4 /* Zell-Padding rechts */ + 6 /* Puffer */) + 'px';
-    // +2 = NPS + LQ, +1 = CR, +2 = Calls + CHT
-    const gridCols = `${nameColWidth} repeat(${2 + displayedProducts.length + 1 + 2}, 1fr)`;
+    // MF-Team: +1 für DA-Spalte nach den Produktspalten
+    const hasDA = String(teamId) === 'Trikala01';
+    // +2 = NPS + LQ, +1 = CR, +2 = Calls + CHT, +1 = DA (nur MF)
+    const gridCols = `${nameColWidth} repeat(${2 + displayedProducts.length + (hasDA ? 1 : 0) + 1 + 2}, 1fr)`;
 
     function buildGrid(agentsSubset){
       const grid = document.createElement('div');
@@ -7776,6 +7778,7 @@ function renderOverview(){
           const fmt = lbl.includes('+') ? lbl.split('+').join('<br>+<br>') : lbl;
           return `<div class="ov-cell sales-cell head">${fmt}</div>`;
         }).join('') +
+        (hasDA ? `<div class="ov-cell sales-cell head">DA</div>` : '') +
         `<div class="ov-cell cr-cell head">★ CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head cht-group-start cht-group-first">Calls</div>` +
         `<div class="ov-cell qual-cell head cht-group-end cht-group-first">CHT</div>`;
@@ -7811,6 +7814,11 @@ function renderOverview(){
           const status = isNull ? 'zero' : trafficStatus(val, myTargets[i]);
           html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass ${status}" style="font-size:14px;">${isNull ? '0' : Math.round(val)}</span></div>`;
         });
+        if(hasDA){
+          const daVal = agent.sales['MA'];
+          const daIsNull = (daVal === null || daVal === undefined);
+          html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass" style="font-size:14px;">${daIsNull ? '–' : Math.round(daVal)}</span></div>`;
+        }
         html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(1)}%</span></div>`;
         html += `<div class="ov-cell qual-cell cht-group-start${isLastRow?' cht-group-last':''}"><span class="ov-badge ${agent.calls===null||agent.calls===undefined?'':'good'}">${(agent.calls===null||agent.calls===undefined) ? '–' : Math.round(agent.calls)}</span></div>`;
         const chtVal = (agent.cht === null || agent.cht === undefined) ? null : agent.cht;
