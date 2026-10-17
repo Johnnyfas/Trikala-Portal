@@ -7817,7 +7817,9 @@ function renderOverview(){
         if(hasDA){
           const daVal = agent.sales['MA'];
           const daIsNull = (daVal === null || daVal === undefined);
-          html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass" style="font-size:14px;">${daIsNull ? '–' : Math.round(daVal)}</span></div>`;
+          const daNum = daIsNull ? 0 : Math.round(daVal);
+          const daStatus = daNum === 0 ? 'bad' : daNum < 10 ? 'warn' : 'good';
+          html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass ${daStatus}" style="font-size:14px;">${daIsNull ? '0' : daNum}</span></div>`;
         }
         html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(1)}%</span></div>`;
         html += `<div class="ov-cell qual-cell cht-group-start${isLastRow?' cht-group-last':''}"><span class="ov-badge ${agent.calls===null||agent.calls===undefined?'':'good'}">${(agent.calls===null||agent.calls===undefined) ? '–' : Math.round(agent.calls)}</span></div>`;
