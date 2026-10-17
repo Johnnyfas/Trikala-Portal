@@ -935,7 +935,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 86;
+const BOARD_VERSION = 88;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2765,7 +2765,16 @@ function renderCoaching(){
       card.appendChild(topRow);
 
       // === Kumulierte Werte über alle erfassten Monate (aus dem Verlauf-Archiv), vs. Team ===
-      const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
+      // Fuzzy-Suche: exakter Name zuerst, dann Nachname (erstes Wort) als Fallback
+      function findVerlaufEntry(a){
+        const lastName = a.name.split(' ')[0].toLowerCase();
+        return Object.values(state.verlauf).find(v=>{
+          if(String(v.team) !== String(a.team)) return false;
+          if(v.name === a.name) return true;
+          return v.name.split(' ')[0].toLowerCase() === lastName;
+        });
+      }
+      const vlEntry = findVerlaufEntry(agent);
       const monatsListe = (vlEntry && vlEntry.monate) ? Object.values(vlEntry.monate) : [];
 
       const avgSection = document.createElement('div');
@@ -2776,7 +2785,7 @@ function renderCoaching(){
       avgSection.appendChild(avgTitle);
 
       function cumulativeFor(a){
-        const vl = Object.values(state.verlauf).find(v=>v.name===a.name && v.team===a.team);
+        const vl = findVerlaufEntry(a);
         const mon = (vl && vl.monate) ? Object.values(vl.monate) : [];
         if(!mon.length) return null;
         const avg = (field) => {
@@ -7681,7 +7690,7 @@ const PRODUCT_DISPLAY_ORDER = ['BB','SU','VVM+BOJ','VVM+NVM','TV','MF','MA'];
 // (z.B. "VVM+BOJ"), damit bereits erfasste Zahlen und Zielwerte weiterhin korrekt zugeordnet
 // sind - nur die Beschriftung in der Tabelle ändert sich.
 const PRODUCT_LABELS_BY_TEAM = {
-  Trikala01: { 'VVM+BOJ': 'HV', 'VVM': 'Avia' }
+  Trikala01: { 'VVM+BOJ': 'HV', 'VVM': 'Avia', 'MA': 'DA' }
 };
 function productLabel(p, teamId){
   const map = teamId && PRODUCT_LABELS_BY_TEAM[teamId];
