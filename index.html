@@ -2765,15 +2765,6 @@ function renderCoaching(){
       card.appendChild(topRow);
 
       // === Kumulierte Werte über alle erfassten Monate (aus dem Verlauf-Archiv), vs. Team ===
-      // Fuzzy-Suche: exakter Name zuerst, dann Nachname (erstes Wort) als Fallback
-      function findVerlaufEntry(a){
-        const lastName = a.name.split(' ')[0].toLowerCase();
-        return Object.values(state.verlauf).find(v=>{
-          if(String(v.team) !== String(a.team)) return false;
-          if(v.name === a.name) return true;
-          return v.name.split(' ')[0].toLowerCase() === lastName;
-        });
-      }
       const vlEntry = findVerlaufEntry(agent);
       const monatsListe = (vlEntry && vlEntry.monate) ? Object.values(vlEntry.monate) : [];
 
@@ -3102,6 +3093,15 @@ function renderCoaching(){
   }
 }
 
+function findVerlaufEntry(a){
+  const lastName = a.name.split(' ')[0].toLowerCase();
+  return Object.values(state.verlauf).find(v=>{
+    if(String(v.team) !== String(a.team)) return false;
+    if(v.name === a.name) return true;
+    return v.name.split(' ')[0].toLowerCase() === lastName;
+  });
+}
+
 function renderHallOfFame(){
   const container = document.getElementById('halloffame-container');
   container.innerHTML = '';
@@ -3125,7 +3125,7 @@ function renderHallOfFame(){
 
   // Prüfe ob ein MA die Hall of Fame Kriterien erfüllt
   function checkHOF(agent, monatKey){
-    const vl = state.verlauf[agent.name + '_' + agent.team] || Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
+    const vl = findVerlaufEntry(agent);
     if(!vl || !vl.monate[monatKey]) return null;
 
     const md = vl.monate[monatKey];
