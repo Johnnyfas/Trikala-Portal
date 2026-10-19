@@ -2332,8 +2332,8 @@ function agentsWithNotesForTeam(teamAgents){
   return teamAgents.filter(agent=>{
     if(!agent.name.trim()) return false;
     const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') : [];
-    const echteNotizen = eintraege.filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)');
+    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch' && e.stil !== 'Tages-Ziele') : [];
+const echteNotizen = eintraege.filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)');
     return echteNotizen.length >= 2;
   });
 }
@@ -2352,8 +2352,8 @@ async function generateTeamKiSummaries(teamId, cfg, teamAgents, btn){
 
   const payload = kandidaten.map(agent=>{
     const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') : [];
-    const notizen = eintraege
+    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch' && e.stil !== 'Tages-Ziele') : [];
+const notizen = eintraege
       .filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)')
       .sort((a,b)=>{
         const da = (a.datum||'').split('.').reverse().join('-');
@@ -3902,7 +3902,7 @@ function renderCoachVerlauf(){
   // Einträge anzeigen (Workshops werden separat im Workshops-Reiter gezeigt)
   let totalEntries = 0;
   const entries = Object.values(state.coachverlauf)
-    .map(cv => ({ ...cv, eintraege: (cv.eintraege||[]).filter(e => e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') }))
+    .map(cv => ({ ...cv, eintraege: (cv.eintraege||[]).filter(e => e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch' && e.stil !== 'Tages-Ziele') }))
     .filter(cv => {
       if(cvSelectedTeam !== 'all' && cv.team !== cvSelectedTeam) return false;
       if(cvSearchText && !cv.name.toLowerCase().includes(cvSearchText.toLowerCase())) return false;
@@ -4035,10 +4035,12 @@ function renderCoachVerlauf(){
       top.appendChild(delBtn);
       row.appendChild(top);
 
-      const textEl = document.createElement('div');
-      textEl.className = 'cv-entry-text';
-      textEl.textContent = entry.text;
-      row.appendChild(textEl);
+      if(entry.text){
+        const textEl = document.createElement('div');
+        textEl.className = 'cv-entry-text';
+        textEl.textContent = entry.text;
+        row.appendChild(textEl);
+      }
 
       if(entry.checkliste && Object.keys(entry.checkliste).length){
         const checkWrap = document.createElement('div');
@@ -4136,7 +4138,7 @@ function computeCoachStats(){
   Object.values(state.coachverlauf).forEach(cv=>{
     const cfg = TEAM_CONFIGS[cv.team];
     const label = cfg ? cfg.label : null;
-    (cv.eintraege||[]).filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch').forEach(e=>{
+    (cv.eintraege||[]).filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch' && e.stil !== 'Tages-Ziele').forEach(e=>{
       if(label && countByTeam.hasOwnProperty(label)){
         countByTeam[label]++;
         dauerByTeam[label] += (e.dauer||0);
@@ -4680,59 +4682,6 @@ function buildCoachingRecordForm(prefill){
   notesArea.placeholder = 'Hier können Sie weitere Anmerkungen zum Coaching hinterlegen...';
   wrap.appendChild(notesArea);
 
-  // ===== Tages-Ziele =====
-  const tzTitle = document.createElement('div');
-  tzTitle.className = 'cf-section-title';
-  tzTitle.textContent = '🎯 Tages-Ziele';
-  wrap.appendChild(tzTitle);
-
-  const TZ_PRODUCTS = ['MF','BB','SU','TV','Avia','HV','DA'];
-  const tzState = {}; // { MF: {active:false, wert:0}, ... }
-  TZ_PRODUCTS.forEach(p=>{ tzState[p] = {active:false, wert:''}; });
-
-  const tzGrid = document.createElement('div');
-  tzGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:6px;';
-
-  TZ_PRODUCTS.forEach(p=>{
-    const box = document.createElement('div');
-    box.style.cssText = 'display:flex;align-items:center;gap:8px;background:var(--surface,#F7F9FA);border:1px solid var(--border);border-radius:10px;padding:8px 12px;transition:background .15s,border-color .15s;';
-
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.style.cssText = 'width:16px;height:16px;cursor:pointer;accent-color:var(--tmg,#E20074);flex-shrink:0;';
-
-    const lbl = document.createElement('label');
-    lbl.textContent = p;
-    lbl.style.cssText = 'font-family:"Inter",-apple-system,sans-serif;font-size:13px;font-weight:600;color:var(--text);flex:1;cursor:pointer;';
-
-    const numInput = document.createElement('input');
-    numInput.type = 'number';
-    numInput.min = 0;
-    numInput.value = '';
-    numInput.placeholder = '0';
-    numInput.disabled = true;
-    numInput.style.cssText = 'width:52px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;text-align:center;background:var(--card,#fff);color:var(--text);opacity:.4;transition:opacity .15s;';
-
-    cb.addEventListener('change', ()=>{
-      tzState[p].active = cb.checked;
-      numInput.disabled = !cb.checked;
-      numInput.style.opacity = cb.checked ? '1' : '.4';
-      box.style.background = cb.checked ? 'rgba(226,0,116,.07)' : '';
-      box.style.borderColor = cb.checked ? 'var(--tmg,#E20074)' : 'var(--border)';
-      if(cb.checked) numInput.focus();
-    });
-    numInput.addEventListener('input', ()=>{ tzState[p].wert = numInput.value; });
-
-    lbl.htmlFor = 'tz-cb-' + p;
-    cb.id = 'tz-cb-' + p;
-
-    box.appendChild(cb);
-    box.appendChild(lbl);
-    box.appendChild(numInput);
-    tzGrid.appendChild(box);
-  });
-  wrap.appendChild(tzGrid);
-
   const nextBtn = document.createElement('button');
   nextBtn.type = 'button';
   nextBtn.className = 'cf-next-btn';
@@ -4767,14 +4716,6 @@ function buildCoachingRecordForm(prefill){
     if(!state.coachverlauf[agentKey]){
       state.coachverlauf[agentKey] = { name: agent.name, team: agent.team, eintraege: [] };
     }
-    // Tages-Ziele sammeln
-    const tagesZiele = {};
-    TZ_PRODUCTS.forEach(p=>{
-      if(tzState[p].active){
-        tagesZiele[p] = parseInt(tzState[p].wert)||0;
-      }
-    });
-
     state.coachverlauf[agentKey].eintraege.unshift({
       id: uid(),
       datum: datum,
@@ -4785,8 +4726,7 @@ function buildCoachingRecordForm(prefill){
       tcapId: stilSel.value === 'TCAP' ? tcapInput.value.trim() : '',
       checkliste: Object.assign({}, checklistState),
       performance: parseInt(slider.value),
-      coach: getCoachName(),
-      tagesZiele: Object.keys(tagesZiele).length > 0 ? tagesZiele : null
+      coach: getCoachName()
     });
     agent.coachingDatum = datum;
     if(prefill.planId){
@@ -4798,6 +4738,127 @@ function buildCoachingRecordForm(prefill){
     renderAll();
   });
   cancelBtn.addEventListener('click', ()=>{ cpShowForm = false; cpPrefill = null; renderCoachPlan(); });
+
+  btnRow.appendChild(saveBtn);
+  btnRow.appendChild(cancelBtn);
+  wrap.appendChild(btnRow);
+
+  return wrap;
+}
+
+function buildTagesZieleForm(){
+  const wrap = document.createElement('div');
+  wrap.className = 'cp-form cf-wrap';
+  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
+
+  // Mitarbeiter-Auswahl
+  const agentSel = document.createElement('select');
+  agentSel.className = 'cp-form-select';
+  agentSel.innerHTML = Object.keys(TEAM_CONFIGS).map(teamId=>{
+    const teamAgents = allAgents.filter(a=>a.team===teamId);
+    if(!teamAgents.length) return '';
+    return `<optgroup label="${TEAM_CONFIGS[teamId].label}">` +
+      teamAgents.map(a=>`<option value="${a.id}">${a.name}</option>`).join('') +
+      `</optgroup>`;
+  }).join('');
+
+  const row1 = document.createElement('div');
+  row1.className = 'cp-form-row';
+  row1.appendChild(labeledField('Mitarbeiter', agentSel));
+  wrap.appendChild(row1);
+
+  // Produkt-Grid
+  const tzSectionTitle = document.createElement('div');
+  tzSectionTitle.className = 'cf-section-title';
+  tzSectionTitle.textContent = '🎯 Tages-Ziele pro Produkt';
+  wrap.appendChild(tzSectionTitle);
+
+  const TZ_PRODUCTS = ['MF','BB','SU','TV','Avia','HV','DA'];
+  const tzState = {};
+  TZ_PRODUCTS.forEach(p=>{ tzState[p] = {active:false, wert:''}; });
+
+  const tzGrid = document.createElement('div');
+  tzGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px;';
+
+  TZ_PRODUCTS.forEach(p=>{
+    const box = document.createElement('div');
+    box.style.cssText = 'display:flex;align-items:center;gap:8px;background:var(--surface,#F7F9FA);border:1px solid var(--border);border-radius:10px;padding:8px 12px;transition:background .15s,border-color .15s;';
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.id = 'tzcb-' + p;
+    cb.style.cssText = 'width:16px;height:16px;cursor:pointer;accent-color:var(--tmg,#E20074);flex-shrink:0;';
+
+    const lbl = document.createElement('label');
+    lbl.htmlFor = 'tzcb-' + p;
+    lbl.textContent = p;
+    lbl.style.cssText = 'font-family:"Inter",-apple-system,sans-serif;font-size:13px;font-weight:600;color:var(--text);flex:1;cursor:pointer;';
+
+    const numInput = document.createElement('input');
+    numInput.type = 'number';
+    numInput.min = 0;
+    numInput.value = '';
+    numInput.placeholder = '0';
+    numInput.disabled = true;
+    numInput.style.cssText = 'width:52px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;text-align:center;background:var(--card,#fff);color:var(--text);opacity:.4;transition:opacity .15s;';
+
+    cb.addEventListener('change', ()=>{
+      tzState[p].active = cb.checked;
+      numInput.disabled = !cb.checked;
+      numInput.style.opacity = cb.checked ? '1' : '.4';
+      box.style.background = cb.checked ? 'rgba(226,0,116,.07)' : '';
+      box.style.borderColor = cb.checked ? 'var(--tmg,#E20074)' : 'var(--border)';
+      if(cb.checked) numInput.focus();
+    });
+    numInput.addEventListener('input', ()=>{ tzState[p].wert = numInput.value; });
+
+    box.appendChild(cb);
+    box.appendChild(lbl);
+    box.appendChild(numInput);
+    tzGrid.appendChild(box);
+  });
+  wrap.appendChild(tzGrid);
+
+  // Speichern / Abbrechen
+  const btnRow = document.createElement('div');
+  btnRow.className = 'cf-btn-row';
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'primary';
+  saveBtn.textContent = '💾 Tages-Ziele speichern';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'secondary';
+  cancelBtn.textContent = '✕ Abbrechen';
+
+  saveBtn.addEventListener('click', ()=>{
+    const agent = state.agents.find(a=>a.id===agentSel.value);
+    if(!agent){ alert('Bitte einen Mitarbeiter auswählen.'); return; }
+
+    const tagesZiele = {};
+    TZ_PRODUCTS.forEach(p=>{
+      if(tzState[p].active){ tagesZiele[p] = parseInt(tzState[p].wert)||0; }
+    });
+    if(!Object.keys(tagesZiele).length){
+      alert('Bitte mindestens ein Produkt auswählen und eine Zielzahl eintragen.');
+      return;
+    }
+
+    const datum = new Date().toLocaleDateString('de-DE');
+    if(!state.coachverlauf[agent.id]){
+      state.coachverlauf[agent.id] = { name: agent.name, team: agent.team, eintraege: [] };
+    }
+    state.coachverlauf[agent.id].eintraege.unshift({
+      id: uid(),
+      datum: datum,
+      stil: 'Tages-Ziele',
+      tagesZiele: tagesZiele,
+      coach: getCoachName()
+    });
+    scheduleSave();
+    cpShowForm = false;
+    cpFormType = 'coaching';
+    renderAll();
+  });
+  cancelBtn.addEventListener('click', ()=>{ cpShowForm = false; cpFormType = 'coaching'; renderCoachPlan(); });
 
   btnRow.appendChild(saveBtn);
   btnRow.appendChild(cancelBtn);
@@ -4850,6 +4911,7 @@ function renderCoachPlan(){
     menu.appendChild(mkItem('🗣️', 'Coaching (Einzel)', 'coaching'));
     menu.appendChild(mkItem('👥', 'Workshop (Gruppe)', 'workshop'));
     menu.appendChild(mkItem('💬', 'Einzelgespräch', 'einzelgespraech'));
+    menu.appendChild(mkItem('🎯', 'Tages-Ziele', 'tagesziele'));
     actionRow.appendChild(menu);
     setTimeout(()=>{
       document.addEventListener('click', function closeMenu(){
@@ -4866,6 +4928,7 @@ function renderCoachPlan(){
     container.appendChild(
       cpFormType === 'workshop' ? buildWorkshopForm() :
       cpFormType === 'einzelgespraech' ? buildEinzelgespraechForm() :
+      cpFormType === 'tagesziele' ? buildTagesZieleForm() :
       buildCoachingRecordForm(cpPrefill)
     );
   }
