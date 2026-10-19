@@ -3969,6 +3969,9 @@ function renderCoachVerlauf(){
         if(entry.stil === 'Workshop'){
           b.style.cssText = 'background:rgba(124,92,191,.16);color:var(--helpline);';
           b.textContent = '👥 Workshop' + (entry.teilnehmerAnzahl ? ` (${entry.teilnehmerAnzahl} TN)` : '');
+        } else if(entry.stil === 'Tages-Ziele'){
+          b.style.cssText = 'background:rgba(226,0,116,.12);color:var(--tmg,#E20074);';
+          b.textContent = '🎯 Tages-Ziele';
         } else {
           b.textContent = entry.stil;
         }
