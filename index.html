@@ -3298,7 +3298,8 @@ function buildKIContext(){
       ziele: { cr: cfg.crTarget, nps: cfg.npsTarget, lq: cfg.lqTarget },
       mitarbeiter: agents.map(a=>{
         const cv = state.coachverlauf[a.id];
-        const coachingHistorie = ((cv && cv.eintraege) || []).slice(0, 8).map(e=>({
+        const alleEintraege = (cv && cv.eintraege) || [];
+        const coachingHistorie = alleEintraege.filter(e=>e.stil!=='Tages-Ziele').slice(0, 8).map(e=>({
           datum: e.datum,
           thema: e.thema || null,
           stil: e.stil || null,
@@ -3309,6 +3310,32 @@ function buildKIContext(){
           leitfaden_checkliste: e.checkliste || null,
           coach: e.coach || null
         }));
+
+        // Tages-Ziele-Historie aufbauen
+        const tagesZieleHistorie = alleEintraege
+          .filter(e=>e.stil==='Tages-Ziele' && e.tagesZiele)
+          .slice(0, 10)
+          .map(e=>{
+            const produkte = Object.entries(e.tagesZiele).map(([prod, ziel])=>{
+              const erreicht = (e.erreicht && e.erreicht[prod] !== undefined) ? e.erreicht[prod] : null;
+              return {
+                produkt: prod,
+                ziel: ziel,
+                erreicht: erreicht,
+                status: erreicht === null ? 'ausstehend' : erreicht >= ziel ? 'erreicht' : 'nicht_erreicht',
+                quote: erreicht !== null ? Math.round((erreicht/ziel)*100)+'%' : null
+              };
+            });
+            const mitErreicht = produkte.filter(p=>p.status!=='ausstehend');
+            return {
+              datum: e.datum,
+              coach: e.coach || null,
+              produkte,
+              gesamt_erreichungsquote: mitErreicht.length
+                ? Math.round(mitErreicht.filter(p=>p.status==='erreicht').length / mitErreicht.length * 100) + '%'
+                : null
+            };
+          });
         const verlaufEntry = Object.values(state.verlauf).find(v => v.name === a.name && v.team === teamId);
         const monatsverlauf = verlaufEntry ? Object.keys(verlaufEntry.monate).map(m=>({
           monat: m,
@@ -3329,6 +3356,7 @@ function buildKIContext(){
           sales: a.sales,
           letztes_coaching: a.coachingDatum || 'nie',
           coaching_historie: coachingHistorie,
+          tages_ziele_historie: tagesZieleHistorie.length ? tagesZieleHistorie : null,
           monatsverlauf_alle_monate: monatsverlauf,
           coaching_profil: {
             staerken: a.staerken || null,
@@ -3397,6 +3425,7 @@ function renderKIAnalyse(){
     <span class="ki-badge">👥 ${t06} FN Mitarbeiter</span>
     <span class="ki-badge">📅 Jan–Jul 2026</span>
     <span class="ki-badge">📝 Coaching-Notizen & Checkliste inklusive</span>
+    <span class="ki-badge">🎯 Tages-Ziele & Erreichung inklusive</span>
   `;
   wrap.appendChild(badgeRow);
 
@@ -3433,6 +3462,8 @@ function renderKIAnalyse(){
     'Vergleiche MF und FN Team',
     'Welche Mitarbeiter erreichen ihr NPS Ziel nicht?',
     'Zusammenfassung Juli 2026',
+    'Wer erreicht seine Tages-Ziele am häufigsten?',
+    'Welche Produkte werden am häufigsten verfehlt?',
   ];
 
   const chipWrap = document.createElement('div');
@@ -3596,6 +3627,12 @@ Beachte:
 - Kategorien: Standard, 6-Stündler, Helpline (unterschiedliche Ziele)
 - coaching_historie enthält die letzten Coachings je Mitarbeiter (neueste zuerst)
 - leitfaden_checkliste: pro Kriterium "ok" (erfüllt), "nok" (nicht erfüllt) oder "na" (nicht bewertet)
+- tages_ziele_historie: täglich gesetzte Produktziele mit tatsächlich erreichter Anzahl — falls vorhanden, analysiere:
+  * Welche Produkte werden konsequent erreicht/verfehlt?
+  * Gibt es ein Muster (z.B. MF immer unter Ziel, BB immer übererfüllt)?
+  * gesamt_erreichungsquote zeigt den Anteil erreichter Ziele je Tag (z.B. 67% = 2 von 3 Produkten erreicht)
+  * status "ausstehend" = Ergebnis wurde noch nicht eingetragen
+  * Nutze diese Daten als konkreten Leistungsnachweis auf Tagesebene — sie ergänzen die Monats-CR sehr gut
 - coaching_profil: vom Coach manuell hinterlegte Einschätzung zu Stärken, Entwicklungsfeldern, Lernstil und allgemeinen Notizen — nutze diese Angaben aktiv:
   * staerken: bereits bekannte Stärken des Mitarbeiters → bestätige/erweitere sie in deiner Analyse
   * entwicklungsfelder: vom Coach identifizierte Schwachstellen → priorisiere passende Maßnahmen
