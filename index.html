@@ -3819,24 +3819,106 @@ function renderTagesZieleVerlauf(){
     top.appendChild(delBtn);
     body.appendChild(top);
 
-    // Produkt-Chips
+    // Produkt-Chips: Ziel vs. Erreicht
     if(g.tagesZiele && Object.keys(g.tagesZiele).length){
       const tzWrap = document.createElement('div');
       tzWrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;';
-      Object.entries(g.tagesZiele).forEach(([prod, anzahl])=>{
+
+      Object.entries(g.tagesZiele).forEach(([prod, ziel])=>{
+        const erreicht = (g.erreicht && g.erreicht[prod] !== undefined) ? g.erreicht[prod] : null;
+        const hatErreicht = erreicht !== null;
+        const ok = hatErreicht && erreicht >= ziel;
+
         const chip = document.createElement('div');
-        chip.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:64px;padding:8px 14px;border-radius:12px;background:rgba(226,0,116,.1);border:1px solid rgba(226,0,116,.2);';
+        chip.style.cssText = `display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:72px;padding:8px 14px;border-radius:12px;border:1px solid ${ok ? 'rgba(14,124,123,.3)' : hatErreicht ? 'rgba(194,121,43,.3)' : 'rgba(226,0,116,.2)'};background:${ok ? 'rgba(14,124,123,.1)' : hatErreicht ? 'rgba(194,121,43,.1)' : 'rgba(226,0,116,.1)'};`;
+
         const pLabel = document.createElement('div');
-        pLabel.style.cssText = 'font-family:"Inter",-apple-system,sans-serif;font-size:11px;font-weight:700;color:var(--tmg,#E20074);text-transform:uppercase;letter-spacing:.06em;';
+        pLabel.style.cssText = `font-family:"Inter",-apple-system,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:${ok ? 'var(--teal,#0E7C7B)' : hatErreicht ? '#C2792B' : 'var(--tmg,#E20074)'};`;
         pLabel.textContent = prod;
-        const pVal = document.createElement('div');
-        pVal.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:700;color:var(--text);margin-top:2px;';
-        pVal.textContent = anzahl;
+
+        const pZiel = document.createElement('div');
+        pZiel.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:700;color:var(--text);margin-top:2px;line-height:1.1;';
+        pZiel.textContent = hatErreicht ? `${erreicht}/${ziel}` : ziel;
+
+        const pStatus = document.createElement('div');
+        pStatus.style.cssText = 'font-size:13px;margin-top:2px;';
+        pStatus.textContent = ok ? '✅' : hatErreicht ? '⚠️' : '—';
+
         chip.appendChild(pLabel);
-        chip.appendChild(pVal);
+        chip.appendChild(pZiel);
+        chip.appendChild(pStatus);
         tzWrap.appendChild(chip);
       });
       body.appendChild(tzWrap);
+
+      // "Erreicht eintragen" Button
+      const erreichenArea = document.createElement('div');
+      erreichenArea.style.cssText = 'margin-top:10px;';
+
+      const hasAnyErreicht = g.erreicht && Object.keys(g.erreicht).length > 0;
+      const editBtn = document.createElement('button');
+      editBtn.className = 'cv-meta-badge';
+      editBtn.style.cssText = 'cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;';
+      editBtn.textContent = hasAnyErreicht ? '✏️ Erreicht bearbeiten' : '✏️ Erreicht eintragen';
+
+      const editForm = document.createElement('div');
+      editForm.style.cssText = 'display:none;margin-top:10px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;';
+
+      editBtn.addEventListener('click', ()=>{
+        const isOpen = editForm.style.display !== 'none';
+        editForm.style.display = isOpen ? 'none' : '';
+        editBtn.textContent = isOpen ? (hasAnyErreicht ? '✏️ Erreicht bearbeiten' : '✏️ Erreicht eintragen') : '▲ Schließen';
+      });
+
+      // Eingabefelder pro Produkt
+      const formGrid = document.createElement('div');
+      formGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px;';
+      const inputs = {};
+
+      Object.entries(g.tagesZiele).forEach(([prod, ziel])=>{
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+        const lbl = document.createElement('label');
+        lbl.style.cssText = 'font-family:"Inter",sans-serif;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;';
+        lbl.textContent = `${prod} (Ziel: ${ziel})`;
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.min = 0;
+        inp.value = (g.erreicht && g.erreicht[prod] !== undefined) ? g.erreicht[prod] : '';
+        inp.placeholder = '0';
+        inp.style.cssText = 'padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:700;text-align:center;background:var(--card,#fff);color:var(--text);width:100%;box-sizing:border-box;';
+        inputs[prod] = inp;
+        row.appendChild(lbl);
+        row.appendChild(inp);
+        formGrid.appendChild(row);
+      });
+
+      const saveErreichtBtn = document.createElement('button');
+      saveErreichtBtn.className = 'primary';
+      saveErreichtBtn.style.cssText = 'font-size:13px;padding:7px 18px;';
+      saveErreichtBtn.textContent = '💾 Speichern';
+
+      saveErreichtBtn.addEventListener('click', ()=>{
+        // Im echten state-Eintrag speichern
+        const realCv = Object.values(state.coachverlauf).find(v => v.name === g.agentName && v.team === g.agentTeam);
+        if(realCv){
+          const realEntry = (realCv.eintraege||[]).find(e=>e.id===g.id);
+          if(realEntry){
+            realEntry.erreicht = {};
+            Object.entries(inputs).forEach(([prod, inp])=>{
+              if(inp.value !== '') realEntry.erreicht[prod] = parseInt(inp.value)||0;
+            });
+          }
+        }
+        scheduleSave();
+        renderTagesZieleVerlauf();
+      });
+
+      editForm.appendChild(formGrid);
+      editForm.appendChild(saveErreichtBtn);
+      erreichenArea.appendChild(editBtn);
+      erreichenArea.appendChild(editForm);
+      body.appendChild(erreichenArea);
     }
 
     block.appendChild(body);
