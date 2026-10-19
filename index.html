@@ -935,7 +935,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 88;
+const BOARD_VERSION = 93;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -4054,6 +4054,23 @@ function renderCoachVerlauf(){
         if(checkWrap.children.length) row.appendChild(checkWrap);
       }
 
+      // Tages-Ziele anzeigen
+      if(entry.tagesZiele && Object.keys(entry.tagesZiele).length){
+        const tzWrap = document.createElement('div');
+        tzWrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center;';
+        const tzLabel = document.createElement('span');
+        tzLabel.style.cssText = 'font-family:"Inter",-apple-system,sans-serif;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-right:2px;';
+        tzLabel.textContent = '🎯 Ziele:';
+        tzWrap.appendChild(tzLabel);
+        Object.entries(entry.tagesZiele).forEach(([prod, anzahl])=>{
+          const chip = document.createElement('span');
+          chip.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:700;background:rgba(226,0,116,.1);color:var(--tmg,#E20074);border:1px solid rgba(226,0,116,.2);';
+          chip.textContent = prod + ' ' + anzahl;
+          tzWrap.appendChild(chip);
+        });
+        row.appendChild(tzWrap);
+      }
+
       block.appendChild(row);
     });
 
@@ -4663,6 +4680,59 @@ function buildCoachingRecordForm(prefill){
   notesArea.placeholder = 'Hier können Sie weitere Anmerkungen zum Coaching hinterlegen...';
   wrap.appendChild(notesArea);
 
+  // ===== Tages-Ziele =====
+  const tzTitle = document.createElement('div');
+  tzTitle.className = 'cf-section-title';
+  tzTitle.textContent = '🎯 Tages-Ziele';
+  wrap.appendChild(tzTitle);
+
+  const TZ_PRODUCTS = ['MF','BB','SU','TV','Avia','HV','DA'];
+  const tzState = {}; // { MF: {active:false, wert:0}, ... }
+  TZ_PRODUCTS.forEach(p=>{ tzState[p] = {active:false, wert:''}; });
+
+  const tzGrid = document.createElement('div');
+  tzGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:6px;';
+
+  TZ_PRODUCTS.forEach(p=>{
+    const box = document.createElement('div');
+    box.style.cssText = 'display:flex;align-items:center;gap:8px;background:var(--surface,#F7F9FA);border:1px solid var(--border);border-radius:10px;padding:8px 12px;transition:background .15s,border-color .15s;';
+
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.style.cssText = 'width:16px;height:16px;cursor:pointer;accent-color:var(--tmg,#E20074);flex-shrink:0;';
+
+    const lbl = document.createElement('label');
+    lbl.textContent = p;
+    lbl.style.cssText = 'font-family:"Inter",-apple-system,sans-serif;font-size:13px;font-weight:600;color:var(--text);flex:1;cursor:pointer;';
+
+    const numInput = document.createElement('input');
+    numInput.type = 'number';
+    numInput.min = 0;
+    numInput.value = '';
+    numInput.placeholder = '0';
+    numInput.disabled = true;
+    numInput.style.cssText = 'width:52px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;text-align:center;background:var(--card,#fff);color:var(--text);opacity:.4;transition:opacity .15s;';
+
+    cb.addEventListener('change', ()=>{
+      tzState[p].active = cb.checked;
+      numInput.disabled = !cb.checked;
+      numInput.style.opacity = cb.checked ? '1' : '.4';
+      box.style.background = cb.checked ? 'rgba(226,0,116,.07)' : '';
+      box.style.borderColor = cb.checked ? 'var(--tmg,#E20074)' : 'var(--border)';
+      if(cb.checked) numInput.focus();
+    });
+    numInput.addEventListener('input', ()=>{ tzState[p].wert = numInput.value; });
+
+    lbl.htmlFor = 'tz-cb-' + p;
+    cb.id = 'tz-cb-' + p;
+
+    box.appendChild(cb);
+    box.appendChild(lbl);
+    box.appendChild(numInput);
+    tzGrid.appendChild(box);
+  });
+  wrap.appendChild(tzGrid);
+
   const nextBtn = document.createElement('button');
   nextBtn.type = 'button';
   nextBtn.className = 'cf-next-btn';
@@ -4697,6 +4767,14 @@ function buildCoachingRecordForm(prefill){
     if(!state.coachverlauf[agentKey]){
       state.coachverlauf[agentKey] = { name: agent.name, team: agent.team, eintraege: [] };
     }
+    // Tages-Ziele sammeln
+    const tagesZiele = {};
+    TZ_PRODUCTS.forEach(p=>{
+      if(tzState[p].active){
+        tagesZiele[p] = parseInt(tzState[p].wert)||0;
+      }
+    });
+
     state.coachverlauf[agentKey].eintraege.unshift({
       id: uid(),
       datum: datum,
@@ -4707,7 +4785,8 @@ function buildCoachingRecordForm(prefill){
       tcapId: stilSel.value === 'TCAP' ? tcapInput.value.trim() : '',
       checkliste: Object.assign({}, checklistState),
       performance: parseInt(slider.value),
-      coach: getCoachName()
+      coach: getCoachName(),
+      tagesZiele: Object.keys(tagesZiele).length > 0 ? tagesZiele : null
     });
     agent.coachingDatum = datum;
     if(prefill.planId){
