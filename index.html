@@ -811,12 +811,14 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
         <button class="tab-btn" id="sub-coachverlauf" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Coaching Verlauf</button>
         <button class="tab-btn" id="sub-workshops" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/><circle cx="17" cy="8" r="2.5"/><path d="M17 13c2.5 0 5 1.5 5 4"/></svg>Workshops</button>
         <button class="tab-btn" id="sub-gespraeche" style="font-size:13px;padding:7px 16px;">💬 Einzelgespräche</button>
+        <button class="tab-btn" id="sub-tagesziele" style="font-size:13px;padding:7px 16px;">🎯 Tages-Ziele</button>
         <button class="tab-btn" id="sub-termine" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Termin Kalender</button>
       </div>
       <div id="coachplan-container"></div>
       <div id="coachverlauf-container" style="display:none;"></div>
       <div id="workshops-container" style="display:none;"></div>
       <div id="gespraeche-container" style="display:none;"></div>
+      <div id="tagesziele-container" style="display:none;"></div>
       <div id="termine-container" style="display:none;"></div>
     </div>
   </div>
@@ -2464,6 +2466,7 @@ const COACHDASH_SUBS = {
   coachverlauf: { btn: 'sub-coachverlauf', container: 'coachverlauf-container', render: ()=>renderCoachVerlauf() },
   workshops:    { btn: 'sub-workshops',    container: 'workshops-container',    render: ()=>renderWorkshops() },
   gespraeche:   { btn: 'sub-gespraeche',   container: 'gespraeche-container',   render: ()=>renderEinzelgespraeche() },
+  tagesziele:   { btn: 'sub-tagesziele',   container: 'tagesziele-container',   render: ()=>renderTagesZieleVerlauf() },
   termine:      { btn: 'sub-termine',      container: 'termine-container',      render: ()=>renderTermineKalender() }
 };
 function switchCoachDashSub(sub){
@@ -3741,6 +3744,99 @@ function renderEinzelgespraeche(){
       verText.style.cssText = 'background:var(--teal-soft);border-left:3px solid var(--teal);padding:8px 10px;border-radius:6px;';
       verText.textContent = g.vereinbarung;
       body.appendChild(verText);
+    }
+
+    block.appendChild(body);
+    container.appendChild(block);
+  });
+}
+
+function renderTagesZieleVerlauf(){
+  const container = document.getElementById('tagesziele-container');
+  container.innerHTML = '';
+
+  // Alle Tages-Ziele-Einträge sammeln
+  const list = [];
+  Object.values(state.coachverlauf).forEach(cv=>{
+    (cv.eintraege||[]).forEach(e=>{
+      if(e.stil !== 'Tages-Ziele') return;
+      list.push({ ...e, agentName: cv.name, agentTeam: cv.team });
+    });
+  });
+  list.sort((a,b)=>{
+    const da = (a.datum||'').split('.').reverse().join('-');
+    const db = (b.datum||'').split('.').reverse().join('-');
+    return db.localeCompare(da);
+  });
+
+  if(!list.length){
+    container.appendChild(emptyStateEl('Noch keine Tages-Ziele erfasst', 'Lege eines über \"+ Neu → Tages-Ziele\" an.'));
+    return;
+  }
+
+  list.forEach(g=>{
+    const block = document.createElement('div');
+    block.className = 'cv-agent-block';
+
+    const teamLabel = TEAM_CONFIGS[g.agentTeam] ? TEAM_CONFIGS[g.agentTeam].label : g.agentTeam;
+    const head = document.createElement('div');
+    head.className = 'cv-agent-head';
+    head.innerHTML = `<span class="cv-agent-name">🎯 ${g.agentName}</span><span style="font-size:11px;opacity:.85;">${teamLabel} · ${g.datum}</span>`;
+    block.appendChild(head);
+
+    const body = document.createElement('div');
+    body.className = 'cv-entry';
+
+    const top = document.createElement('div');
+    top.className = 'cv-entry-top';
+    const meta = document.createElement('div');
+    meta.className = 'cv-entry-meta';
+    const dateEl = document.createElement('span');
+    dateEl.className = 'cv-entry-date';
+    dateEl.textContent = g.datum;
+    meta.appendChild(dateEl);
+    if(g.coach){
+      const b = document.createElement('span');
+      b.className = 'cv-meta-badge';
+      b.style.cssText = 'background:rgba(226,0,116,.12);color:var(--tmg,#E20074);';
+      b.textContent = '👤 ' + g.coach;
+      meta.appendChild(b);
+    }
+    top.appendChild(meta);
+
+    const delBtn = document.createElement('button');
+    delBtn.className = 'cv-entry-delete';
+    delBtn.innerHTML = '🗑';
+    delBtn.title = 'Tages-Ziele löschen';
+    delBtn.addEventListener('click', ()=>{
+      if(!confirm(`Tages-Ziele von ${g.agentName} vom ${g.datum} wirklich löschen?`)) return;
+      markDeleted(g.id);
+      const realCv = Object.values(state.coachverlauf).find(v => v.name === g.agentName && v.team === g.agentTeam);
+      if(realCv) realCv.eintraege = (realCv.eintraege||[]).filter(e=>e.id !== g.id);
+      scheduleSave();
+      renderAll();
+    });
+    top.appendChild(delBtn);
+    body.appendChild(top);
+
+    // Produkt-Chips
+    if(g.tagesZiele && Object.keys(g.tagesZiele).length){
+      const tzWrap = document.createElement('div');
+      tzWrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;';
+      Object.entries(g.tagesZiele).forEach(([prod, anzahl])=>{
+        const chip = document.createElement('div');
+        chip.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:64px;padding:8px 14px;border-radius:12px;background:rgba(226,0,116,.1);border:1px solid rgba(226,0,116,.2);';
+        const pLabel = document.createElement('div');
+        pLabel.style.cssText = 'font-family:"Inter",-apple-system,sans-serif;font-size:11px;font-weight:700;color:var(--tmg,#E20074);text-transform:uppercase;letter-spacing:.06em;';
+        pLabel.textContent = prod;
+        const pVal = document.createElement('div');
+        pVal.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:700;color:var(--text);margin-top:2px;';
+        pVal.textContent = anzahl;
+        chip.appendChild(pLabel);
+        chip.appendChild(pVal);
+        tzWrap.appendChild(chip);
+      });
+      body.appendChild(tzWrap);
     }
 
     block.appendChild(body);
