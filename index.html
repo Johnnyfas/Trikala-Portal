@@ -901,7 +901,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 99;
+const BOARD_VERSION = 100;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -7089,7 +7089,7 @@ function renderOverview(){
 
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
     const cfg = TEAM_CONFIGS[teamId];
-    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim() !== '' && a.category !== 'schulung');
+    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim() !== '' && a.category !== 'schulung' && a.category !== 'work');
     if(!teamAgents.length) return;
     const teamDiv = document.createElement('div');
     teamDiv.className = 'ov-team';
