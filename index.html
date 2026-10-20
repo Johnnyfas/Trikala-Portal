@@ -83,8 +83,6 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .cat-badge.helpline{background:var(--helpline-soft);color:var(--helpline);}
 .cat-badge.schulung{background:#FFF8E1;color:#F57F17;border:1px dashed #F9A825;}
 .status-dot.schulung{background:#F9A825;box-shadow:0 0 0 4px #FFF8E1;}
-.cat-badge.work{background:#F3F0FF;color:#6B46C1;border:1px dashed #9F7AEA;}
-.status-dot.work{background:#9F7AEA;box-shadow:0 0 0 4px #F3F0FF;}
 
 .cat-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;}
 .cat-dot.sixh{background:var(--sixh);}
@@ -93,7 +91,7 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .cards{display:flex;flex-direction:column;gap:14px;}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:14px;}
 .card-top{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
-.card-top-left{display:flex;align-items:flex-end;gap:12px;flex:1;min-width:200px;flex-wrap:wrap;}
+.card-top-left{display:flex;align-items:center;gap:12px;flex:1;min-width:200px;flex-wrap:wrap;}
 .status-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;background:var(--tmg-gray);box-shadow:0 0 0 4px var(--tmg-light);}
 .status-dot.regular{background:var(--tmg-gray);box-shadow:0 0 0 4px var(--tmg-light);}
 .status-dot.sixh{background:var(--sixh);box-shadow:0 0 0 4px var(--sixh-soft);}
@@ -152,17 +150,10 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .empty-illus svg{margin-bottom:12px;}
 .empty-illus-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
 .empty-illus-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:340px;}
-.tw-team{background:#fff;border-radius:16px;overflow:visible;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
-.tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;border-radius:16px 16px 0 0;}
-.tw-sticky-bar{position:sticky;top:var(--tw-tabs-top, 58px);z-index:11;}
-.tw-col-header{display:flex;background:#F0F0F2;border-bottom:2px solid var(--border);overflow:hidden;}
-.tw-col-header-cell{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:8px 4px;text-align:center;flex-shrink:0;white-space:nowrap;box-sizing:border-box;}
-.tw-col-header-cell:first-child{text-align:left;padding-left:20px;}
-.tw-table-scroll{overflow-x:auto;}
-.tw-table{width:100%;border-collapse:separate;border-spacing:0;}
-.tw-table td{text-align:center;padding:4px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.tw-table td:first-child{text-align:left;padding-left:20px;}
-.tw-head-row{display:none;}
+.tw-team{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
+.tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;}
+.tw-table{width:100%;border-collapse:collapse;}
+.tw-table td{text-align:center;padding:4px 8px;}
 .tw-head-row th{background:#FAFAFA;border-bottom:1px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;}
 .tw-head-row th:first-child{text-align:left;padding-left:20px;}
 .tw-row{border-bottom:1px solid #F0F0F2;}
@@ -321,25 +312,8 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 button.login-btn{background:var(--tmg);color:#fff;border:none;padding:8px 14px;border-radius:7px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;}
 button.login-btn:hover{background:var(--tmg-dark);}
 button.logout-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 12px;border-radius:7px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;}
-.backup-restore-btn{background:#EDE7F6;color:#5E35B1;border:1px solid #B39DDB;padding:5px 11px;border-radius:7px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s;}
-.backup-restore-btn:hover{background:#D1C4E9;}
 
-/* ===== Backup Modal ===== */
-#backup-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px;}
-#backup-modal{background:var(--panel);border-radius:14px;border:1px solid var(--border);width:100%;max-width:680px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.18);}
-.backup-modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);}
-.backup-modal-header h3{margin:0;font-family:'Space Grotesk',sans-serif;font-size:17px;}
-.backup-modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1;padding:2px 6px;border-radius:5px;}
-.backup-modal-close:hover{background:var(--border);}
-.backup-modal-body{overflow-y:auto;padding:16px 20px;flex:1;}
-.backup-slot{border:1px solid var(--border);border-radius:9px;padding:12px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;}
-.backup-slot:hover{border-color:#B39DDB;background:#F9F6FF;}
-.backup-slot-info{flex:1;}
-.backup-slot-date{font-weight:600;font-size:13.5px;color:var(--text);}
-.backup-slot-meta{font-size:12px;color:var(--muted);margin-top:2px;}
-.backup-slot-restore{background:#5E35B1;color:#fff;border:none;padding:6px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;}
-.backup-slot-restore:hover{background:#4527A0;}
-.backup-empty{text-align:center;color:var(--muted);padding:30px 0;font-size:14px;}
+
 
 /* ===== Team Ziele ===== */
 .tz-section{margin-bottom:28px;}
@@ -763,14 +737,6 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 </head>
 <body>
 <div class="wrap">
-
-  <!-- Versions-Banner: wird eingeblendet wenn eine neuere Version auf GitHub Pages verfügbar ist -->
-  <div id="version-banner" style="display:none;position:sticky;top:0;z-index:9999;background:#1a56db;color:#fff;padding:10px 16px;text-align:center;font-size:14px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.25);align-items:center;justify-content:center;gap:12px;">
-    <span>🔄 Neue Version verfügbar — bitte Seite neu laden, damit alle Änderungen korrekt gespeichert werden.</span>
-    <button onclick="location.reload(true)" style="background:#fff;color:#1a56db;border:none;border-radius:6px;padding:5px 14px;font-size:13px;font-weight:700;cursor:pointer;margin-left:10px;">Jetzt neu laden</button>
-    <button onclick="document.getElementById('version-banner').style.display='none'" style="background:transparent;color:rgba(255,255,255,.7);border:none;font-size:18px;cursor:pointer;margin-left:6px;line-height:1;padding:0 4px;" title="Schließen">×</button>
-  </div>
-
   <div class="top-fab-row">
     <button class="todo-fab coachdash-fab" id="tab-coachdash">📋 Coaching Dashboard</button>
     <button class="todo-fab" id="todo-fab">✅ To-Do's <span class="todo-fab-badge" id="todo-fab-badge" style="display:none;">0</span></button>
@@ -789,7 +755,6 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   <div class="topbar">
     <button class="undo-mini" id="undo-btn" disabled title="Letzte Änderung rückgängig machen (Strg+Z)" onclick="performUndo()">↶</button>
     <span id="sync-status" class="sync-badge sync-idle">Nicht verbunden</span>
-    <button class="backup-restore-btn" id="backup-restore-btn" onclick="openBackupModal()" title="Lokale Backups anzeigen / wiederherstellen">🗂 Backups</button>
     <span id="user-label" class="user-label"></span>
   </div>
   <div class="tabs-sticky-wrap">
@@ -811,14 +776,12 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
         <button class="tab-btn" id="sub-coachverlauf" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Coaching Verlauf</button>
         <button class="tab-btn" id="sub-workshops" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/><circle cx="17" cy="8" r="2.5"/><path d="M17 13c2.5 0 5 1.5 5 4"/></svg>Workshops</button>
         <button class="tab-btn" id="sub-gespraeche" style="font-size:13px;padding:7px 16px;">💬 Einzelgespräche</button>
-        <button class="tab-btn" id="sub-tagesziele" style="font-size:13px;padding:7px 16px;">🎯 Tages-Ziele</button>
         <button class="tab-btn" id="sub-termine" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Termin Kalender</button>
       </div>
       <div id="coachplan-container"></div>
       <div id="coachverlauf-container" style="display:none;"></div>
       <div id="workshops-container" style="display:none;"></div>
       <div id="gespraeche-container" style="display:none;"></div>
-      <div id="tagesziele-container" style="display:none;"></div>
       <div id="termine-container" style="display:none;"></div>
     </div>
   </div>
@@ -881,12 +844,12 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
           <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);">Änderungen werden automatisch gespeichert</span>
           <label class="primary" style="background:var(--teal);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
             📥 Datei importieren
-            <input type="file" id="tw-import-helpsense-input" accept=".xlsx,.xls,.csv,.CSV,.txt,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple style="display:none;">
+            <input type="file" id="tw-import-helpsense-input" accept=".xlsx,.xls,.csv" multiple style="display:none;">
           </label>
           <button class="primary" id="tw-reset-btn" style="background:var(--red);">🗑️ Monat zurücksetzen</button>
         </div>
       </div>
-      <div id="tageswerte-capture"></div>
+      <div id="tageswerte-capture" style="overflow-x:auto;"></div>
     </div>
   </div>
 
@@ -895,39 +858,38 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 </div>
 
 <script>
-const copyrightEl = document.getElementById('copyright-year');
-if(copyrightEl) copyrightEl.textContent = new Date().getFullYear();
+document.getElementById('copyright-year').textContent = new Date().getFullYear();
 </script>
 
 <script>
 const STORAGE_KEY = 'trikala-portal-data';
 const TEAM_CONFIGS = {"Trikala01": {"label": "Trikala01", "project": "Mobilfunk PK", "products": ["MF", "SU", "BB", "TV", "VVM+BOJ"], "targets": {"regular": [24, 3, 4, 3, 5], "6h": [19, 2, 3, 2, 3], "helpline": [12, 2, 2, 2, 2]}, "crTarget": 7, "npsTarget": 70, "lqTarget": 78}, "Trikala06": {"label": "Trikala06", "project": "Festnetz PK", "products": ["MF", "SU", "BB", "TV", "VVM+NVM"], "targets": {"regular": [2, 16, 17, 9, 20], "6h": [1, 12, 13, 6, 15], "helpline": [1, 8, 9, 5, 10]}, "crTarget": 11, "npsTarget": 68, "lqTarget": 74}};
 const SEED_AGENTS = [];
-const CATEGORY_LABELS = { regular: 'Standard', '6h': '6-Stündler', helpline: 'Helpline', schulung: '📚 Schulung', work: '💼 Work' };
-const CATEGORY_CSS = { regular: 'regular', '6h': 'sixh', helpline: 'helpline', schulung: 'schulung', work: 'work' };
+const CATEGORY_LABELS = { regular: 'Standard', '6h': '6-Stündler', helpline: 'Helpline', schulung: '📚 Schulung' };
+const CATEGORY_CSS = { regular: 'regular', '6h': 'sixh', helpline: 'helpline', schulung: 'schulung' };
 
-const MA_SEED = {"mf":{"Januar":{"plan":{"MF NG":685.0,"BB":97.0,"SU":52.0,"TV":45.0,"HV":25.0},"ziel":{"MF NG":836.0,"BB":144.0,"SU":62.0,"TV":84.0,"HV":19.0},"erreicht":{"MF NG":836.0,"BB":144.0,"SU":62.0,"TV":84.0,"HV":19.0},"cr":{"MF NG":4.73,"BB":0.81,"SU":0.35,"TV":0.48,"HV":17.39},"nps_plan":67.0,"nps_ist":71.94,"crZielText":{"MF NG":"","BB":"","SU":"","TV":"","HV":""},"storno":{"MF NG":6.49,"BB":23.81,"SU":17.33,"TV":20.0,"HV":17.39},"crGesamtErreicht":23.76},"Februar":{"plan":{"MF NG":542.0,"BB":80.0,"SU":44.0,"TV":37.0,"HV":20.0},"ziel":{"MF NG":753.0,"BB":122.0,"SU":61.0,"TV":65.0,"HV":10.0},"erreicht":{"MF NG":753.0,"BB":122.0,"SU":61.0,"TV":65.0,"HV":10.0},"cr":{"MF NG":3.71,"BB":0.6,"SU":0.3,"TV":0.32,"HV":0.05},"nps_plan":67.0,"nps_ist":69.8,"crZielText":{"MF NG":"","BB":"","SU":"","TV":"","HV":""},"storno":{"MF NG":11.93,"BB":23.75,"SU":25.61,"TV":18.75,"HV":50.0},"crGesamtErreicht":4.98},"März":{"plan":{"MF NG":623.0,"BB":94.0,"SU":51.0,"TV":43.0,"HV":23.0},"ziel":{"MF NG":353.0,"BB":110.0,"SU":62.0,"TV":62.0,"HV":13.0},"erreicht":{"MF NG":353.0,"BB":110.0,"SU":62.0,"TV":62.0,"HV":13.0},"cr":{"MF NG":1.77,"BB":0.55,"SU":0.31,"TV":0.31,"HV":0.07},"nps_plan":67.0,"nps_ist":72.09,"crZielText":{"MF NG":"","BB":"","SU":"","TV":"","HV":""},"storno":{"MF NG":48.54,"BB":21.99,"SU":20.51,"TV":19.48,"HV":48.0},"crGesamtErreicht":3.01},"April":{"plan":{"MF NG":565.0,"BB":93.0,"SU":48.0,"TV":46.0,"HV":12.0},"ziel":{"MF NG":578.0,"BB":136.0,"SU":54.0,"TV":78.0,"HV":13.0},"erreicht":{"MF NG":578.0,"BB":136.0,"SU":54.0,"TV":78.0,"HV":13.0},"cr":{"MF NG":3.46,"BB":0.81,"SU":0.32,"TV":0.47,"HV":0.08},"nps_plan":67.0,"nps_ist":73.34,"crZielText":{"MF NG":"4%/4.8%","BB":"0.50%/0.80%","SU":"0.40%/0.70%","TV":"0.30%/0.60%","HV":"0.10%/0.30%"},"crZiel":{"MF NG":4.0,"BB":0.5,"SU":0.4,"TV":0.3,"HV":0.1},"storno":{"MF NG":9.12,"BB":19.53,"SU":20.59,"TV":21.21,"HV":45.83}},"Mai":{"plan":{"MF NG":479.0,"BB":84.0,"SU":40.0,"TV":49.0,"HV":10.0},"ziel":{"MF NG":577.0,"BB":147.0,"SU":66.0,"TV":83.0,"HV":9.0},"erreicht":{"MF NG":577.0,"BB":147.0,"SU":66.0,"TV":83.0,"HV":9.0},"cr":{"MF NG":3.08,"BB":0.79,"SU":0.35,"TV":0.44,"HV":0.05},"nps_plan":68.0,"nps_ist":71.05,"crZielText":{"MF NG":"4%/4.8%","BB":"0.50%/0.80%","SU":"0.40%/0.70%","TV":"0.30%/0.60%","HV":"0.10%/0.30%"},"crZiel":{"MF NG":4.0,"BB":0.5,"SU":0.4,"TV":0.3,"HV":0.1},"storno":{"MF NG":25.84,"BB":13.02,"SU":17.5,"TV":11.7,"HV":40.0},"crGesamtErreicht":4.72,"crGesamtZiel":7.0},"Juni":{"plan":{"MF NG":542.0,"BB":87.0,"SU":45.0,"TV":48.0,"HV":11.0},"ziel":{"MF NG":697.0,"BB":114.0,"SU":42.0,"TV":61.0,"HV":9.0},"erreicht":{"MF NG":697.0,"BB":114.0,"SU":42.0,"TV":61.0,"HV":9.0},"cr":{"MF NG":3.99,"BB":0.65,"SU":0.24,"TV":0.35,"HV":0.05},"nps_plan":68.0,"nps_ist":70.86,"crZielText":{"MF NG":"4%/4.8%","BB":"0.50%/0.80%","SU":"0.40%/0.70%","TV":"0.30%/0.60%","HV":"0.10%/0.30%"},"crZiel":{"MF NG":4.0,"BB":0.5,"SU":0.4,"TV":0.3,"HV":0.1},"storno":{"MF NG":9.95,"BB":25.93,"SU":6.25,"TV":21.43,"HV":30.77},"crGesamtErreicht":5.33,"crGesamtZiel":7.0},"Juli":{"plan":{"MF NG":770,"BB":109,"SU":67,"TV":52,"HV":17},"ziel":{"MF NG":618.0,"BB":73.0,"SU":19.0,"TV":46.0,"VVM":10.0},"erreicht":{"MF NG":572.0,"BB":75.0,"SU":38.0,"TV":35.0,"HV":7.0},"cr":{"MF NG":3.06,"BB":0.4,"SU":0.2,"TV":0.19,"HV":0.04},"nps_plan":69.0,"nps_ist":70.85,"crZiel":{"MF NG":3.3,"BB":0.5,"SU":0.4,"TV":0.3,"HV":0.1},"crZielText":{"MF NG":"3.3%/4%/4.5","BB":"0.50%/0.80%","SU":"0.40%/0.70%","TV":"0.30%/0.60%","HV":"0.10%/0.30%"},"storno":{"MF NG":24.34,"BB":31.19,"SU":22.45,"TV":22.22,"HV":68.18},"crGesamtErreicht":3.89},"August":{"plan":{"MF NG":0,"BB":0,"SU":0,"TV":0,"VVM":0,"HV":0},"ziel":{"MF NG":612.0,"BB":85.0,"SU":15.0,"TV":36.0,"VVM":10.0},"erreicht":{"MF NG":0,"BB":0,"SU":0,"TV":0,"VVM":0,"HV":0},"cr":{"MF NG":0,"BB":0.0,"SU":0.0,"TV":0.0,"VVM":0.0,"HV":0},"nps_plan":0,"nps_ist":0.0},"September":{"plan":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"ziel":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"erreicht":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"cr":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"nps_plan":0,"nps_ist":0},"Oktober":{"plan":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"ziel":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"erreicht":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"cr":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"nps_plan":0,"nps_ist":0},"November":{"plan":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"ziel":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"erreicht":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"cr":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"nps_plan":0,"nps_ist":0},"Dezember":{"plan":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"ziel":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"erreicht":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"cr":{"MF NG":0,"BB":0,"SU":0,"Fiber Gesamt":0,"TV":0,"HV":0},"nps_plan":0,"nps_ist":0}},"fn":{"Januar":{"plan":{"NG (BB)":184.0,"SU":179.0,"BOJ":102.0,"TV":95.0,"MF":16.0},"ziel":{"NG (BB)":289.0,"SU":113.0,"BOJ":73.0,"TV":143.0,"MF":24.0},"erreicht":{"NG (BB)":289.0,"SU":113.0,"BOJ":73.0,"TV":143.0,"MF":24.0},"cr":{"NG (BB)":3.61,"SU":1.41,"BOJ":0.91,"TV":1.79,"MF":0.3},"nps_plan":66.0,"nps_ist":63.68,"crZielText":{"NG (BB)":"","SU":"","BOJ":"","TV":"","MF":""},"storno":{"NG (BB)":19.05,"SU":14.39,"BOJ":27.7,"TV":17.82,"MF":17.24},"crGesamtErreicht":7.11},"Februar":{"plan":{"NG (BB)":180.0,"SU":178.0,"BOJ":100.0,"TV":93.0,"MF":16.0},"ziel":{"NG (BB)":181.0,"SU":127.0,"BOJ":81.0,"TV":88.0,"MF":17.0},"erreicht":{"NG (BB)":181.0,"SU":127.0,"BOJ":81.0,"TV":88.0,"MF":17.0},"cr":{"NG (BB)":2.64,"SU":1.85,"BOJ":1.18,"TV":1.28,"MF":0.25},"nps_plan":66.0,"nps_ist":66.51,"crZielText":{"NG (BB)":"","SU":"","BOJ":"","TV":"","MF":""},"storno":{"NG (BB)":27.31,"SU":13.61,"BOJ":21.36,"TV":26.05,"MF":10.53},"crGesamtErreicht":6.02},"März":{"plan":{"NG (BB)":224.0,"SU":224.0,"BOJ":124.0,"TV":116.0,"MF":19.0},"ziel":{"NG (BB)":257.0,"SU":165.0,"BOJ":99.0,"TV":121.0,"MF":21.0},"erreicht":{"NG (BB)":257.0,"SU":165.0,"BOJ":99.0,"TV":121.0,"MF":21.0},"cr":{"NG (BB)":2.98,"SU":1.91,"BOJ":1.15,"TV":1.4,"MF":0.24},"nps_plan":66.0,"nps_ist":65.03,"crZielText":{"NG (BB)":"","SU":"","BOJ":"","TV":"","MF":""},"storno":{"NG (BB)":22.36,"SU":11.76,"BOJ":16.81,"TV":21.94,"MF":19.23},"crGesamtErreicht":6.53},"April":{"plan":{"NG (BB)":209.0,"SU":208.0,"BOJ":107.0,"TV":126.0,"MF":16.0},"ziel":{"NG (BB)":235.0,"SU":141.0,"BOJ":104.0,"TV":106.0,"MF":26.0},"erreicht":{"NG (BB)":235.0,"SU":141.0,"BOJ":104.0,"TV":106.0,"MF":26.0},"cr":{"NG (BB)":2.56,"SU":1.54,"BOJ":1.13,"TV":1.15,"MF":0.28},"nps_plan":66.0,"nps_ist":64.21,"crZielText":{"NG (BB)":"2.80%/3.40%","SU":"3%/3.50%","BOJ":"1.40%/2.40%","TV":"1.60%/2%","MF":"0.40%/0.60%"},"crZiel":{"NG (BB)":2.8,"SU":3.0,"BOJ":1.4,"TV":1.6,"MF":0.4},"storno":{"NG (BB)":25.87,"SU":17.54,"BOJ":21.21,"TV":24.82,"MF":16.13},"crGesamtErreicht":5.53},"Mai":{"plan":{"NG (BB)":243.0,"SU":220.0,"BOJ":110.0,"TV":170.0,"MF":17.0},"ziel":{"NG (BB)":273.0,"SU":177.0,"BOJ":113.0,"TV":124.0,"MF":17.0},"erreicht":{"NG (BB)":273.0,"SU":177.0,"BOJ":113.0,"TV":124.0,"MF":17.0},"cr":{"NG (BB)":3.23,"SU":2.09,"BOJ":1.34,"TV":1.47,"MF":0.2},"nps_plan":67.0,"nps_ist":64.58,"crZielText":{"NG (BB)":"2.80%/3.40%","SU":"3%/3.50%","BOJ":"1.40%/2.40%","TV":"1.60%/2%","MF":"0.40%/0.60%"},"crZiel":{"NG (BB)":2.8,"SU":3.0,"BOJ":1.4,"TV":1.6,"MF":0.4},"storno":{"NG (BB)":23.96,"SU":13.66,"BOJ":28.03,"TV":23.93,"MF":22.73},"crGesamtErreicht":10.04,"crGesamtZiel":10.0},"Juni":{"plan":{"NG (BB)":227.0,"SU":220.0,"BOJ":114.0,"VVM":0,"TV":151.0,"MF":17.0},"ziel":{"NG (BB)":211.0,"SU":158.0,"BOJ":89.0,"VVM":248.0,"TV":131.0,"MF":17.0},"erreicht":{"NG (BB)":211.0,"SU":158.0,"BOJ":89.0,"VVM":248.0,"TV":131.0,"MF":17.0},"cr":{"NG (BB)":2.86,"SU":2.14,"BOJ":1.21,"VVM":3.36,"TV":1.78,"MF":0.23},"nps_plan":67.0,"nps_ist":67.36,"crZielText":{"NG (BB)":"2.80%/3.40%","SU":"3%/3.50%","BOJ":"1.40%/2.40%","VVM":"3.50%/4.50%","TV":"1.60%/2%","MF":"0.40%/0.60%"},"crZiel":{"NG (BB)":2.8,"SU":3.0,"BOJ":1.4,"TV":1.6,"MF":0.4},"storno":{"NG (BB)":25.18,"SU":18.13,"BOJ":26.45,"VVM":25.08,"TV":19.63,"MF":22.73},"crGesamtErreicht":10.37,"crGesamtZiel":11.0},"Juli":{"plan":{"NG (BB)":271,"SU":318,"BOJ":155,"VVM":0,"TV":153,"MF":20},"ziel":{"NG (BB)":226.0,"SU":118.0,"VVM":162.0,"TV":108.0,"MF":35.0},"erreicht":{"NG (BB)":0,"SU":0,"VVM":0,"TV":0,"MF":0,"BOJ":0},"cr":{"NG (BB)":0,"SU":0.0,"VVM":0.0,"TV":0.0,"MF":0,"BOJ":0},"nps_plan":68,"nps_ist":0.0},"August":{"plan":{"NG (BB)":0,"SU":0,"VVM":0,"TV":0,"MF":0,"BOJ":0},"ziel":{"NG (BB)":218.0,"SU":174.0,"VVM":144.0,"TV":97.0,"MF":34.0},"erreicht":{"NG (BB)":0,"SU":0,"VVM":0,"TV":0,"MF":0,"BOJ":0},"cr":{"NG (BB)":0,"SU":0.0,"VVM":0.0,"TV":0.0,"MF":0,"BOJ":0},"nps_plan":0,"nps_ist":0.0},"September":{"plan":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"ziel":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"erreicht":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"cr":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"nps_plan":0,"nps_ist":0},"Oktober":{"plan":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"ziel":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"erreicht":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"cr":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"nps_plan":0,"nps_ist":0},"November":{"plan":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"ziel":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"erreicht":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"cr":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"nps_plan":0,"nps_ist":0},"Dezember":{"plan":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"ziel":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"erreicht":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"cr":{"NG (BB)":0,"SU":0,"BOJ":0,"Fiber Gesamt":0,"TV":0,"MF":0},"nps_plan":0,"nps_ist":0}}};
+const MA_SEED = {"mf": {"Januar": {"plan": {"MF NG": 685.0, "BB": 97.0, "SU": 52.0, "TV": 45.0, "BOJ": 25.0}, "ziel": {"MF NG": 836.0, "BB": 144.0, "SU": 62.0, "TV": 84.0, "BOJ": 19.0}, "erreicht": {"MF NG": 836.0, "BB": 144.0, "SU": 62.0, "TV": 84.0, "BOJ": 19.0}, "cr": {"MF NG": 4.73, "BB": 0.81, "SU": 0.35, "TV": 0.48, "BOJ": 17.39}, "nps_plan": 67.0, "nps_ist": 71.94, "crZielText": {"MF NG": "", "BB": "", "SU": "", "TV": "", "BOJ": ""}, "storno": {"MF NG": 6.49, "BB": 23.81, "SU": 17.33, "TV": 20.0, "BOJ": 17.39}, "crGesamtErreicht": 23.76}, "Februar": {"plan": {"MF NG": 542.0, "BB": 80.0, "SU": 44.0, "TV": 37.0, "BOJ": 20.0}, "ziel": {"MF NG": 753.0, "BB": 122.0, "SU": 61.0, "TV": 65.0, "BOJ": 10.0}, "erreicht": {"MF NG": 753.0, "BB": 122.0, "SU": 61.0, "TV": 65.0, "BOJ": 10.0}, "cr": {"MF NG": 3.71, "BB": 0.6, "SU": 0.3, "TV": 0.32, "BOJ": 0.05}, "nps_plan": 67.0, "nps_ist": 69.8, "crZielText": {"MF NG": "", "BB": "", "SU": "", "TV": "", "BOJ": ""}, "storno": {"MF NG": 11.93, "BB": 23.75, "SU": 25.61, "TV": 18.75, "BOJ": 50.0}, "crGesamtErreicht": 4.98}, "März": {"plan": {"MF NG": 623.0, "BB": 94.0, "SU": 51.0, "TV": 43.0, "BOJ": 23.0}, "ziel": {"MF NG": 353.0, "BB": 110.0, "SU": 62.0, "TV": 62.0, "BOJ": 13.0}, "erreicht": {"MF NG": 353.0, "BB": 110.0, "SU": 62.0, "TV": 62.0, "BOJ": 13.0}, "cr": {"MF NG": 1.77, "BB": 0.55, "SU": 0.31, "TV": 0.31, "BOJ": 0.07}, "nps_plan": 67.0, "nps_ist": 72.09, "crZielText": {"MF NG": "", "BB": "", "SU": "", "TV": "", "BOJ": ""}, "storno": {"MF NG": 48.54, "BB": 21.99, "SU": 20.51, "TV": 19.48, "BOJ": 48.0}, "crGesamtErreicht": 3.01}, "April": {"plan": {"MF NG": 565.0, "BB": 93.0, "SU": 48.0, "TV": 46.0, "BOJ": 12.0}, "ziel": {"MF NG": 578.0, "BB": 136.0, "SU": 54.0, "TV": 78.0, "BOJ": 13.0}, "erreicht": {"MF NG": 578.0, "BB": 136.0, "SU": 54.0, "TV": 78.0, "BOJ": 13.0}, "cr": {"MF NG": 3.46, "BB": 0.81, "SU": 0.32, "TV": 0.47, "BOJ": 0.08}, "nps_plan": 67.0, "nps_ist": 73.34, "crZielText": {"MF NG": "4%/4.8%", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "crZiel": {"MF NG": 4.0, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "storno": {"MF NG": 9.12, "BB": 19.53, "SU": 20.59, "TV": 21.21, "BOJ": 45.83}}, "Mai": {"plan": {"MF NG": 479.0, "BB": 84.0, "SU": 40.0, "TV": 49.0, "BOJ": 10.0}, "ziel": {"MF NG": 577.0, "BB": 147.0, "SU": 66.0, "TV": 83.0, "BOJ": 9.0}, "erreicht": {"MF NG": 577.0, "BB": 147.0, "SU": 66.0, "TV": 83.0, "BOJ": 9.0}, "cr": {"MF NG": 3.08, "BB": 0.79, "SU": 0.35, "TV": 0.44, "BOJ": 0.05}, "nps_plan": 68.0, "nps_ist": 71.05, "crZielText": {"MF NG": "4%/4.8%", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "crZiel": {"MF NG": 4.0, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "storno": {"MF NG": 25.84, "BB": 13.02, "SU": 17.5, "TV": 11.7, "BOJ": 40.0}, "crGesamtErreicht": 4.72, "crGesamtZiel": 7.0}, "Juni": {"plan": {"MF NG": 542.0, "BB": 87.0, "SU": 45.0, "TV": 48.0, "BOJ": 11.0}, "ziel": {"MF NG": 697.0, "BB": 114.0, "SU": 42.0, "TV": 61.0, "BOJ": 9.0}, "erreicht": {"MF NG": 697.0, "BB": 114.0, "SU": 42.0, "TV": 61.0, "BOJ": 9.0}, "cr": {"MF NG": 3.99, "BB": 0.65, "SU": 0.24, "TV": 0.35, "BOJ": 0.05}, "nps_plan": 68.0, "nps_ist": 70.86, "crZielText": {"MF NG": "4%/4.8%", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "crZiel": {"MF NG": 4.0, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "storno": {"MF NG": 9.95, "BB": 25.93, "SU": 6.25, "TV": 21.43, "BOJ": 30.77}, "crGesamtErreicht": 5.33, "crGesamtZiel": 7.0}, "Juli": {"plan": {"MF NG": 770, "BB": 109, "SU": 67, "TV": 52, "BOJ": 17}, "ziel": {"MF NG": 618.0, "BB": 73.0, "SU": 19.0, "TV": 46.0, "VVM": 10.0}, "erreicht": {"MF NG": 572.0, "BB": 75.0, "SU": 38.0, "TV": 35.0, "BOJ": 7.0}, "cr": {"MF NG": 3.06, "BB": 0.4, "SU": 0.2, "TV": 0.19, "BOJ": 0.04}, "nps_plan": 69.0, "nps_ist": 70.85, "crZiel": {"MF NG": 3.3, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "crZielText": {"MF NG": "3.3%/4%/4.5", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "storno": {"MF NG": 24.34, "BB": 31.19, "SU": 22.45, "TV": 22.22, "BOJ": 68.18}, "crGesamtErreicht": 3.89}, "August": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "VVM": 0, "BOJ": 0}, "ziel": {"MF NG": 612.0, "BB": 85.0, "SU": 15.0, "TV": 36.0, "VVM": 10.0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "VVM": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0.0, "SU": 0.0, "TV": 0.0, "VVM": 0.0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0.0}, "September": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}, "Oktober": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}, "November": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}, "Dezember": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}}, "fn": {"Januar": {"plan": {"NG (BB)": 184.0, "SU": 179.0, "BOJ": 102.0, "TV": 95.0, "MF": 16.0}, "ziel": {"NG (BB)": 289.0, "SU": 113.0, "BOJ": 73.0, "TV": 143.0, "MF": 24.0}, "erreicht": {"NG (BB)": 289.0, "SU": 113.0, "BOJ": 73.0, "TV": 143.0, "MF": 24.0}, "cr": {"NG (BB)": 3.61, "SU": 1.41, "BOJ": 0.91, "TV": 1.79, "MF": 0.3}, "nps_plan": 66.0, "nps_ist": 63.68, "crZielText": {"NG (BB)": "", "SU": "", "BOJ": "", "TV": "", "MF": ""}, "storno": {"NG (BB)": 19.05, "SU": 14.39, "BOJ": 27.7, "TV": 17.82, "MF": 17.24}, "crGesamtErreicht": 7.11}, "Februar": {"plan": {"NG (BB)": 180.0, "SU": 178.0, "BOJ": 100.0, "TV": 93.0, "MF": 16.0}, "ziel": {"NG (BB)": 181.0, "SU": 127.0, "BOJ": 81.0, "TV": 88.0, "MF": 17.0}, "erreicht": {"NG (BB)": 181.0, "SU": 127.0, "BOJ": 81.0, "TV": 88.0, "MF": 17.0}, "cr": {"NG (BB)": 2.64, "SU": 1.85, "BOJ": 1.18, "TV": 1.28, "MF": 0.25}, "nps_plan": 66.0, "nps_ist": 66.51, "crZielText": {"NG (BB)": "", "SU": "", "BOJ": "", "TV": "", "MF": ""}, "storno": {"NG (BB)": 27.31, "SU": 13.61, "BOJ": 21.36, "TV": 26.05, "MF": 10.53}, "crGesamtErreicht": 6.02}, "März": {"plan": {"NG (BB)": 224.0, "SU": 224.0, "BOJ": 124.0, "TV": 116.0, "MF": 19.0}, "ziel": {"NG (BB)": 257.0, "SU": 165.0, "BOJ": 99.0, "TV": 121.0, "MF": 21.0}, "erreicht": {"NG (BB)": 257.0, "SU": 165.0, "BOJ": 99.0, "TV": 121.0, "MF": 21.0}, "cr": {"NG (BB)": 2.98, "SU": 1.91, "BOJ": 1.15, "TV": 1.4, "MF": 0.24}, "nps_plan": 66.0, "nps_ist": 65.03, "crZielText": {"NG (BB)": "", "SU": "", "BOJ": "", "TV": "", "MF": ""}, "storno": {"NG (BB)": 22.36, "SU": 11.76, "BOJ": 16.81, "TV": 21.94, "MF": 19.23}, "crGesamtErreicht": 6.53}, "April": {"plan": {"NG (BB)": 209.0, "SU": 208.0, "BOJ": 107.0, "TV": 126.0, "MF": 16.0}, "ziel": {"NG (BB)": 235.0, "SU": 141.0, "BOJ": 104.0, "TV": 106.0, "MF": 26.0}, "erreicht": {"NG (BB)": 235.0, "SU": 141.0, "BOJ": 104.0, "TV": 106.0, "MF": 26.0}, "cr": {"NG (BB)": 2.56, "SU": 1.54, "BOJ": 1.13, "TV": 1.15, "MF": 0.28}, "nps_plan": 66.0, "nps_ist": 64.21, "crZielText": {"NG (BB)": "2.80%/3.40%", "SU": "3%/3.50%", "BOJ": "1.40%/2.40%", "TV": "1.60%/2%", "MF": "0.40%/0.60%"}, "crZiel": {"NG (BB)": 2.8, "SU": 3.0, "BOJ": 1.4, "TV": 1.6, "MF": 0.4}, "storno": {"NG (BB)": 25.87, "SU": 17.54, "BOJ": 21.21, "TV": 24.82, "MF": 16.13}, "crGesamtErreicht": 5.53}, "Mai": {"plan": {"NG (BB)": 243.0, "SU": 220.0, "BOJ": 110.0, "TV": 170.0, "MF": 17.0}, "ziel": {"NG (BB)": 273.0, "SU": 177.0, "BOJ": 113.0, "TV": 124.0, "MF": 17.0}, "erreicht": {"NG (BB)": 273.0, "SU": 177.0, "BOJ": 113.0, "TV": 124.0, "MF": 17.0}, "cr": {"NG (BB)": 3.23, "SU": 2.09, "BOJ": 1.34, "TV": 1.47, "MF": 0.2}, "nps_plan": 67.0, "nps_ist": 64.58, "crZielText": {"NG (BB)": "2.80%/3.40%", "SU": "3%/3.50%", "BOJ": "1.40%/2.40%", "TV": "1.60%/2%", "MF": "0.40%/0.60%"}, "crZiel": {"NG (BB)": 2.8, "SU": 3.0, "BOJ": 1.4, "TV": 1.6, "MF": 0.4}, "storno": {"NG (BB)": 23.96, "SU": 13.66, "BOJ": 28.03, "TV": 23.93, "MF": 22.73}, "crGesamtErreicht": 10.04, "crGesamtZiel": 10.0}, "Juni": {"plan": {"NG (BB)": 227.0, "SU": 220.0, "BOJ": 114.0, "VVM": 0, "TV": 151.0, "MF": 17.0}, "ziel": {"NG (BB)": 211.0, "SU": 158.0, "BOJ": 89.0, "VVM": 248.0, "TV": 131.0, "MF": 17.0}, "erreicht": {"NG (BB)": 211.0, "SU": 158.0, "BOJ": 89.0, "VVM": 248.0, "TV": 131.0, "MF": 17.0}, "cr": {"NG (BB)": 2.86, "SU": 2.14, "BOJ": 1.21, "VVM": 3.36, "TV": 1.78, "MF": 0.23}, "nps_plan": 67.0, "nps_ist": 67.36, "crZielText": {"NG (BB)": "2.80%/3.40%", "SU": "3%/3.50%", "BOJ": "1.40%/2.40%", "VVM": "3.50%/4.50%", "TV": "1.60%/2%", "MF": "0.40%/0.60%"}, "crZiel": {"NG (BB)": 2.8, "SU": 3.0, "BOJ": 1.4, "TV": 1.6, "MF": 0.4}, "storno": {"NG (BB)": 25.18, "SU": 18.13, "BOJ": 26.45, "VVM": 25.08, "TV": 19.63, "MF": 22.73}, "crGesamtErreicht": 10.37, "crGesamtZiel": 11.0}, "Juli": {"plan": {"NG (BB)": 271, "SU": 318, "BOJ": 155, "VVM": 0, "TV": 153, "MF": 20}, "ziel": {"NG (BB)": 226.0, "SU": 118.0, "VVM": 162.0, "TV": 108.0, "MF": 35.0}, "erreicht": {"NG (BB)": 0, "SU": 0, "VVM": 0, "TV": 0, "MF": 0, "BOJ": 0}, "cr": {"NG (BB)": 0, "SU": 0.0, "VVM": 0.0, "TV": 0.0, "MF": 0, "BOJ": 0}, "nps_plan": 68, "nps_ist": 0.0}, "August": {"plan": {"NG (BB)": 0, "SU": 0, "VVM": 0, "TV": 0, "MF": 0, "BOJ": 0}, "ziel": {"NG (BB)": 218.0, "SU": 174.0, "VVM": 144.0, "TV": 97.0, "MF": 34.0}, "erreicht": {"NG (BB)": 0, "SU": 0, "VVM": 0, "TV": 0, "MF": 0, "BOJ": 0}, "cr": {"NG (BB)": 0, "SU": 0.0, "VVM": 0.0, "TV": 0.0, "MF": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0.0}, "September": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}, "Oktober": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}, "November": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}, "Dezember": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}}};
 const VERLAUF_SEED = {};
 let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, deletedEntryIds: [], verlauf: JSON.parse(JSON.stringify(VERLAUF_SEED)), monatsabschluss: JSON.parse(JSON.stringify(MA_SEED)), teamziele: {
   mf: {
-    datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 0, cht: 0, na: 1,
-    soll: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
+    datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 69, cht: 600, na: 1,
+    soll: {MF:770, BB:109, SU:67, TV:52, BOJ:17},
     ist: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
-    crGestern: 0, crMonat: 0, crZiel: 0,
-    crZiel1: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
-    crZiel2: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
-    crZiel3: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
-    crZiel4MF: 0,
-    storno: {MF:0, BB:0, SU:0, TV:0, BOJ:0}
+    crGestern: 4.15, crMonat: 3.79, crZiel: 6.20,
+    crZiel1: {MF:2.94, BB:0.40, SU:0.21, TV:0.19, BOJ:0.05},
+    crZiel2: {MF:3.30, BB:0.50, SU:0.40, TV:0.30, BOJ:0.10},
+    crZiel3: {MF:4.00, BB:0.80, SU:0.70, TV:0.60, BOJ:0.30},
+    crZiel4MF: 4.5,
+    storno: {MF:25.29, BB:31.07, SU:23.40, TV:23.26, BOJ:61.90}
   },
   fn: {
     datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 68,
     soll: {BB:271, SU:318, BOJ:155, VVM:0, TV:153, MF:20},
     ist: {BB:0, SU:0, BOJ:0, VVM:0, TV:0, MF:0},
-    crGestern: 0, crMonat: 0, crZiel: 0,
-    crZiel1: {BB:0, SU:0, BOJ:0, VVM:0, TV:0, MF:0},
-    crZiel2: {BB:0, SU:0, BOJ:0, VVM:0, TV:0, MF:0},
-    storno: {BB:0, SU:0, BOJ:0, VVM:0, TV:0, MF:0}
+    crGestern: 10.40, crMonat: 8.16, crZiel: 12.00,
+    crZiel1: {BB:2.80, SU:3.00, BOJ:1.40, VVM:3.50, TV:1.60, MF:0.40},
+    crZiel2: {BB:3.40, SU:3.50, BOJ:2.40, VVM:4.50, TV:2.00, MF:0.60},
+    storno: {BB:22.26, SU:16.67, BOJ:26.43, VVM:30.03, TV:21.19, MF:4.35}
   }
 } };
 // Version dieser Board-Fassung. Wird beim Laden mit der Version verglichen, die zuletzt in der
@@ -937,7 +899,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 93;
+const BOARD_VERSION = 26;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1021,96 +983,21 @@ document.addEventListener('keydown', e=>{
   }
 });
 
-// === Tageswerte: Mehrfachauswahl von Zellen (wie in Excel per Ziehen markieren, dann gemeinsam löschen/kopieren/einfügen) ===
+// === Tageswerte: Mehrfachauswahl von Zellen (wie in Excel per Ziehen markieren, dann gemeinsam löschen) ===
 let twSelectedCells = [];      // aktuell markierte Zellen: [{td, input, setVal}, ...]
 let twIsDragging = false;
 let twClearActiveSelection = null; // Funktion, die die Markierung der zuletzt aktiven Tabelle aufhebt
 let twActiveTableExtend = null;    // Funktion(rowIdx, colIdx), erweitert die Auswahl der aktiven Tabelle
 let twLastMouseX = null, twLastMouseY = null;
-
-// Kopier-Puffer: 2D-Array der kopierten Werte (Zeilen × Spalten)
-let twCopyBuffer = null; // null = kein Puffer; [[val,...], ...] = Werte
-let twCopyRows = 0, twCopyCols = 0;
-// Globales Zell-Register: key = "row,col" → {td, input, setVal} — wird bei jedem render neu befüllt
-let twCellRegistry = {};
-
-// Zeigt kurz einen Toast-Hinweis an
-function twToast(msg){
-  let t = document.getElementById('tw-toast');
-  if(!t){ t = document.createElement('div'); t.id='tw-toast';
-    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1B2A2E;color:#fff;padding:8px 20px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;pointer-events:none;transition:opacity 0.3s;opacity:0;';
-    document.body.appendChild(t); }
-  t.textContent = msg; t.style.opacity = '1';
-  clearTimeout(t._to); t._to = setTimeout(()=>{ t.style.opacity='0'; }, 1800);
-}
-
 document.addEventListener('mouseup', ()=>{ twIsDragging = false; twActiveTableExtend = null; });
 document.addEventListener('mousemove', (e)=>{ twLastMouseX = e.clientX; twLastMouseY = e.clientY; });
 document.addEventListener('keydown', (e)=>{
-  const inTw = document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('tw-input');
-  if(!inTw) return;
-
-  // Löschen: Delete/Backspace bei Mehrfachauswahl
-  if((e.key === 'Delete' || e.key === 'Backspace') && twSelectedCells.length >= 2){
+  if((e.key === 'Delete' || e.key === 'Backspace') && twSelectedCells.length >= 2 &&
+     document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('tw-input')){
     e.preventDefault();
     captureUndoSnapshot();
     twSelectedCells.forEach(cell=>{ cell.setVal(null); cell.input.value = ''; });
     scheduleSave();
-    return;
-  }
-
-  // Kopieren: Ctrl+C / Cmd+C
-  if((e.ctrlKey || e.metaKey) && e.key === 'c'){
-    const cells = twSelectedCells.length >= 1 ? twSelectedCells : [];
-    if(!cells.length) return;
-    // Zellen sind als flache Liste gespeichert; wir kennen Zeile/Spalte aus data-Attributen
-    const rows = cells.map(c=>parseInt(c.td.dataset.twRow));
-    const cols = cells.map(c=>parseInt(c.td.dataset.twCol));
-    const minR = Math.min(...rows), maxR = Math.max(...rows);
-    const minC = Math.min(...cols), maxC = Math.max(...cols);
-    twCopyRows = maxR - minR + 1;
-    twCopyCols = maxC - minC + 1;
-    // 2D-Array aufbauen
-    twCopyBuffer = Array.from({length: twCopyRows}, ()=>Array(twCopyCols).fill(null));
-    cells.forEach(cell=>{
-      const r = parseInt(cell.td.dataset.twRow) - minR;
-      const c = parseInt(cell.td.dataset.twCol) - minC;
-      const v = cell.input.value.trim();
-      twCopyBuffer[r][c] = v === '' ? null : (parseFloat(v.replace(',','.')) || 0);
-    });
-    twToast(`✅ ${cells.length} Zelle(n) kopiert — wechsle zum Zieltag und drücke Ctrl+V`);
-    e.preventDefault();
-    return;
-  }
-
-  // Einfügen: Ctrl+V / Cmd+V
-  if((e.ctrlKey || e.metaKey) && e.key === 'v'){
-    if(!twCopyBuffer) return;
-    // Startpunkt: die aktive Zelle
-    const anchor = document.activeElement.closest('td');
-    if(!anchor || !anchor.dataset.twRow) return;
-    const startR = parseInt(anchor.dataset.twRow);
-    const startC = parseInt(anchor.dataset.twCol);
-    captureUndoSnapshot();
-    twMarkInput();
-    let pasted = 0;
-    twCopyBuffer.forEach((rowVals, dr)=>{
-      rowVals.forEach((val, dc)=>{
-        const key = `${startR + dr},${startC + dc}`;
-        const cell = twCellRegistry[key];
-        if(!cell || cell.input.disabled) return;
-        // Direkt setVal aufrufen (hat Zugriff auf den richtigen agent/tag-Scope)
-        cell.setVal(val);
-        cell.input.value = val === null ? '' : val;
-        pasted++;
-      });
-    });
-    scheduleSave();
-    // Tageswerte neu rendern damit Summen etc. stimmen, aber Fokus-Schutz aktiv halten
-    renderTageswerte();
-    twToast(`✅ ${pasted} Zelle(n) eingefügt`);
-    e.preventDefault();
-    return;
   }
 });
 // Während des Ziehens: Seite automatisch scrollen, wenn die Maus nah an den oberen/unteren
@@ -1369,12 +1256,171 @@ async function graphFetch(url, options={}){
   return resp;
 }
 
-// HINWEIS (K-2 Audit-Fix): Die frühere erste Definition von loadFromSharePoint() und
-// saveToSharePoint() (für Microsoft SharePoint / Graph API) wurde hier entfernt.
-// Diese Funktionen waren toter Code – durch JavaScript-Hoisting überschrieb die zweite
-// Definiton weiter unten (KI-Proxy / Cloudflare Worker) die erste vollständig, sodass
-// niemals die SharePoint-Variante ausgeführt wurde. Die aktiven Funktionen befinden sich
-// weiter unten ab "async function loadFromSharePoint()" (KI_PROXY_URL).
+async function loadFromSharePoint(){
+  setSyncStatus('syncing');
+  try {
+    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/items/${OWNER_FILE_ID}/content?_cb=${Date.now()}`);
+    if(resp.ok){
+      const data = await resp.json();
+      if(data && data.agents && data.agents.length){
+        state.agents = data.agents;
+        if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
+        if(data.teamziele){
+          Object.keys(data.teamziele).forEach(k=>{
+            if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
+          });
+        }
+        // Ungültige Verlauf-Einträge entfernen
+        const INVALID_NAMES = ['6','Helpline','helpline','Michas','Lekaki','Manachiari','Tstisoula'];
+        // Alte Alias-Keys entfernen
+        ['Antoniou_Trikala01','Antoniou_Pia_Trikala01','Antoniou Ioannis_Trikala01','Antoniou Pia_Trikala01'].forEach(k=>{ if(state.verlauf[k]) delete state.verlauf[k]; });
+        Object.keys(state.verlauf).forEach(k=>{
+          if(INVALID_NAMES.includes(state.verlauf[k].name)) delete state.verlauf[k];
+        });
+        // Seed-Daten für alle MA sicherstellen (fehlende Monate aus Seed ergänzen)
+        Object.keys(VERLAUF_SEED).forEach(k=>{
+          if(!state.verlauf[k]){
+            state.verlauf[k] = JSON.parse(JSON.stringify(VERLAUF_SEED[k]));
+          } else {
+            // Fehlende Monate aus Seed ergänzen
+            Object.keys(VERLAUF_SEED[k].monate).forEach(m=>{
+              if(!state.verlauf[k].monate[m]){
+                state.verlauf[k].monate[m] = JSON.parse(JSON.stringify(VERLAUF_SEED[k].monate[m]));
+              } else {
+                // NPS aus Seed wenn 0 in gespeicherter Version
+                const seed = VERLAUF_SEED[k].monate[m];
+                if(seed.nps > 0 && state.verlauf[k].monate[m].nps === 0)
+                  state.verlauf[k].monate[m].nps = seed.nps;
+                if(seed.cr > 0 && state.verlauf[k].monate[m].cr === 0)
+                  state.verlauf[k].monate[m].cr = seed.cr;
+              }
+            });
+          }
+        });
+
+        if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
+        if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
+        if(data.verlauf && Object.keys(data.verlauf).length > 0){
+          // Gespeicherte Verlauf-Snapshots mit Seed zusammenführen (Seed bleibt Basis)
+          Object.keys(data.verlauf).forEach(k=>{
+            if(!state.verlauf[k]) state.verlauf[k] = { name: data.verlauf[k].name, team: data.verlauf[k].team, monate: {} };
+            // Monat für Monat zusammenführen - Seed-Werte (NPS etc.) bleiben erhalten
+            Object.keys(data.verlauf[k].monate||{}).forEach(m=>{
+              if(!state.verlauf[k].monate[m]){
+                state.verlauf[k].monate[m] = data.verlauf[k].monate[m];
+              } else {
+                // Nur Felder übernehmen die im Seed 0 sind
+                const saved = data.verlauf[k].monate[m];
+                const seed = state.verlauf[k].monate[m];
+                if(saved.calls > 0) seed.calls = saved.calls;
+                if(saved.cr > 0) seed.cr = saved.cr;
+                if(saved.lq > 0) seed.lq = saved.lq;
+                if(saved.nps > 0 && seed.nps === 0) seed.nps = saved.nps;
+                Object.keys(saved.sales||{}).forEach(p=>{
+                  if(saved.sales[p] > 0) seed.sales[p] = saved.sales[p];
+                });
+              }
+            });
+          });
+        }
+        if(data.monatsabschluss){
+          // Server-Stand direkt übernehmen - identisch zur aktiven Ladefunktion weiter unten.
+          // Die frühere Logik hier hat md.plan bedingungslos aus der Code-Vorlage (Seed)
+          // zurückgesetzt ("Plan IMMER aus Seed behalten") und damit gespeicherte Planmengen
+          // beim Laden immer wieder verworfen - "erreicht" war davon nie betroffen, was genau
+          // das beobachtete Verhalten erklaerte.
+          const merged = data.monatsabschluss;
+          Object.keys(state.monatsabschluss||{}).forEach(team=>{
+            if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
+            Object.keys(state.monatsabschluss[team]).forEach(monat=>{
+              if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
+            });
+          });
+          state.monatsabschluss = merged;
+        }
+        // BOJ global sicherstellen
+        Object.keys(state.monatsabschluss||{}).forEach(team=>{
+          Object.values(state.monatsabschluss[team]||{}).forEach(md=>{
+            ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
+          });
+        });
+        // Seed-Werte IMMER übernehmen (haben Vorrang über alte SharePoint-Nullwerte)
+        Object.keys(MA_SEED).forEach(team=>{
+          Object.keys(MA_SEED[team]).forEach(monat=>{
+            const seed = MA_SEED[team][monat];
+            if(!state.monatsabschluss[team]) return;
+            if(!state.monatsabschluss[team][monat]) state.monatsabschluss[team][monat] = JSON.parse(JSON.stringify(seed));
+            const md = state.monatsabschluss[team][monat];
+            // Seed-Werte übernehmen wenn Seed > 0 und gespeicherter Wert = 0
+            ['erreicht','cr','storno'].forEach(f=>{
+              if(seed[f]){
+                if(!md[f]) md[f] = {};
+                Object.keys(seed[f]).forEach(p=>{
+                  if(seed[f][p] !== 0 && (md[f][p] === 0 || md[f][p] === undefined)) md[f][p] = seed[f][p];
+                });
+              }
+            });
+            ['crZiel','crZielText'].forEach(f=>{
+              if(seed[f]) { md[f] = md[f]||{}; Object.assign(md[f], seed[f]); }
+            });
+            if(!md.nps_plan && seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
+            if(!md.nps_ist && seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
+            if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
+            if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
+            // Plan: Seed füllt nur Lücken (Produkte ohne bisherigen Wert), überschreibt aber nie
+            // einen bereits vorhandenen (auch frisch eingetragenen) Wert - vorher wurde hier bei
+            // JEDEM Laden bedingungslos auf die Code-Vorlagenwerte zurückgesetzt und sofort
+            // wieder gespeichert, wodurch Eingaben in "Planenmenge" nie dauerhaft blieben.
+            if(seed.plan){
+              md.plan = md.plan || {};
+              Object.keys(seed.plan).forEach(p=>{
+                if(!md.plan[p] && seed.plan[p] > 0) md.plan[p] = seed.plan[p];
+              });
+            }
+            // BOJ
+            ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
+          });
+        });
+        // Kein automatisches Speichern direkt nach dem Laden mehr - das hat den beim Laden
+        // zurechtgebogenen Stand sofort festgeschrieben und konnte frische Eingaben überschreiben.
+        renderAll();
+        setSyncStatus('ok');
+        return;
+      }
+    }
+    await saveToSharePoint();
+    setSyncStatus('ok');
+  } catch(e){
+    console.error('SharePoint load error', e);
+    setSyncStatus('error');
+  }
+}
+
+async function saveToSharePoint(){
+  if(!graphToken){
+    const ok = await getToken();
+    if(!ok) return;
+  }
+  setSyncStatus('syncing');
+  try {
+    const body = JSON.stringify(state);
+    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/items/${OWNER_FILE_ID}/content`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: body
+    });
+    if(resp && resp.ok){
+      setSyncStatus('ok');
+      console.log('SharePoint gespeichert:', new Date().toLocaleTimeString());
+    } else {
+      console.error('SharePoint save failed:', resp?.status);
+      setSyncStatus('error');
+    }
+  } catch(e){
+    console.error('SharePoint save error', e);
+    setSyncStatus('error');
+  }
+}
 
 function setSyncStatus(s){
   syncStatus = s;
@@ -1467,58 +1513,12 @@ async function loadFromSharePoint(){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
         showSyncDebug(`✅ Daten geladen: ${data.agents.length} Mitarbeiter (HTTP ${resp.status}, ${new Date().toLocaleTimeString('de-DE')})`, false);
-        // === BACKUP BEIM LADEN (verhindert Datenverlust durch Überschreiben) ===
-        try {
-          const BACKUP_KEY = 'standort_backup_slots';
-          const BACKUP_LOAD_KEY = 'standort_backup_load_slots';
-          // Separater Ring-Buffer für Lade-Snapshots (letzte 20, täglich 1 behalten)
-          const ts = new Date().toISOString();
-          const todayStr = ts.slice(0, 10); // "2026-10-15"
-          const loadSnap = {
-            ts, label: 'Auto-Backup (Laden) ' + new Date().toLocaleString('de-DE'),
-            source: 'load',
-            agents: data.agents.map(a => ({ id: a.id, name: a.name, team: a.team, tageswerte: a.tageswerte || {} })),
-            teamziele: data.teamziele || {}
-          };
-          let loadSlots = [];
-          try { loadSlots = JSON.parse(localStorage.getItem(BACKUP_LOAD_KEY) || '[]'); } catch(e){}
-          // Maximal 1 Snapshot pro Tag behalten (den neuesten), plus insgesamt 30 Tage
-          loadSlots = loadSlots.filter(s => s.ts && s.ts.slice(0,10) !== todayStr);
-          loadSlots.unshift(loadSnap);
-          if(loadSlots.length > 30) loadSlots = loadSlots.slice(0, 30);
-          localStorage.setItem(BACKUP_LOAD_KEY, JSON.stringify(loadSlots));
-        } catch(e){ console.warn('Lade-Backup Fehler (unkritisch):', e); }
-        // === ENDE LADE-BACKUP ===
-        // Tageswerte beim Laden nicht blind überschreiben — lokale Werte > 0 behalten Vorrang.
-        mergeTageswerte(state.agents, data.agents);
         state.agents = data.agents;
         if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
         if(data.teamziele){
-          if(!teamzieleInitialized){
-            // Erstes Laden: Server-Stand direkt übernehmen — die Code-Vorlage im initialen
-            // state hat feste Zahlen (z.B. soll.MF:770) die keine echten Nutzereingaben sind.
-            // mergeTeamzieleDeep würde sie fälschlich als "lokal" schützen und Server-Werte ignorieren.
-            Object.keys(data.teamziele).forEach(k=>{
-              const srv = data.teamziele[k];
-              // Migration v68: Alte Template-Zielwerte (crZiel1/2/3) aus der DB ignorieren wenn
-              // sie noch nicht vom User bewusst gesetzt wurden (_crZielMigriert fehlt).
-              // Ohne diesen Check würden alte Template-Werte (z.B. BB:0.40) als "echte" Ziele
-              // behandelt und bewirken dass 0.46% grün erscheint obwohl das Ziel 0.50% ist.
-              if(!data._crZielMigriert && srv){
-                ['crZiel1','crZiel2','crZiel3'].forEach(key=>{
-                  if(srv[key]) delete srv[key];
-                });
-              }
-              state.teamziele[k] = srv;
-            });
-            teamzieleInitialized = true;
-          } else {
-            // Hintergrund-Sync: lokale Eingaben haben Vorrang, Server füllt nur fehlende Keys.
-            Object.keys(data.teamziele).forEach(k=>{
-              if(!state.teamziele[k]) state.teamziele[k] = data.teamziele[k];
-              else mergeTeamzieleDeep(state.teamziele[k], data.teamziele[k]);
-            });
-          }
+          Object.keys(data.teamziele).forEach(k=>{
+            if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
+          });
         }
         // Dauerhafte Löschliste zusammenführen (server + lokal), BEVOR Einträge gemerged werden -
         // damit Löschungen auch nach einem Neuladen oder bei einer anderen Person mit älterem
@@ -1641,33 +1641,38 @@ async function loadFromSharePoint(){
           });
           state.monatsabschluss = merged;
         }
-        // BOJ/HV nachrüsten und MF-Sep+-Migration: BOJ→HV umbenennen
-        const _MF_SEP_PLUS_2 = ['September','Oktober','November','Dezember'];
-        Object.keys(state.monatsabschluss||{}).forEach(team=>{
-          Object.entries(state.monatsabschluss[team]||{}).forEach(([monat, md])=>{
-            const isMfSepPlus = team === 'mf' && _MF_SEP_PLUS_2.includes(monat);
-            if(isMfSepPlus){
-              // MF ab September: HV sicherstellen, BOJ entfernen
-              ['plan','ziel','erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
-                if(!md[f]) return;
-                if(!('HV' in md[f])) md[f]['HV'] = md[f]['BOJ'] !== undefined ? md[f]['BOJ'] : 0;
-                delete md[f]['BOJ'];
-              });
-            } else {
-              // FN alle Monate + MF Jan–Aug: BOJ sicherstellen
-              ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
-            }
-          });
-        });
-        // Fiber Gesamt ab September nachrüsten (neue Spalte ab Sep 2026)
-        const FIBER_MONATE_2 = ['September','Oktober','November','Dezember'];
-        FIBER_MONATE_2.forEach(monat=>{
-          ['mf','fn'].forEach(team=>{
-            const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
-            if(!md) return;
-            ['plan','ziel','erreicht','cr'].forEach(f=>{
-              if(md[f] && !('Fiber Gesamt' in md[f])) md[f]['Fiber Gesamt'] = 0;
+        // Einmalige automatische Bereinigung: September-Dezember enthielten noch alte
+        // Platzhalter-/Testzahlen aus einer früheren Ersteinrichtung. Wird nur einmal ausgeführt
+        // (per localStorage-Merker), danach nie wieder - damit spätere echte Eingaben nicht
+        // versehentlich erneut überschrieben werden.
+        if(!localStorage.getItem('ma_sept_dez_bereinigt')){
+          const futureMonths = ['September','Oktober','November','Dezember'];
+          Object.keys(state.monatsabschluss||{}).forEach(team=>{
+            futureMonths.forEach(monat=>{
+              const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
+              if(!md) return;
+              const zeroObj = {};
+              Object.keys(md.plan||{}).forEach(p=>{ zeroObj[p] = 0; });
+              md.plan = {...zeroObj};
+              if(md.ziel) md.ziel = {...zeroObj};
+              md.erreicht = {...zeroObj};
+              md.cr = {...zeroObj};
+              md.storno = {...zeroObj};
+              md.crZiel = {};
+              md.crZielText = {};
+              md.nps_plan = 0;
+              md.nps_ist = 0;
+              md.crGesamtZiel = 0;
+              md.crGesamtErreicht = 0;
             });
+          });
+          localStorage.setItem('ma_sept_dez_bereinigt', '1');
+          scheduleSave();
+        }
+        // BOJ global sicherstellen (falls in älteren Datensätzen nicht vorhanden)
+        Object.keys(state.monatsabschluss||{}).forEach(team=>{
+          Object.values(state.monatsabschluss[team]||{}).forEach(md=>{
+            ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
           });
         });
         // (Zwischenspeichern für den 401/403-Fehlerfall wurde entfernt - siehe Fehlerzweig weiter
@@ -1678,14 +1683,6 @@ async function loadFromSharePoint(){
         // 2 Minuten) hätte sonst das Risiko, frische Eingaben mit einem zwischenzeitlich leicht
         // abweichenden Stand zu überschreiben. Speichern passiert jetzt ausschließlich, wenn
         // tatsächlich etwas bearbeitet wird (scheduleSave()).
-        // Sicherheits-Guard: Wurde während dieses Ladevorgangs ein frischerer Speichervorgang
-        // abgeschlossen? Dann stammen die gerade geladenen Daten von vor der aktuellen Eingabe
-        // und würden gerade eingetippte Werte zurücksetzen. In diesem Fall Laden abbrechen.
-        if(saveEpoch !== epochAtStart){
-          showSyncDebug('ℹ️ Gleichzeitige Speicherung erkannt — veralteten Ladestand verworfen, aktuelle Eingaben behalten.', false);
-          setSyncStatus('ok');
-          return;
-        }
         applyChtVerlaufData();
         renderAll();
         setSyncStatus('ok');
@@ -1794,129 +1791,20 @@ async function saveToSharePoint(){
             if(uid !== currentUserId) state.todosByUser[uid] = serverData.todosByUser[uid];
           });
         }
-
-        // Tageswerte: Server-Stand mit lokalem Stand zusammenführen, damit gleichzeitige
-        // Eingaben verschiedener Personen im gespeicherten Ergebnis erhalten bleiben.
-        // WICHTIG: lokale Werte (state.agents) haben Vorrang vor Server-Werten (serverData.agents),
-        // daher state.agents als erster Parameter ("local") und serverData.agents als zweiter ("server").
-        if(serverData.agents && serverData.agents.length){
-          mergeTageswerte(state.agents, serverData.agents);
-        }
-
-        // Monatsabschluss: LOKALE Werte haben Vorrang — die Person die gerade speichert hat
-        // zuletzt etwas eingetippt, das soll erhalten bleiben. Vom Server werden nur Felder
-        // übernommen die lokal 0 oder undefined sind (= nie eingetragen).
-        if(serverData.monatsabschluss){
-          Object.keys(serverData.monatsabschluss).forEach(team=>{
-            if(!state.monatsabschluss[team]){ state.monatsabschluss[team] = serverData.monatsabschluss[team]; return; }
-            const serverTeam = serverData.monatsabschluss[team];
-            const localTeam  = state.monatsabschluss[team];
-            Object.keys(serverTeam).forEach(monat=>{
-              if(!localTeam[monat]){
-                // Monat lokal komplett fehlend → Server-Stand übernehmen
-                localTeam[monat] = serverTeam[monat];
-              } else {
-                const sMonth = serverTeam[monat];
-                const lMonth = localTeam[monat];
-                // Lokaler Wert > 0 → behalten; nur wenn lokal 0/undefined → Server-Wert nehmen
-                ['nps_ist','nps_ziel','crGesamtZiel','crGesamtErreicht','cht','calls'].forEach(f=>{
-                  if(!(lMonth[f] > 0) && sMonth[f] > 0) lMonth[f] = sMonth[f];
-                  else if(lMonth[f] === undefined) lMonth[f] = sMonth[f] || 0;
-                });
-                ['plan','erreicht','cr','crZiel','crZielText','storno'].forEach(f=>{
-                  if(!sMonth[f]) return;
-                  if(!lMonth[f]) { lMonth[f] = sMonth[f]; return; }
-                  Object.keys(sMonth[f]).forEach(k=>{
-                    // Lokal 0/undefined → Server-Wert übernehmen; lokal > 0 → behalten
-                    if(!(lMonth[f][k] > 0) && sMonth[f][k] > 0) lMonth[f][k] = sMonth[f][k];
-                    else if(lMonth[f][k] === undefined) lMonth[f][k] = sMonth[f][k];
-                  });
-                });
-              }
-            });
-          });
-        }
-
-        // Verlauf: LOKALE Werte haben Vorrang — lokal > 0 bleibt, Server füllt nur leere Felder.
-        if(serverData.verlauf && Object.keys(serverData.verlauf).length > 0){
-          Object.keys(serverData.verlauf).forEach(k=>{
-            if(!state.verlauf[k]){
-              state.verlauf[k] = serverData.verlauf[k];
-            } else {
-              Object.keys(serverData.verlauf[k].monate||{}).forEach(m=>{
-                if(!state.verlauf[k].monate) state.verlauf[k].monate = {};
-                if(!state.verlauf[k].monate[m]){
-                  state.verlauf[k].monate[m] = serverData.verlauf[k].monate[m];
-                } else {
-                  const s = serverData.verlauf[k].monate[m];
-                  const l = state.verlauf[k].monate[m];
-                  if(!(l.calls > 0) && s.calls > 0) l.calls = s.calls;
-                  if(!(l.cr   > 0) && s.cr   > 0) l.cr    = s.cr;
-                  if(!(l.lq   > 0) && s.lq   > 0) l.lq    = s.lq;
-                  if(!(l.cht  > 0) && s.cht  > 0) l.cht   = s.cht;
-                  if(!(l.nps  > 0) && s.nps  > 0) l.nps   = s.nps;
-                  Object.keys(s.sales||{}).forEach(p=>{
-                    if(!l.sales) l.sales={};
-                    if(!(l.sales[p] > 0) && s.sales[p] > 0) l.sales[p] = s.sales[p];
-                  });
-                }
-              });
-            }
-          });
-        }
-
-        // Teamziele: LOKALE Werte haben Vorrang — Server füllt nur fehlende Keys auf.
-        // mergeTeamzieleTiefe() schützt auch verschachtelte Objekte (soll, ist, crZiel1 usw.)
-        if(serverData.teamziele){
-          Object.keys(serverData.teamziele).forEach(k=>{
-            if(!state.teamziele[k]){
-              state.teamziele[k] = serverData.teamziele[k];
-            } else {
-              mergeTeamzieleDeep(state.teamziele[k], serverData.teamziele[k]);
-            }
-          });
-        }
       }
     } catch(mergeErr){
-      // Bei Netzwerkfehler im Pre-Merge: Speichern abbrechen statt blind zu überschreiben.
-      // Sicherer als einen möglicherweise veralteten lokalen Stand zu speichern.
-      console.warn('Pre-Merge vor dem Speichern fehlgeschlagen — Speichern wird abgebrochen um Datenverlust zu vermeiden:', mergeErr);
-      setSyncStatus('error');
-      showSyncDebug('⚠️ Verbindungsproblem: Speichern wurde pausiert. Bitte Netzwerk prüfen und erneut versuchen.', true);
-      return;
+      console.warn('Zusammenführen vor dem Speichern fehlgeschlagen, speichere trotzdem lokalen Stand:', mergeErr);
     }
 
     const resp = await fetch(KI_PROXY_URL + '/data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
-      body: JSON.stringify({ action: 'save', data: { ...state, boardVersion: BOARD_VERSION, _crZielMigriert: true } })
+      body: JSON.stringify({ action: 'save', data: { ...state, boardVersion: BOARD_VERSION } })
     });
     if(resp && resp.ok){
       setSyncStatus('ok');
       saveEpoch++;
       console.log('Gespeichert:', new Date().toLocaleTimeString());
-      // === LOKALES BACKUP nach jedem erfolgreichen Save ===
-      try {
-        const backupSlots = 10; // letzte 10 Snapshots behalten
-        const backupKey = 'standort_backup_slots';
-        const ts = new Date().toISOString();
-        // Nur Tageswerte + Agenten + Teamziele sichern (kompakt, ohne Verlauf-Bulk)
-        const snapshot = {
-          ts,
-          label: new Date().toLocaleString('de-DE'),
-          agents: state.agents.map(a => ({
-            id: a.id, name: a.name, team: a.team,
-            tageswerte: a.tageswerte || {}
-          })),
-          teamziele: state.teamziele
-        };
-        let slots = [];
-        try { slots = JSON.parse(localStorage.getItem(backupKey) || '[]'); } catch(e){}
-        slots.unshift(snapshot);
-        if(slots.length > backupSlots) slots = slots.slice(0, backupSlots);
-        localStorage.setItem(backupKey, JSON.stringify(slots));
-      } catch(e){ console.warn('Backup-Fehler (unkritisch):', e); }
-      // === ENDE BACKUP ===
     } else {
       console.error('Speichern fehlgeschlagen:', resp?.status);
       setSyncStatus('error');
@@ -2064,33 +1952,6 @@ setInterval(() => {
   if(getKIAppToken() && !cpShowForm && !maIsTyping() && !saveInProgress && !pendingSave) loadFromSharePoint();
 }, 2 * 60 * 1000);
 
-// Versions-Check: Ruft die live index.html von GitHub Pages ab und vergleicht die dortige
-// BOARD_VERSION mit der aktuell laufenden. Ist die Live-Version neuer, wird ein Banner eingeblendet,
-// das alle Nutzer auffordert, die Seite neu zu laden – damit nie eine veraltete Version aktive
-// Daten überschreiben kann.
-async function checkRemoteVersion(){
-  try {
-    // Cache-Buster, damit der Browser nicht seinen eigenen Cache zurückgibt
-    const url = 'https://johnnyfas.github.io/Trikala-Portal/index.html?_v=' + Date.now();
-    const resp = await fetch(url, { cache: 'no-store' });
-    if(!resp.ok) return;
-    const text = await resp.text();
-    const m = text.match(/const BOARD_VERSION\s*=\s*(\d+)/);
-    if(!m) return;
-    const remoteVersion = parseInt(m[1], 10);
-    if(remoteVersion > BOARD_VERSION){
-      const banner = document.getElementById('version-banner');
-      if(banner) banner.style.display = 'flex';
-    }
-  } catch(e){
-    // Netzwerkfehler ignorieren – der Check ist best-effort
-  }
-}
-// Einmal beim Start prüfen (nach kurzem Delay, damit die Seite erst geladen ist)
-setTimeout(checkRemoteVersion, 5000);
-// Danach alle 10 Minuten wiederholen
-setInterval(checkRemoteVersion, 10 * 60 * 1000);
-
 function uid(){ return 'a' + Math.random().toString(36).slice(2,9); }
 
 async function loadState(){
@@ -2104,86 +1965,6 @@ async function loadState(){
   // Board-Daten laden - unabhängig von Microsoft (das wird nicht mehr gebraucht, seit die
   // Board-Daten in Cloudflare D1 liegen und die Excel-Anbindung nicht mehr genutzt wird).
   if(getKIAppToken()) loadFromSharePoint();
-}
-
-// Tageswerte zweier agents-Arrays zusammenführen: lokale Werte > 0 behalten Vorrang.
-// Deep-Merge für ein einzelnes Teamziele-Objekt (z.B. state.teamziele.mf).
-// Lokale Werte haben immer Vorrang. Server füllt nur Felder/Sub-Keys auf, die lokal noch fehlen
-// (=== undefined). Gilt auch für verschachtelte Objekte wie soll, ist, crZiel1, storno usw.
-function mergeTeamzieleDeep(local, server){
-  if(!server || typeof server !== 'object') return;
-  Object.keys(server).forEach(f=>{
-    if(local[f] === undefined){
-      // Lokal fehlt komplett → Server übernehmen
-      local[f] = server[f];
-    } else if(local[f] !== null && typeof local[f] === 'object' && !Array.isArray(local[f])
-              && server[f] !== null && typeof server[f] === 'object'){
-      // Beide sind Objekte → rekursiv mergen (z.B. soll, ist, crZiel1, storno)
-      Object.keys(server[f]).forEach(subKey=>{
-        if(local[f][subKey] === undefined) local[f][subKey] = server[f][subKey];
-        // lokale Sub-Werte (auch 0) gewinnen immer — kein Überschreiben
-      });
-    }
-    // Primitive lokale Werte (auch 0, auch leerer String) werden nie überschrieben
-  });
-}
-
-// Wird sowohl beim Laden (loadFromSharePoint) als auch beim Speichern (saveToSharePoint) genutzt,
-// damit gleichzeitige Eingaben verschiedener Personen niemals verloren gehen.
-function mergeTageswerte(localAgents, serverAgents){
-  const localMap = {};
-  // Lookup per id (bevorzugt) UND per name+team (Fallback für ältere Einträge)
-  localAgents.forEach(a=>{
-    if(a.id) localMap['id_' + a.id] = a;
-    localMap[a.name + '_' + a.team] = a;
-  });
-  serverAgents.forEach(serverAgent=>{
-    // Erst per id suchen, dann per ursprünglichem name+team
-    const local = (serverAgent.id && localMap['id_' + serverAgent.id])
-                  || localMap[serverAgent.name + '_' + serverAgent.team];
-    if(!local) return; // Neuer MA — wird durch state.agents = serverAgents übernommen
-
-    // Monatliche Top-Level-Felder am Agent (NPS, LQ, calls, category, coachingplan usw.):
-    // Lokaler Wert > 0 bzw. gesetzt gewinnt — verhindert dass Background-Sync eingetippte
-    // Monats-NPS/LQ-Werte nach dem Laden zurücksetzt.
-    if((local.nps  ||0) > 0) serverAgent.nps  = local.nps;
-    if((local.lq   ||0) > 0) serverAgent.lq   = local.lq;
-    if((local.calls||0) > 0) serverAgent.calls = local.calls;
-    if(local.category)        serverAgent.category = local.category;
-    if(local.coachingplan)    serverAgent.coachingplan = local.coachingplan;
-    if(local.coachingDatum)   serverAgent.coachingDatum = local.coachingDatum;
-    if(local.aKennung)        serverAgent.aKennung = local.aKennung;
-    // Name: lokale Änderung hat Vorrang — der User hat den Namen bewusst angepasst
-    if(local.name && local.name !== serverAgent.name) serverAgent.name = local.name;
-
-    // Tageswerte: pro Monat und Tag zusammenführen
-    const serverTw = serverAgent.tageswerte || {};
-    const localTw  = local.tageswerte  || {};
-    const merged = {};
-    const allMonths = new Set([...Object.keys(serverTw), ...Object.keys(localTw)]);
-    allMonths.forEach(month=>{
-      if(!serverTw[month]){ merged[month] = localTw[month]; return; }
-      if(!localTw[month])  { merged[month] = serverTw[month]; return; }
-      merged[month] = Object.assign({}, serverTw[month]);
-      Object.keys(localTw[month]).forEach(day=>{
-        const lDay = localTw[month][day];
-        const sDay = serverTw[month][day];
-        if(!sDay){ merged[month][day] = lDay; return; }
-        const mergedDay = Object.assign({}, sDay);
-        mergedDay.sales = Object.assign({}, sDay.sales||{});
-        Object.keys(lDay.sales||{}).forEach(p=>{
-          if((lDay.sales[p]||0) > 0) mergedDay.sales[p] = lDay.sales[p];
-        });
-        // Calls/CHT/NPS/LQ: lokaler Wert > 0 gewinnt
-        if((lDay.calls||0) > 0) mergedDay.calls = lDay.calls;
-        if((lDay.cht  ||0) > 0) mergedDay.cht   = lDay.cht;
-        if((lDay.nps  ||0) > 0) mergedDay.nps   = lDay.nps;
-        if((lDay.lq   ||0) > 0) mergedDay.lq    = lDay.lq;
-        merged[month][day] = mergedDay;
-      });
-    });
-    serverAgent.tageswerte = merged;
-  });
 }
 
 function scheduleSave(){
@@ -2210,9 +1991,6 @@ let saveQueued = false;
 // ob währenddessen ein frischerer Speichervorgang durchgekommen ist - falls ja, verwirft er sein
 // eigenes (dann veraltetes) Ergebnis für die Monatsabschluss-Daten, statt es zu übernehmen.
 let saveEpoch = 0;
-// Beim ersten Laden werden die Team-Ziele direkt vom Server übernommen (Code-Vorlage wird
-// ersetzt). Ab dem zweiten Laden (Hintergrund-Sync) gewinnen lokale Werte beim Merge.
-let teamzieleInitialized = false;
 // Monatsabschluss wird pro Browser-Sitzung nur EIN einziges Mal vom Server übernommen (siehe
 // loadFromSharePoint). Danach gilt der lokale Stand als maßgeblich, egal was ein späterer
 // Ladevorgang (Hintergrund-Sync, Excel-Sync-Speichern, o.ä.) liefert - nur echte Eingaben von
@@ -2220,23 +1998,9 @@ let teamzieleInitialized = false;
 // unabhängig von der genauen Ursache.
 // Verhindert, dass Monatsabschluss während einer laufenden Eingabe (Feld hat gerade Fokus) im
 // Hintergrund neu geladen wird - das könnte eine noch unfertige Eingabe überschreiben.
-// Sperrt den Hintergrund-Sync bis zu einem bestimmten Zeitpunkt.
-// twMarkInput() setzt 6s Sperre (Tageswerte-Feldwechsel-Lücken).
-// Für längere Sperren (z.B. nach Import) direkt twBlockUntil = Date.now() + ms setzen.
-let twBlockUntil = 0;
-function twMarkInput(){ twBlockUntil = Date.now() + 6000; }
-function twRecentlyEdited(){ return Date.now() < twBlockUntil; }
-// Rückwärtskompatibilität: twLastInputTs wird an einigen Stellen noch direkt gesetzt
-Object.defineProperty(window, 'twLastInputTs', { set(v){ twBlockUntil = v + 6000; }, get(){ return twBlockUntil - 6000; }, configurable:true });
-
 function maIsTyping(){
   const el = document.activeElement;
-  if(!el) return twRecentlyEdited();
-  // Jedes Eingabefeld schützt vor Hintergrund-Sync — egal in welchem Reiter
-  const tag = el.tagName;
-  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-  // Zusätzlich: 6-Sekunden-Schutz nach letzter Tageswerte-Eingabe (für Feldwechsel-Lücken)
-  return twRecentlyEdited();
+  return !!(el && el.classList && el.classList.contains('ma-input'));
 }
 async function runSave(){
   if(saveInProgress){ saveQueued = true; return; }
@@ -2334,8 +2098,8 @@ function agentsWithNotesForTeam(teamAgents){
   return teamAgents.filter(agent=>{
     if(!agent.name.trim()) return false;
     const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch' && e.stil !== 'Tages-Ziele') : [];
-const echteNotizen = eintraege.filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)');
+    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') : [];
+    const echteNotizen = eintraege.filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)');
     return echteNotizen.length >= 2;
   });
 }
@@ -2354,8 +2118,8 @@ async function generateTeamKiSummaries(teamId, cfg, teamAgents, btn){
 
   const payload = kandidaten.map(agent=>{
     const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch' && e.stil !== 'Tages-Ziele') : [];
-const notizen = eintraege
+    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') : [];
+    const notizen = eintraege
       .filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)')
       .sort((a,b)=>{
         const da = (a.datum||'').split('.').reverse().join('-');
@@ -2364,16 +2128,7 @@ const notizen = eintraege
       })
       .slice(0,6)
       .map(e=>({ datum: e.datum, notiz: e.text }));
-    return {
-      name: agent.name,
-      coaching_notizen: notizen,
-      coaching_profil: {
-        staerken: agent.staerken || null,
-        entwicklungsfelder: agent.entwicklung || null,
-        lernstil: agent.lernstil || null,
-        notizen: agent.notiz || null
-      }
-    };
+    return { name: agent.name, coaching_notizen: notizen };
   });
 
   const systemPrompt = `Du bist Assistent eines Salescoaches bei der Telekom (Inbound Mobilfunk/Festnetz Privatkunden). Für jeden Mitarbeiter unten bekommst du seine letzten Coaching-Notizen. Schreibe pro Mitarbeiter EIN kurzes, konkretes Feedback (max. 20 Wörter, ein Satz), das die inhaltlichen Muster über die Notizen hinweg zusammenfasst - keine reine Wortliste, keine wörtliche Wiedergabe der Notizen. Sag klar, worauf es hinausläuft (z.B. eine wiederkehrende Schwäche, ein klarer Fortschritt, oder ein gemischtes Bild) und wenn möglich einen kurzen Hinweis fürs nächste Coaching. Antworte AUSSCHLIESSLICH mit einem validen JSON-Array, ohne Markdown-Codeblock, ohne weiteren Text, in genau diesem Format:
@@ -2466,7 +2221,6 @@ const COACHDASH_SUBS = {
   coachverlauf: { btn: 'sub-coachverlauf', container: 'coachverlauf-container', render: ()=>renderCoachVerlauf() },
   workshops:    { btn: 'sub-workshops',    container: 'workshops-container',    render: ()=>renderWorkshops() },
   gespraeche:   { btn: 'sub-gespraeche',   container: 'gespraeche-container',   render: ()=>renderEinzelgespraeche() },
-  tagesziele:   { btn: 'sub-tagesziele',   container: 'tagesziele-container',   render: ()=>renderTagesZieleVerlauf() },
   termine:      { btn: 'sub-termine',      container: 'termine-container',      render: ()=>renderTermineKalender() }
 };
 function switchCoachDashSub(sub){
@@ -2597,7 +2351,7 @@ function renderCoaching(){
 
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
     const cfg = TEAM_CONFIGS[teamId];
-    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.category !== 'schulung' && a.category !== 'work');
+    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.category !== 'schulung');
     const block = document.createElement('div');
     block.className = 'team-block';
 
@@ -2632,26 +2386,13 @@ function renderCoaching(){
       nameInput.placeholder = 'Name';
       nameInput.value = agent.name;
       nameInput.addEventListener('input', e=>{ agent.name = e.target.value; scheduleSave(); document.getElementById('agent-count').textContent = state.agents.length + ' Mitarbeiter'; });
-      // Hilfsfunktion: Feld mit Kopfzeile
-      const mkField = (label, el) => {
-        const wrap = document.createElement('label');
-        wrap.style.cssText = 'display:inline-flex;flex-direction:column;align-items:flex-start;gap:2px;';
-        const lbl = document.createElement('span');
-        lbl.textContent = label;
-        lbl.style.cssText = 'font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding-left:2px;';
-        wrap.appendChild(lbl);
-        wrap.appendChild(el);
-        return wrap;
-      };
-
-      topLeft.appendChild(dot);
-      topLeft.appendChild(mkField('Name', nameInput));
+      topLeft.appendChild(dot); topLeft.appendChild(nameInput);
 
       const catSelect = document.createElement('select');
       catSelect.className = 'cat-badge ' + CATEGORY_CSS[agent.category || 'regular'];
       catSelect.style.border = 'none';
       catSelect.style.cursor = 'pointer';
-      ['regular','6h','helpline','schulung','work'].forEach(catKey=>{
+      ['regular','6h','helpline','schulung'].forEach(catKey=>{
         const opt = document.createElement('option');
         opt.value = catKey;
         opt.textContent = CATEGORY_LABELS[catKey];
@@ -2663,7 +2404,7 @@ function renderCoaching(){
         scheduleSave();
         renderAll();
       });
-      topLeft.appendChild(mkField('Kategorie', catSelect));
+      topLeft.appendChild(catSelect);
 
       const pylonInput = document.createElement('input');
       pylonInput.className = 'pylon-input';
@@ -2672,7 +2413,7 @@ function renderCoaching(){
       pylonInput.title = 'Pylon-Nummer';
       pylonInput.value = agent.pylon || '';
       pylonInput.addEventListener('input', e=>{ agent.pylon = e.target.value.trim(); scheduleSave(); });
-      topLeft.appendChild(mkField('Pylon-Nr.', pylonInput));
+      topLeft.appendChild(pylonInput);
 
       // A-Kennung
       const aKennungInput = document.createElement('input');
@@ -2682,7 +2423,7 @@ function renderCoaching(){
       aKennungInput.title = 'A-Kennung';
       aKennungInput.value = agent.aKennung || '';
       aKennungInput.addEventListener('input', e=>{ agent.aKennung = e.target.value.trim(); scheduleSave(); });
-      topLeft.appendChild(mkField('A-Kennung', aKennungInput));
+      topLeft.appendChild(aKennungInput);
 
       // Büro / Homeoffice Auswahl
       const ortSelect = document.createElement('select');
@@ -2697,78 +2438,22 @@ function renderCoaching(){
         ortSelect.appendChild(opt);
       });
       ortSelect.addEventListener('change', e=>{ agent.arbeitsort = e.target.value; scheduleSave(); });
-      topLeft.appendChild(mkField('Arbeitsort', ortSelect));
-
-      // Sicherheitsantwort (versteckt, Auge zum Einblenden)
-      const saWrapper = document.createElement('span');
-      saWrapper.style.cssText = 'display:inline-flex;align-items:center;gap:2px;';
-      const saInput = document.createElement('input');
-      saInput.className = 'akennung-input';
-      saInput.type = 'password';
-      saInput.placeholder = 'Sicherheitsantwort';
-      saInput.title = 'Sicherheitsantwort';
-      saInput.style.width = '140px';
-      saInput.value = agent.sicherheitsantwort || '';
-      saInput.addEventListener('input', e=>{ agent.sicherheitsantwort = e.target.value; scheduleSave(); });
-      const saEye = document.createElement('button');
-      saEye.type = 'button';
-      saEye.title = 'Einblenden / Ausblenden';
-      saEye.style.cssText = 'background:none;border:none;cursor:pointer;padding:2px 4px;font-size:14px;color:var(--muted);line-height:1;opacity:0.4;';
-      saEye.textContent = '👁';
-      saEye.addEventListener('click', ()=>{
-        saInput.type = saInput.type === 'password' ? 'text' : 'password';
-        saEye.style.opacity = saInput.type === 'text' ? '1' : '0.4';
-      });
-      saWrapper.appendChild(saInput);
-      saWrapper.appendChild(saEye);
-      topLeft.appendChild(mkField('Sicherheitsantwort', saWrapper));
+      topLeft.appendChild(ortSelect);
 
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
       removeBtn.addEventListener('click', ()=>{
         if(!confirm(`"${agent.name || 'Dieser Mitarbeiter'}" wirklich löschen? Das entfernt nur die Karte hier, Coaching-Verlauf und Monatsdaten bleiben erhalten.`)) return;
         state.agents = state.agents.filter(a=>a.id!==agent.id);
-        twBlockUntil = Date.now() + 15000; // Hintergrund-Sync 15s sperren, damit die Löschung nicht überschrieben wird
         scheduleSave();
         renderAll();
       });
 
-      // ↑↓ Reihenfolge-Buttons (nur innerhalb desselben Teams)
-      const moveWrap = document.createElement('div');
-      moveWrap.style.cssText = 'display:flex;flex-direction:column;gap:2px;margin-right:4px;';
-      const sameTeam = ()=> state.agents.filter(a=> a.team === agent.team && a.category !== 'schulung' && a.category !== 'work');
-      [['↑', -1], ['↓', 1]].forEach(([label, dir])=>{
-        const btn = document.createElement('button');
-        btn.textContent = label;
-        btn.title = dir === -1 ? 'Nach oben' : 'Nach unten';
-        btn.style.cssText = 'background:var(--panel);border:1px solid var(--border);border-radius:5px;width:22px;height:20px;font-size:11px;cursor:pointer;line-height:1;padding:0;color:var(--muted);';
-        btn.addEventListener('click', ()=>{
-          const globalIdx = state.agents.indexOf(agent);
-          const teammates = sameTeam();
-          const teamIdx = teammates.indexOf(agent);
-          const targetTeamIdx = teamIdx + dir;
-          if(targetTeamIdx < 0 || targetTeamIdx >= teammates.length) return;
-          const targetAgent = teammates[targetTeamIdx];
-          const targetGlobalIdx = state.agents.indexOf(targetAgent);
-          // Tauschen im globalen Array
-          state.agents[globalIdx] = targetAgent;
-          state.agents[targetGlobalIdx] = agent;
-          scheduleSave();
-          renderAll();
-        });
-        moveWrap.appendChild(btn);
-      });
-
-      const topRight = document.createElement('div');
-      topRight.style.cssText = 'display:flex;align-items:center;gap:4px;';
-      topRight.appendChild(moveWrap);
-      topRight.appendChild(removeBtn);
-
-      topRow.appendChild(topLeft); topRow.appendChild(topRight);
+      topRow.appendChild(topLeft); topRow.appendChild(removeBtn);
       card.appendChild(topRow);
 
       // === Kumulierte Werte über alle erfassten Monate (aus dem Verlauf-Archiv), vs. Team ===
-      const vlEntry = findVerlaufEntry(agent);
+      const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
       const monatsListe = (vlEntry && vlEntry.monate) ? Object.values(vlEntry.monate) : [];
 
       const avgSection = document.createElement('div');
@@ -2779,7 +2464,7 @@ function renderCoaching(){
       avgSection.appendChild(avgTitle);
 
       function cumulativeFor(a){
-        const vl = findVerlaufEntry(a);
+        const vl = Object.values(state.verlauf).find(v=>v.name===a.name && v.team===a.team);
         const mon = (vl && vl.monate) ? Object.values(vl.monate) : [];
         if(!mon.length) return null;
         const avg = (field) => {
@@ -2858,44 +2543,13 @@ function renderCoaching(){
       }
       card.appendChild(avgSection);
 
-      // === Notizen + Coaching-Profil ===
+      // === Notizen ===
       const notesSection = document.createElement('div');
       notesSection.className = 'panel-section';
       const notesTitle = document.createElement('div');
       notesTitle.className = 'panel-section-title';
-      notesTitle.textContent = '📝 Notizen & Coaching-Profil';
+      notesTitle.textContent = '📝 Notizen';
       notesSection.appendChild(notesTitle);
-
-      // 3 Profilfelder für KI-Coaching
-      const profilGrid = document.createElement('div');
-      profilGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;';
-      [
-        ['staerken',        '💪 Stärken',            'z.B. Gesprächseinstieg, Empathie…'],
-        ['entwicklung',     '🎯 Entwicklungsfelder',  'z.B. Upselling-Timing, Abschluss…'],
-        ['lernstil',        '🧠 Lernstil',            'z.B. Rollenspiele, Leitfaden, Feedback…']
-      ].forEach(([field, label, ph])=>{
-        const wrap = document.createElement('div');
-        wrap.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
-        const lbl = document.createElement('span');
-        lbl.textContent = label;
-        lbl.style.cssText = 'font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;';
-        const ta = document.createElement('textarea');
-        ta.className = 'agent-notes';
-        ta.style.cssText = 'min-height:48px;font-size:12px;resize:vertical;';
-        ta.placeholder = ph;
-        ta.value = agent[field] || '';
-        ta.addEventListener('input', e=>{ agent[field] = e.target.value; scheduleSave(); });
-        wrap.appendChild(lbl);
-        wrap.appendChild(ta);
-        profilGrid.appendChild(wrap);
-      });
-      notesSection.appendChild(profilGrid);
-
-      // Freies Notizfeld wie bisher
-      const notesLbl = document.createElement('span');
-      notesLbl.textContent = '📋 Allgemeine Notizen';
-      notesLbl.style.cssText = 'font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:3px;';
-      notesSection.appendChild(notesLbl);
       const notesArea = document.createElement('textarea');
       notesArea.className = 'agent-notes';
       notesArea.placeholder = 'Notizen zu diesem Mitarbeiter...';
@@ -2941,70 +2595,6 @@ function renderCoaching(){
   });
 
   // Schulungs-Mitarbeiter Block (unter allen Teams)
-  // Work-Block (erscheint nicht in Mitarbeiter Ziele, Verlauf-Daten bleiben erhalten)
-  const workAgents = state.agents.filter(a => a.category === 'work' && a.name.trim() !== '');
-  if(workAgents.length){
-    const workBlock = document.createElement('div');
-    workBlock.className = 'team-block';
-    workBlock.style.cssText = 'border:2px dashed #9F7AEA;background:#FAF5FF;';
-    workBlock.innerHTML = `<div class="team-title" style="color:#6B46C1;">💼 Work (${workAgents.length})</div>
-      <div style="font-family:'Inter',sans-serif;font-size:12px;color:#7C3AED;margin-bottom:12px;">Diese Mitarbeiter erscheinen nicht in Mitarbeiter Ziele. Ihre Verlauf-Daten bleiben gespeichert. Kategorie ändern, um sie wieder in die Ziele-Liste aufzunehmen.</div>`;
-    const workWrap = document.createElement('div');
-    workWrap.className = 'cards';
-    workAgents.forEach(agent=>{
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.style.cssText = 'border:1.5px dashed #9F7AEA;';
-      const topRow = document.createElement('div');
-      topRow.className = 'card-top';
-      const topLeft = document.createElement('div');
-      topLeft.className = 'card-top-left';
-      const dot = document.createElement('div');
-      dot.className = 'status-dot work';
-      topLeft.appendChild(dot);
-      const nameEl = document.createElement('span');
-      nameEl.style.cssText = 'font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:16px;';
-      nameEl.textContent = agent.name;
-      topLeft.appendChild(nameEl);
-      // Kategorie zurückwechseln
-      const catSel = document.createElement('select');
-      catSel.className = 'cat-badge work';
-      catSel.style.cssText = 'cursor:pointer;font-weight:700;';
-      const defaultOptW = document.createElement('option');
-      defaultOptW.value = ''; defaultOptW.textContent = '→ Status ändern';
-      catSel.appendChild(defaultOptW);
-      ['regular','6h','helpline','schulung'].forEach(catKey=>{
-        const opt = document.createElement('option');
-        opt.value = catKey; opt.textContent = CATEGORY_LABELS[catKey];
-        catSel.appendChild(opt);
-      });
-      catSel.addEventListener('change', e=>{
-        if(!e.target.value) return;
-        agent.category = e.target.value;
-        scheduleSave();
-        renderAll();
-      });
-      topLeft.appendChild(catSel);
-      // Remove-Button
-      const removeBtn = document.createElement('button');
-      removeBtn.textContent = '×';
-      removeBtn.title = 'Mitarbeiter entfernen';
-      removeBtn.style.cssText = 'background:none;border:none;font-size:20px;color:var(--muted);cursor:pointer;padding:0 4px;line-height:1;';
-      removeBtn.addEventListener('click', ()=>{
-        if(!confirm('Mitarbeiter "' + agent.name + '" wirklich entfernen?')) return;
-        state.agents = state.agents.filter(a => a !== agent);
-        scheduleSave();
-        renderAll();
-      });
-      topRow.appendChild(topLeft);
-      topRow.appendChild(removeBtn);
-      card.appendChild(topRow);
-      workWrap.appendChild(card);
-    });
-    workBlock.appendChild(workWrap);
-    container.appendChild(workBlock);
-  }
-
   const schulungsAgents = state.agents.filter(a => a.category === 'schulung' && a.name.trim() !== '');
   if(schulungsAgents.length){
     const schulungsBlock = document.createElement('div');
@@ -3043,30 +2633,6 @@ function renderCoaching(){
       aKennungInp.addEventListener('input', e=>{ agent.aKennung = e.target.value.trim(); scheduleSave(); });
       topLeft.appendChild(aKennungInp);
 
-      // Sicherheitsantwort für Schulungs-Mitarbeiter
-      const saWrapperS = document.createElement('span');
-      saWrapperS.style.cssText = 'display:inline-flex;align-items:center;gap:2px;';
-      const saInputS = document.createElement('input');
-      saInputS.className = 'akennung-input';
-      saInputS.type = 'password';
-      saInputS.placeholder = 'Sicherheitsantwort';
-      saInputS.title = 'Sicherheitsantwort';
-      saInputS.style.width = '140px';
-      saInputS.value = agent.sicherheitsantwort || '';
-      saInputS.addEventListener('input', e=>{ agent.sicherheitsantwort = e.target.value; scheduleSave(); });
-      const saEyeS = document.createElement('button');
-      saEyeS.type = 'button';
-      saEyeS.title = 'Einblenden / Ausblenden';
-      saEyeS.style.cssText = 'background:none;border:none;cursor:pointer;padding:2px 4px;font-size:14px;color:var(--muted);line-height:1;opacity:0.4;';
-      saEyeS.textContent = '👁';
-      saEyeS.addEventListener('click', ()=>{
-        saInputS.type = saInputS.type === 'password' ? 'text' : 'password';
-        saEyeS.style.opacity = saInputS.type === 'text' ? '1' : '0.4';
-      });
-      saWrapperS.appendChild(saInputS);
-      saWrapperS.appendChild(saEyeS);
-      topLeft.appendChild(saWrapperS);
-
       // Team-Auswahl zum schnellen Zuordnen
       const teamSel = document.createElement('select');
       teamSel.className = 'cat-badge schulung';
@@ -3096,15 +2662,6 @@ function renderCoaching(){
   }
 }
 
-function findVerlaufEntry(a){
-  const lastName = a.name.split(' ')[0].toLowerCase();
-  return Object.values(state.verlauf).find(v=>{
-    if(String(v.team) !== String(a.team)) return false;
-    if(v.name === a.name) return true;
-    return v.name.split(' ')[0].toLowerCase() === lastName;
-  });
-}
-
 function renderHallOfFame(){
   const container = document.getElementById('halloffame-container');
   container.innerHTML = '';
@@ -3128,7 +2685,7 @@ function renderHallOfFame(){
 
   // Prüfe ob ein MA die Hall of Fame Kriterien erfüllt
   function checkHOF(agent, monatKey){
-    const vl = findVerlaufEntry(agent);
+    const vl = state.verlauf[agent.name + '_' + agent.team] || Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
     if(!vl || !vl.monate[monatKey]) return null;
 
     const md = vl.monate[monatKey];
@@ -3154,13 +2711,10 @@ function renderHallOfFame(){
       if(!lqOk) return null;
     }
 
-    // CR Ziel prüfen: CR über Ziel ODER CHT im grünen Bereich
-    // MF (Trikala01) = CHT ≤ 600 s, FN (Trikala06) = CHT ≤ 650 s
+    // CR Ziel prüfen (nur wenn CR-Daten vorhanden)
     if(md.cr && md.cr > 0){
       const crOk = md.cr >= cfg.crTarget;
-      const chtLimit = agent.team === 'Trikala06' ? 650 : 600;
-      const chtOk = md.cht > 0 && md.cht <= chtLimit;
-      if(!crOk && !chtOk) return null;
+      if(!crOk) return null;
     }
 
     // Produkt-Ziele prüfen
@@ -3185,7 +2739,6 @@ function renderHallOfFame(){
       goalsHit,
       totalGoals: prods.length,
       cr: md.cr || 0,
-      cht: md.cht || 0,
     };
   }
 
@@ -3257,8 +2810,7 @@ function renderHallOfFame(){
               <span class="hof-stat good">NPS ${w.nps.toFixed(1)}%</span>
               ${w.lq !== undefined && w.lq > 0 ? `<span class="hof-stat good">LQ ${w.lq.toFixed(1)}%</span>` : ''}
               <span class="hof-stat good">${w.goalsHit}/${w.totalGoals} Ziele</span>
-              ${w.cr > 0 ? `<span class="hof-stat ${w.cr >= w.crTarget ? 'good' : 'ok'}">CR ${w.cr.toFixed(2)}%</span>` : ''}
-              ${w.cht > 0 ? `<span class="hof-stat ${w.cht <= (w.team === 'Trikala06' ? 650 : 600) ? 'good' : 'ok'}">CHT ${Math.round(w.cht)}s</span>` : ''}
+              ${w.cr > 0 ? `<span class="hof-stat ok">CR ${w.cr.toFixed(2)}%</span>` : ''}
             </div>
           `;
           card.appendChild(entry);
@@ -3298,8 +2850,7 @@ function buildKIContext(){
       ziele: { cr: cfg.crTarget, nps: cfg.npsTarget, lq: cfg.lqTarget },
       mitarbeiter: agents.map(a=>{
         const cv = state.coachverlauf[a.id];
-        const alleEintraege = (cv && cv.eintraege) || [];
-        const coachingHistorie = alleEintraege.filter(e=>e.stil!=='Tages-Ziele').slice(0, 8).map(e=>({
+        const coachingHistorie = ((cv && cv.eintraege) || []).slice(0, 8).map(e=>({
           datum: e.datum,
           thema: e.thema || null,
           stil: e.stil || null,
@@ -3310,32 +2861,6 @@ function buildKIContext(){
           leitfaden_checkliste: e.checkliste || null,
           coach: e.coach || null
         }));
-
-        // Tages-Ziele-Historie aufbauen
-        const tagesZieleHistorie = alleEintraege
-          .filter(e=>e.stil==='Tages-Ziele' && e.tagesZiele)
-          .slice(0, 10)
-          .map(e=>{
-            const produkte = Object.entries(e.tagesZiele).map(([prod, ziel])=>{
-              const erreicht = (e.erreicht && e.erreicht[prod] !== undefined) ? e.erreicht[prod] : null;
-              return {
-                produkt: prod,
-                ziel: ziel,
-                erreicht: erreicht,
-                status: erreicht === null ? 'ausstehend' : erreicht >= ziel ? 'erreicht' : 'nicht_erreicht',
-                quote: erreicht !== null ? Math.round((erreicht/ziel)*100)+'%' : null
-              };
-            });
-            const mitErreicht = produkte.filter(p=>p.status!=='ausstehend');
-            return {
-              datum: e.datum,
-              coach: e.coach || null,
-              produkte,
-              gesamt_erreichungsquote: mitErreicht.length
-                ? Math.round(mitErreicht.filter(p=>p.status==='erreicht').length / mitErreicht.length * 100) + '%'
-                : null
-            };
-          });
         const verlaufEntry = Object.values(state.verlauf).find(v => v.name === a.name && v.team === teamId);
         const monatsverlauf = verlaufEntry ? Object.keys(verlaufEntry.monate).map(m=>({
           monat: m,
@@ -3356,14 +2881,7 @@ function buildKIContext(){
           sales: a.sales,
           letztes_coaching: a.coachingDatum || 'nie',
           coaching_historie: coachingHistorie,
-          tages_ziele_historie: tagesZieleHistorie.length ? tagesZieleHistorie : null,
-          monatsverlauf_alle_monate: monatsverlauf,
-          coaching_profil: {
-            staerken: a.staerken || null,
-            entwicklungsfelder: a.entwicklung || null,
-            lernstil: a.lernstil || null,
-            notizen: a.notiz || null
-          }
+          monatsverlauf_alle_monate: monatsverlauf
         };
       }),
       monatsabschluss: {}
@@ -3425,7 +2943,6 @@ function renderKIAnalyse(){
     <span class="ki-badge">👥 ${t06} FN Mitarbeiter</span>
     <span class="ki-badge">📅 Jan–Jul 2026</span>
     <span class="ki-badge">📝 Coaching-Notizen & Checkliste inklusive</span>
-    <span class="ki-badge">🎯 Tages-Ziele & Erreichung inklusive</span>
   `;
   wrap.appendChild(badgeRow);
 
@@ -3462,8 +2979,6 @@ function renderKIAnalyse(){
     'Vergleiche MF und FN Team',
     'Welche Mitarbeiter erreichen ihr NPS Ziel nicht?',
     'Zusammenfassung Juli 2026',
-    'Wer erreicht seine Tages-Ziele am häufigsten?',
-    'Welche Produkte werden am häufigsten verfehlt?',
   ];
 
   const chipWrap = document.createElement('div');
@@ -3626,18 +3141,7 @@ Beachte:
 - Trikala06 = Festnetz PK (CR-Ziel: 11%, NPS-Ziel: 68%, LQ-Ziel: 74%)
 - Kategorien: Standard, 6-Stündler, Helpline (unterschiedliche Ziele)
 - coaching_historie enthält die letzten Coachings je Mitarbeiter (neueste zuerst)
-- leitfaden_checkliste: pro Kriterium "ok" (erfüllt), "nok" (nicht erfüllt) oder "na" (nicht bewertet)
-- tages_ziele_historie: täglich gesetzte Produktziele mit tatsächlich erreichter Anzahl — falls vorhanden, analysiere:
-  * Welche Produkte werden konsequent erreicht/verfehlt?
-  * Gibt es ein Muster (z.B. MF immer unter Ziel, BB immer übererfüllt)?
-  * gesamt_erreichungsquote zeigt den Anteil erreichter Ziele je Tag (z.B. 67% = 2 von 3 Produkten erreicht)
-  * status "ausstehend" = Ergebnis wurde noch nicht eingetragen
-  * Nutze diese Daten als konkreten Leistungsnachweis auf Tagesebene — sie ergänzen die Monats-CR sehr gut
-- coaching_profil: vom Coach manuell hinterlegte Einschätzung zu Stärken, Entwicklungsfeldern, Lernstil und allgemeinen Notizen — nutze diese Angaben aktiv:
-  * staerken: bereits bekannte Stärken des Mitarbeiters → bestätige/erweitere sie in deiner Analyse
-  * entwicklungsfelder: vom Coach identifizierte Schwachstellen → priorisiere passende Maßnahmen
-  * lernstil: wie der Mitarbeiter am besten lernt → passe Coaching-Empfehlungen entsprechend an (z.B. bei "Rollenspiele" → konkrete Übungsszenarien vorschlagen, bei "Leitfaden" → schriftliche Checklisten empfehlen)
-  * notizen: freie Notizen des Coaches → nutze als Kontext für individuelle Besonderheiten`;
+- leitfaden_checkliste: pro Kriterium "ok" (erfüllt), "nok" (nicht erfüllt) oder "na" (nicht bewertet)`;
 
     try {
       const response = await fetch(KI_PROXY_URL + '/analyze', {
@@ -3788,181 +3292,6 @@ function renderEinzelgespraeche(){
   });
 }
 
-function renderTagesZieleVerlauf(){
-  const container = document.getElementById('tagesziele-container');
-  container.innerHTML = '';
-
-  // Alle Tages-Ziele-Einträge sammeln
-  const list = [];
-  Object.values(state.coachverlauf).forEach(cv=>{
-    (cv.eintraege||[]).forEach(e=>{
-      if(e.stil !== 'Tages-Ziele') return;
-      list.push({ ...e, agentName: cv.name, agentTeam: cv.team });
-    });
-  });
-  list.sort((a,b)=>{
-    const da = (a.datum||'').split('.').reverse().join('-');
-    const db = (b.datum||'').split('.').reverse().join('-');
-    return db.localeCompare(da);
-  });
-
-  if(!list.length){
-    container.appendChild(emptyStateEl('Noch keine Tages-Ziele erfasst', 'Lege eines über \"+ Neu → Tages-Ziele\" an.'));
-    return;
-  }
-
-  list.forEach(g=>{
-    const block = document.createElement('div');
-    block.className = 'cv-agent-block';
-
-    const teamLabel = TEAM_CONFIGS[g.agentTeam] ? TEAM_CONFIGS[g.agentTeam].label : g.agentTeam;
-    const head = document.createElement('div');
-    head.className = 'cv-agent-head';
-    head.innerHTML = `<span class="cv-agent-name">🎯 ${g.agentName}</span><span style="font-size:11px;opacity:.85;">${teamLabel} · ${g.datum}</span>`;
-    block.appendChild(head);
-
-    const body = document.createElement('div');
-    body.className = 'cv-entry';
-
-    const top = document.createElement('div');
-    top.className = 'cv-entry-top';
-    const meta = document.createElement('div');
-    meta.className = 'cv-entry-meta';
-    const dateEl = document.createElement('span');
-    dateEl.className = 'cv-entry-date';
-    dateEl.textContent = g.datum;
-    meta.appendChild(dateEl);
-    if(g.coach){
-      const b = document.createElement('span');
-      b.className = 'cv-meta-badge';
-      b.style.cssText = 'background:rgba(226,0,116,.12);color:var(--tmg,#E20074);';
-      b.textContent = '👤 ' + g.coach;
-      meta.appendChild(b);
-    }
-    top.appendChild(meta);
-
-    const delBtn = document.createElement('button');
-    delBtn.className = 'cv-entry-delete';
-    delBtn.innerHTML = '🗑';
-    delBtn.title = 'Tages-Ziele löschen';
-    delBtn.addEventListener('click', ()=>{
-      if(!confirm(`Tages-Ziele von ${g.agentName} vom ${g.datum} wirklich löschen?`)) return;
-      markDeleted(g.id);
-      const realCv = Object.values(state.coachverlauf).find(v => v.name === g.agentName && v.team === g.agentTeam);
-      if(realCv) realCv.eintraege = (realCv.eintraege||[]).filter(e=>e.id !== g.id);
-      scheduleSave();
-      renderAll();
-    });
-    top.appendChild(delBtn);
-    body.appendChild(top);
-
-    // Produkt-Chips: Ziel vs. Erreicht
-    if(g.tagesZiele && Object.keys(g.tagesZiele).length){
-      const tzWrap = document.createElement('div');
-      tzWrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;';
-
-      Object.entries(g.tagesZiele).forEach(([prod, ziel])=>{
-        const erreicht = (g.erreicht && g.erreicht[prod] !== undefined) ? g.erreicht[prod] : null;
-        const hatErreicht = erreicht !== null;
-        const ok = hatErreicht && erreicht >= ziel;
-
-        const chip = document.createElement('div');
-        chip.style.cssText = `display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:72px;padding:8px 14px;border-radius:12px;border:1px solid ${ok ? 'rgba(14,124,123,.3)' : hatErreicht ? 'rgba(194,121,43,.3)' : 'rgba(226,0,116,.2)'};background:${ok ? 'rgba(14,124,123,.1)' : hatErreicht ? 'rgba(194,121,43,.1)' : 'rgba(226,0,116,.1)'};`;
-
-        const pLabel = document.createElement('div');
-        pLabel.style.cssText = `font-family:"Inter",-apple-system,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:${ok ? 'var(--teal,#0E7C7B)' : hatErreicht ? '#C2792B' : 'var(--tmg,#E20074)'};`;
-        pLabel.textContent = prod;
-
-        const pZiel = document.createElement('div');
-        pZiel.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:700;color:var(--text);margin-top:2px;line-height:1.1;';
-        pZiel.textContent = hatErreicht ? `${erreicht}/${ziel}` : ziel;
-
-        const pStatus = document.createElement('div');
-        pStatus.style.cssText = 'font-size:13px;margin-top:2px;';
-        pStatus.textContent = ok ? '✅' : hatErreicht ? '⚠️' : '—';
-
-        chip.appendChild(pLabel);
-        chip.appendChild(pZiel);
-        chip.appendChild(pStatus);
-        tzWrap.appendChild(chip);
-      });
-      body.appendChild(tzWrap);
-
-      // "Erreicht eintragen" Button
-      const erreichenArea = document.createElement('div');
-      erreichenArea.style.cssText = 'margin-top:10px;';
-
-      const hasAnyErreicht = g.erreicht && Object.keys(g.erreicht).length > 0;
-      const editBtn = document.createElement('button');
-      editBtn.className = 'cv-meta-badge';
-      editBtn.style.cssText = 'cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;';
-      editBtn.textContent = hasAnyErreicht ? '✏️ Erreicht bearbeiten' : '✏️ Erreicht eintragen';
-
-      const editForm = document.createElement('div');
-      editForm.style.cssText = 'display:none;margin-top:10px;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;';
-
-      editBtn.addEventListener('click', ()=>{
-        const isOpen = editForm.style.display !== 'none';
-        editForm.style.display = isOpen ? 'none' : '';
-        editBtn.textContent = isOpen ? (hasAnyErreicht ? '✏️ Erreicht bearbeiten' : '✏️ Erreicht eintragen') : '▲ Schließen';
-      });
-
-      // Eingabefelder pro Produkt
-      const formGrid = document.createElement('div');
-      formGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px;';
-      const inputs = {};
-
-      Object.entries(g.tagesZiele).forEach(([prod, ziel])=>{
-        const row = document.createElement('div');
-        row.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
-        const lbl = document.createElement('label');
-        lbl.style.cssText = 'font-family:"Inter",sans-serif;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;';
-        lbl.textContent = `${prod} (Ziel: ${ziel})`;
-        const inp = document.createElement('input');
-        inp.type = 'number';
-        inp.min = 0;
-        inp.value = (g.erreicht && g.erreicht[prod] !== undefined) ? g.erreicht[prod] : '';
-        inp.placeholder = '0';
-        inp.style.cssText = 'padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:700;text-align:center;background:var(--card,#fff);color:var(--text);width:100%;box-sizing:border-box;';
-        inputs[prod] = inp;
-        row.appendChild(lbl);
-        row.appendChild(inp);
-        formGrid.appendChild(row);
-      });
-
-      const saveErreichtBtn = document.createElement('button');
-      saveErreichtBtn.className = 'primary';
-      saveErreichtBtn.style.cssText = 'font-size:13px;padding:7px 18px;';
-      saveErreichtBtn.textContent = '💾 Speichern';
-
-      saveErreichtBtn.addEventListener('click', ()=>{
-        // Im echten state-Eintrag speichern
-        const realCv = Object.values(state.coachverlauf).find(v => v.name === g.agentName && v.team === g.agentTeam);
-        if(realCv){
-          const realEntry = (realCv.eintraege||[]).find(e=>e.id===g.id);
-          if(realEntry){
-            realEntry.erreicht = {};
-            Object.entries(inputs).forEach(([prod, inp])=>{
-              if(inp.value !== '') realEntry.erreicht[prod] = parseInt(inp.value)||0;
-            });
-          }
-        }
-        scheduleSave();
-        renderTagesZieleVerlauf();
-      });
-
-      editForm.appendChild(formGrid);
-      editForm.appendChild(saveErreichtBtn);
-      erreichenArea.appendChild(editBtn);
-      erreichenArea.appendChild(editForm);
-      body.appendChild(erreichenArea);
-    }
-
-    block.appendChild(body);
-    container.appendChild(block);
-  });
-}
-
 function renderWorkshops(){
   const container = document.getElementById('workshops-container');
   container.innerHTML = '';
@@ -4070,7 +3399,7 @@ function renderWorkshops(){
         const chip = document.createElement('span');
         chip.className = 'ws-list-chip';
         const teamLabel = TEAM_CONFIGS[t.team]?.label || t.team;
-        chip.textContent = `${t.name} · ${teamLabel}`;
+        chip.textContent = `${t.name} · ${label}`;
         partWrap.appendChild(chip);
       });
     body.appendChild(partWrap);
@@ -4117,7 +3446,7 @@ function renderCoachVerlauf(){
   // Einträge anzeigen (Workshops werden separat im Workshops-Reiter gezeigt)
   let totalEntries = 0;
   const entries = Object.values(state.coachverlauf)
-    .map(cv => ({ ...cv, eintraege: (cv.eintraege||[]).filter(e => e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch' && e.stil !== 'Tages-Ziele') }))
+    .map(cv => ({ ...cv, eintraege: (cv.eintraege||[]).filter(e => e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') }))
     .filter(cv => {
       if(cvSelectedTeam !== 'all' && cv.team !== cvSelectedTeam) return false;
       if(cvSearchText && !cv.name.toLowerCase().includes(cvSearchText.toLowerCase())) return false;
@@ -4184,9 +3513,6 @@ function renderCoachVerlauf(){
         if(entry.stil === 'Workshop'){
           b.style.cssText = 'background:rgba(124,92,191,.16);color:var(--helpline);';
           b.textContent = '👥 Workshop' + (entry.teilnehmerAnzahl ? ` (${entry.teilnehmerAnzahl} TN)` : '');
-        } else if(entry.stil === 'Tages-Ziele'){
-          b.style.cssText = 'background:rgba(226,0,116,.12);color:var(--tmg,#E20074);';
-          b.textContent = '🎯 Tages-Ziele';
         } else {
           b.textContent = entry.stil;
         }
@@ -4253,12 +3579,10 @@ function renderCoachVerlauf(){
       top.appendChild(delBtn);
       row.appendChild(top);
 
-      if(entry.text){
-        const textEl = document.createElement('div');
-        textEl.className = 'cv-entry-text';
-        textEl.textContent = entry.text;
-        row.appendChild(textEl);
-      }
+      const textEl = document.createElement('div');
+      textEl.className = 'cv-entry-text';
+      textEl.textContent = entry.text;
+      row.appendChild(textEl);
 
       if(entry.checkliste && Object.keys(entry.checkliste).length){
         const checkWrap = document.createElement('div');
@@ -4272,23 +3596,6 @@ function renderCoachVerlauf(){
           checkWrap.appendChild(chip);
         });
         if(checkWrap.children.length) row.appendChild(checkWrap);
-      }
-
-      // Tages-Ziele anzeigen
-      if(entry.tagesZiele && Object.keys(entry.tagesZiele).length){
-        const tzWrap = document.createElement('div');
-        tzWrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center;';
-        const tzLabel = document.createElement('span');
-        tzLabel.style.cssText = 'font-family:"Inter",-apple-system,sans-serif;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.05em;margin-right:2px;';
-        tzLabel.textContent = '🎯 Ziele:';
-        tzWrap.appendChild(tzLabel);
-        Object.entries(entry.tagesZiele).forEach(([prod, anzahl])=>{
-          const chip = document.createElement('span');
-          chip.style.cssText = 'display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:700;background:rgba(226,0,116,.1);color:var(--tmg,#E20074);border:1px solid rgba(226,0,116,.2);';
-          chip.textContent = prod + ' ' + anzahl;
-          tzWrap.appendChild(chip);
-        });
-        row.appendChild(tzWrap);
       }
 
       block.appendChild(row);
@@ -4356,7 +3663,7 @@ function computeCoachStats(){
   Object.values(state.coachverlauf).forEach(cv=>{
     const cfg = TEAM_CONFIGS[cv.team];
     const label = cfg ? cfg.label : null;
-    (cv.eintraege||[]).filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch' && e.stil !== 'Tages-Ziele').forEach(e=>{
+    (cv.eintraege||[]).filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch').forEach(e=>{
       if(label && countByTeam.hasOwnProperty(label)){
         countByTeam[label]++;
         dauerByTeam[label] += (e.dauer||0);
@@ -4964,127 +4271,6 @@ function buildCoachingRecordForm(prefill){
   return wrap;
 }
 
-function buildTagesZieleForm(){
-  const wrap = document.createElement('div');
-  wrap.className = 'cp-form cf-wrap';
-  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
-
-  // Mitarbeiter-Auswahl
-  const agentSel = document.createElement('select');
-  agentSel.className = 'cp-form-select';
-  agentSel.innerHTML = Object.keys(TEAM_CONFIGS).map(teamId=>{
-    const teamAgents = allAgents.filter(a=>a.team===teamId);
-    if(!teamAgents.length) return '';
-    return `<optgroup label="${TEAM_CONFIGS[teamId].label}">` +
-      teamAgents.map(a=>`<option value="${a.id}">${a.name}</option>`).join('') +
-      `</optgroup>`;
-  }).join('');
-
-  const row1 = document.createElement('div');
-  row1.className = 'cp-form-row';
-  row1.appendChild(labeledField('Mitarbeiter', agentSel));
-  wrap.appendChild(row1);
-
-  // Produkt-Grid
-  const tzSectionTitle = document.createElement('div');
-  tzSectionTitle.className = 'cf-section-title';
-  tzSectionTitle.textContent = '🎯 Tages-Ziele pro Produkt';
-  wrap.appendChild(tzSectionTitle);
-
-  const TZ_PRODUCTS = ['MF','BB','SU','TV','Avia','HV','DA'];
-  const tzState = {};
-  TZ_PRODUCTS.forEach(p=>{ tzState[p] = {active:false, wert:''}; });
-
-  const tzGrid = document.createElement('div');
-  tzGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:16px;';
-
-  TZ_PRODUCTS.forEach(p=>{
-    const box = document.createElement('div');
-    box.style.cssText = 'display:flex;align-items:center;gap:8px;background:var(--surface,#F7F9FA);border:1px solid var(--border);border-radius:10px;padding:8px 12px;transition:background .15s,border-color .15s;';
-
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.id = 'tzcb-' + p;
-    cb.style.cssText = 'width:16px;height:16px;cursor:pointer;accent-color:var(--tmg,#E20074);flex-shrink:0;';
-
-    const lbl = document.createElement('label');
-    lbl.htmlFor = 'tzcb-' + p;
-    lbl.textContent = p;
-    lbl.style.cssText = 'font-family:"Inter",-apple-system,sans-serif;font-size:13px;font-weight:600;color:var(--text);flex:1;cursor:pointer;';
-
-    const numInput = document.createElement('input');
-    numInput.type = 'number';
-    numInput.min = 0;
-    numInput.value = '';
-    numInput.placeholder = '0';
-    numInput.disabled = true;
-    numInput.style.cssText = 'width:52px;padding:4px 6px;border:1px solid var(--border);border-radius:6px;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;text-align:center;background:var(--card,#fff);color:var(--text);opacity:.4;transition:opacity .15s;';
-
-    cb.addEventListener('change', ()=>{
-      tzState[p].active = cb.checked;
-      numInput.disabled = !cb.checked;
-      numInput.style.opacity = cb.checked ? '1' : '.4';
-      box.style.background = cb.checked ? 'rgba(226,0,116,.07)' : '';
-      box.style.borderColor = cb.checked ? 'var(--tmg,#E20074)' : 'var(--border)';
-      if(cb.checked) numInput.focus();
-    });
-    numInput.addEventListener('input', ()=>{ tzState[p].wert = numInput.value; });
-
-    box.appendChild(cb);
-    box.appendChild(lbl);
-    box.appendChild(numInput);
-    tzGrid.appendChild(box);
-  });
-  wrap.appendChild(tzGrid);
-
-  // Speichern / Abbrechen
-  const btnRow = document.createElement('div');
-  btnRow.className = 'cf-btn-row';
-  const saveBtn = document.createElement('button');
-  saveBtn.className = 'primary';
-  saveBtn.textContent = '💾 Tages-Ziele speichern';
-  const cancelBtn = document.createElement('button');
-  cancelBtn.className = 'secondary';
-  cancelBtn.textContent = '✕ Abbrechen';
-
-  saveBtn.addEventListener('click', ()=>{
-    const agent = state.agents.find(a=>a.id===agentSel.value);
-    if(!agent){ alert('Bitte einen Mitarbeiter auswählen.'); return; }
-
-    const tagesZiele = {};
-    TZ_PRODUCTS.forEach(p=>{
-      if(tzState[p].active){ tagesZiele[p] = parseInt(tzState[p].wert)||0; }
-    });
-    if(!Object.keys(tagesZiele).length){
-      alert('Bitte mindestens ein Produkt auswählen und eine Zielzahl eintragen.');
-      return;
-    }
-
-    const datum = new Date().toLocaleDateString('de-DE');
-    if(!state.coachverlauf[agent.id]){
-      state.coachverlauf[agent.id] = { name: agent.name, team: agent.team, eintraege: [] };
-    }
-    state.coachverlauf[agent.id].eintraege.unshift({
-      id: uid(),
-      datum: datum,
-      stil: 'Tages-Ziele',
-      tagesZiele: tagesZiele,
-      coach: getCoachName()
-    });
-    scheduleSave();
-    cpShowForm = false;
-    cpFormType = 'coaching';
-    renderAll();
-  });
-  cancelBtn.addEventListener('click', ()=>{ cpShowForm = false; cpFormType = 'coaching'; renderCoachPlan(); });
-
-  btnRow.appendChild(saveBtn);
-  btnRow.appendChild(cancelBtn);
-  wrap.appendChild(btnRow);
-
-  return wrap;
-}
-
 function renderCoachPlan(){
   const container = document.getElementById('coachplan-container');
   container.innerHTML = '';
@@ -5129,7 +4315,6 @@ function renderCoachPlan(){
     menu.appendChild(mkItem('🗣️', 'Coaching (Einzel)', 'coaching'));
     menu.appendChild(mkItem('👥', 'Workshop (Gruppe)', 'workshop'));
     menu.appendChild(mkItem('💬', 'Einzelgespräch', 'einzelgespraech'));
-    menu.appendChild(mkItem('🎯', 'Tages-Ziele', 'tagesziele'));
     actionRow.appendChild(menu);
     setTimeout(()=>{
       document.addEventListener('click', function closeMenu(){
@@ -5146,7 +4331,6 @@ function renderCoachPlan(){
     container.appendChild(
       cpFormType === 'workshop' ? buildWorkshopForm() :
       cpFormType === 'einzelgespraech' ? buildEinzelgespraechForm() :
-      cpFormType === 'tagesziele' ? buildTagesZieleForm() :
       buildCoachingRecordForm(cpPrefill)
     );
   }
@@ -5347,7 +4531,7 @@ function buildPlanRow(p){
     <div class="cp-plan-row-main">
       <div class="cp-plan-row-name">${p.name}</div>
       <div class="cp-plan-row-meta">
-        <span class="cat-badge regular">${teamLabel}</span>
+        <span class="cat-badge regular">${label}</span>
         <span class="cp-theme-badge" style="background:${themeColor}22;color:${themeColor};">${p.thema}</span>
         <span class="cp-plan-date">📅 ${dateDisplay} · ${p.dauerGeplant||0} Min</span>
       </div>
@@ -5905,20 +5089,25 @@ function renderVerlauf(){
   const container = document.getElementById('verlauf-container');
   container.innerHTML = '';
 
+  // Hilfsfunktion: aktuellen vollen Namen (Vorname + Nachname) für einen Verlaufs-Eintrag holen
+  function getVerlaufDisplayName(av){
+    // Suche den aktuellen Agenten in state.agents anhand team + Name-Match
+    const current = state.agents.find(a => a.team === av.team && (
+      a.name === av.name ||
+      a.name.split(' ')[0] === av.name ||
+      a.name.endsWith(' ' + av.name) ||
+      av.name.endsWith(' ' + a.name.split(' ')[0])
+    ));
+    return current ? current.name : av.name;
+  }
+
   // ===== TOP 5 / BOTTOM 5 (Durchschnitt über alle vorhandenen Monate) =====
   try {
   const rankOuter = document.createElement('div');
   rankOuter.className = 'ranking-outer';
 
   function avgFromVerlauf(agent, field){
-    const agentLast = agent.name.split(' ')[0].toLowerCase();
-    const entry = Object.values(state.verlauf).find(v=>{
-      if(v.team !== agent.team) return false;
-      if(v.name === agent.name) return true;
-      // Fallback: Verlauf hat Kurzname (z.B. "Aggelis"), Agent hat vollen Namen ("Aggelis Georgios")
-      const verlaufLast = v.name.split(' ')[0].toLowerCase();
-      return verlaufLast === agentLast;
-    });
+    const entry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
     if(!entry) return null;
     const vals = Object.values(entry.monate||{}).map(m=>m[field]).filter(v=>v !== undefined && v !== null && v > 0);
     if(!vals.length) return null;
@@ -5927,7 +5116,7 @@ function renderVerlauf(){
 
   Object.keys(TEAM_CONFIGS).forEach(teamId => {
     const cfg = TEAM_CONFIGS[teamId];
-    const teamAgents = state.agents.filter(a => a.team === teamId && a.category !== 'schulung' && a.category !== 'work');
+    const teamAgents = state.agents.filter(a => a.team === teamId && a.category !== 'schulung');
     if(!teamAgents.length) return;
 
     const rankWrap = document.createElement('div');
@@ -5947,7 +5136,7 @@ function renderVerlauf(){
         const row = document.createElement('div');
         row.className = 'ranking-row';
         const val = valFn(a);
-        row.innerHTML = `<span class="rr-rank">${i+1}.</span><span class="rr-name">${a.name}</span><span class="rr-val" style="color:${colorFn(val)}">${val}</span>`;
+        row.innerHTML = `<span class="rr-rank">${i+1}.</span><span class="rr-name">${getVerlaufDisplayName(a)}</span><span class="rr-val" style="color:${colorFn(val)}">${val}</span>`;
         box.appendChild(row);
       });
       return box;
@@ -6019,7 +5208,7 @@ function renderVerlauf(){
     teamAgents.forEach(av => {
       const opt = document.createElement('option');
       opt.value = av.name + '_' + av.team;
-      opt.textContent = av.name;
+      opt.textContent = getVerlaufDisplayName(av);
       if(vlSelectedAgent[teamId] === opt.value) opt.selected = true;
       sel.appendChild(opt);
     });
@@ -6061,8 +5250,9 @@ function renderVerlauf(){
     chartWrap1.className = 'vl-chart-wrap';
     chartWrap1.style.flex = '1';
     chartWrap1.style.minWidth = '280px';
-    chartWrap1.innerHTML = `<div class="vl-chart-title">${agentData.name} — Gesamt Stückzahl</div>`;
-    chartWrap1.addEventListener('click', ()=>showChartPopup(agentData.name+' — Gesamt Stückzahl', c=>drawStkChart(c, monate, stkValues, stkZiel, agentData, cfg)));
+    const agentDisplayName = getVerlaufDisplayName(agentData);
+    chartWrap1.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — Gesamt Stückzahl</div>`;
+    chartWrap1.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — Gesamt Stückzahl', c=>drawStkChart(c, monate, stkValues, stkZiel, agentData, cfg)));
     const canvas1 = document.createElement('canvas');
     canvas1.height = 200;
     chartWrap1.appendChild(canvas1);
@@ -6073,8 +5263,8 @@ function renderVerlauf(){
     chartWrap.className = 'vl-chart-wrap';
     chartWrap.style.flex = '1';
     chartWrap.style.minWidth = '280px';
-    chartWrap.innerHTML = `<div class="vl-chart-title">${agentData.name} — Gesamt-CR Entwicklung</div>`;
-    chartWrap.addEventListener('click', ()=>showChartPopup(agentData.name+' — Gesamt-CR Entwicklung', c=>drawCRChart(c, monate, crValues, cfg, agentData)));
+    chartWrap.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — Gesamt-CR Entwicklung</div>`;
+    chartWrap.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — Gesamt-CR Entwicklung', c=>drawCRChart(c, monate, crValues, cfg, agentData)));
     const canvas = document.createElement('canvas');
     canvas.height = 200;
     chartWrap.appendChild(canvas);
@@ -6085,8 +5275,8 @@ function renderVerlauf(){
     chartWrapNPS.className = 'vl-chart-wrap';
     chartWrapNPS.style.flex = '1';
     chartWrapNPS.style.minWidth = '280px';
-    chartWrapNPS.innerHTML = `<div class="vl-chart-title">${agentData.name} — NPS Entwicklung</div>`;
-    chartWrapNPS.addEventListener('click', ()=>showChartPopup(agentData.name+' — NPS Entwicklung', c=>drawNPSChart(c, monate, npsValues, cfg, agentData)));
+    chartWrapNPS.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — NPS Entwicklung</div>`;
+    chartWrapNPS.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — NPS Entwicklung', c=>drawNPSChart(c, monate, npsValues, cfg, agentData)));
     const canvasNPS = document.createElement('canvas');
     canvasNPS.height = 200;
     chartWrapNPS.appendChild(canvasNPS);
@@ -6100,8 +5290,8 @@ function renderVerlauf(){
       chartWrapCHT.className = 'vl-chart-wrap';
       chartWrapCHT.style.flex = '1';
       chartWrapCHT.style.minWidth = '280px';
-      chartWrapCHT.innerHTML = `<div class="vl-chart-title">${agentData.name} — CHT Entwicklung</div>`;
-      chartWrapCHT.addEventListener('click', ()=>showChartPopup(agentData.name+' — CHT Entwicklung', c=>drawCHTChart(c, monate, chtValues)));
+      chartWrapCHT.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — CHT Entwicklung</div>`;
+      chartWrapCHT.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — CHT Entwicklung', c=>drawCHTChart(c, monate, chtValues)));
       const canvasCHT = document.createElement('canvas');
       canvasCHT.height = 200;
       chartWrapCHT.appendChild(canvasCHT);
@@ -6121,7 +5311,11 @@ function renderVerlauf(){
       return Object.values(md.sales||{}).reduce((s,v)=>s+v,0);
     });
     // Echte Kategorie des Mitarbeiters ermitteln (wird auch für die Tabelle unten genutzt)
-    const matchingAgentForCharts = state.agents.find(a => a.name === agentData.name && a.team === teamId);
+    const matchingAgentForCharts = state.agents.find(a => a.team === teamId && (
+      a.name === agentData.name ||
+      a.name.split(' ')[0] === agentData.name ||
+      a.name.endsWith(' ' + agentData.name)
+    ));
     const agentCategoryForCharts = (matchingAgentForCharts && matchingAgentForCharts.category) || 'regular';
     const stkZiel = agentTargets({team:teamId,category:agentCategoryForCharts}).reduce((s,v)=>s+v,0);
 
@@ -6349,138 +5543,46 @@ function renderVerlauf(){
     setTimeout(()=>{ drawCRChart(canvas, monate, crValues, cfg, agentData); }, 50);
     setTimeout(()=>{ drawNPSChart(canvasNPS, monate, npsValues, cfg, agentData); }, 50);
 
-    // Tabelle mit allen Monaten + Bearbeiten-Modus
-    let vlEditMode = false;
-    const tableWrap = document.createElement('div');
-
-    const editToggleBtn = document.createElement('button');
-    editToggleBtn.className = 'secondary';
-    editToggleBtn.style.cssText = 'margin-bottom:8px;font-size:12px;padding:6px 12px;';
-    editToggleBtn.textContent = '✏️ Daten bearbeiten';
-
-    const renderVerlaufTable = () => {
-      tableWrap.innerHTML = '';
-      const t = document.createElement('table');
-      t.className = 'vl-table';
-      const prods = cfg.products;
-
-      // Header
-      const headerRow = document.createElement('tr');
-      headerRow.innerHTML = `<th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>CR %</th><th>Calls</th><th>CHT</th><th>NPS %</th>${vlEditMode ? '' : '<th>Trend</th>'}`;
-      t.appendChild(headerRow);
-
-      monate.forEach(m => {
-        const md = agentData.monate[m];
-        if(!md) return;
-        const cr = md.cr || 0;
-        const crOk = cr >= cfg.crTarget;
-        const tr = document.createElement('tr');
-
-        const monatLabel = m.includes('-') ? m.split('-')[1]+' '+m.split('-')[0] : m;
-
-        if(!vlEditMode){
-          // Anzeigemodus
-          let html = `<td>${monatLabel}</td>`;
-          prods.forEach((p,i) => {
-            const val = md.sales ? (md.sales[p]||0) : 0;
-            const tgt = agentTargets({team:teamId, category:agentCategoryForCharts})[i];
-            const cls = val >= tgt ? 'ok' : val > 0 ? 'mid' : 'bad';
-            html += `<td><span class="vl-badge ${cls}">${Math.round(val)}</span></td>`;
-          });
-          html += `<td><span class="vl-badge ${crOk?'ok':'bad'}">${cr.toFixed(2)}%</span></td>`;
-          html += `<td><span class="vl-badge">${Math.round(md.calls||0)}</span></td>`;
-          const chtVal = (md.cht === null || md.cht === undefined) ? null : md.cht;
-          const chtCls = chtVal === null ? '' : (chtVal <= 550 ? 'ok' : chtVal <= 680 ? 'mid' : 'bad');
-          html += `<td><span class="vl-badge ${chtCls}">${chtVal === null ? '–' : Math.round(chtVal)}</span></td>`;
-          html += `<td><span class="vl-badge ${(md.nps||0)>=cfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
-          const prevM = monate[monate.indexOf(m)-1];
-          let trendHtml = '<span class="trend-flat">—</span>';
-          if(prevM && agentData.monate[prevM]){
-            const prevCr = agentData.monate[prevM].cr||0;
-            const diff = cr - prevCr;
-            if(Math.abs(diff) >= 0.1){
-              const cls2 = diff>0?'trend-up':'trend-down';
-              const arrow = diff>0?'▲':'▼';
-              trendHtml = `<span class="${cls2}">${arrow} ${Math.abs(diff).toFixed(2)}%</span>`;
-            }
-          }
-          html += `<td>${trendHtml}</td>`;
-          tr.innerHTML = html;
-        } else {
-          // Bearbeitungsmodus — editierbare Felder
-          const mkNumCell = (getValue, setValue, opts={}) => {
-            const td = document.createElement('td');
-            const inp = document.createElement('input');
-            inp.type = 'text';
-            inp.inputMode = 'decimal';
-            inp.value = getValue();
-            inp.style.cssText = 'width:60px;background:var(--tmg-soft);border:1px solid var(--tmg);border-radius:5px;padding:2px 4px;font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:600;text-align:center;color:var(--text);outline:none;';
-            inp.addEventListener('focus', e=>e.target.select());
-            inp.addEventListener('change', e=>{
-              const v = parseFloat(e.target.value.replace(',','.')) || 0;
-              setValue(v);
-              scheduleSave();
-            });
-            td.appendChild(inp);
-            return td;
-          };
-
-          const tdMonat = document.createElement('td');
-          tdMonat.textContent = monatLabel;
-          tdMonat.style.fontWeight = '600';
-          tr.appendChild(tdMonat);
-
-          // Produkte (sales)
-          if(!md.sales) md.sales = {};
-          prods.forEach(p=>{
-            tr.appendChild(mkNumCell(
-              ()=> Math.round(md.sales[p]||0),
-              v=>{ md.sales[p] = v; }
-            ));
-          });
-
-          // CR
-          tr.appendChild(mkNumCell(
-            ()=> (md.cr||0).toFixed(2),
-            v=>{ md.cr = v; }
-          ));
-
-          // Calls
-          tr.appendChild(mkNumCell(
-            ()=> Math.round(md.calls||0),
-            v=>{ md.calls = v; }
-          ));
-
-          // CHT
-          tr.appendChild(mkNumCell(
-            ()=> md.cht != null ? Math.round(md.cht) : '',
-            v=>{ md.cht = v > 0 ? v : null; }
-          ));
-
-          // NPS
-          tr.appendChild(mkNumCell(
-            ()=> (md.nps||0).toFixed(1),
-            v=>{ md.nps = v; }
-          ));
-        }
-
-        t.appendChild(tr);
+    // Tabelle mit allen Monaten
+    const t = document.createElement('table');
+    t.className = 'vl-table';
+    const prods = cfg.products;
+    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>CR</th><th>Calls</th><th>CHT</th><th>NPS</th><th>Trend</th></tr>`;
+    monate.forEach(m => {
+      const md = agentData.monate[m];
+      const cr = md.cr || 0;
+      const crOk = cr >= cfg.crTarget;
+      const tr = document.createElement('tr');
+      let html = `<td>${m.includes('-') ? m.split('-')[1]+' '+m.split('-')[0] : m}</td>`;
+      prods.forEach((p,i) => {
+        const val = md.sales[p]||0;
+        const tgt = agentTargets({team:teamId, category:agentCategoryForCharts})[i];
+        const cls = val >= tgt ? 'ok' : val > 0 ? 'mid' : 'bad';
+        html += `<td><span class="vl-badge ${cls}">${Math.round(val)}</span></td>`;
       });
-      tableWrap.appendChild(t);
-    };
-
-    editToggleBtn.addEventListener('click', ()=>{
-      vlEditMode = !vlEditMode;
-      editToggleBtn.textContent = vlEditMode ? '✅ Bearbeitung beenden' : '✏️ Daten bearbeiten';
-      editToggleBtn.style.background = vlEditMode ? 'var(--tmg-soft)' : '';
-      editToggleBtn.style.borderColor = vlEditMode ? 'var(--tmg)' : '';
-      editToggleBtn.style.color = vlEditMode ? 'var(--tmg)' : '';
-      renderVerlaufTable();
+      html += `<td><span class="vl-badge ${crOk?'ok':'bad'}">${cr.toFixed(2)}%</span></td>`;
+      html += `<td><span class="vl-badge">${Math.round(md.calls||0)}</span></td>`;
+      const chtVal = (md.cht === null || md.cht === undefined) ? null : md.cht;
+      const chtCls = chtVal === null ? '' : (chtVal <= 550 ? 'ok' : chtVal <= 680 ? 'mid' : 'bad');
+      html += `<td><span class="vl-badge ${chtCls}">${chtVal === null ? '–' : Math.round(chtVal)}</span></td>`;
+      html += `<td><span class="vl-badge ${(md.nps||0)>=cfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
+      // Trend: Vergleich mit Vormonat
+      const prevM = monate[monate.indexOf(m)-1];
+      let trendHtml = '<span class="trend-flat">—</span>';
+      if(prevM){
+        const prevCr = agentData.monate[prevM].cr||0;
+        const diff = cr - prevCr;
+        if(Math.abs(diff) >= 0.1){
+          const cls = diff>0?'trend-up':'trend-down';
+          const arrow = diff>0?'▲':'▼';
+          trendHtml = `<span class="${cls}">${arrow} ${Math.abs(diff).toFixed(2)}%</span>`;
+        }
+      }
+      html += `<td>${trendHtml}</td>`;
+      tr.innerHTML = html;
+      t.appendChild(tr);
     });
-
-    renderVerlaufTable();
-    teamBlock.appendChild(editToggleBtn);
-    teamBlock.appendChild(tableWrap);
+    teamBlock.appendChild(t);
     container.appendChild(teamBlock);
   });
 }
@@ -6510,23 +5612,17 @@ function crStuffeProd(p, val, tz){
   const s2 = parseFloat((tz.crZiel2 && tz.crZiel2[p])||0);
   // Stufe 3 nur für das MF-Produkt
   const s3 = (p === 'MF' && tz.crZiel3) ? parseFloat(tz.crZiel3[p]||0) : null;
-  // Nur einfärben wenn das Ziel > 0 eingetragen ist — sonst lila (kein Ziel gesetzt)
-  if(s3 !== null && s3 > 0 && v >= s3) return 'background:#1B5E20;color:#fff;border-radius:6px;';
-  if(s2 > 0 && v >= s2) return 'background:#4CAF50;color:#fff;border-radius:6px;';
-  if(s1 > 0 && v >= s1) return 'background:#81C784;color:#1B5E20;border-radius:6px;';
+  if(s3 !== null && v >= s3) return 'background:#1B5E20;color:#fff;border-radius:6px;';
+  if(v >= s2) return 'background:#4CAF50;color:#fff;border-radius:6px;';
+  if(v >= s1) return 'background:#81C784;color:#1B5E20;border-radius:6px;';
   return 'background:#CE93D8;color:#4A148C;border-radius:6px;';
 }
 // Produkt-Namen in Monatsabschluss sind teils anders benannt als in Team Ziele - Zuordnung, damit
 // beide dieselben CR-Stufen-Werte finden.
-// HV (MF-Team ab September) hat fixe Stufen in CR_FIXED_STUFEN und braucht kein teamziele-Mapping.
 const MA_TO_TZ_PRODUCT = {
-  mf: { 'MF NG': 'MF', 'MF': 'MF', 'BB': 'BB', 'SU': 'SU', 'TV': 'TV', 'BOJ': 'BOJ', 'VVM': 'BOJ', 'HV': 'HV' },
+  mf: { 'MF NG': 'MF', 'MF': 'MF', 'BB': 'BB', 'SU': 'SU', 'TV': 'TV', 'BOJ': 'BOJ', 'VVM': 'BOJ' },
   fn: { 'NG (BB)': 'BB', 'BB': 'BB', 'SU': 'SU', 'TV': 'TV', 'MF': 'MF', 'BOJ': 'BOJ', 'VVM': 'VVM' }
 };
-
-// Speichert Monatsabschluss-Änderungen und blockiert Hintergrund-Sync für 15s,
-// da renderMonatsabschluss() den DOM komplett neu aufbaut und dabei den Fokus verliert.
-function maSave(){ twBlockUntil = Date.now() + 15000; scheduleSave(); renderMonatsabschluss(); }
 
 function renderMonatsabschluss(){
   const container = document.getElementById('monatsabschluss-container');
@@ -6735,11 +5831,23 @@ function renderMonatsabschluss(){
     { label:'FN', color:'#0E7C7B', labels:availMonate, values:availMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; return md?md.nps_ist||0:0; }) }
   ], true, 100);
 
-  // CHT-Monatsverlauf: hinterlegter Wert aus Monatsabschluss
+  // CHT-Monatsverlauf: Durchschnitt aus verlauf-Archiv (pro Monat) berechnen
   const chtMonate = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-  mkBox('CHT — Monatsverlauf', ()=>[
-    { label:'MF', color:'#E20074', labels:chtMonate, values:chtMonate.map(m=>{ const md=state.monatsabschluss.mf[m]; return md&&md.cht>0?md.cht:0; }) },
-    { label:'FN', color:'#0E7C7B', labels:chtMonate, values:chtMonate.map(m=>{ const md=state.monatsabschluss.fn[m]; return md&&md.cht>0?md.cht:0; }) }
+  const chtTeamAvg = (teamId) => chtMonate.map(monat=>{
+    const agents = state.agents.filter(a=>a.team===teamId && a.category !== 'schulung');
+    const vals = [];
+    agents.forEach(a=>{
+      const vl = Object.values(state.verlauf).find(v=>v.name===a.name && v.team===a.team);
+      const key = `2026-${monat}`;
+      if(vl && vl.monate && vl.monate[key] && vl.monate[key].cht > 0){
+        vals.push(vl.monate[key].cht);
+      }
+    });
+    return vals.length ? Math.round(vals.reduce((s,v)=>s+v,0)/vals.length) : 0;
+  });
+  mkBox('CHT — Monatsverlauf (Ø pro Team)', ()=>[
+    { label:'MF', color:'#E20074', labels:chtMonate, values:chtTeamAvg('Trikala01') },
+    { label:'FN', color:'#0E7C7B', labels:chtMonate, values:chtTeamAvg('Trikala06') }
   ], false);
 
   container.appendChild(chartsWrap);
@@ -6770,20 +5878,15 @@ function renderMonatsabschluss(){
     const md = data[monat];
     if(!md){ container.appendChild(section); return; }
 
-    // Reihenfolge wie in Team Ziele: MF Team: MF NG, BB, SU, HV(ab Sep)/BOJ(bis Aug), VVM, TV, MF
+    // Reihenfolge wie in Team Ziele: MF Team: MF NG, BB, SU, HV(BOJ), VVM Gesamt(VVM), TV, MF
     //                                  FN Team: NG(BB), SU, BOJ, VVM, TV, MF
-    // MF Team: BOJ bleibt bis einschließlich August; ab September heißt es HV (eigene DB-Spalte)
-    const MF_SEP_PLUS = ['September','Oktober','November','Dezember'];
-    const mfUsesHV = teamKey === 'mf' && MF_SEP_PLUS.includes(monat);
     const PROD_ORDER = teamKey === 'mf'
-      ? (mfUsesHV
-          ? ['MF NG', 'BB', 'SU', 'Fiber Gesamt', 'HV', 'VVM', 'TV', 'MF']
-          : ['MF NG', 'BB', 'SU', 'BOJ', 'VVM', 'TV', 'MF'])
-      : ['NG (BB)', 'SU', 'BOJ', 'Fiber Gesamt', 'VVM', 'TV', 'MF'];
+      ? ['MF NG', 'BB', 'SU', 'BOJ', 'VVM', 'TV', 'MF']
+      : ['NG (BB)', 'SU', 'BOJ', 'VVM', 'TV', 'MF'];
     const EXCLUDE = ['NA'];
-    // Anzeige-Labels pro Schlüssel (MF Sep+: HV direkt, kein Alias nötig)
+    // Anzeige-Labels pro Schlüssel (team-spezifisch): BOJ → HV, VVM → VVM Gesamt für mf-Team
     const PROD_LABELS = teamKey === 'mf'
-      ? (mfUsesHV ? { 'VVM': 'Avia', 'MF NG': 'MF NG' } : { 'BOJ': 'BOJ', 'VVM': 'Avia', 'MF NG': 'MF NG' })
+      ? { 'BOJ': 'HV', 'VVM': 'Avia', 'MF NG': 'MF NG' }
       : {};
     const prodLabel = p => PROD_LABELS[p] || p;
     const allProds = Object.keys(md.plan).filter(p => !EXCLUDE.includes(p));
@@ -6863,7 +5966,7 @@ function renderMonatsabschluss(){
       inp.addEventListener('focus', e=>e.target.select());
       inp.addEventListener('change', e=>{
         md.erreicht[p] = parseFloat(e.target.value)||0;
-        maSave();
+        scheduleSave(); renderMonatsabschluss();
       });
       td.appendChild(inp);
       errRow.appendChild(td);
@@ -6882,30 +5985,9 @@ function renderMonatsabschluss(){
       produkte.forEach(p => {
         const td = document.createElement('td');
         const val = md[dataKey][p] || 0;
-        if(dataKey === 'cr'){
-          // PRIORITÄT: crZielText (manuelle Eingabe im MA-Tab) hat immer Vorrang,
-          // da state.teamziele.crZiel1/2 veraltete DB-Werte enthalten kann.
-          const zielText = (md.crZielText && md.crZielText[p]) || '';
-          const nums = zielText.replace(/,/g,'.').match(/[\d.]+/g) || [];
-          const zs1 = parseFloat(nums[0]) || 0;
-          const zs2 = parseFloat(nums[1]) || 0;
-          if(zs1 > 0 || zs2 > 0){
-            // crZielText vorhanden → direkt daraus färben
-            const v = parseFloat(val) || 0;
-            const hi = zs2 || zs1; // zweite Zahl = Stufe 2; wenn nur eine → gilt als Stufe 2
-            const lo = zs2 ? zs1 : 0; // erste Zahl = Stufe 1 (nur wenn zwei Zahlen)
-            if(v >= hi)       td.style.cssText = 'background:#4CAF50;color:#fff;border-radius:6px;';
-            else if(lo > 0 && v >= lo) td.style.cssText = 'background:#81C784;color:#1B5E20;border-radius:6px;';
-            else              td.style.cssText = 'background:#CE93D8;color:#4A148C;border-radius:6px;';
-          } else if(state.teamziele[teamKey]){
-            // Fallback: crZielText leer → state.teamziele.crZiel1/2 verwenden
-            const tzProduct = MA_TO_TZ_PRODUCT[teamKey] && MA_TO_TZ_PRODUCT[teamKey][p];
-            const tz = state.teamziele[teamKey];
-            const hasZiel = tzProduct && (parseFloat((tz.crZiel1 && tz.crZiel1[tzProduct])||0) > 0 || parseFloat((tz.crZiel2 && tz.crZiel2[tzProduct])||0) > 0);
-            if(tzProduct && hasZiel){
-              td.style.cssText = crStuffeProd(tzProduct, val, tz);
-            }
-          }
+        if(dataKey === 'cr' && state.teamziele[teamKey]){
+          const tzProduct = MA_TO_TZ_PRODUCT[teamKey] && MA_TO_TZ_PRODUCT[teamKey][p];
+          if(tzProduct) td.style.cssText = crStuffeProd(tzProduct, val, state.teamziele[teamKey]);
         } else if(compareKey){
           const cmp = md[compareKey][p] || 0;
           if(val >= cmp && val > 0) td.style.cssText = 'background:#E6F7F4;';
@@ -6916,7 +5998,7 @@ function renderMonatsabschluss(){
         inp.addEventListener('focus', e=>e.target.select());
         inp.addEventListener('change', e=>{
           md[dataKey][p] = parseFloat(e.target.value.replace('%','').replace(',','.'))||0;
-          maSave();
+          scheduleSave(); renderMonatsabschluss();
         });
         td.appendChild(inp);
         row.appendChild(td);
@@ -6945,7 +6027,7 @@ function renderMonatsabschluss(){
         // Auch numerisch speichern für Grün-Vergleich (erste Zahl nehmen)
         const firstNum = parseFloat(e.target.value.replace(',','.'));
         md.crZiel[p] = isNaN(firstNum) ? 0 : firstNum;
-        maSave();
+        scheduleSave(); renderMonatsabschluss();
       });
       td.appendChild(inp);
       crZielRow.appendChild(td);
@@ -6973,7 +6055,7 @@ function renderMonatsabschluss(){
       inp.style.cssText = 'background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;width:100%;text-align:center;color:inherit;';
       inp.value = parseFloat(val||0).toFixed(1) + '%';
       inp.addEventListener('focus', e=>e.target.select());
-      inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace('%','').replace(',','.'))||0); maSave(); });
+      inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace('%','').replace(',','.'))||0); scheduleSave(); renderMonatsabschluss(); });
       valDiv.appendChild(inp);
       box.appendChild(lbl); box.appendChild(valDiv);
       return box;
@@ -7005,7 +6087,7 @@ function renderMonatsabschluss(){
       inp.style.cssText = 'background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;width:100%;text-align:center;color:inherit;';
       inp.value = parseFloat(val||0).toFixed(2) + '%';
       inp.addEventListener('focus', e=>e.target.select());
-      inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.').replace('%',''))||0); maSave(); });
+      inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.').replace('%',''))||0); scheduleSave(); renderMonatsabschluss(); });
 
       const isReached = compareVal !== undefined && val >= compareVal && val > 0;
       if(isReached && cls !== 'ziel'){
@@ -7032,10 +6114,9 @@ function renderMonatsabschluss(){
     // CR Box rechts
     const crRightBox = document.createElement('div');
     crRightBox.className = 'ma-side-box';
-    // CR Gesamt automatisch berechnen aus Produkt-CRs - HV/BOJ wird ausgeschlossen,
-    // da es eine eigene Produktkategorie ist und nicht in die Gesamt-CR fließt.
-    // MF Sep+: Schlüssel heißt 'HV'; MF bis Aug und FN: Schlüssel heißt 'BOJ'
-    const EXCL_CR = (teamKey === 'mf' && MF_SEP_PLUS.includes(monat)) ? ['HV'] : ['BOJ'];
+    // CR Gesamt automatisch berechnen aus Produkt-CRs - HV (intern: BOJ) wird bei beiden Teams
+    // ausgeschlossen, da HV/BOJ eine eigene Produktkategorie ist und nicht in die Gesamt-CR fließt.
+    const EXCL_CR = ['BOJ'];
     const crGesamtCalc = Object.entries(md.cr||{})
       .filter(([k])=>!EXCL_CR.includes(k))
       .reduce((s,[,v])=>s+(parseFloat(v)||0), 0);
@@ -7092,7 +6173,8 @@ function renderMonatsabschluss(){
       inp.addEventListener('change', e=>{
         const v = parseFloat(e.target.value.replace(',','.'))||0;
         onChange(v);
-        maSave();
+        scheduleSave();
+        renderMonatsabschluss();
       });
       valDiv.appendChild(inp);
       box.appendChild(lbl); box.appendChild(valDiv);
@@ -7130,7 +6212,6 @@ function renderTeamZiele(){
   const container = document.getElementById('teamziele-container');
   container.innerHTML = '';
 
-
   // Monat immer auf den echten aktuellen Kalendermonat abgleichen (statt eines evtl. veralteten gespeicherten Werts)
   const aktuellerMonatLabel = new Date().toLocaleString('de-DE', {month:'long'});
   let monatKorrigiert = false;
@@ -7149,7 +6230,7 @@ function renderTeamZiele(){
     inp.value = val;
     inp.style.cssText = 'width:100%;background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:700;text-align:center;color:inherit;';
     inp.addEventListener('focus', e=>e.target.select());
-    inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); twMarkInput(); scheduleSave(); renderTeamZiele(); });
+    inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); scheduleSave(); renderTeamZiele(); });
     return inp;
   }
   function cell(content, cls, colspan, rowspan){
@@ -7165,15 +6246,12 @@ function renderTeamZiele(){
   function crStuffeStyle(val, tz){
     const v = parseFloat(val)||0;
     // Stufe 3 (höchste) - nur MF
-    const s3val = tz.crZiel3 ? parseFloat(Object.values(tz.crZiel3)[0]||0) : 0;
-    if(tz.crZiel3 && s3val > 0 && v >= s3val) return 'background:#1B5E20;color:#fff;';
+    if(tz.crZiel3 && v >= parseFloat(Object.values(tz.crZiel3)[0]||0)) return 'background:#1B5E20;color:#fff;';
     // Stufe 2
-    const s2val = tz.crZiel2 ? parseFloat(Object.values(tz.crZiel2)[0]||0) : 0;
-    if(tz.crZiel2 && s2val > 0 && v >= s2val) return 'background:#4CAF50;color:#fff;';
+    if(tz.crZiel2 && v >= parseFloat(Object.values(tz.crZiel2)[0]||0)) return 'background:#4CAF50;color:#fff;';
     // Stufe 1
-    const s1val = tz.crZiel1 ? parseFloat(Object.values(tz.crZiel1)[0]||0) : 0;
-    if(tz.crZiel1 && s1val > 0 && v >= s1val) return 'background:#81C784;color:#1B5E20;';
-    // Unter Stufe 1 oder kein Ziel eingetragen
+    if(tz.crZiel1 && v >= parseFloat(Object.values(tz.crZiel1)[0]||0)) return 'background:#81C784;color:#1B5E20;';
+    // Unter Stufe 1
     return 'background:#CE93D8;color:#4A148C;';
   }
 
@@ -7183,9 +6261,9 @@ function renderTeamZiele(){
     const s2 = parseFloat(tz.crZiel2[p]||0);
     // Stufe 3 nur für MF-Produkt
     const s3 = (p === 'MF' && tz.crZiel3) ? parseFloat(tz.crZiel3[p]||0) : null;
-    if(s3 !== null && s3 > 0 && v >= s3) return 'background:#1B5E20;color:#fff;border-radius:6px;';
-    if(s2 > 0 && v >= s2) return 'background:#4CAF50;color:#fff;border-radius:6px;';
-    if(s1 > 0 && v >= s1) return 'background:#81C784;color:#1B5E20;border-radius:6px;';
+    if(s3 !== null && v >= s3) return 'background:#1B5E20;color:#fff;border-radius:6px;';
+    if(v >= s2) return 'background:#4CAF50;color:#fff;border-radius:6px;';
+    if(v >= s1) return 'background:#81C784;color:#1B5E20;border-radius:6px;';
     return 'background:#CE93D8;color:#4A148C;border-radius:6px;';
   }
 
@@ -7226,7 +6304,7 @@ function renderTeamZiele(){
         inp.type = 'text'; inp.inputMode = 'decimal';
         inp.value = parseFloat(val||0).toFixed(2) + '%';
         inp.addEventListener('focus', e=>e.target.select());
-        inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.').replace('%',''))||0); twMarkInput(); scheduleSave(); renderTeamZiele(); });
+        inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.').replace('%',''))||0); scheduleSave(); renderTeamZiele(); });
         valDiv.appendChild(inp);
       }
       box.appendChild(lbl); box.appendChild(valDiv);
@@ -7244,75 +6322,12 @@ function renderTeamZiele(){
     t.className = 'tz-table';
     t.style.cssText = 'width:100%;border-collapse:collapse;border-radius:16px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.07);';
 
-    // Sicherstellen dass da-Objekt vorhanden ist (nur MF)
-    if(key === 'mf' && !tz.da) tz.da = { nettoStand: 0, qteAssisted: 0 };
-
-    // Sicherstellen dass da-Objekt vorhanden ist (bereits oben gesetzt)
-
-    function mkDaInlineInput(val, onChange){
-      const inp = document.createElement('input');
-      inp.type = 'text'; inp.inputMode = 'decimal';
-      inp.value = val;
-      inp.style.cssText = 'width:60px;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:15px;font-weight:700;color:#7C4DFF;background:transparent;border:none;outline:none;padding:1px 0;display:block;margin:0 auto;';
-      inp.addEventListener('focus', e=>e.target.select());
-      inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); twMarkInput(); scheduleSave(); });
-      return inp;
-    }
-
-    // Erstelle die DA-Box als rowspan-Zelle die genau Soll+Ist-Zeile umfasst
-    // Sie wird in der Soll-Zeile mit rowspan=2 eingefügt, Ist-Zeile bekommt keine extra Zelle
-    function mkDaBoxCell(){
-      const td = document.createElement('td');
-      td.rowSpan = 2; // überspannt Soll Netto + Ist Netto
-      td.colSpan = 2; // überspannt beide leeren Spalten
-      td.style.cssText = 'text-align:center;vertical-align:middle;padding:6px 10px;';
-
-      const box = document.createElement('div');
-      box.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;gap:6px;border:3px solid #7C4DFF;border-radius:12px;padding:8px 14px;background:rgba(124,77,255,0.06);min-width:110px;';
-
-      const title = document.createElement('div');
-      title.textContent = 'DA';
-      title.style.cssText = 'font-size:12px;font-weight:800;letter-spacing:0.1em;color:#7C4DFF;text-transform:uppercase;';
-
-      const nettoWrap = document.createElement('div');
-      nettoWrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:1px;width:100%;';
-      const nettoLbl = document.createElement('div');
-      nettoLbl.textContent = 'Netto Stand';
-      nettoLbl.style.cssText = 'font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7C4DFF;opacity:0.7;';
-      const nettoInp = mkDaInlineInput(tz.da.nettoStand||0, v=>{ tz.da.nettoStand=v; });
-      nettoInp.style.borderBottom = '2px solid #7C4DFF';
-      nettoWrap.appendChild(nettoLbl); nettoWrap.appendChild(nettoInp);
-
-      const sep = document.createElement('div');
-      sep.style.cssText = 'width:70%;height:1px;background:rgba(124,77,255,0.2);';
-
-      const qteWrap = document.createElement('div');
-      qteWrap.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:1px;width:100%;';
-      const qteLbl = document.createElement('div');
-      qteLbl.textContent = 'Qte. Assisted';
-      qteLbl.style.cssText = 'font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#7C4DFF;opacity:0.7;';
-      const qteInp = mkDaInlineInput(tz.da.qteAssisted||0, v=>{ tz.da.qteAssisted=v; });
-      qteInp.style.borderBottom = '2px solid #7C4DFF';
-      qteWrap.appendChild(qteLbl); qteWrap.appendChild(qteInp);
-
-      box.appendChild(title); box.appendChild(nettoWrap); box.appendChild(sep); box.appendChild(qteWrap);
-      td.appendChild(box);
-      return td;
-    }
-
     // === HEADER ===
     const hRow = document.createElement('tr');
     hRow.className = 'tz-row-header';
     hRow.appendChild(cell(heute, 'tz-label'));
-    if(key === 'mf'){
-      const daTh = document.createElement('td');
-      daTh.colSpan = 2;
-      daTh.style.cssText = 'text-align:center;'; // leer lassen — DA steht in der Box
-      hRow.appendChild(daTh);
-    } else {
-      hRow.appendChild(cell('Monat'));
-      hRow.appendChild(cell(tz.monat));
-    }
+    hRow.appendChild(cell('Monat'));
+    hRow.appendChild(cell(tz.monat));
 
     cols.forEach(p => hRow.appendChild(cell(colLabels[p]||p)));
     t.appendChild(hRow);
@@ -7320,11 +6335,7 @@ function renderTeamZiele(){
     // === SOLL NETTO ===
     const sollRow = document.createElement('tr'); sollRow.className = 'tz-row-soll';
     sollRow.appendChild(cell('Soll Netto', 'tz-label'));
-    if(key === 'mf'){
-      sollRow.appendChild(mkDaBoxCell()); // rowspan=2, colSpan=2 — überspannt auch Ist-Zeile
-    } else {
-      sollRow.appendChild(cell('')); sollRow.appendChild(cell(''));
-    }
+    sollRow.appendChild(cell('')); sollRow.appendChild(cell(''));
 
     cols.forEach(p => sollRow.appendChild(cell(mkInput(tz.soll[p]||0, v=>{ tz.soll[p]=v; }))));
     t.appendChild(sollRow);
@@ -7332,10 +6343,7 @@ function renderTeamZiele(){
     // === IST NETTO ===
     const istRow = document.createElement('tr'); istRow.className = 'tz-row-ist';
     istRow.appendChild(cell('Ist Netto', 'tz-label'));
-    // KEIN extra DA-Zelle hier — rowspan=2 aus sollRow deckt diese Zeile bereits ab
-    if(key !== 'mf'){
-      istRow.appendChild(cell('')); istRow.appendChild(cell(''));
-    }
+    istRow.appendChild(cell('')); istRow.appendChild(cell(''));
     cols.forEach(p => {
       const td = document.createElement('td');
       const val = tz.ist[p]||0;
@@ -7347,7 +6355,7 @@ function renderTeamZiele(){
       inp.style.cssText='width:52px;background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:700;text-align:center;color:inherit;';
       inp.value = val;
       inp.addEventListener('focus', e=>e.target.select());
-      inp.addEventListener('change', e=>{ tz.ist[p]=parseFloat(e.target.value)||0; twMarkInput(); scheduleSave(); renderTeamZiele(); });
+      inp.addEventListener('change', e=>{ tz.ist[p]=parseFloat(e.target.value)||0; scheduleSave(); renderTeamZiele(); });
 
       if(erreicht){
         const circle = document.createElement('div');
@@ -7454,7 +6462,6 @@ function renderTeamZiele(){
           const v = parseFloat(e.target.value.replace(',','.').replace('%',''))||0;
           if(!tz[dataKey]) tz[dataKey] = {};
           tz[dataKey][p] = v;
-          twMarkInput();
           scheduleSave();
           renderTeamZiele();
         });
@@ -7462,10 +6469,6 @@ function renderTeamZiele(){
 
         // Farbe basierend auf erreichter Stufe (nur für CR-Zeile)
         if(isCR){
-          const s1dbg = parseFloat(tz.crZiel1 && tz.crZiel1[p]||0);
-          const s2dbg = parseFloat(tz.crZiel2 && tz.crZiel2[p]||0);
-          const s3dbg = (p==='MF' && tz.crZiel3) ? parseFloat(tz.crZiel3[p]||0) : null;
-          console.log(`[CR-Farbe] ${key}.${p}: aktuell=${val.toFixed(3)} | Ziel1=${s1dbg} | Ziel2=${s2dbg} | Ziel3=${s3dbg} → ${crStuffeProd(p,val,tz).substring(0,30)}`);
           td.style.cssText = crStuffeProd(p, val, tz);
           inp.style.color = 'inherit';
         }
@@ -7511,7 +6514,6 @@ function renderTeamZiele(){
     }
 
     tableWrap.appendChild(t);
-
     teamLayout.appendChild(tableWrap);
     teamLayout.appendChild(sidebar);
     section.appendChild(teamLayout);
@@ -7530,7 +6532,6 @@ function renderTeamZiele(){
 
 
 let twSelectedDay = 'total'; // 'total' = Monatsstand, sonst Tag-Nummer als String ('1'..'31')
-let twSelectedMonth = null;  // null = aktueller Monat; 'YYYY-MM' = ausgewählter Monat
 
 function twMonthKey(d){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
@@ -7538,33 +6539,13 @@ function twMonthKey(d){
 function twDaysInMonth(d){
   return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
 }
-// Gibt das Date-Objekt für den aktuell gewählten Monat zurück
-function twActiveMonthDate(){
-  if(!twSelectedMonth) return new Date();
-  const [y,m] = twSelectedMonth.split('-').map(Number);
-  return new Date(y, m-1, 1);
-}
-// Alle Monate die mindestens ein Tageswert-Eintrag haben (für Monatsauswahl)
-function twAvailableMonths(){
-  const keys = new Set();
-  keys.add(twMonthKey(new Date())); // aktueller Monat immer anzeigen
-  state.agents.forEach(a=>{
-    Object.keys(a.tageswerte||{}).forEach(k=>keys.add(k));
-  });
-  return Array.from(keys).sort().reverse(); // neuester zuerst
-}
-const MONTH_LABELS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-function twMonthLabel(key){
-  const [y,m] = key.split('-').map(Number);
-  return `${MONTH_LABELS[m-1]} ${y}`;
-}
 // Setzt alle Tageswerte-Einträge des aktuellen Monats für alle Mitarbeiter zurück (leert alle
 // Tage), damit für einen neuen Monat wieder bei null angefangen werden kann. Betrifft nur die
 // Tages-Einträge selbst - Calls/NPS/LQ (die direkt im Monatsstand eingetragen werden) bleiben
 // unangetastet, da sie kein Teil von agent.tageswerte sind.
 function twResetMonth(){
-  const monthKey = twMonthKey(twActiveMonthDate());
-  if(!confirm(`Wirklich den kompletten Monatsstand für ${twMonthLabel(monthKey)} bei allen Mitarbeitern zurücksetzen (Tageswerte, Stückzahlen, Calls, NPS, LQ, CHT)? Das kann nicht rückgängig gemacht werden.`)) return;
+  const monthKey = twMonthKey(new Date());
+  if(!confirm(`Wirklich den kompletten Monatsstand für ${monthKey} bei allen Mitarbeitern zurücksetzen (Tageswerte, Stückzahlen, Calls, NPS, LQ, CHT)? Das kann nicht rückgängig gemacht werden.`)) return;
   state.agents.forEach(agent=>{
     if(agent.tageswerte && agent.tageswerte[monthKey]) delete agent.tageswerte[monthKey];
     // Auch die daraus berechneten/eingetragenen Monatsstand-Felder leeren, sonst blieben die
@@ -7576,7 +6557,6 @@ function twResetMonth(){
     agent.cht = null;
   });
   twSelectedDay = 'total';
-  twBlockUntil = Date.now() + 15000;
   scheduleSave();
   renderTageswerte();
 }
@@ -7615,11 +6595,8 @@ function parseHelpsenseSheet(rows){
     if(!isNaN(n) && n > 100) return n / 100;
     return n;
   };
-  // 'pylon nr.', 'pylon' oder 'user_pylon' – flexibel suchen
+  const perfPylonCol  = header.findIndex(h => h === 'pylon');
   const qualPylonCol  = header.findIndex(h => h === 'user_pylon');
-  const perfPylonCol  = qualPylonCol !== -1
-                          ? header.findIndex(h => h !== 'user_pylon' && h.includes('pylon'))
-                          : header.findIndex(h => h.includes('pylon'));
   const chtCol        = header.findIndex(h => h.includes('cht'));
   const callsCol      = header.findIndex(h => h.includes('call'));
   const npsCol        = header.findIndex(h => h === 'nps');
@@ -7628,20 +6605,26 @@ function parseHelpsenseSheet(rows){
                           : header.findIndex(h => h === 'anliegen');
 
   rows.slice(headerIdx + 1).forEach(row=>{
-    // Haupt-Pylon-Spalte (pylon / pylon nr.) → liest CHT, Calls UND NPS/LQ wenn vorhanden
+    // Performance-Daten (Pylon, CHT, Calls)
     if(perfPylonCol !== -1 && row[perfPylonCol]){
       const pylon = parseInt(row[perfPylonCol]);
       if(!isNaN(pylon)){
         if(!result[pylon]) result[pylon] = {};
         if(chtCol   !== -1 && row[chtCol]   !== '' && row[chtCol]   !== null && row[chtCol]   !== undefined) result[pylon].cht   = toNum(row[chtCol]);
         if(callsCol !== -1 && row[callsCol] !== '' && row[callsCol] !== null && row[callsCol] !== undefined) result[pylon].calls = toNum(row[callsCol]);
-        // NPS/LQ direkt aus derselben Zeile lesen (z.B. Datei mit Spalten Pylon,Name,NPS,LQ)
+      }
+    }
+    // Quality-Daten (user_pylon, nps, anliegen)
+    if(qualPylonCol !== -1 && row[qualPylonCol]){
+      const pylon = parseInt(row[qualPylonCol]);
+      if(!isNaN(pylon)){
+        if(!result[pylon]) result[pylon] = {};
         if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = toPct(row[npsCol]);
         if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = toPct(row[lqCol]);
       }
     }
-    // Quality-Daten mit user_pylon-Spalte (kombinierte Dateien)
-    if(qualPylonCol !== -1 && row[qualPylonCol]){
+    // Fallback: nur eine Pylon-Spalte (separate Dateien)
+    if(perfPylonCol === -1 && qualPylonCol !== -1 && row[qualPylonCol]){
       const pylon = parseInt(row[qualPylonCol]);
       if(!isNaN(pylon)){
         if(!result[pylon]) result[pylon] = {};
@@ -7666,9 +6649,6 @@ function applyHelpsenseData(mergedData){
     if(data.lq    !== undefined && !isNaN(data.lq))    agent.lq    = data.lq;
     matched++;
   });
-  // Hintergrund-Sync für 15 Sekunden blockieren, damit der Import vollständig
-  // gespeichert wird, bevor ein paralleler Reload ihn überschreiben kann.
-  twBlockUntil = Date.now() + 15000;
   scheduleSave();
   renderAll();
   const unmatchedMsg = unmatched.length ? `\n\nNicht gefunden (keine Pylon-Nr. oder nicht im Report):\n${unmatched.join(', ')}` : '';
@@ -7727,7 +6707,7 @@ document.getElementById('tw-import-helpsense-input').addEventListener('change', 
 
   this.value = '';
   if(!Object.keys(mergedData).length){
-    alert('Keine gültigen Daten gefunden. Bitte prüfe, ob die Datei eine Spalte "Pylon Nr.", "pylon" oder "user_pylon" enthält.');
+    alert('Keine gültigen Daten gefunden. Bitte prüfe, ob die Spalten "Pylon", "CHT", "Calls" usw. vorhanden sind.');
     return;
   }
   applyHelpsenseData(mergedData);
@@ -7737,7 +6717,7 @@ document.getElementById('tw-import-helpsense-input').addEventListener('change', 
 // und schreibt das Ergebnis in die "echten" Live-Felder (agent.calls/sales/nps/lq),
 // damit MA Stand, Team Ziele, CR-Berechnung usw. automatisch den Monatsstand nutzen.
 function twRecomputeAgent(agent, cfg){
-  const monthKey = twMonthKey(twActiveMonthDate());
+  const monthKey = twMonthKey(new Date());
   const tw = agent.tageswerte && agent.tageswerte[monthKey];
   if(!tw){ return; }
   const days = Object.keys(tw);
@@ -7765,35 +6745,11 @@ function renderTageswerte(){
   document.getElementById('tw-count').textContent = state.agents.length + ' Mitarbeiter';
   const container = document.getElementById('tageswerte-capture');
   container.innerHTML = '';
-  twCellRegistry = {};   // Register neu aufbauen
-  twSelectedCells = [];  // Auswahl zurücksetzen (verhindert versehentliches Einfügen in falschen Monat nach Monatswechsel)
 
   const now = new Date();
-  const activeMonth = twActiveMonthDate();
-  const monthKey = twMonthKey(activeMonth);
-  const daysInMonth = twDaysInMonth(activeMonth);
-  const todayNum = (twMonthKey(now) === monthKey) ? now.getDate() : -1;
-
-  // === Monatsauswahl ===
-  const monthBar = document.createElement('div');
-  monthBar.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;';
-  const monthLabel = document.createElement('span');
-  monthLabel.textContent = 'Monat:';
-  monthLabel.style.cssText = 'font-size:13px;color:var(--muted);font-weight:500;';
-  monthBar.appendChild(monthLabel);
-  twAvailableMonths().forEach(key=>{
-    const btn = document.createElement('button');
-    btn.textContent = twMonthLabel(key);
-    const isActive = key === monthKey;
-    btn.style.cssText = `padding:4px 12px;border-radius:20px;border:none;cursor:pointer;font-size:13px;font-weight:${isActive?'700':'400'};background:${isActive?'var(--teal)':'var(--surface2)'};color:${isActive?'#fff':'var(--text)'};`;
-    btn.addEventListener('click', ()=>{
-      twSelectedMonth = key;
-      twSelectedDay = 'total';
-      renderTageswerte();
-    });
-    monthBar.appendChild(btn);
-  });
-  container.appendChild(monthBar);
+  const monthKey = twMonthKey(now);
+  const daysInMonth = twDaysInMonth(now);
+  const todayNum = now.getDate();
 
   // === Tages-Reiter ===
   const dayTabs = document.createElement('div');
@@ -7822,22 +6778,23 @@ function renderTageswerte(){
 
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
     const cfg = TEAM_CONFIGS[teamId];
-    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim()!=='' && a.category !== 'schulung' && a.category !== 'work');
+    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim()!=='' && a.category !== 'schulung');
     if(!teamAgents.length) return;
 
     if(isTotal){ teamAgents.forEach(a=>twRecomputeAgent(a, cfg)); }
 
     const teamDiv = document.createElement('div');
     teamDiv.className = 'tw-team';
-
-    // Sticky bar: team header + column labels — sits OUTSIDE the overflow-x:auto scroll wrapper
-    const stickyBar = document.createElement('div');
-    stickyBar.className = 'tw-sticky-bar';
     const head = document.createElement('div');
     head.className = 'tw-team-head';
     head.textContent = `${cfg.label} — ${cfg.project}`;
-    stickyBar.appendChild(head);
+    teamDiv.appendChild(head);
 
+    const table = document.createElement('table');
+    table.className = 'tw-table';
+
+    const thead = document.createElement('tr');
+    thead.className = 'tw-head-row';
     // "MA" ist nur in Tageswerte als zusätzliche Spalte gedacht (nicht Teil der eigentlichen
     // Team-Produktliste, die auch für Ziele/Quoten in anderen Reitern genutzt wird) - wird der
     // Liste hinzugefügt und dann gemeinsam in die Team-Anzeigereihenfolge sortiert (dort steht
@@ -7849,53 +6806,6 @@ function renderTageswerte(){
     const headers = isTotal
       ? ['Mitarbeiter', 'Calls', 'CHT', ...productHeaders, 'NPS %', 'LQ %']
       : ['Mitarbeiter', ...productHeaders];
-
-    // Column widths: first col (name) wider, rest equal
-    const COL_NAME_W = 260;
-    const COL_DATA_W = 90;
-    const totalW = COL_NAME_W + (headers.length - 1) * COL_DATA_W;
-
-    const colHeaderRow = document.createElement('div');
-    colHeaderRow.className = 'tw-col-header';
-    colHeaderRow.style.minWidth = totalW + 'px';
-    headers.forEach((h, i)=>{
-      const cell = document.createElement('div');
-      cell.className = 'tw-col-header-cell';
-      cell.style.width = (i === 0 ? COL_NAME_W : COL_DATA_W) + 'px';
-      cell.style.flexShrink = '0';
-      cell.textContent = h;
-      colHeaderRow.appendChild(cell);
-    });
-    stickyBar.appendChild(colHeaderRow);
-    teamDiv.appendChild(stickyBar);
-
-    const table = document.createElement('table');
-    table.className = 'tw-table';
-    table.style.minWidth = totalW + 'px';
-    table.style.tableLayout = 'fixed';
-    // Nach dem Rendern: echte Spaltenbreiten auslesen und Header-Zellen synchronisieren
-    requestAnimationFrame(()=>{
-      const firstRow = table.querySelector('tr:not(.tw-head-row)');
-      if(!firstRow) return;
-      const cells = firstRow.querySelectorAll('td');
-      const headerCells = colHeaderRow.querySelectorAll('.tw-col-header-cell');
-      cells.forEach((td, i)=>{
-        if(headerCells[i]) headerCells[i].style.width = td.getBoundingClientRect().width + 'px';
-      });
-    });
-
-    // colgroup für exakte Spaltenbreiten (muss mit colHeaderRow übereinstimmen)
-    const colgroup = document.createElement('colgroup');
-    headers.forEach((h, i)=>{
-      const col = document.createElement('col');
-      col.style.width = (i === 0 ? COL_NAME_W : COL_DATA_W) + 'px';
-      colgroup.appendChild(col);
-    });
-    table.appendChild(colgroup);
-
-    // Hidden thead keeps table semantics; visible header is in stickyBar above
-    const thead = document.createElement('tr');
-    thead.className = 'tw-head-row';
     headers.forEach(h=>{
       const th = document.createElement('th');
       th.textContent = h;
@@ -7935,9 +6845,7 @@ function renderTageswerte(){
       inp.className = 'tw-input';
       inp.disabled = !!readOnly;
       inp.addEventListener('focus', e=>e.target.select());
-      inp.addEventListener('input', ()=>twMarkInput());
       inp.addEventListener('change', e=>{
-        twMarkInput();
         const raw = e.target.value.trim().replace(',', '.');
         const val = raw === '' ? null : (parseFloat(raw)||0);
         setVal(val);
@@ -7950,7 +6858,6 @@ function renderTageswerte(){
         cellGrid[rowIdx][colIdx] = { td, input: inp, setVal };
         td.dataset.twRow = rowIdx;
         td.dataset.twCol = colIdx;
-        twCellRegistry[`${rowIdx},${colIdx}`] = { td, input: inp, setVal };
         td.addEventListener('mousedown', e=>{
           e.preventDefault(); // verhindert Browser-Textauswahl über mehrere Felder, wir übernehmen das selbst
           if(twClearActiveSelection && twClearActiveSelection !== clearVisual) twClearActiveSelection();
@@ -8016,23 +6923,13 @@ function renderTageswerte(){
       table.appendChild(row);
     });
 
-    const scrollWrap = document.createElement('div');
-    scrollWrap.className = 'tw-table-scroll';
-    scrollWrap.appendChild(table);
-    teamDiv.appendChild(scrollWrap);
+    teamDiv.appendChild(table);
     container.appendChild(teamDiv);
   });
 
   if(!state.agents.some(a=>a.name.trim()!=='')){
     container.appendChild(emptyStateEl('Noch keine Mitarbeiter angelegt', 'Lege zuerst Mitarbeiter im Reiter "Mitarbeiter Ziele" an.'));
   }
-
-  // Sticky-Top: Tab-Leiste messen und CSS-Variable setzen
-  requestAnimationFrame(()=>{
-    const tabsWrap = document.querySelector('.tabs-sticky-wrap');
-    const tabsH = tabsWrap ? tabsWrap.getBoundingClientRect().height : 58;
-    document.documentElement.style.setProperty('--tw-tabs-top', tabsH + 'px');
-  });
 }
 
 // Gewünschte Anzeige-Reihenfolge der Produkte in MA Stand & Tageswerte (links nach rechts).
@@ -8050,7 +6947,7 @@ const PRODUCT_DISPLAY_ORDER = ['BB','SU','VVM+BOJ','VVM+NVM','TV','MF','MA'];
 // (z.B. "VVM+BOJ"), damit bereits erfasste Zahlen und Zielwerte weiterhin korrekt zugeordnet
 // sind - nur die Beschriftung in der Tabelle ändert sich.
 const PRODUCT_LABELS_BY_TEAM = {
-  Trikala01: { 'VVM+BOJ': 'HV', 'VVM': 'Avia', 'MA': 'DA' }
+  Trikala01: { 'VVM+BOJ': 'HV', 'VVM': 'Avia' }
 };
 function productLabel(p, teamId){
   const map = teamId && PRODUCT_LABELS_BY_TEAM[teamId];
@@ -8076,7 +6973,7 @@ function renderOverview(){
 
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
     const cfg = TEAM_CONFIGS[teamId];
-    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim() !== '' && a.category !== 'schulung' && a.category !== 'work');
+    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim() !== '' && a.category !== 'schulung');
     if(!teamAgents.length) return;
     const teamDiv = document.createElement('div');
     teamDiv.className = 'ov-team';
@@ -8113,10 +7010,8 @@ function renderOverview(){
     measureCtx.font = nameFont;
     const longestNameWidth = teamAgents.reduce((max,a)=>Math.max(max, measureCtx.measureText(a.name||'').width), 30);
     const nameColWidth = Math.ceil(longestNameWidth + 20 /* Zell-Padding links */ + 18 /* Pill-Padding */ + 4 /* Zell-Padding rechts */ + 6 /* Puffer */) + 'px';
-    // MF-Team: +1 für DA-Spalte nach den Produktspalten
-    const hasDA = String(teamId) === 'Trikala01';
-    // +2 = NPS + LQ, +1 = CR, +2 = Calls + CHT, +1 = DA (nur MF)
-    const gridCols = `${nameColWidth} repeat(${2 + displayedProducts.length + (hasDA ? 1 : 0) + 1 + 2}, 1fr)`;
+    // +2 = NPS + LQ, +1 = CR, +2 = Calls + CHT
+    const gridCols = `${nameColWidth} repeat(${2 + displayedProducts.length + 1 + 2}, 1fr)`;
 
     function buildGrid(agentsSubset){
       const grid = document.createElement('div');
@@ -8138,7 +7033,6 @@ function renderOverview(){
           const fmt = lbl.includes('+') ? lbl.split('+').join('<br>+<br>') : lbl;
           return `<div class="ov-cell sales-cell head">${fmt}</div>`;
         }).join('') +
-        (hasDA ? `<div class="ov-cell sales-cell head">DA</div>` : '') +
         `<div class="ov-cell cr-cell head">★ CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head cht-group-start cht-group-first">Calls</div>` +
         `<div class="ov-cell qual-cell head cht-group-end cht-group-first">CHT</div>`;
@@ -8174,13 +7068,6 @@ function renderOverview(){
           const status = isNull ? 'zero' : trafficStatus(val, myTargets[i]);
           html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass ${status}" style="font-size:14px;">${isNull ? '0' : Math.round(val)}</span></div>`;
         });
-        if(hasDA){
-          const daVal = agent.sales['MA'];
-          const daIsNull = (daVal === null || daVal === undefined);
-          const daNum = daIsNull ? 0 : Math.round(daVal);
-          const daStatus = daNum === 0 ? 'zero' : daNum < 10 ? 'mid' : 'good';
-          html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass ${daStatus}" style="font-size:14px;">${daIsNull ? '0' : daNum}</span></div>`;
-        }
         html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(1)}%</span></div>`;
         html += `<div class="ov-cell qual-cell cht-group-start${isLastRow?' cht-group-last':''}"><span class="ov-badge ${agent.calls===null||agent.calls===undefined?'':'good'}">${(agent.calls===null||agent.calls===undefined) ? '–' : Math.round(agent.calls)}</span></div>`;
         const chtVal = (agent.cht === null || agent.cht === undefined) ? null : agent.cht;
@@ -8285,7 +7172,6 @@ document.getElementById('add-agent-btn').addEventListener('click', ()=>{
     btn.textContent = `${cfg.label} — ${cfg.project}`;
     btn.addEventListener('click', ()=>{
       state.agents.push(makeAgent(teamId));
-      twBlockUntil = Date.now() + 15000; // Hintergrund-Sync 15s sperren
       scheduleSave();
       overlay.remove();
       renderAll();
@@ -8981,135 +7867,6 @@ html[data-fx-theme="dark"] svg text{fill:var(--muted);}
 })();
 </script>
 
-<!-- ===== BACKUP MODAL ===== -->
-<div id="backup-modal-overlay" style="display:none;" onclick="if(event.target===this)closeBackupModal()">
-  <div id="backup-modal">
-    <div class="backup-modal-header">
-      <h3>🗂 Lokale Backups</h3>
-      <button class="backup-modal-close" onclick="closeBackupModal()">✕</button>
-    </div>
-    <div class="backup-modal-body" id="backup-modal-body">
-      <div class="backup-empty">Keine Backups vorhanden.</div>
-    </div>
-  </div>
-</div>
-
-<script>
-(function(){
-  const BACKUP_KEY = 'standort_backup_slots';
-  const BACKUP_LOAD_KEY = 'standort_backup_load_slots';
-
-  function getSlots(){
-    try { return JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]'); } catch(e){ return []; }
-  }
-  function getLoadSlots(){
-    try { return JSON.parse(localStorage.getItem(BACKUP_LOAD_KEY) || '[]'); } catch(e){ return []; }
-  }
-
-  function renderSlotList(slots, sourceTag, body){
-    slots.forEach(function(slot, idx){
-      const agentCount = (slot.agents || []).length;
-      let twCount = 0;
-      (slot.agents || []).forEach(function(a){
-        const tw = a.tageswerte || {};
-        Object.values(tw).forEach(function(days){ twCount += Object.keys(days).length; });
-      });
-      const div = document.createElement('div');
-      div.className = 'backup-slot';
-      const badge = sourceTag === 'load'
-        ? '<span style="font-size:10px;background:#E3F2FD;color:#1565C0;border-radius:4px;padding:1px 5px;margin-left:6px;">Auto-Laden</span>'
-        : '<span style="font-size:10px;background:#E8F5E9;color:#2E7D32;border-radius:4px;padding:1px 5px;margin-left:6px;">Nach Speichern</span>';
-      div.innerHTML = '<div class="backup-slot-info">'
-        + '<div class="backup-slot-date">' + (slot.label || slot.ts) + badge + '</div>'
-        + '<div class="backup-slot-meta">' + agentCount + ' Agenten · ' + twCount + ' Tageswert-Einträge</div>'
-        + '</div>'
-        + '<button class="backup-slot-restore" onclick="restoreBackupSlot(\'' + sourceTag + '\',' + idx + ')">Wiederherstellen</button>';
-      body.appendChild(div);
-    });
-  }
-
-  window.openBackupModal = function(){
-    const overlay = document.getElementById('backup-modal-overlay');
-    const body = document.getElementById('backup-modal-body');
-    const saveSlots = getSlots();
-    const loadSlots = getLoadSlots();
-    const allSlots = saveSlots.length + loadSlots.length;
-    if(!allSlots){
-      body.innerHTML = '<div class="backup-empty">Noch keine Backups vorhanden.<br><small>Ab sofort werden Backups automatisch beim Laden und Speichern erstellt.</small></div>';
-    } else {
-      body.innerHTML = '';
-      if(loadSlots.length){
-        const h = document.createElement('div');
-        h.style.cssText = 'font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;margin-top:4px;';
-        h.textContent = 'Automatische Lade-Snapshots (täglich)';
-        body.appendChild(h);
-        renderSlotList(loadSlots, 'load', body);
-      }
-      if(saveSlots.length){
-        const h = document.createElement('div');
-        h.style.cssText = 'font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;margin-top:14px;';
-        h.textContent = 'Manuelle Speicher-Snapshots (letzte 10)';
-        body.appendChild(h);
-        renderSlotList(saveSlots, 'save', body);
-      }
-    }
-    overlay.style.display = 'flex';
-  };
-
-  window.closeBackupModal = function(){
-    document.getElementById('backup-modal-overlay').style.display = 'none';
-  };
-
-  window.restoreBackupSlot = function(sourceTag, idx){
-    const slots = sourceTag === 'load' ? getLoadSlots() : getSlots();
-    const slot = slots[idx];
-    if(!slot){ alert('Backup nicht gefunden.'); return; }
-    if(!confirm('Tageswerte aus diesem Backup wiederherstellen?\n\n' + (slot.label || slot.ts) + '\n\nDies überschreibt die aktuellen Tageswerte im Speicher (nicht automatisch gespeichert).')){ return; }
-    // Merge tageswerte from backup into current state
-    let restored = 0;
-    (slot.agents || []).forEach(function(backupAgent){
-      const liveAgent = (window.state && window.state.agents || []).find(function(a){ return a.id === backupAgent.id; });
-      if(liveAgent && backupAgent.tageswerte){
-        // Deep merge: backup fills in missing months/days, does not overwrite existing
-        Object.entries(backupAgent.tageswerte).forEach(function([monthKey, days]){
-          if(!liveAgent.tageswerte) liveAgent.tageswerte = {};
-          if(!liveAgent.tageswerte[monthKey]) liveAgent.tageswerte[monthKey] = {};
-          Object.entries(days).forEach(function([dayKey, val]){
-            if(!liveAgent.tageswerte[monthKey][dayKey]){
-              liveAgent.tageswerte[monthKey][dayKey] = val;
-              restored++;
-            }
-          });
-        });
-      }
-    });
-    closeBackupModal();
-    alert('Wiederherstellung abgeschlossen: ' + restored + ' fehlende Tageswert-Einträge eingefügt.\n\nBitte jetzt manuell speichern (💾), um die Daten auf dem Server zu sichern!');
-    // Trigger re-render if possible
-    if(typeof window.renderAll === 'function') window.renderAll();
-    else if(typeof window.boot === 'function') {}
-  };
-
-  // Console helper
-  window.showBackups = function(){
-    const saveSlots = getSlots();
-    const loadSlots = getLoadSlots();
-    function summarize(slots, label){
-      if(!slots.length){ console.log(label + ': Keine vorhanden'); return; }
-      console.log('=== ' + label + ' (' + slots.length + ') ===');
-      slots.forEach(function(s, i){
-        let tw = 0;
-        (s.agents||[]).forEach(function(a){ Object.values(a.tageswerte||{}).forEach(function(d){ tw+=Object.keys(d).length; }); });
-        console.log('  ' + i + ': ' + s.label + ' | Agenten: ' + (s.agents||[]).length + ' | Tageswerte: ' + tw);
-      });
-    }
-    summarize(loadSlots, 'Auto-Lade-Snapshots');
-    summarize(saveSlots, 'Speicher-Snapshots');
-    console.log('Zum Wiederherstellen: openBackupModal()');
-    return { loadSlots, saveSlots };
-  };
-})();
-</script>
 
 </body>
 </html>
