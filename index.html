@@ -901,7 +901,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 97;
+const BOARD_VERSION = 99;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2598,123 +2598,174 @@ function renderCoaching(){
     container.appendChild(block);
   });
 
-  // Schulungs-Mitarbeiter Block (unter allen Teams)
+  // Hilfsfunktion: Karte für Schulungs- und Work-Mitarbeiter (gleicher Aufbau wie normale Karten)
+  function buildSpecialCard(agent, borderColor){
+    const cfg = TEAM_CONFIGS[agent.team] || Object.values(TEAM_CONFIGS)[0];
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.cssText = `border:1.5px dashed ${borderColor};`;
+
+    // === Top Row: Name (editierbar) + Kategorie-Dropdown + Löschen ===
+    const topRow = document.createElement('div');
+    topRow.className = 'card-top';
+    const topLeft = document.createElement('div');
+    topLeft.className = 'card-top-left';
+
+    const dot = document.createElement('div');
+    dot.className = 'status-dot ' + (CATEGORY_CSS[agent.category] || 'regular');
+    topLeft.appendChild(dot);
+
+    const nameInput = document.createElement('input');
+    nameInput.className = 'name-input';
+    nameInput.type = 'text';
+    nameInput.placeholder = 'Name';
+    nameInput.value = agent.name;
+    nameInput.addEventListener('input', e=>{ agent.name = e.target.value; scheduleSave(); document.getElementById('agent-count').textContent = state.agents.length + ' Mitarbeiter'; });
+    topLeft.appendChild(nameInput);
+
+    const catSelect = document.createElement('select');
+    catSelect.className = 'cat-badge ' + (CATEGORY_CSS[agent.category] || 'regular');
+    catSelect.style.cssText = 'cursor:pointer;border:none;';
+    ['regular','6h','helpline','schulung','work'].forEach(catKey=>{
+      const opt = document.createElement('option');
+      opt.value = catKey;
+      opt.textContent = CATEGORY_LABELS[catKey];
+      if(agent.category === catKey) opt.selected = true;
+      catSelect.appendChild(opt);
+    });
+    catSelect.addEventListener('change', e=>{
+      agent.category = e.target.value;
+      scheduleSave();
+      renderAll();
+    });
+    topLeft.appendChild(catSelect);
+
+    const pylonInp = document.createElement('input');
+    pylonInp.className = 'pylon-input'; pylonInp.type = 'text';
+    pylonInp.placeholder = 'Pylon-Nr.'; pylonInp.title = 'Pylon-Nummer';
+    pylonInp.value = agent.pylon || '';
+    pylonInp.addEventListener('input', e=>{ agent.pylon = e.target.value.trim(); scheduleSave(); });
+    topLeft.appendChild(pylonInp);
+
+    const aKennungInp = document.createElement('input');
+    aKennungInp.className = 'akennung-input'; aKennungInp.type = 'text';
+    aKennungInp.placeholder = 'A-Kennung'; aKennungInp.title = 'A-Kennung';
+    aKennungInp.value = agent.aKennung || '';
+    aKennungInp.addEventListener('input', e=>{ agent.aKennung = e.target.value.trim(); scheduleSave(); });
+    topLeft.appendChild(aKennungInp);
+
+    const ortSelect = document.createElement('select');
+    ortSelect.className = 'pylon-input'; ortSelect.title = 'Arbeitsort';
+    ortSelect.style.cursor = 'pointer'; ortSelect.style.width = 'auto';
+    [['','🏢/🏠'],['buero','🏢 Büro'],['homeoffice','🏠 Homeoffice']].forEach(([val,lbl])=>{
+      const opt = document.createElement('option');
+      opt.value = val; opt.textContent = lbl;
+      if((agent.arbeitsort||'') === val) opt.selected = true;
+      ortSelect.appendChild(opt);
+    });
+    ortSelect.addEventListener('change', e=>{ agent.arbeitsort = e.target.value; scheduleSave(); });
+    topLeft.appendChild(ortSelect);
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
+    removeBtn.addEventListener('click', ()=>{
+      if(!confirm(`"${agent.name || 'Dieser Mitarbeiter'}" wirklich löschen?`)) return;
+      state.agents = state.agents.filter(a=>a.id!==agent.id);
+      scheduleSave(); renderAll();
+    });
+
+    topRow.appendChild(topLeft); topRow.appendChild(removeBtn);
+    card.appendChild(topRow);
+
+    // === vs. Teamdurchschnitt ===
+    const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
+    const monatsListe = (vlEntry && vlEntry.monate) ? Object.values(vlEntry.monate) : [];
+
+    const avgSection = document.createElement('div');
+    avgSection.className = 'panel-section';
+    const avgTitle = document.createElement('div');
+    avgTitle.className = 'panel-section-title';
+    avgTitle.textContent = '📊 vs. Teamdurchschnitt' + (monatsListe.length ? ` (${monatsListe.length} Monate)` : '');
+    avgSection.appendChild(avgTitle);
+
+    if(monatsListe.length){
+      const avg = (field) => { const vals = monatsListe.map(m=>m[field]).filter(v=>v>0); return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0; };
+      const teamAgentsAll = state.agents.filter(a=>a.team===agent.team && a.name.trim());
+      const teamCums = teamAgentsAll.map(a=>{ const vl=Object.values(state.verlauf).find(v=>v.name===a.name&&v.team===a.team); const mon=(vl&&vl.monate)?Object.values(vl.monate):[]; if(!mon.length) return null; const av=(f)=>{const vs=mon.map(m=>m[f]).filter(v=>v>0); return vs.length?vs.reduce((s,v)=>s+v,0)/vs.length:0;}; return {cr:av('cr'),nps:av('nps'),lq:av('lq'),cht:av('cht')}; }).filter(Boolean);
+      const tAvg = (field) => { const vals=teamCums.map(c=>c[field]).filter(v=>v>0); return vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:0; };
+      const mkRow = (label, av, tv, suffix) => {
+        const row = document.createElement('div'); row.className='panel-avg-row';
+        const diff=av-tv; const arrowCls=diff>0.1?'up':diff<-0.1?'down':'eq'; const arrow=diff>0.1?'▲':diff<-0.1?'▼':'—';
+        row.innerHTML=`<span class="panel-avg-label">${label}</span><div class="panel-avg-vals"><span class="panel-avg-agent">${av.toFixed(1)}${suffix}</span><span class="panel-avg-arrow ${arrowCls}">${arrow}</span><span class="panel-avg-team">Ø${tv.toFixed(1)}${suffix}</span></div>`;
+        return row;
+      };
+      const cr=avg('cr'), nps=avg('nps'), lq=avg('lq'), cht=avg('cht');
+      if(cr>0) avgSection.appendChild(mkRow('CR',cr,tAvg('cr'),'%'));
+      if(nps>0) avgSection.appendChild(mkRow('NPS',nps,tAvg('nps'),'%'));
+      if(lq>0) avgSection.appendChild(mkRow('LQ',lq,tAvg('lq'),'%'));
+      if(cht>0){
+        const row=document.createElement('div'); row.className='panel-avg-row';
+        const diff=cht-tAvg('cht'); const arrowCls=diff<-5?'up':diff>5?'down':'eq'; const arrow=diff<-5?'▼':diff>5?'▲':'—';
+        row.innerHTML=`<span class="panel-avg-label">CHT</span><div class="panel-avg-vals"><span class="panel-avg-agent">${Math.round(cht)}</span><span class="panel-avg-arrow ${arrowCls}">${arrow}</span><span class="panel-avg-team">Ø${Math.round(tAvg('cht'))}</span></div>`;
+        avgSection.appendChild(row);
+      }
+    } else {
+      const none = document.createElement('div'); none.className='panel-coaching-none';
+      none.textContent='Noch keine archivierten Monatsdaten (siehe Monatsabschluss).';
+      avgSection.appendChild(none);
+    }
+
+    // === Notizen ===
+    const notesSection = document.createElement('div');
+    notesSection.className = 'panel-section';
+    const notesTitle = document.createElement('div');
+    notesTitle.className = 'panel-section-title';
+    notesTitle.textContent = '📝 Notizen';
+    notesSection.appendChild(notesTitle);
+    const notesArea = document.createElement('textarea');
+    notesArea.className = 'agent-notes';
+    notesArea.placeholder = 'Notizen zu diesem Mitarbeiter...';
+    notesArea.value = agent.notiz || '';
+    notesArea.addEventListener('input', e=>{ agent.notiz = e.target.value; scheduleSave(); });
+    notesSection.appendChild(notesArea);
+
+    const pairRow = document.createElement('div');
+    pairRow.style.cssText = 'display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;';
+    avgSection.style.cssText = 'flex:0 0 auto;min-width:220px;';
+    notesSection.style.cssText = 'flex:1 1 240px;display:flex;flex-direction:column;';
+    notesArea.style.flex = '1';
+    pairRow.appendChild(avgSection);
+    pairRow.appendChild(notesSection);
+    card.appendChild(pairRow);
+    return card;
+  }
+
+  // Schulungs-Mitarbeiter Block
   const schulungsAgents = state.agents.filter(a => a.category === 'schulung' && a.name.trim() !== '');
   if(schulungsAgents.length){
     const schulungsBlock = document.createElement('div');
     schulungsBlock.className = 'team-block';
     schulungsBlock.style.cssText = 'border:2px dashed #F9A825;background:#FFFDF0;';
     schulungsBlock.innerHTML = `<div class="team-title" style="color:#F57F17;">📚 In Schulung (${schulungsAgents.length})</div>
-      <div style="font-family:'Inter',sans-serif;font-size:12px;color:#B7770D;margin-bottom:12px;">Diese Mitarbeiter erscheinen nicht in Mitarbeiter Ziele. Kategorie ändern, sobald sie einem Team zugeordnet werden.</div>`;
+      <div style="font-family:'Inter',sans-serif;font-size:12px;color:#B7770D;margin-bottom:12px;">Kategorie ändern, sobald sie einem Team zugeordnet werden.</div>`;
     const schulungsWrap = document.createElement('div');
     schulungsWrap.className = 'cards';
-    schulungsAgents.forEach(agent=>{
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.style.cssText = 'border:1.5px dashed #F9A825;';
-
-      const topRow = document.createElement('div');
-      topRow.className = 'card-top';
-      const topLeft = document.createElement('div');
-      topLeft.className = 'card-top-left';
-
-      const dot = document.createElement('div');
-      dot.className = 'status-dot schulung';
-      topLeft.appendChild(dot);
-
-      const nameEl = document.createElement('span');
-      nameEl.style.cssText = 'font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:16px;';
-      nameEl.textContent = agent.name;
-      topLeft.appendChild(nameEl);
-
-      // A-Kennung für Schulungs-Mitarbeiter
-      const aKennungInp = document.createElement('input');
-      aKennungInp.className = 'akennung-input';
-      aKennungInp.type = 'text';
-      aKennungInp.placeholder = 'A-Kennung';
-      aKennungInp.title = 'A-Kennung';
-      aKennungInp.value = agent.aKennung || '';
-      aKennungInp.addEventListener('input', e=>{ agent.aKennung = e.target.value.trim(); scheduleSave(); });
-      topLeft.appendChild(aKennungInp);
-
-      // Team-Auswahl zum schnellen Zuordnen
-      const teamSel = document.createElement('select');
-      teamSel.className = 'cat-badge schulung';
-      teamSel.style.cssText = 'cursor:pointer;font-weight:700;';
-      const defaultOpt = document.createElement('option');
-      defaultOpt.value = ''; defaultOpt.textContent = '→ Team zuordnen';
-      teamSel.appendChild(defaultOpt);
-      Object.keys(TEAM_CONFIGS).forEach(teamId=>{
-        const opt = document.createElement('option');
-        opt.value = teamId; opt.textContent = TEAM_CONFIGS[teamId].label;
-        teamSel.appendChild(opt);
-      });
-      teamSel.addEventListener('change', e=>{
-        if(!e.target.value) return;
-        agent.team = e.target.value;
-        agent.category = 'regular';
-        scheduleSave();
-        renderAll();
-      });
-      topLeft.appendChild(teamSel);
-      topRow.appendChild(topLeft);
-      card.appendChild(topRow);
-      schulungsWrap.appendChild(card);
-    });
+    schulungsAgents.forEach(agent=> schulungsWrap.appendChild(buildSpecialCard(agent, '#F9A825')));
     schulungsBlock.appendChild(schulungsWrap);
     container.appendChild(schulungsBlock);
   }
 
-  // Work-Mitarbeiter Block (unter Schulungs-Block)
+  // Work-Mitarbeiter Block
   const workAgents = state.agents.filter(a => a.category === 'work' && a.name.trim() !== '');
   if(workAgents.length){
     const workBlock = document.createElement('div');
     workBlock.className = 'team-block';
     workBlock.style.cssText = 'border:2px dashed #66BB6A;background:#F1F8F1;';
     workBlock.innerHTML = `<div class="team-title" style="color:#2E7D32;">🏗️ Work (${workAgents.length})</div>
-      <div style="font-family:'Inter',sans-serif;font-size:12px;color:#388E3C;margin-bottom:12px;">Diese Mitarbeiter erscheinen nur im Standort Überblick. Kategorie ändern um sie in Mitarbeiter Ziele einzublenden.</div>`;
+      <div style="font-family:'Inter',sans-serif;font-size:12px;color:#388E3C;margin-bottom:12px;">Erscheinen nur im Standort Überblick. Kategorie ändern um sie in Mitarbeiter Ziele einzublenden.</div>`;
     const workWrap = document.createElement('div');
     workWrap.className = 'cards';
-    workAgents.forEach(agent=>{
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.style.cssText = 'border:1.5px dashed #66BB6A;';
-
-      const topRow = document.createElement('div');
-      topRow.className = 'card-top';
-      const topLeft = document.createElement('div');
-      topLeft.className = 'card-top-left';
-
-      const dot = document.createElement('div');
-      dot.className = 'status-dot work';
-      topLeft.appendChild(dot);
-
-      const nameEl = document.createElement('span');
-      nameEl.style.cssText = 'font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:16px;';
-      nameEl.textContent = agent.name;
-      topLeft.appendChild(nameEl);
-
-      const catSelect = document.createElement('select');
-      catSelect.className = 'cat-badge work';
-      catSelect.style.cssText = 'cursor:pointer;font-weight:700;border:none;';
-      ['regular','6h','helpline','schulung','work'].forEach(catKey=>{
-        const opt = document.createElement('option');
-        opt.value = catKey;
-        opt.textContent = CATEGORY_LABELS[catKey];
-        if(agent.category === catKey) opt.selected = true;
-        catSelect.appendChild(opt);
-      });
-      catSelect.addEventListener('change', e=>{
-        agent.category = e.target.value;
-        scheduleSave();
-        renderAll();
-      });
-      topLeft.appendChild(catSelect);
-
-      topRow.appendChild(topLeft);
-      card.appendChild(topRow);
-      workWrap.appendChild(card);
-    });
+    workAgents.forEach(agent=> workWrap.appendChild(buildSpecialCard(agent, '#66BB6A')));
     workBlock.appendChild(workWrap);
     container.appendChild(workBlock);
   }
