@@ -901,7 +901,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, d
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 100;
+const BOARD_VERSION = 101;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6728,6 +6728,11 @@ function parseHelpsenseSheet(rows){
         if(!result[pylon]) result[pylon] = {};
         if(chtCol   !== -1 && row[chtCol]   !== '' && row[chtCol]   !== null && row[chtCol]   !== undefined) result[pylon].cht   = toNum(row[chtCol]);
         if(callsCol !== -1 && row[callsCol] !== '' && row[callsCol] !== null && row[callsCol] !== undefined) result[pylon].calls = toNum(row[callsCol]);
+        // NPS/LQ auch über perfPylonCol lesen (Datei mit nur einer Pylon-Spalte die alle Felder enthält)
+        if(qualPylonCol === -1){
+          if(npsCol !== -1 && row[npsCol] !== '' && row[npsCol] !== null && row[npsCol] !== undefined) result[pylon].nps = toPct(row[npsCol]);
+          if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = toPct(row[lqCol]);
+        }
       }
     }
     // Quality-Daten (user_pylon, nps, anliegen)
@@ -6739,7 +6744,7 @@ function parseHelpsenseSheet(rows){
         if(lqCol  !== -1 && row[lqCol]  !== '' && row[lqCol]  !== null && row[lqCol]  !== undefined) result[pylon].lq  = toPct(row[lqCol]);
       }
     }
-    // Fallback: nur eine Pylon-Spalte (separate Dateien)
+    // Fallback: nur eine Pylon-Spalte (separate Dateien, nur Quality)
     if(perfPylonCol === -1 && qualPylonCol !== -1 && row[qualPylonCol]){
       const pylon = parseInt(row[qualPylonCol]);
       if(!isNaN(pylon)){
