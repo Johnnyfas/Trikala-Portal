@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 106;
+const BOARD_VERSION = 107;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1274,6 +1274,25 @@ async function loadFromSharePoint(){
             if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
           });
         }
+        // Migration: MA → DA in Tageswerten (nur MF-Team Trikala01)
+        state.agents.forEach(agent=>{
+          if(String(agent.team) !== 'Trikala01') return;
+          if(!agent.tageswerte) return;
+          Object.keys(agent.tageswerte).forEach(monthKey=>{
+            const month = agent.tageswerte[monthKey];
+            Object.keys(month).forEach(dayKey=>{
+              const dv = month[dayKey];
+              if(dv && dv.sales && 'MA' in dv.sales){
+                dv.sales['DA'] = dv.sales['MA'];
+                delete dv.sales['MA'];
+              }
+            });
+          });
+          if(agent.sales && 'MA' in agent.sales){
+            agent.sales['DA'] = agent.sales['MA'];
+            delete agent.sales['MA'];
+          }
+        });
         // Ungültige Verlauf-Einträge entfernen
         const INVALID_NAMES = ['6','Helpline','helpline','Michas','Lekaki','Manachiari','Tstisoula'];
         // Alte Alias-Keys entfernen
@@ -7169,7 +7188,7 @@ function twRecomputeAgent(agent, cfg){
   if(!tw){ return; }
   const days = Object.keys(tw);
   if(!days.length) return;
-  const extraRecompute = cfg === TEAM_CONFIGS['Trikala01'] ? ['VVM', 'MA'] : ['MA'];
+  const extraRecompute = cfg === TEAM_CONFIGS['Trikala01'] ? ['VVM', 'DA'] : ['DA'];
   const produkte = [...cfg.products, ...extraRecompute];
   const salesSum = {};
   // Sobald Tageswerte existieren, ist Tageswerte die einzige Quelle für Produktverkäufe:
@@ -7246,8 +7265,8 @@ function renderTageswerte(){
     // Team-Produktliste, die auch für Ziele/Quoten in anderen Reitern genutzt wird) - wird der
     // Liste hinzugefügt und dann gemeinsam in die Team-Anzeigereihenfolge sortiert (dort steht
     // MA jeweils am Ende).
-    // Zusätzliche Produkte pro Team in Tageswerte: MA für alle, Avia (VVM) für MF-Team nach SU
-    const extraProds = teamId === 'Trikala01' ? ['VVM', 'MA'] : ['MA'];
+    // Zusätzliche Produkte pro Team in Tageswerte: DA für alle, Avia (VVM) für MF-Team nach SU
+    const extraProds = teamId === 'Trikala01' ? ['VVM', 'DA'] : ['DA'];
     const orderedProducts = displayOrderProducts([...cfg.products, ...extraProds], teamId);
     const productHeaders = orderedProducts.map(p=>productLabel(p, teamId));
     const headers = isTotal
@@ -7386,10 +7405,10 @@ function renderTageswerte(){
 // Trikala06 = Festnetz). Wird in "Mitarbeiter Ziele" und "Tageswerte" verwendet; die interne
 // Zuordnung der Zielwerte bleibt davon unberührt, nur die Anzeige wird umsortiert.
 const PRODUCT_DISPLAY_ORDER_BY_TEAM = {
-  Trikala01: ['MF','BB','TV','SU','VVM','VVM+BOJ','VVM+NVM','MA'],
-  Trikala06: ['BB','SU','TV','MF','VVM+BOJ','VVM+NVM','MA']
+  Trikala01: ['MF','BB','TV','SU','VVM','VVM+BOJ','VVM+NVM','DA'],
+  Trikala06: ['BB','SU','TV','MF','VVM+BOJ','VVM+NVM','DA']
 };
-const PRODUCT_DISPLAY_ORDER = ['BB','SU','VVM+BOJ','VVM+NVM','TV','MF','MA'];
+const PRODUCT_DISPLAY_ORDER = ['BB','SU','VVM+BOJ','VVM+NVM','TV','MF','DA'];
 // Anzeige-Namen einzelner Produkte pro Team. Der interne Datenschlüssel bleibt unverändert
 // (z.B. "VVM+BOJ"), damit bereits erfasste Zahlen und Zielwerte weiterhin korrekt zugeordnet
 // sind - nur die Beschriftung in der Tabelle ändert sich.
