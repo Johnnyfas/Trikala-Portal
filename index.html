@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 111;
+const BOARD_VERSION = 112;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6800,7 +6800,7 @@ function renderTeamZiele(){
     sollRow.appendChild(cell('Soll Netto', 'tz-label'));
 
     // DA-Kachel (nur MF-Team): rowspan=2 überspannt Soll+Ist-Zeile, colspan=2 die zwei leeren Spalten
-    if(cols.includes('DA')){
+    if(key === 'mf'){
       if(tz.daNettoStand === undefined) tz.daNettoStand = 0;
       if(tz.daQteAssisted === undefined) tz.daQteAssisted = 0;
       const daTd = document.createElement('td');
@@ -6839,7 +6839,7 @@ function renderTeamZiele(){
     const istRow = document.createElement('tr'); istRow.className = 'tz-row-ist';
     istRow.appendChild(cell('Ist Netto', 'tz-label'));
     // Keine leeren Zellen hier wenn DA-Kachel via rowspan abgedeckt
-    if(!cols.includes('DA')){
+    if(key !== 'mf'){
       istRow.appendChild(cell('')); istRow.appendChild(cell(''));
     }
     cols.forEach(p => {
@@ -7019,8 +7019,8 @@ function renderTeamZiele(){
   };
 
   renderTeam('mf', 'MF Trikala — Mobilfunk PK',
-    ['BB','SU','BOJ','VVM','TV','MF','DA'],
-    {BB:'BB',SU:'SU',BOJ:'HV',VVM:'Avia',TV:'TV',MF:'MF',DA:'DA'}
+    ['BB','SU','BOJ','VVM','TV','MF'],
+    {BB:'BB',SU:'SU',BOJ:'HV',VVM:'Avia',TV:'TV',MF:'MF'}
   );
   renderTeam('fn', 'FN Team — Festnetz PK',
     ['BB','SU','BOJ','VVM','TV','MF'],
