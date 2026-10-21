@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 114;
+const BOARD_VERSION = 115;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6388,7 +6388,7 @@ function renderMonatsabschluss(){
         chip.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:#F0F0F8;border-radius:8px;padding:3px 6px 3px 8px;border:1px solid #DDD;';
         const nameInp = document.createElement('input');
         nameInp.type = 'text';
-        nameInp.value = prodLabel(p);
+        nameInp.value = p; // echten Key anzeigen, nicht den Anzeige-Label
         nameInp.style.cssText = 'border:none;outline:none;background:transparent;font-size:12px;font-weight:600;width:' + Math.max(30, nameInp.value.length * 8) + 'px;';
         nameInp.addEventListener('input', ()=>{ nameInp.style.width = Math.max(30, nameInp.value.length * 8) + 'px'; });
         nameInp.addEventListener('change', ()=>{
@@ -6398,7 +6398,6 @@ function renderMonatsabschluss(){
           ['plan','erreicht','cr','crZiel','storno'].forEach(key=>{
             if(md[key] && p in md[key]){ md[key][newName] = md[key][p]; delete md[key][p]; }
           });
-          // PROD_LABELS aktualisieren (nur für bekannte Keys unwichtig - wir speichern den neuen Key direkt)
           scheduleSave(); renderMonatsabschluss();
         });
         const delBtn = document.createElement('button');
