@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 112;
+const BOARD_VERSION = 113;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6354,6 +6354,85 @@ function renderMonatsabschluss(){
     const produkte = PROD_ORDER.filter(p => allProds.includes(p))
       .concat(allProds.filter(p => !PROD_ORDER.includes(p) && !EXCLUDE.includes(p)));
 
+    // === PRODUKTE VERWALTEN ===
+    const prodMgmtWrap = document.createElement('div');
+    prodMgmtWrap.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;';
+
+    let prodEditMode = false;
+    const prodEditBtn = document.createElement('button');
+    prodEditBtn.style.cssText = 'font-size:12px;padding:4px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card);cursor:pointer;color:var(--muted);';
+    prodEditBtn.textContent = '✏️ Produkte bearbeiten';
+
+    const prodEditRow = document.createElement('div');
+    prodEditRow.style.cssText = 'display:none;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 12px;background:var(--card);border-radius:10px;border:1px solid var(--border);width:100%;';
+
+    const rebuildProdEditRow = () => {
+      prodEditRow.innerHTML = '';
+      const allKeys = Object.keys(md.plan).filter(p => !EXCLUDE.includes(p));
+      allKeys.forEach(p => {
+        const chip = document.createElement('div');
+        chip.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:#F0F0F8;border-radius:8px;padding:3px 6px 3px 8px;border:1px solid #DDD;';
+        const nameInp = document.createElement('input');
+        nameInp.type = 'text';
+        nameInp.value = prodLabel(p);
+        nameInp.style.cssText = 'border:none;outline:none;background:transparent;font-size:12px;font-weight:600;width:' + Math.max(30, nameInp.value.length * 8) + 'px;';
+        nameInp.addEventListener('input', ()=>{ nameInp.style.width = Math.max(30, nameInp.value.length * 8) + 'px'; });
+        nameInp.addEventListener('change', ()=>{
+          const newName = nameInp.value.trim();
+          if(!newName || newName === p) return;
+          // Alle Datenfelder umbenennen
+          ['plan','erreicht','cr','crZiel','storno'].forEach(key=>{
+            if(md[key] && p in md[key]){ md[key][newName] = md[key][p]; delete md[key][p]; }
+          });
+          // PROD_LABELS aktualisieren (nur für bekannte Keys unwichtig - wir speichern den neuen Key direkt)
+          scheduleSave(); renderMonatsabschluss();
+        });
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '×';
+        delBtn.style.cssText = 'border:none;background:none;cursor:pointer;color:#B00;font-size:14px;line-height:1;padding:0 2px;';
+        delBtn.title = 'Produkt löschen';
+        delBtn.addEventListener('click', ()=>{
+          if(!confirm(`Produkt "${prodLabel(p)}" wirklich aus diesem Monat löschen?`)) return;
+          ['plan','erreicht','cr','crZiel','storno'].forEach(key=>{ if(md[key]) delete md[key][p]; });
+          scheduleSave(); renderMonatsabschluss();
+        });
+        chip.appendChild(nameInp); chip.appendChild(delBtn);
+        prodEditRow.appendChild(chip);
+      });
+      // "+ Neu" Button
+      const addBtn = document.createElement('button');
+      addBtn.textContent = '+ Produkt';
+      addBtn.style.cssText = 'font-size:12px;padding:4px 10px;border-radius:20px;border:1px dashed #9B59B6;background:transparent;color:#9B59B6;cursor:pointer;';
+      addBtn.addEventListener('click', ()=>{
+        const name = prompt('Name des neuen Produkts:');
+        if(!name || !name.trim()) return;
+        const key = name.trim();
+        if(md.plan[key] !== undefined){ alert('Produkt existiert bereits.'); return; }
+        ['plan','erreicht','cr','crZiel','storno'].forEach(k=>{ if(!md[k]) md[k]={}; md[k][key]=0; });
+        scheduleSave(); renderMonatsabschluss();
+      });
+      prodEditRow.appendChild(addBtn);
+    };
+
+    prodEditBtn.addEventListener('click', ()=>{
+      prodEditMode = !prodEditMode;
+      if(prodEditMode){
+        rebuildProdEditRow();
+        prodEditRow.style.display = 'flex';
+        prodEditBtn.style.background = '#E8EAFF';
+        prodEditBtn.style.color = '#3B4FC8';
+        prodEditBtn.textContent = '✓ Fertig';
+      } else {
+        prodEditRow.style.display = 'none';
+        prodEditBtn.style.background = 'var(--card)';
+        prodEditBtn.style.color = 'var(--muted)';
+        prodEditBtn.textContent = '✏️ Produkte bearbeiten';
+      }
+    });
+
+    prodMgmtWrap.appendChild(prodEditBtn);
+    prodMgmtWrap.appendChild(prodEditRow);
+
     const t = document.createElement('table');
     t.className = 'ma-table';
 
@@ -6614,6 +6693,7 @@ function renderMonatsabschluss(){
     maLayout.className = 'ma-layout';
     const tableWrapMA = document.createElement('div');
     tableWrapMA.className = 'ma-table-wrap';
+    tableWrapMA.appendChild(prodMgmtWrap);
     tableWrapMA.appendChild(t);
 
     // CHT & Calls Luftbalsen (unter der NPS-Seite)
