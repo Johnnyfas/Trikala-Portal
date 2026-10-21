@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 115;
+const BOARD_VERSION = 116;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6365,8 +6365,13 @@ function renderMonatsabschluss(){
       : {};
     const prodLabel = p => PROD_LABELS[p] || p;
     const allProds = Object.keys(md.plan).filter(p => !EXCLUDE.includes(p));
-    const produkte = PROD_ORDER.filter(p => allProds.includes(p))
-      .concat(allProds.filter(p => !PROD_ORDER.includes(p) && !EXCLUDE.includes(p)));
+    // Reihenfolge: zuerst aus md._prodOrder (user-definiert), dann Rest nach PROD_ORDER
+    if(!md._prodOrder) md._prodOrder = [];
+    // Ungültige Einträge entfernen (gelöschte Produkte)
+    md._prodOrder = md._prodOrder.filter(p => allProds.includes(p));
+    // Neue Produkte ans Ende anhängen (nicht in _prodOrder aber in allProds)
+    allProds.forEach(p => { if(!md._prodOrder.includes(p)) md._prodOrder.push(p); });
+    const produkte = [...md._prodOrder];
 
     // === PRODUKTE VERWALTEN ===
     const prodMgmtWrap = document.createElement('div');
@@ -6380,16 +6385,57 @@ function renderMonatsabschluss(){
     const prodEditRow = document.createElement('div');
     prodEditRow.style.cssText = 'display:none;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 12px;background:var(--card);border-radius:10px;border:1px solid var(--border);width:100%;';
 
+    let dragSrcKey = null;
     const rebuildProdEditRow = () => {
       prodEditRow.innerHTML = '';
-      const allKeys = Object.keys(md.plan).filter(p => !EXCLUDE.includes(p));
-      allKeys.forEach(p => {
+      // Reihenfolge aus md._prodOrder (bereits synchronisiert mit allProds)
+      const orderedKeys = [...md._prodOrder];
+      orderedKeys.forEach(p => {
         const chip = document.createElement('div');
-        chip.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:#F0F0F8;border-radius:8px;padding:3px 6px 3px 8px;border:1px solid #DDD;';
+        chip.dataset.key = p;
+        chip.draggable = true;
+        chip.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:#F0F0F8;border-radius:8px;padding:3px 6px 3px 8px;border:1px solid #DDD;cursor:grab;user-select:none;';
+
+        // Drag-Handle
+        const handle = document.createElement('span');
+        handle.textContent = '⠿';
+        handle.style.cssText = 'font-size:13px;color:#AAA;cursor:grab;margin-right:2px;';
+        handle.title = 'Ziehen zum Verschieben';
+
+        chip.addEventListener('dragstart', e => {
+          dragSrcKey = p;
+          chip.style.opacity = '0.4';
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        chip.addEventListener('dragend', () => {
+          chip.style.opacity = '1';
+          prodEditRow.querySelectorAll('[data-key]').forEach(c => c.style.outline = '');
+        });
+        chip.addEventListener('dragover', e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          if(p !== dragSrcKey) chip.style.outline = '2px solid #9B59B6';
+        });
+        chip.addEventListener('dragleave', () => { chip.style.outline = ''; });
+        chip.addEventListener('drop', e => {
+          e.preventDefault();
+          chip.style.outline = '';
+          if(!dragSrcKey || dragSrcKey === p) return;
+          // Reihenfolge in md._prodOrder tauschen
+          const fromIdx = md._prodOrder.indexOf(dragSrcKey);
+          const toIdx = md._prodOrder.indexOf(p);
+          if(fromIdx < 0 || toIdx < 0) return;
+          md._prodOrder.splice(fromIdx, 1);
+          md._prodOrder.splice(toIdx, 0, dragSrcKey);
+          dragSrcKey = null;
+          scheduleSave(); renderMonatsabschluss();
+        });
+
         const nameInp = document.createElement('input');
         nameInp.type = 'text';
-        nameInp.value = p; // echten Key anzeigen, nicht den Anzeige-Label
-        nameInp.style.cssText = 'border:none;outline:none;background:transparent;font-size:12px;font-weight:600;width:' + Math.max(30, nameInp.value.length * 8) + 'px;';
+        nameInp.value = p; // echten Key anzeigen
+        nameInp.style.cssText = 'border:none;outline:none;background:transparent;font-size:12px;font-weight:600;width:' + Math.max(30, nameInp.value.length * 8) + 'px;cursor:text;';
+        nameInp.addEventListener('mousedown', e => e.stopPropagation()); // kein drag beim Tippen
         nameInp.addEventListener('input', ()=>{ nameInp.style.width = Math.max(30, nameInp.value.length * 8) + 'px'; });
         nameInp.addEventListener('change', ()=>{
           const newName = nameInp.value.trim();
@@ -6398,18 +6444,24 @@ function renderMonatsabschluss(){
           ['plan','erreicht','cr','crZiel','storno'].forEach(key=>{
             if(md[key] && p in md[key]){ md[key][newName] = md[key][p]; delete md[key][p]; }
           });
+          // _prodOrder aktualisieren
+          const idx = md._prodOrder.indexOf(p);
+          if(idx >= 0) md._prodOrder[idx] = newName;
           scheduleSave(); renderMonatsabschluss();
         });
+
         const delBtn = document.createElement('button');
         delBtn.textContent = '×';
         delBtn.style.cssText = 'border:none;background:none;cursor:pointer;color:#B00;font-size:14px;line-height:1;padding:0 2px;';
         delBtn.title = 'Produkt löschen';
         delBtn.addEventListener('click', ()=>{
-          if(!confirm(`Produkt "${prodLabel(p)}" wirklich aus diesem Monat löschen?`)) return;
+          if(!confirm(`Produkt "${p}" wirklich aus diesem Monat löschen?`)) return;
           ['plan','erreicht','cr','crZiel','storno'].forEach(key=>{ if(md[key]) delete md[key][p]; });
+          md._prodOrder = md._prodOrder.filter(k => k !== p);
           scheduleSave(); renderMonatsabschluss();
         });
-        chip.appendChild(nameInp); chip.appendChild(delBtn);
+
+        chip.appendChild(handle); chip.appendChild(nameInp); chip.appendChild(delBtn);
         prodEditRow.appendChild(chip);
       });
       // "+ Neu" Button
@@ -6422,6 +6474,8 @@ function renderMonatsabschluss(){
         const key = name.trim();
         if(md.plan[key] !== undefined){ alert('Produkt existiert bereits.'); return; }
         ['plan','erreicht','cr','crZiel','storno'].forEach(k=>{ if(!md[k]) md[k]={}; md[k][key]=0; });
+        if(!md._prodOrder) md._prodOrder = [];
+        md._prodOrder.push(key);
         scheduleSave(); renderMonatsabschluss();
       });
       prodEditRow.appendChild(addBtn);
