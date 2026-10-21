@@ -877,14 +877,14 @@ const VERLAUF_SEED = {};
 let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, tagesziele: [], deletedEntryIds: [], verlauf: JSON.parse(JSON.stringify(VERLAUF_SEED)), monatsabschluss: JSON.parse(JSON.stringify(MA_SEED)), teamziele: {
   mf: {
     datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 69, cht: 600, na: 1,
-    soll: {MF:770, BB:109, SU:67, TV:52, BOJ:17},
-    ist: {MF:0, BB:0, SU:0, TV:0, BOJ:0},
+    soll: {MF:770, BB:109, SU:67, TV:52, BOJ:17, DA:0},
+    ist: {MF:0, BB:0, SU:0, TV:0, BOJ:0, DA:0},
     crGestern: 4.15, crMonat: 3.79, crZiel: 6.20,
-    crZiel1: {MF:2.94, BB:0.40, SU:0.21, TV:0.19, BOJ:0.05},
-    crZiel2: {MF:3.30, BB:0.50, SU:0.40, TV:0.30, BOJ:0.10},
-    crZiel3: {MF:4.00, BB:0.80, SU:0.70, TV:0.60, BOJ:0.30},
+    crZiel1: {MF:2.94, BB:0.40, SU:0.21, TV:0.19, BOJ:0.05, DA:0},
+    crZiel2: {MF:3.30, BB:0.50, SU:0.40, TV:0.30, BOJ:0.10, DA:0},
+    crZiel3: {MF:4.00, BB:0.80, SU:0.70, TV:0.60, BOJ:0.30, DA:0},
     crZiel4MF: 4.5,
-    storno: {MF:25.29, BB:31.07, SU:23.40, TV:23.26, BOJ:61.90}
+    storno: {MF:25.29, BB:31.07, SU:23.40, TV:23.26, BOJ:61.90, DA:0}
   },
   fn: {
     datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 68,
@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 108;
+const BOARD_VERSION = 110;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6774,10 +6774,46 @@ function renderTeamZiele(){
 
     sidebar.appendChild(mkCrSideBox('gestern', 'CR Gestern', tz.crGestern||0, v=>{ tz.crGestern=v; }, false));
     const crAktSide = tz.crAktuell || {};
-    // BOJ (= HV) wird bei beiden Teams aus der CR-Gesamt-Berechnung ausgeschlossen
-    const crMonatSide = cols.filter(p=>p!=='BOJ').reduce((s,p)=>s+(parseFloat(crAktSide[p]||0)),0);
+    // BOJ (= HV) und DA werden aus der CR-Gesamt-Berechnung ausgeschlossen
+    const crMonatSide = cols.filter(p=>p!=='BOJ'&&p!=='DA').reduce((s,p)=>s+(parseFloat(crAktSide[p]||0)),0);
     sidebar.appendChild(mkCrSideBox('monat', 'CR Monat', crMonatSide, null, true));
     sidebar.appendChild(mkCrSideBox('ziel', 'CR Ziel', tz.crZiel||0, v=>{ tz.crZiel=v; }, false));
+
+    // DA-Kachel (nur MF-Team): Netto Stand + QTE Assisted
+    if(cols.includes('DA')){
+      if(!tz.daNettoStand) tz.daNettoStand = 0;
+      if(!tz.daQteAssisted) tz.daQteAssisted = 0;
+      const daBox = document.createElement('div');
+      daBox.className = 'cr-box gestern';
+      daBox.style.cssText = 'border:2px solid #9B59B6;background:rgba(155,89,182,0.08);margin-top:8px;';
+      const mkDaField = (labelTxt, val, onChange) => {
+        const wrap = document.createElement('div');
+        wrap.style.cssText = 'margin-bottom:6px;';
+        const lbl = document.createElement('div');
+        lbl.className = 'cr-box-label';
+        lbl.textContent = labelTxt;
+        lbl.style.fontSize = '9px';
+        const valDiv = document.createElement('div');
+        valDiv.className = 'cr-box-val';
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.inputMode = 'decimal';
+        inp.value = val;
+        inp.style.cssText = 'width:100%;background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:700;text-align:center;color:inherit;';
+        inp.addEventListener('focus', e=>e.target.select());
+        inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); scheduleSave(); renderTeamZiele(); });
+        valDiv.appendChild(inp);
+        wrap.appendChild(lbl); wrap.appendChild(valDiv);
+        return wrap;
+      };
+      const daTitle = document.createElement('div');
+      daTitle.className = 'cr-box-label';
+      daTitle.textContent = 'DA';
+      daTitle.style.cssText = 'font-size:11px;font-weight:800;color:#9B59B6;margin-bottom:6px;text-align:center;letter-spacing:.06em;';
+      daBox.appendChild(daTitle);
+      daBox.appendChild(mkDaField('NETTO STAND', tz.daNettoStand, v=>{ tz.daNettoStand=v; }));
+      daBox.appendChild(mkDaField('QTE. ASSISTED', tz.daQteAssisted, v=>{ tz.daQteAssisted=v; }));
+      sidebar.appendChild(daBox);
+    }
 
     const t = document.createElement('table');
     t.className = 'tz-table';
@@ -6982,8 +7018,8 @@ function renderTeamZiele(){
   };
 
   renderTeam('mf', 'MF Trikala — Mobilfunk PK',
-    ['BB','SU','BOJ','VVM','TV','MF'],
-    {BB:'BB',SU:'SU',BOJ:'HV',VVM:'Avia',TV:'TV',MF:'MF'}
+    ['BB','SU','BOJ','VVM','TV','MF','DA'],
+    {BB:'BB',SU:'SU',BOJ:'HV',VVM:'Avia',TV:'TV',MF:'MF',DA:'DA'}
   );
   renderTeam('fn', 'FN Team — Festnetz PK',
     ['BB','SU','BOJ','VVM','TV','MF'],
@@ -7533,8 +7569,9 @@ function renderOverview(){
           const i = cfg.products.indexOf(p);
           const val = agent.sales[p];
           const isNull = (val === null || val === undefined);
-          // Für Extraprodukte (DA, VVM) die nicht in cfg.products sind: kein Target → neutral anzeigen
-          const status = isNull ? 'zero' : (i === -1 ? 'mid' : trafficStatus(val, myTargets[i]));
+          // Für Extraprodukte (DA, VVM) die nicht in cfg.products sind: feste Farb-Logik
+          // DA: 0 → rot, 1–9 → orange (mid), 10+ → grün
+          const status = isNull ? 'zero' : (i === -1 ? (val >= 10 ? 'good' : val >= 1 ? 'mid' : 'zero') : trafficStatus(val, myTargets[i]));
           html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass ${status}" style="font-size:14px;">${isNull ? '0' : Math.round(val)}</span></div>`;
         });
         html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(1)}%</span></div>`;
