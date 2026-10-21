@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 107;
+const BOARD_VERSION = 108;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -7444,8 +7444,9 @@ function renderOverview(){
     const teamDiv = document.createElement('div');
     teamDiv.className = 'ov-team';
     teamDiv.id = 'ov-team-' + teamId;
-    // Angezeigte Produkte (inkl. team-spezifische Extras wie Avia/VVM für MF-Team)
-    const displayedProducts = displayOrderProducts(cfg.products, teamId);
+    // Angezeigte Produkte (inkl. team-spezifische Extras wie DA und ggf. VVM für MF-Team)
+    const extraProdsOv = teamId === 'Trikala01' ? ['VVM', 'DA'] : ['DA'];
+    const displayedProducts = displayOrderProducts([...cfg.products, ...extraProdsOv], teamId);
     const legendLine = (catKey) => {
       const targets = cfg.targets[catKey];
       return displayedProducts.map(p=>{
@@ -7532,7 +7533,8 @@ function renderOverview(){
           const i = cfg.products.indexOf(p);
           const val = agent.sales[p];
           const isNull = (val === null || val === undefined);
-          const status = isNull ? 'zero' : trafficStatus(val, myTargets[i]);
+          // Für Extraprodukte (DA, VVM) die nicht in cfg.products sind: kein Target → neutral anzeigen
+          const status = isNull ? 'zero' : (i === -1 ? 'mid' : trafficStatus(val, myTargets[i]));
           html += `<div class="ov-cell sales-cell"><span class="ov-badge ov-badge-glass ${status}" style="font-size:14px;">${isNull ? '0' : Math.round(val)}</span></div>`;
         });
         html += `<div class="ov-cell cr-cell"><span class="ov-badge ${crStatus}">${cr.toFixed(1)}%</span></div>`;
