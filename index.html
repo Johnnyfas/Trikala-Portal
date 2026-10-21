@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 103;
+const BOARD_VERSION = 105;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -4363,9 +4363,15 @@ function buildTageszielForm(prefill){
     scheduleSave();
     cpShowForm = false;
     cpFormType = 'coaching';
-    renderAll();
+    cpPrefill = null;
+    switchCoachDashSub('tagesziele');
   });
-  cancelBtn.addEventListener('click', ()=>{ cpShowForm = false; cpFormType = 'coaching'; renderCoachPlan(); });
+  cancelBtn.addEventListener('click', ()=>{
+    cpShowForm = false;
+    cpFormType = 'coaching';
+    cpPrefill = null;
+    switchCoachDashSub('tagesziele');
+  });
   btnRow.appendChild(saveBtn); btnRow.appendChild(cancelBtn);
   wrap.appendChild(btnRow);
   return wrap;
@@ -4421,7 +4427,7 @@ function buildTageszielVerlauf(){
       cpFormType = 'tagesziel';
       cpShowForm = true;
       cpPrefill = z;
-      renderCoachPlan();
+      switchCoachDashSub('coachplan');
     });
     const delBtn = document.createElement('button');
     delBtn.textContent = '🗑️';
@@ -4436,33 +4442,71 @@ function buildTageszielVerlauf(){
     head.appendChild(leftInfo); head.appendChild(actBtns);
     card.appendChild(head);
 
-    // Produkte mit Erreicht-Haken
-    const prodRow = document.createElement('div');
-    prodRow.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;';
+    // Produkte: Ziel-Anzahl + Erreicht-Anzahl eingeben
     const aktivProds = Object.keys(z.produkte).filter(p=>z.produkte[p]?.aktiv);
+    const prodGrid = document.createElement('div');
+    prodGrid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;';
     aktivProds.forEach(prod=>{
-      const erreicht = !!(z.erreicht && z.erreicht[prod]);
-      const chip = document.createElement('div');
-      chip.style.cssText = `display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;border:1.5px solid ${erreicht?'#4CAF50':'var(--border)'};background:${erreicht?'rgba(76,175,80,.12)':'transparent'};cursor:pointer;transition:all .15s;user-select:none;`;
-      const chk = document.createElement('span');
-      chk.textContent = erreicht ? '✅' : '⬜';
-      chk.style.fontSize = '14px';
-      const txt = document.createElement('span');
-      txt.style.cssText = `font-size:13px;font-weight:600;color:${erreicht?'#2E7D32':'var(--fg)'};text-decoration:${erreicht?'line-through':'none'};`;
-      txt.textContent = `${prod} × ${z.produkte[prod].anzahl}`;
-      chip.appendChild(chk); chip.appendChild(txt);
-      chip.addEventListener('click', ()=>{
+      if(!z.erreicht) z.erreicht = {};
+      const zielAnz = z.produkte[prod].anzahl || 0;
+      const istAnz = (typeof z.erreicht[prod] === 'number') ? z.erreicht[prod] : (z.erreicht[prod] === true ? zielAnz : 0);
+      const erreicht = istAnz >= zielAnz && zielAnz > 0;
+
+      const cell = document.createElement('div');
+      cell.style.cssText = `display:flex;flex-direction:column;gap:4px;padding:8px 10px;border-radius:8px;border:1.5px solid ${erreicht?'#4CAF50':'var(--border)'};background:${erreicht?'rgba(76,175,80,.1)':'var(--card-bg)'};transition:border-color .2s,background .2s;`;
+
+      // Produktname + Ziel
+      const topLine = document.createElement('div');
+      topLine.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
+      const prodName = document.createElement('span');
+      prodName.style.cssText = 'font-weight:700;font-size:14px;';
+      prodName.textContent = prod;
+      const zielBadge = document.createElement('span');
+      zielBadge.style.cssText = 'font-size:11px;color:var(--text-muted);';
+      zielBadge.textContent = `Ziel: ${zielAnz}`;
+      topLine.appendChild(prodName); topLine.appendChild(zielBadge);
+      cell.appendChild(topLine);
+
+      // Ist-Eingabe
+      const inputRow = document.createElement('div');
+      inputRow.style.cssText = 'display:flex;align-items:center;gap:6px;';
+      const istLabel = document.createElement('span');
+      istLabel.style.cssText = 'font-size:12px;color:var(--text-muted);white-space:nowrap;';
+      istLabel.textContent = 'Ist:';
+      const numInp = document.createElement('input');
+      numInp.type = 'number';
+      numInp.min = 0;
+      numInp.value = istAnz;
+      numInp.className = 'cp-form-input';
+      numInp.style.cssText = 'width:60px;padding:3px 6px;font-size:13px;margin:0;';
+      numInp.addEventListener('change', ()=>{
         if(!z.erreicht) z.erreicht = {};
-        z.erreicht[prod] = !z.erreicht[prod];
-        scheduleSave(); renderCoachPlan();
+        const v = parseInt(numInp.value) || 0;
+        z.erreicht[prod] = v;
+        // Border live updaten
+        const neu = v >= zielAnz && zielAnz > 0;
+        cell.style.borderColor = neu ? '#4CAF50' : 'var(--border)';
+        cell.style.background = neu ? 'rgba(76,175,80,.1)' : 'var(--card-bg)';
+        statusIcon.textContent = neu ? '✅' : (v > 0 ? '🟡' : '⬜');
+        scheduleSave();
       });
-      prodRow.appendChild(chip);
+      const statusIcon = document.createElement('span');
+      statusIcon.style.fontSize = '16px';
+      statusIcon.textContent = erreicht ? '✅' : (istAnz > 0 ? '🟡' : '⬜');
+      inputRow.appendChild(istLabel); inputRow.appendChild(numInp); inputRow.appendChild(statusIcon);
+      cell.appendChild(inputRow);
+
+      prodGrid.appendChild(cell);
     });
-    card.appendChild(prodRow);
+    card.appendChild(prodGrid);
 
     // Fortschritt
     const total = aktivProds.length;
-    const done = aktivProds.filter(p=>z.erreicht&&z.erreicht[p]).length;
+    const done = aktivProds.filter(p=>{
+      const zielAnz = z.produkte[p].anzahl || 0;
+      const istAnz = (typeof z.erreicht?.[p] === 'number') ? z.erreicht[p] : (z.erreicht?.[p] === true ? zielAnz : 0);
+      return istAnz >= zielAnz && zielAnz > 0;
+    }).length;
     if(total>0){
       const progressWrap = document.createElement('div');
       progressWrap.style.cssText = 'margin-top:8px;';
