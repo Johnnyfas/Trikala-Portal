@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 113;
+const BOARD_VERSION = 114;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1375,33 +1375,45 @@ async function loadFromSharePoint(){
             if(!state.monatsabschluss[team][monat]) state.monatsabschluss[team][monat] = JSON.parse(JSON.stringify(seed));
             const md = state.monatsabschluss[team][monat];
             // Seed-Werte übernehmen wenn Seed > 0 und gespeicherter Wert = 0
+            // NUR für Produkte die noch in md.plan vorhanden sind (User kann Produkte löschen/umbenennen)
+            const planKeys = md.plan ? Object.keys(md.plan) : [];
             ['erreicht','cr','storno'].forEach(f=>{
               if(seed[f]){
                 if(!md[f]) md[f] = {};
                 Object.keys(seed[f]).forEach(p=>{
+                  if(!planKeys.includes(p)) return; // Produkt wurde gelöscht/umbenannt → nicht wieder einfügen
                   if(seed[f][p] !== 0 && (md[f][p] === 0 || md[f][p] === undefined)) md[f][p] = seed[f][p];
                 });
               }
             });
             ['crZiel','crZielText'].forEach(f=>{
-              if(seed[f]) { md[f] = md[f]||{}; Object.assign(md[f], seed[f]); }
+              if(seed[f]) {
+                md[f] = md[f]||{};
+                Object.keys(seed[f]).forEach(p=>{
+                  if(planKeys.includes(p)) md[f][p] = md[f][p] !== undefined ? md[f][p] : seed[f][p];
+                });
+              }
             });
             if(!md.nps_plan && seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
             if(!md.nps_ist && seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
             if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
             if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
-            // Plan: Seed füllt nur Lücken (Produkte ohne bisherigen Wert), überschreibt aber nie
-            // einen bereits vorhandenen (auch frisch eingetragenen) Wert - vorher wurde hier bei
-            // JEDEM Laden bedingungslos auf die Code-Vorlagenwerte zurückgesetzt und sofort
-            // wieder gespeichert, wodurch Eingaben in "Planenmenge" nie dauerhaft blieben.
+            // Plan: Seed füllt nur Lücken – aber nur wenn der Monat noch keine eigene Produktliste hat
+            // (d.h. md.plan leer ist). Hat der User Produkte umbenannt oder gelöscht, soll der Seed
+            // diese nicht wieder einsetzen.
             if(seed.plan){
               md.plan = md.plan || {};
-              Object.keys(seed.plan).forEach(p=>{
-                if(!md.plan[p] && seed.plan[p] > 0) md.plan[p] = seed.plan[p];
-              });
+              const hasPlanKeys = Object.keys(md.plan).length > 0;
+              if(!hasPlanKeys){
+                // Leerer Monat: komplett aus Seed initialisieren
+                Object.keys(seed.plan).forEach(p=>{
+                  if(seed.plan[p] > 0) md.plan[p] = seed.plan[p];
+                });
+              }
+              // Wenn bereits Produkte vorhanden: nichts aus Seed hinzufügen (User-Konfiguration bleibt)
             }
-            // BOJ
-            ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
+            // BOJ: nur sicherstellen wenn BOJ noch in md.plan vorhanden ist (nicht wenn User es gelöscht hat)
+            ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && md.plan && 'BOJ' in md.plan && !('BOJ' in md[f])) md[f]['BOJ']=0; });
           });
         });
         // Kein automatisches Speichern direkt nach dem Laden mehr - das hat den beim Laden
@@ -1694,8 +1706,10 @@ async function loadFromSharePoint(){
           scheduleSave();
         }
         // BOJ global sicherstellen (falls in älteren Datensätzen nicht vorhanden)
+        // Nur einfügen wenn BOJ noch in md.plan ist – nicht wenn User es gelöscht hat
         Object.keys(state.monatsabschluss||{}).forEach(team=>{
           Object.values(state.monatsabschluss[team]||{}).forEach(md=>{
+            if(!md.plan || !('BOJ' in md.plan)) return; // BOJ wurde vom User entfernt → nicht wieder einfügen
             ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
           });
         });
