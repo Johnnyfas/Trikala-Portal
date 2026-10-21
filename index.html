@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 120;
+const BOARD_VERSION = 121;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2849,18 +2849,42 @@ function renderHallOfFame(){
       <strong>MF Ziele:</strong> MF 24, SU 3, BB 4, TV 3, VVM+BOJ 5 &nbsp;·&nbsp;
       <strong>FN Ziele:</strong> SU 16, BB 17, TV 9, VVM+NVM 20, MF 2
     </div>
+    <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px;padding:8px 12px;background:#f8f9fa;border-radius:8px;display:inline-block;">
+      💡 Der aktuelle Monat zeigt Live-Daten. Vergangene Monate benötigen einen gespeicherten Snapshot (Button „📸 Snapshot" im Coaching-Dashboard).
+    </div>
   `;
   container.appendChild(wrap);
 
   const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const MEDALS = ['🥇','🥈','🥉','🎖️','🎖️','🎖️','🎖️','🎖️','🎖️','🎖️'];
 
+  // Aktueller Monat-Key (z.B. "2026-Oktober")
+  const jetzt = new Date();
+  const aktuellesJahr = jetzt.getFullYear();
+  const aktuellerMonatName = jetzt.toLocaleString('de-DE',{month:'long'});
+  const aktuellerMonatKey = `${aktuellesJahr}-${aktuellerMonatName}`;
+
   // Prüfe ob ein MA die Hall of Fame Kriterien erfüllt
   function checkHOF(agent, monatKey){
     const vl = state.verlauf[agent.name + '_' + agent.team] || Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    if(!vl || !vl.monate[monatKey]) return null;
+    const archivMd = vl && vl.monate && vl.monate[monatKey];
 
-    const md = vl.monate[monatKey];
+    // Für aktuellen Monat: Live-Daten als Fallback wenn kein Archiv
+    let md;
+    if(archivMd){
+      md = archivMd;
+    } else if(monatKey === aktuellerMonatKey){
+      // Live-Daten aus agent-Objekt
+      md = {
+        nps: agent.nps || 0,
+        lq: agent.lq || 0,
+        cr: totalCr(agent) || 0,
+        cht: agent.cht || 0,
+        sales: agent.sales ? JSON.parse(JSON.stringify(agent.sales)) : {}
+      };
+    } else {
+      return null; // Vergangene Monate ohne Archiv → keine Daten
+    }
     const cfg = TEAM_CONFIGS[agent.team];
     if(!cfg) return null;
 
