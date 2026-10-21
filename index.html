@@ -778,12 +778,14 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
         <button class="tab-btn" id="sub-coachverlauf" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Coaching Verlauf</button>
         <button class="tab-btn" id="sub-workshops" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/><circle cx="17" cy="8" r="2.5"/><path d="M17 13c2.5 0 5 1.5 5 4"/></svg>Workshops</button>
         <button class="tab-btn" id="sub-gespraeche" style="font-size:13px;padding:7px 16px;">💬 Einzelgespräche</button>
+        <button class="tab-btn" id="sub-tagesziele" style="font-size:13px;padding:7px 16px;">🎯 Tages Ziele</button>
         <button class="tab-btn" id="sub-termine" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Termin Kalender</button>
       </div>
       <div id="coachplan-container"></div>
       <div id="coachverlauf-container" style="display:none;"></div>
       <div id="workshops-container" style="display:none;"></div>
       <div id="gespraeche-container" style="display:none;"></div>
+      <div id="tagesziele-verlauf-container" style="display:none;"></div>
       <div id="termine-container" style="display:none;"></div>
     </div>
   </div>
@@ -901,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 102;
+const BOARD_VERSION = 103;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2226,6 +2228,7 @@ const COACHDASH_SUBS = {
   coachverlauf: { btn: 'sub-coachverlauf', container: 'coachverlauf-container', render: ()=>renderCoachVerlauf() },
   workshops:    { btn: 'sub-workshops',    container: 'workshops-container',    render: ()=>renderWorkshops() },
   gespraeche:   { btn: 'sub-gespraeche',   container: 'gespraeche-container',   render: ()=>renderEinzelgespraeche() },
+  tagesziele:   { btn: 'sub-tagesziele',   container: 'tagesziele-verlauf-container', render: ()=>renderTageszielTab() },
   termine:      { btn: 'sub-termine',      container: 'termine-container',      render: ()=>renderTermineKalender() }
 };
 function switchCoachDashSub(sub){
@@ -3308,6 +3311,29 @@ Beachte:
 let cvSelectedTeam = 'all';
 let cvSearchText = '';
 
+function renderTageszielTab(){
+  const container = document.getElementById('tagesziele-verlauf-container');
+  container.innerHTML = '';
+
+  // "Neues Ziel" Button
+  const topRow = document.createElement('div');
+  topRow.style.cssText = 'display:flex;justify-content:flex-end;margin-bottom:18px;';
+  const newBtn = document.createElement('button');
+  newBtn.className = 'cp-add-btn';
+  newBtn.innerHTML = '<span class="cp-add-icon">+</span> Neues Tages Ziel';
+  newBtn.addEventListener('click', ()=>{
+    // Zum Coaching Plan Tab wechseln und Formular öffnen
+    cpFormType = 'tagesziel';
+    cpShowForm = true;
+    cpPrefill = null;
+    switchCoachDashSub('coachplan');
+  });
+  topRow.appendChild(newBtn);
+  container.appendChild(topRow);
+
+  container.appendChild(buildTageszielVerlauf());
+}
+
 function renderEinzelgespraeche(){
   const container = document.getElementById('gespraeche-container');
   container.innerHTML = '';
@@ -4342,9 +4368,6 @@ function buildTageszielForm(prefill){
   cancelBtn.addEventListener('click', ()=>{ cpShowForm = false; cpFormType = 'coaching'; renderCoachPlan(); });
   btnRow.appendChild(saveBtn); btnRow.appendChild(cancelBtn);
   wrap.appendChild(btnRow);
-
-  // Verlauf direkt darunter
-  wrap.appendChild(buildTageszielVerlauf());
   return wrap;
 }
 
@@ -4699,10 +4722,6 @@ function renderCoachPlan(){
   container.appendChild(buildEffectivenessSection());
   container.appendChild(buildChecklistOverview(checklistStats));
 
-  // Tages Ziele Verlauf (wenn kein Formular offen)
-  if(!cpShowForm){
-    container.appendChild(buildTageszielVerlauf());
-  }
 }
 
 // ===== Zielerinnerung/Alarm: Mitarbeiter lange ohne Coaching + fallende CR =====
