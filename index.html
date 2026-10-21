@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 110;
+const BOARD_VERSION = 111;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -6779,41 +6779,7 @@ function renderTeamZiele(){
     sidebar.appendChild(mkCrSideBox('monat', 'CR Monat', crMonatSide, null, true));
     sidebar.appendChild(mkCrSideBox('ziel', 'CR Ziel', tz.crZiel||0, v=>{ tz.crZiel=v; }, false));
 
-    // DA-Kachel (nur MF-Team): Netto Stand + QTE Assisted
-    if(cols.includes('DA')){
-      if(!tz.daNettoStand) tz.daNettoStand = 0;
-      if(!tz.daQteAssisted) tz.daQteAssisted = 0;
-      const daBox = document.createElement('div');
-      daBox.className = 'cr-box gestern';
-      daBox.style.cssText = 'border:2px solid #9B59B6;background:rgba(155,89,182,0.08);margin-top:8px;';
-      const mkDaField = (labelTxt, val, onChange) => {
-        const wrap = document.createElement('div');
-        wrap.style.cssText = 'margin-bottom:6px;';
-        const lbl = document.createElement('div');
-        lbl.className = 'cr-box-label';
-        lbl.textContent = labelTxt;
-        lbl.style.fontSize = '9px';
-        const valDiv = document.createElement('div');
-        valDiv.className = 'cr-box-val';
-        const inp = document.createElement('input');
-        inp.type = 'text'; inp.inputMode = 'decimal';
-        inp.value = val;
-        inp.style.cssText = 'width:100%;background:transparent;border:none;outline:none;font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:700;text-align:center;color:inherit;';
-        inp.addEventListener('focus', e=>e.target.select());
-        inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); scheduleSave(); renderTeamZiele(); });
-        valDiv.appendChild(inp);
-        wrap.appendChild(lbl); wrap.appendChild(valDiv);
-        return wrap;
-      };
-      const daTitle = document.createElement('div');
-      daTitle.className = 'cr-box-label';
-      daTitle.textContent = 'DA';
-      daTitle.style.cssText = 'font-size:11px;font-weight:800;color:#9B59B6;margin-bottom:6px;text-align:center;letter-spacing:.06em;';
-      daBox.appendChild(daTitle);
-      daBox.appendChild(mkDaField('NETTO STAND', tz.daNettoStand, v=>{ tz.daNettoStand=v; }));
-      daBox.appendChild(mkDaField('QTE. ASSISTED', tz.daQteAssisted, v=>{ tz.daQteAssisted=v; }));
-      sidebar.appendChild(daBox);
-    }
+    // DA-Kachel wird in der Tabelle eingebaut (rowspan=2 in Soll/Ist-Zeile)
 
     const t = document.createElement('table');
     t.className = 'tz-table';
@@ -6832,7 +6798,39 @@ function renderTeamZiele(){
     // === SOLL NETTO ===
     const sollRow = document.createElement('tr'); sollRow.className = 'tz-row-soll';
     sollRow.appendChild(cell('Soll Netto', 'tz-label'));
-    sollRow.appendChild(cell('')); sollRow.appendChild(cell(''));
+
+    // DA-Kachel (nur MF-Team): rowspan=2 überspannt Soll+Ist-Zeile, colspan=2 die zwei leeren Spalten
+    if(cols.includes('DA')){
+      if(tz.daNettoStand === undefined) tz.daNettoStand = 0;
+      if(tz.daQteAssisted === undefined) tz.daQteAssisted = 0;
+      const daTd = document.createElement('td');
+      daTd.rowSpan = 2; daTd.colSpan = 2;
+      daTd.style.cssText = 'border:2px solid #9B59B6;border-radius:10px;padding:8px 10px;text-align:center;vertical-align:middle;background:rgba(155,89,182,0.06);';
+      const mkDaField = (labelTxt, val, onChange) => {
+        const wrap = document.createElement('div');
+        wrap.style.marginBottom = '4px';
+        const lbl = document.createElement('div');
+        lbl.style.cssText = 'font-size:9px;font-weight:700;color:#9B59B6;letter-spacing:.07em;margin-bottom:2px;';
+        lbl.textContent = labelTxt;
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.inputMode = 'decimal';
+        inp.value = val;
+        inp.style.cssText = 'width:100%;background:transparent;border:none;border-bottom:1px solid #9B59B6;outline:none;font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:700;text-align:center;color:#9B59B6;';
+        inp.addEventListener('focus', e=>e.target.select());
+        inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); scheduleSave(); renderTeamZiele(); });
+        wrap.appendChild(lbl); wrap.appendChild(inp);
+        return wrap;
+      };
+      const daTitle = document.createElement('div');
+      daTitle.style.cssText = 'font-size:11px;font-weight:800;color:#9B59B6;margin-bottom:6px;letter-spacing:.06em;';
+      daTitle.textContent = 'DA';
+      daTd.appendChild(daTitle);
+      daTd.appendChild(mkDaField('NETTO STAND', tz.daNettoStand, v=>{ tz.daNettoStand=v; }));
+      daTd.appendChild(mkDaField('QTE. ASSISTED', tz.daQteAssisted, v=>{ tz.daQteAssisted=v; }));
+      sollRow.appendChild(daTd);
+    } else {
+      sollRow.appendChild(cell('')); sollRow.appendChild(cell(''));
+    }
 
     cols.forEach(p => sollRow.appendChild(cell(mkInput(tz.soll[p]||0, v=>{ tz.soll[p]=v; }))));
     t.appendChild(sollRow);
@@ -6840,7 +6838,10 @@ function renderTeamZiele(){
     // === IST NETTO ===
     const istRow = document.createElement('tr'); istRow.className = 'tz-row-ist';
     istRow.appendChild(cell('Ist Netto', 'tz-label'));
-    istRow.appendChild(cell('')); istRow.appendChild(cell(''));
+    // Keine leeren Zellen hier wenn DA-Kachel via rowspan abgedeckt
+    if(!cols.includes('DA')){
+      istRow.appendChild(cell('')); istRow.appendChild(cell(''));
+    }
     cols.forEach(p => {
       const td = document.createElement('td');
       const val = tz.ist[p]||0;
