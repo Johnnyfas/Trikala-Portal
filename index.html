@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 119;
+const BOARD_VERSION = 120;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2501,7 +2501,7 @@ function renderCoaching(){
       avgSection.className = 'panel-section';
       const avgTitle = document.createElement('div');
       avgTitle.className = 'panel-section-title';
-      avgTitle.textContent = '📊 vs. Teamdurchschnitt' + (monatsListe.length ? ` (${monatsListe.length} Monate gesamt)` : '');
+      avgTitle.textContent = '📊 vs. Teamdurchschnitt' + (monatsListe.length ? ` (${monatsListe.length} Monate gesamt)` : ' (aktuell)');
       avgSection.appendChild(avgTitle);
 
       function cumulativeFor(a){
@@ -2520,10 +2520,20 @@ function renderCoaching(){
         return { cr: avg('cr'), nps: avg('nps'), lq: avg('lq'), cht: avg('cht'), sales: prodAvg };
       }
 
-      if(monatsListe.length){
+      // Fallback: Live-Daten direkt aus agent-Objekt
+      function liveDataFor(a){
+        const prodVals = {};
+        cfg.products.forEach(p=>{ prodVals[p] = (a.sales && a.sales[p]) || 0; });
+        return { cr: totalCr(a)||0, nps: a.nps||0, lq: a.lq||0, cht: a.cht||0, sales: prodVals };
+      }
+
+      const useArchiv = monatsListe.length > 0;
+      {
         const teamAgentsAll = state.agents.filter(a=>a.team===agent.team && a.name.trim());
-        const myCum = cumulativeFor(agent);
-        const teamCums = teamAgentsAll.map(cumulativeFor).filter(Boolean);
+        const myCum = useArchiv ? cumulativeFor(agent) : liveDataFor(agent);
+        const teamCums = useArchiv
+          ? teamAgentsAll.map(cumulativeFor).filter(Boolean)
+          : teamAgentsAll.map(liveDataFor).filter(Boolean);
         const teamAvg = (field) => {
           const vals = teamCums.map(c=>c[field]).filter(v=>v>0);
           return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
@@ -2549,10 +2559,10 @@ function renderCoaching(){
           return row;
         };
 
-        if(myCum.cr > 0) avgSection.appendChild(mkAvgRow('CR', myCum.cr, teamAvg('cr'), '%'));
-        if(myCum.nps > 0) avgSection.appendChild(mkAvgRow('NPS', myCum.nps, teamAvg('nps'), '%'));
-        if(myCum.lq > 0) avgSection.appendChild(mkAvgRow('LQ', myCum.lq, teamAvg('lq'), '%'));
-        if(myCum.cht > 0){
+        if(myCum && myCum.cr > 0) avgSection.appendChild(mkAvgRow('CR', myCum.cr, teamAvg('cr'), '%'));
+        if(myCum && myCum.nps > 0) avgSection.appendChild(mkAvgRow('NPS', myCum.nps, teamAvg('nps'), '%'));
+        if(myCum && myCum.lq > 0) avgSection.appendChild(mkAvgRow('LQ', myCum.lq, teamAvg('lq'), '%'));
+        if(myCum && myCum.cht > 0){
           // CHT: für die Farbrichtung ist niedriger besser (umgekehrt zu NPS/CR),
           // deshalb kehren wir das Arrow-Vorzeichen in mkAvgRow um
           const chtTeam = teamAvg('cht');
@@ -2572,15 +2582,16 @@ function renderCoaching(){
           avgSection.appendChild(chtRow);
         }
         cfg.products.forEach(p=>{
-          const av = myCum.sales[p]||0;
+          const av = myCum ? myCum.sales[p]||0 : 0;
           const tv = teamAvgProd(p);
           if(av > 0 || tv > 0) avgSection.appendChild(mkAvgRow(p, av, tv, ''));
         });
-      } else {
-        const none = document.createElement('div');
-        none.className = 'panel-coaching-none';
-        none.textContent = 'Noch keine archivierten Monatsdaten (siehe Monatsabschluss).';
-        avgSection.appendChild(none);
+        if(!myCum || (myCum.cr===0 && myCum.nps===0 && myCum.lq===0 && myCum.cht===0)){
+          const none = document.createElement('div');
+          none.className = 'panel-coaching-none';
+          none.textContent = 'Noch keine Daten vorhanden.';
+          avgSection.appendChild(none);
+        }
       }
       card.appendChild(avgSection);
 
@@ -2722,13 +2733,28 @@ function renderCoaching(){
     avgSection.className = 'panel-section';
     const avgTitle = document.createElement('div');
     avgTitle.className = 'panel-section-title';
-    avgTitle.textContent = '📊 vs. Teamdurchschnitt' + (monatsListe.length ? ` (${monatsListe.length} Monate)` : '');
+    avgTitle.textContent = '📊 vs. Teamdurchschnitt' + (monatsListe.length ? ` (${monatsListe.length} Monate)` : ' (aktuell)');
     avgSection.appendChild(avgTitle);
 
-    if(monatsListe.length){
-      const avg = (field) => { const vals = monatsListe.map(m=>m[field]).filter(v=>v>0); return vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0; };
+    {
+      const useArchiv2 = monatsListe.length > 0;
+      const myCr  = useArchiv2 ? (()=>{ const vals=monatsListe.map(m=>m.cr).filter(v=>v>0); return vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:0; })() : (totalCr(agent)||0);
+      const myNps = useArchiv2 ? (()=>{ const vals=monatsListe.map(m=>m.nps).filter(v=>v>0); return vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:0; })() : (agent.nps||0);
+      const myLq  = useArchiv2 ? (()=>{ const vals=monatsListe.map(m=>m.lq).filter(v=>v>0); return vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:0; })() : (agent.lq||0);
+      const myCht = useArchiv2 ? (()=>{ const vals=monatsListe.map(m=>m.cht).filter(v=>v>0); return vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:0; })() : (agent.cht||0);
+
       const teamAgentsAll = state.agents.filter(a=>a.team===agent.team && a.name.trim());
-      const teamCums = teamAgentsAll.map(a=>{ const vl=Object.values(state.verlauf).find(v=>v.name===a.name&&v.team===a.team); const mon=(vl&&vl.monate)?Object.values(vl.monate):[]; if(!mon.length) return null; const av=(f)=>{const vs=mon.map(m=>m[f]).filter(v=>v>0); return vs.length?vs.reduce((s,v)=>s+v,0)/vs.length:0;}; return {cr:av('cr'),nps:av('nps'),lq:av('lq'),cht:av('cht')}; }).filter(Boolean);
+      const teamCums = teamAgentsAll.map(a=>{
+        if(useArchiv2){
+          const vl=Object.values(state.verlauf).find(v=>v.name===a.name&&v.team===a.team);
+          const mon=(vl&&vl.monate)?Object.values(vl.monate):[];
+          if(!mon.length) return null;
+          const av=(f)=>{const vs=mon.map(m=>m[f]).filter(v=>v>0); return vs.length?vs.reduce((s,v)=>s+v,0)/vs.length:0;};
+          return {cr:av('cr'),nps:av('nps'),lq:av('lq'),cht:av('cht')};
+        } else {
+          return {cr:totalCr(a)||0,nps:a.nps||0,lq:a.lq||0,cht:a.cht||0};
+        }
+      }).filter(Boolean);
       const tAvg = (field) => { const vals=teamCums.map(c=>c[field]).filter(v=>v>0); return vals.length?vals.reduce((s,v)=>s+v,0)/vals.length:0; };
       const mkRow = (label, av, tv, suffix) => {
         const row = document.createElement('div'); row.className='panel-avg-row';
@@ -2736,20 +2762,20 @@ function renderCoaching(){
         row.innerHTML=`<span class="panel-avg-label">${label}</span><div class="panel-avg-vals"><span class="panel-avg-agent">${av.toFixed(1)}${suffix}</span><span class="panel-avg-arrow ${arrowCls}">${arrow}</span><span class="panel-avg-team">Ø${tv.toFixed(1)}${suffix}</span></div>`;
         return row;
       };
-      const cr=avg('cr'), nps=avg('nps'), lq=avg('lq'), cht=avg('cht');
-      if(cr>0) avgSection.appendChild(mkRow('CR',cr,tAvg('cr'),'%'));
-      if(nps>0) avgSection.appendChild(mkRow('NPS',nps,tAvg('nps'),'%'));
-      if(lq>0) avgSection.appendChild(mkRow('LQ',lq,tAvg('lq'),'%'));
-      if(cht>0){
+      if(myCr>0) avgSection.appendChild(mkRow('CR',myCr,tAvg('cr'),'%'));
+      if(myNps>0) avgSection.appendChild(mkRow('NPS',myNps,tAvg('nps'),'%'));
+      if(myLq>0) avgSection.appendChild(mkRow('LQ',myLq,tAvg('lq'),'%'));
+      if(myCht>0){
         const row=document.createElement('div'); row.className='panel-avg-row';
-        const diff=cht-tAvg('cht'); const arrowCls=diff<-5?'up':diff>5?'down':'eq'; const arrow=diff<-5?'▼':diff>5?'▲':'—';
-        row.innerHTML=`<span class="panel-avg-label">CHT</span><div class="panel-avg-vals"><span class="panel-avg-agent">${Math.round(cht)}</span><span class="panel-avg-arrow ${arrowCls}">${arrow}</span><span class="panel-avg-team">Ø${Math.round(tAvg('cht'))}</span></div>`;
+        const diff=myCht-tAvg('cht'); const arrowCls=diff<-5?'up':diff>5?'down':'eq'; const arrow=diff<-5?'▼':diff>5?'▲':'—';
+        row.innerHTML=`<span class="panel-avg-label">CHT</span><div class="panel-avg-vals"><span class="panel-avg-agent">${Math.round(myCht)}</span><span class="panel-avg-arrow ${arrowCls}">${arrow}</span><span class="panel-avg-team">Ø${Math.round(tAvg('cht'))}</span></div>`;
         avgSection.appendChild(row);
       }
-    } else {
-      const none = document.createElement('div'); none.className='panel-coaching-none';
-      none.textContent='Noch keine archivierten Monatsdaten (siehe Monatsabschluss).';
-      avgSection.appendChild(none);
+      if(myCr===0 && myNps===0 && myLq===0 && myCht===0){
+        const none = document.createElement('div'); none.className='panel-coaching-none';
+        none.textContent='Noch keine Daten vorhanden.';
+        avgSection.appendChild(none);
+      }
     }
 
     // === Notizen ===
