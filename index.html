@@ -152,17 +152,13 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .empty-illus svg{margin-bottom:12px;}
 .empty-illus-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
 .empty-illus-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:340px;}
-.tw-team{background:#fff;border-radius:16px;overflow-x:auto;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
-.tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;border-radius:16px 16px 0 0;}
+.tw-team{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
+.tw-table-scroll{overflow-x:auto;overflow-y:clip;}
+.tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;border-radius:16px 16px 0 0;position:sticky;top:var(--tabs-h,60px);z-index:20;}
 .tw-table{width:100%;border-collapse:collapse;}
 .tw-table td{text-align:center;padding:4px 8px;}
-.tw-head-row th{background:#FAFAFA;border-bottom:1px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;}
+.tw-head-row th{background:#FAFAFA;border-bottom:1px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;position:sticky;top:calc(var(--tabs-h,60px) + var(--team-head-h,48px));z-index:15;}
 .tw-head-row th:first-child{text-align:left;padding-left:20px;}
-/* Sticky-Klon der Tabellen-Spaltenköpfe (via JS eingeblendet) */
-#tw-sticky-header{position:fixed;z-index:50;background:#FAFAFA;border-bottom:1px solid var(--border);display:none;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08);}
-#tw-sticky-header table{border-collapse:collapse;table-layout:fixed;}
-#tw-sticky-header th{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;white-space:nowrap;}
-#tw-sticky-header th:first-child{text-align:left;padding-left:20px;}
 .tw-row{border-bottom:1px solid #F0F0F2;}
 .tw-row:nth-child(even){background:#FBFBFC;}
 .tw-row:hover{background:#F5F5F7;}
@@ -908,7 +904,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 124;
+const BOARD_VERSION = 126;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2363,12 +2359,6 @@ function switchOverviewSub(sub){
     btn.classList.toggle('active', key===sub);
     cont.style.display = key===sub ? '' : 'none';
   });
-  // Sticky-Tabellenkopf ausblenden wenn nicht im Tageswerte-Tab
-  if(sub !== 'tageswerte'){
-    const sh = document.getElementById('tw-sticky-header');
-    if(sh) sh.style.display = 'none';
-    if(window._twScrollHandler) window.removeEventListener('scroll', window._twScrollHandler);
-  }
   OVERVIEW_SUBS[sub].render();
 }
 function initOverviewSubTabs(){
@@ -7751,7 +7741,10 @@ function renderTageswerte(){
       table.appendChild(row);
     });
 
-    teamDiv.appendChild(table);
+    const tableScroll = document.createElement('div');
+    tableScroll.className = 'tw-table-scroll';
+    tableScroll.appendChild(table);
+    teamDiv.appendChild(tableScroll);
     container.appendChild(teamDiv);
   });
 
@@ -7759,69 +7752,15 @@ function renderTageswerte(){
     container.appendChild(emptyStateEl('Noch keine Mitarbeiter angelegt', 'Lege zuerst Mitarbeiter im Reiter "Mitarbeiter Ziele" an.'));
   }
 
-  // Sticky-Spaltenheader: ersten th-Row klonen und als fixed Element einblenden beim Scrollen
-  setTimeout(()=>twSetupStickyHeader(), 0);
-}
-
-function twSetupStickyHeader(){
-  // Alten Klon entfernen
-  let stickyEl = document.getElementById('tw-sticky-header');
-  if(!stickyEl){
-    stickyEl = document.createElement('div');
-    stickyEl.id = 'tw-sticky-header';
-    document.body.appendChild(stickyEl);
-  }
-  stickyEl.innerHTML = '';
-  stickyEl.style.display = 'none';
-
-  // Ersten Tabellen-Kopf im Tageswerte-Tab finden
-  const firstHeadRow = document.querySelector('#tageswerte-capture .tw-head-row');
-  if(!firstHeadRow) return;
-
-  // Klontabelle mit identischen Breiten bauen
-  const srcThs = firstHeadRow.querySelectorAll('th');
-  const cloneTable = document.createElement('table');
-  cloneTable.style.borderCollapse = 'collapse';
-  const cloneTr = document.createElement('tr');
-  srcThs.forEach(th=>{
-    const cloneTh = document.createElement('th');
-    cloneTh.textContent = th.textContent;
-    cloneTh.style.cssText = th.style.cssText;
-    cloneTr.appendChild(cloneTh);
-  });
-  cloneTable.appendChild(cloneTr);
-  stickyEl.appendChild(cloneTable);
-
+  // Tabs-Höhe für sticky tw-team-head setzen
   const tabsWrap = document.querySelector('.tabs-sticky-wrap');
-  const tabsH = tabsWrap ? tabsWrap.getBoundingClientRect().height : 0;
+  if(tabsWrap) document.documentElement.style.setProperty('--tabs-h', tabsWrap.getBoundingClientRect().height + 'px');
 
-  function syncWidths(){
-    const srcThs2 = firstHeadRow.querySelectorAll('th');
-    const cloneThs = cloneTr.querySelectorAll('th');
-    const rect = firstHeadRow.closest('.tw-team') || firstHeadRow.closest('table');
-    if(rect){
-      const r = rect.getBoundingClientRect();
-      stickyEl.style.left = r.left + 'px';
-      stickyEl.style.width = r.width + 'px';
-    }
-    srcThs2.forEach((th,i)=>{
-      if(cloneThs[i]) cloneThs[i].style.width = th.getBoundingClientRect().width + 'px';
-    });
-  }
-
-  // Scroll-Handler: Einblenden wenn der Original-Kopf oben aus dem Viewport scrollt
-  if(window._twScrollHandler) window.removeEventListener('scroll', window._twScrollHandler);
-  window._twScrollHandler = function(){
-    const headRect = firstHeadRow.getBoundingClientRect();
-    if(headRect.top < tabsH + 2){
-      syncWidths();
-      stickyEl.style.top = tabsH + 'px';
-      stickyEl.style.display = 'block';
-    } else {
-      stickyEl.style.display = 'none';
-    }
-  };
-  window.addEventListener('scroll', window._twScrollHandler);
+  // Team-Head-Höhe für sticky th (nach kurzem Delay, damit DOM gerendert ist)
+  setTimeout(()=>{
+    const teamHead = document.querySelector('#tageswerte-capture .tw-team-head');
+    if(teamHead) document.documentElement.style.setProperty('--team-head-h', teamHead.getBoundingClientRect().height + 'px');
+  }, 50);
 }
 
 // Gewünschte Anzeige-Reihenfolge der Produkte in MA Stand & Tageswerte (links nach rechts).
