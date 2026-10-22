@@ -156,8 +156,8 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .tw-table-scroll{overflow-x:auto;}
 .tw-team-sticky{position:sticky;top:var(--tabs-h,60px);z-index:20;border-radius:16px 16px 0 0;overflow:hidden;}
 .tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;}
-.tw-col-head{display:flex;background:#FAFAFA;border-bottom:2px solid var(--border);}
-.tw-col-head-cell{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:9px 8px;text-align:center;flex:1;overflow:hidden;}
+.tw-col-head{display:flex;background:#FAFAFA;border-bottom:2px solid var(--border);min-width:max-content;width:100%;}
+.tw-col-head-cell{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:9px 8px;text-align:center;white-space:nowrap;box-sizing:border-box;}
 .tw-col-head-cell:first-child{text-align:left;padding-left:20px;}
 .tw-table{width:100%;border-collapse:collapse;}
 .tw-table td{text-align:center;padding:4px 8px;}
@@ -909,7 +909,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 127;
+const BOARD_VERSION = 128;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -7775,16 +7775,22 @@ function renderTageswerte(){
   const tabsWrap = document.querySelector('.tabs-sticky-wrap');
   if(tabsWrap) document.documentElement.style.setProperty('--tabs-h', tabsWrap.getBoundingClientRect().height + 'px');
 
-  // Spaltenbreiten der sichtbaren Col-Head-Zellen mit der echten Tabelle synchronisieren
+  // Spaltenbreiten der Col-Head-Zellen mit der echten Tabelle synchronisieren
+  // Messen nach Layout (kurzer Delay), erste Datenzeile als Referenz
   setTimeout(()=>{
     document.querySelectorAll('#tageswerte-capture .tw-team').forEach(teamEl=>{
-      const ths = teamEl.querySelectorAll('.tw-head-row th');
       const cells = teamEl.querySelectorAll('.tw-col-head-cell');
-      if(!ths.length || !cells.length) return;
-      // Tabelle auf natürliche Breite messen
-      ths.forEach((th, i)=>{
-        if(cells[i]) cells[i].style.flex = `0 0 ${th.getBoundingClientRect().width}px`;
-      });
+      if(!cells.length) return;
+      // th-Zeile kurz sichtbar machen zum Messen, dann wieder verstecken
+      const headRow = teamEl.querySelector('.tw-head-row');
+      if(headRow){
+        headRow.style.display = '';
+        const ths = headRow.querySelectorAll('th');
+        ths.forEach((th, i)=>{
+          if(cells[i]) cells[i].style.width = th.getBoundingClientRect().width + 'px';
+        });
+        headRow.style.display = 'none';
+      }
     });
   }, 80);
 }
