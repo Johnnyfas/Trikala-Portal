@@ -156,17 +156,21 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .tw-team-wrap{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
 /* tw-team-sticky: normaler Block; wird per JS zu fixed wenn er oben rausgescrollt ist */
 .tw-team-sticky{background:#fff;border-radius:16px 16px 0 0;overflow:hidden;z-index:20;}
-.tw-team-sticky.is-fixed{position:fixed;left:0;right:0;border-radius:0;}
+.tw-team-sticky.is-fixed{position:fixed;left:0;right:0;border-radius:0;box-shadow:0 4px 16px rgba(0,0,0,.12);}
 .tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;}
 /* Platzhalter wenn sticky-Block fixed wird */
 .tw-sticky-placeholder{display:none;}
 .tw-sticky-placeholder.is-active{display:block;}
-/* Tabellen-Scroll-Wrapper */
-.tw-team{overflow-x:auto;}
+/* Tabellen-Scroll-Wrapper: overflow-x für horizontalen Scroll.
+   overflow-y:clip erstellt KEINEN Scroll-Container, daher funktioniert position:sticky auf th.
+   (Unterschied zu auto/scroll die sticky blockieren würden) */
+.tw-team{overflow-x:auto;overflow-y:clip;}
 .tw-table{width:100%;border-collapse:collapse;}
 .tw-table td{text-align:center;padding:4px 8px;}
-.tw-head-row th{background:#FAFAFA;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;white-space:nowrap;}
+/* tw-head-row: sticky innerhalb der Tabelle — bleibt oben wenn Tabelle lang ist */
+.tw-head-row th{background:#FAFAFA;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;white-space:nowrap;position:sticky;top:0;z-index:5;}
 .tw-head-row th:first-child{text-align:left;padding-left:20px;}
+/* Wenn der Team-Block fixed ist, bekommt tw-head-row den korrekten top-Offset per JS */
 .tw-row{border-bottom:1px solid #F0F0F2;}
 .tw-row:nth-child(even){background:#FBFBFC;}
 .tw-row:hover{background:#F5F5F7;}
@@ -912,7 +916,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 130;
+const BOARD_VERSION = 131;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -7768,13 +7772,16 @@ function renderTageswerte(){
   }
 
   // Scroll-Handler: Team-Headline per JS fixed schalten wenn sie oben rausgescrollt ist
-  if(window._twScrollHandler) window.removeEventListener('scroll', window._twScrollHandler, true);
-  requestAnimationFrame(()=>{
+  // Alle alten Listener entfernen
+  if(window._twScrollCleanup){ window._twScrollCleanup(); window._twScrollCleanup = null; }
+
+  setTimeout(()=>{
     const tabsWrap = document.querySelector('.tabs-sticky-wrap');
     const tabsH = tabsWrap ? tabsWrap.getBoundingClientRect().height : 60;
     const stickyBlocks = document.querySelectorAll('#tageswerte-capture .tw-team-sticky');
+    if(!stickyBlocks.length) return;
 
-    window._twScrollHandler = function(){
+    function twUpdate(){
       stickyBlocks.forEach(block=>{
         const wrap = block.closest('.tw-team-wrap');
         const ph = wrap && wrap.querySelector('.tw-sticky-placeholder');
@@ -7786,13 +7793,11 @@ function renderTageswerte(){
           if(!block.classList.contains('is-fixed')){
             block.classList.add('is-fixed');
             block.style.top = tabsH + 'px';
-            // Seitenposition von tw-team-wrap übernehmen
             const r = wrap.getBoundingClientRect();
             block.style.left = r.left + 'px';
             block.style.width = r.width + 'px';
             if(ph){ ph.style.height = blockH + 'px'; ph.classList.add('is-active'); }
           } else {
-            // Breite aktuell halten (bei Resize)
             const r = wrap.getBoundingClientRect();
             block.style.left = r.left + 'px';
             block.style.width = r.width + 'px';
@@ -7803,10 +7808,37 @@ function renderTageswerte(){
           if(ph){ ph.classList.remove('is-active'); ph.style.height = ''; }
         }
       });
+    }
+
+    // Auf alle möglichen Scroll-Container hören
+    const scrollTargets = [
+      window,
+      document,
+      document.documentElement,
+      document.body,
+      document.getElementById('view-overview'),
+      document.querySelector('.ov-view-outer')
+    ].filter(Boolean);
+
+    scrollTargets.forEach(t => t.addEventListener('scroll', twUpdate, {passive:true, capture:true}));
+
+    window._twScrollCleanup = ()=>{
+      scrollTargets.forEach(t => t.removeEventListener('scroll', twUpdate, {capture:true}));
     };
-    window.addEventListener('scroll', window._twScrollHandler, true);
-    window._twScrollHandler(); // einmal direkt aufrufen
-  });
+
+    twUpdate(); // einmal direkt aufrufen
+
+    // Sticky-Top für tw-head-row setzen: tabsH + Höhe des Team-Balkens
+    stickyBlocks.forEach(block=>{
+      const wrap = block.closest('.tw-team-wrap');
+      if(!wrap) return;
+      const headH = block.offsetHeight; // Höhe des Team-Balkens (tw-team-sticky)
+      const stickyTop = tabsH + headH;
+      wrap.querySelectorAll('.tw-head-row th').forEach(th=>{
+        th.style.top = stickyTop + 'px';
+      });
+    });
+  }, 100);
 
 }
 
