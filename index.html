@@ -903,7 +903,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 121;
+const BOARD_VERSION = 122;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1548,7 +1548,31 @@ async function loadFromSharePoint(){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
         showSyncDebug(`✅ Daten geladen: ${data.agents.length} Mitarbeiter (HTTP ${resp.status}, ${new Date().toLocaleTimeString('de-DE')})`, false);
-        state.agents = data.agents;
+        // Agents nicht blind überschreiben: Tageswerte und andere lokale Eingaben schützen.
+        // Server-Agents als Basis; für bekannte lokale Agents nur Tageswerte einmergen.
+        const localById = {};
+        state.agents.forEach(a=>{ if(a.id) localById[a.id] = a; });
+        state.agents = data.agents.map(serverAgent => {
+          const local = serverAgent.id && localById[serverAgent.id];
+          if(!local) return serverAgent; // Neuer Agent vom Server → übernehmen
+          // Tageswerte: lokale Einträge behalten; Server-Tage einmergen wenn lokal nicht da
+          const mergedTW = JSON.parse(JSON.stringify(serverAgent.tageswerte || {}));
+          if(local.tageswerte){
+            Object.keys(local.tageswerte).forEach(monthKey=>{
+              if(!mergedTW[monthKey]) mergedTW[monthKey] = {};
+              Object.keys(local.tageswerte[monthKey]).forEach(dayKey=>{
+                // Lokale Eingabe gewinnt immer
+                mergedTW[monthKey][dayKey] = local.tageswerte[monthKey][dayKey];
+              });
+            });
+          }
+          // Alle anderen Felder vom Server übernehmen, Tageswerte aus Merge
+          return { ...serverAgent, tageswerte: mergedTW,
+            notiz: local.notiz || serverAgent.notiz || '',
+            sales: local.sales, calls: local.calls, nps: local.nps,
+            lq: local.lq, cht: local.cht, cr: local.cr
+          };
+        });
         if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
         if(data.teamziele){
           Object.keys(data.teamziele).forEach(k=>{
@@ -1827,6 +1851,38 @@ async function saveToSharePoint(){
         if(serverData.todosByUser){
           Object.keys(serverData.todosByUser).forEach(uid=>{
             if(uid !== currentUserId) state.todosByUser[uid] = serverData.todosByUser[uid];
+          });
+        }
+
+        // Agents / Tageswerte: Tageswerte anderer Personen einmergen.
+        // Tageswerte sind pro Agent und pro Tag gespeichert (agent.tageswerte[monthKey][dayKey]).
+        // Strategie: für jeden Server-Agenten (per id) dessen Tageswerte Monat für Monat
+        // und Tag für Tag in den lokalen Stand einmergen, SOFERN der lokale Tag noch leer ist.
+        // Eigene lokale Änderungen (der Agent hat Fokus oder wurde gerade bearbeitet) gewinnen immer.
+        if(serverData.agents){
+          serverData.agents.forEach(serverAgent => {
+            if(!serverAgent.id) return;
+            const localAgent = state.agents.find(a => a.id === serverAgent.id);
+            if(!localAgent) return; // Unbekannter Agent – nicht anlegen, nur mergen
+            // Tageswerte mergen: Server-Tage einmergen wenn lokal nicht vorhanden
+            if(serverAgent.tageswerte){
+              if(!localAgent.tageswerte) localAgent.tageswerte = {};
+              Object.keys(serverAgent.tageswerte).forEach(monthKey => {
+                if(!localAgent.tageswerte[monthKey]) localAgent.tageswerte[monthKey] = {};
+                const serverMonth = serverAgent.tageswerte[monthKey];
+                Object.keys(serverMonth).forEach(dayKey => {
+                  // Nur einmergen wenn lokal kein Eintrag für diesen Tag existiert
+                  if(!localAgent.tageswerte[monthKey][dayKey]){
+                    localAgent.tageswerte[monthKey][dayKey] = serverMonth[dayKey];
+                  }
+                });
+              });
+            }
+            // Notizen anderer Führungskräfte übernehmen (eigene lokal-geänderte bleiben erhalten,
+            // da wir nur übernehmen wenn lokal leer)
+            if(serverAgent.notiz && !localAgent.notiz){
+              localAgent.notiz = serverAgent.notiz;
+            }
           });
         }
       }
