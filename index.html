@@ -154,23 +154,25 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .empty-illus-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:340px;}
 /* tw-team-wrap: äußerer Container pro Team */
 .tw-team-wrap{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
-/* tw-team-sticky: normaler Block; wird per JS zu fixed wenn er oben rausgescrollt ist */
-.tw-team-sticky{background:#fff;border-radius:16px 16px 0 0;overflow:hidden;z-index:20;}
-.tw-team-sticky.is-fixed{position:fixed;left:0;right:0;border-radius:0;box-shadow:0 4px 16px rgba(0,0,0,.12);}
+/* tw-team-sticky: schwarzer Balken + Spalten-Header-Klon; wird per JS fixed geschaltet */
+.tw-team-sticky{background:#fff;border-radius:16px 16px 0 0;z-index:20;}
+.tw-team-sticky.is-fixed{position:fixed;border-radius:0;box-shadow:0 4px 16px rgba(0,0,0,.12);overflow:hidden;}
 .tw-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;}
+/* Klon-Header-Zeile: nur sichtbar wenn is-fixed, synchronisiert mit echter Tabelle per JS */
+.tw-col-header-bar{display:none;background:#FAFAFA;overflow-x:hidden;border-bottom:2px solid var(--border);}
+.tw-team-sticky.is-fixed .tw-col-header-bar{display:block;}
+.tw-col-header-table{table-layout:fixed;border-collapse:collapse;width:100%;}
+.tw-col-header-table th{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;white-space:nowrap;}
+.tw-col-header-table th:first-child{text-align:left;padding-left:20px;}
 /* Platzhalter wenn sticky-Block fixed wird */
 .tw-sticky-placeholder{display:none;}
 .tw-sticky-placeholder.is-active{display:block;}
-/* Tabellen-Scroll-Wrapper: overflow-x für horizontalen Scroll.
-   overflow-y:clip erstellt KEINEN Scroll-Container, daher funktioniert position:sticky auf th.
-   (Unterschied zu auto/scroll die sticky blockieren würden) */
-.tw-team{overflow-x:auto;overflow-y:clip;}
+/* Tabellen-Scroll-Wrapper */
+.tw-team{overflow-x:auto;}
 .tw-table{width:100%;border-collapse:collapse;}
 .tw-table td{text-align:center;padding:4px 8px;}
-/* tw-head-row: sticky innerhalb der Tabelle — bleibt oben wenn Tabelle lang ist */
-.tw-head-row th{background:#FAFAFA;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;white-space:nowrap;position:sticky;top:0;z-index:5;}
+.tw-head-row th{background:#FAFAFA;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;white-space:nowrap;}
 .tw-head-row th:first-child{text-align:left;padding-left:20px;}
-/* Wenn der Team-Block fixed ist, bekommt tw-head-row den korrekten top-Offset per JS */
 .tw-row{border-bottom:1px solid #F0F0F2;}
 .tw-row:nth-child(even){background:#FBFBFC;}
 .tw-row:hover{background:#F5F5F7;}
@@ -916,7 +918,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 131;
+const BOARD_VERSION = 132;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -7625,6 +7627,15 @@ function renderTageswerte(){
     head.className = 'tw-team-head';
     head.textContent = `${cfg.label} — ${cfg.project}`;
     stickyWrap.appendChild(head);
+    // Klon-Spalten-Header (nur sichtbar wenn is-fixed, Breiten werden per JS gesetzt)
+    const colHeaderBar = document.createElement('div');
+    colHeaderBar.className = 'tw-col-header-bar';
+    const colHeaderTable = document.createElement('table');
+    colHeaderTable.className = 'tw-col-header-table';
+    const colHeaderRow = document.createElement('tr');
+    colHeaderTable.appendChild(colHeaderRow);
+    colHeaderBar.appendChild(colHeaderTable);
+    stickyWrap.appendChild(colHeaderBar);
     teamDiv.appendChild(placeholder);
     teamDiv.appendChild(stickyWrap);
 
@@ -7635,6 +7646,13 @@ function renderTageswerte(){
     const headers = isTotal
       ? ['Mitarbeiter', 'Calls', 'CHT', ...productHeaders, 'NPS %', 'LQ %']
       : ['Mitarbeiter', ...productHeaders];
+
+    // Klon-Spalten-Header mit gleichen Labels befüllen
+    headers.forEach(h=>{
+      const th = document.createElement('th');
+      th.textContent = h;
+      colHeaderRow.appendChild(th);
+    });
 
     const table = document.createElement('table');
     table.className = 'tw-table';
@@ -7771,8 +7789,7 @@ function renderTageswerte(){
     container.appendChild(emptyStateEl('Noch keine Mitarbeiter angelegt', 'Lege zuerst Mitarbeiter im Reiter "Mitarbeiter Ziele" an.'));
   }
 
-  // Scroll-Handler: Team-Headline per JS fixed schalten wenn sie oben rausgescrollt ist
-  // Alle alten Listener entfernen
+  // Scroll-Handler: Team-Headline + Spalten-Klon per JS fixed schalten
   if(window._twScrollCleanup){ window._twScrollCleanup(); window._twScrollCleanup = null; }
 
   setTimeout(()=>{
@@ -7781,6 +7798,25 @@ function renderTageswerte(){
     const stickyBlocks = document.querySelectorAll('#tageswerte-capture .tw-team-sticky');
     if(!stickyBlocks.length) return;
 
+    // Spaltenbreiten vom echten thead in den Klon übertragen
+    function syncColWidths(wrap){
+      const realThs = wrap.querySelectorAll('.tw-head-row th');
+      const cloneThs = wrap.querySelectorAll('.tw-col-header-table th');
+      const tableWrap = wrap.querySelector('.tw-team');
+      const cloneBar  = wrap.querySelector('.tw-col-header-bar');
+      if(!realThs.length || !cloneThs.length) return;
+      realThs.forEach((th, i)=>{
+        if(cloneThs[i]) cloneThs[i].style.width = th.getBoundingClientRect().width + 'px';
+      });
+      // Gesamtbreite der echten Tabelle übernehmen
+      const realTable = wrap.querySelector('.tw-table');
+      if(realTable && cloneBar){
+        wrap.querySelector('.tw-col-header-table').style.width = realTable.getBoundingClientRect().width + 'px';
+      }
+      // horizontalen Scroll-Offset übernehmen
+      if(tableWrap && cloneBar) cloneBar.scrollLeft = tableWrap.scrollLeft;
+    }
+
     function twUpdate(){
       stickyBlocks.forEach(block=>{
         const wrap = block.closest('.tw-team-wrap');
@@ -7788,7 +7824,6 @@ function renderTageswerte(){
         if(!wrap) return;
         const wrapRect = wrap.getBoundingClientRect();
         const blockH = block.offsetHeight;
-        // Wenn Oberkante des Wrappers über dem Tab-Header ist UND Unterkante noch im Sichtfeld
         if(wrapRect.top < tabsH && wrapRect.bottom > tabsH + blockH){
           if(!block.classList.contains('is-fixed')){
             block.classList.add('is-fixed');
@@ -7797,10 +7832,12 @@ function renderTageswerte(){
             block.style.left = r.left + 'px';
             block.style.width = r.width + 'px';
             if(ph){ ph.style.height = blockH + 'px'; ph.classList.add('is-active'); }
+            syncColWidths(wrap);
           } else {
             const r = wrap.getBoundingClientRect();
             block.style.left = r.left + 'px';
             block.style.width = r.width + 'px';
+            syncColWidths(wrap);
           }
         } else {
           block.classList.remove('is-fixed');
@@ -7810,14 +7847,21 @@ function renderTageswerte(){
       });
     }
 
-    // Auf alle möglichen Scroll-Container hören
+    // Horizontalen Scroll der Tabelle auf den Klon-Header übertragen
+    document.querySelectorAll('#tageswerte-capture .tw-team').forEach(tableWrap=>{
+      const wrap = tableWrap.closest('.tw-team-wrap');
+      tableWrap.addEventListener('scroll', ()=>{
+        const cloneBar = wrap && wrap.querySelector('.tw-col-header-bar');
+        if(cloneBar) cloneBar.scrollLeft = tableWrap.scrollLeft;
+      }, {passive:true});
+    });
+
+    // Auf alle möglichen Scroll-Container hören (body/html/window - je nach Browser)
     const scrollTargets = [
       window,
-      document,
       document.documentElement,
       document.body,
-      document.getElementById('view-overview'),
-      document.querySelector('.ov-view-outer')
+      document.getElementById('view-overview')
     ].filter(Boolean);
 
     scrollTargets.forEach(t => t.addEventListener('scroll', twUpdate, {passive:true, capture:true}));
@@ -7826,19 +7870,8 @@ function renderTageswerte(){
       scrollTargets.forEach(t => t.removeEventListener('scroll', twUpdate, {capture:true}));
     };
 
-    twUpdate(); // einmal direkt aufrufen
-
-    // Sticky-Top für tw-head-row setzen: tabsH + Höhe des Team-Balkens
-    stickyBlocks.forEach(block=>{
-      const wrap = block.closest('.tw-team-wrap');
-      if(!wrap) return;
-      const headH = block.offsetHeight; // Höhe des Team-Balkens (tw-team-sticky)
-      const stickyTop = tabsH + headH;
-      wrap.querySelectorAll('.tw-head-row th').forEach(th=>{
-        th.style.top = stickyTop + 'px';
-      });
-    });
-  }, 100);
+    twUpdate();
+  }, 150);
 
 }
 
