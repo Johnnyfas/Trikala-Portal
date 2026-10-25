@@ -877,7 +877,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 </div>
 
 <script>
-document.getElementById('copyright-year').textContent = new Date().getFullYear();
+{ const cy = document.getElementById('copyright-year'); if(cy) cy.textContent = new Date().getFullYear(); }
 </script>
 
 <script>
@@ -889,7 +889,7 @@ const CATEGORY_CSS = { regular: 'regular', '6h': 'sixh', helpline: 'helpline', s
 
 const MA_SEED = {"mf": {"Januar": {"plan": {"MF NG": 685.0, "BB": 97.0, "SU": 52.0, "TV": 45.0, "BOJ": 25.0}, "ziel": {"MF NG": 836.0, "BB": 144.0, "SU": 62.0, "TV": 84.0, "BOJ": 19.0}, "erreicht": {"MF NG": 836.0, "BB": 144.0, "SU": 62.0, "TV": 84.0, "BOJ": 19.0}, "cr": {"MF NG": 4.73, "BB": 0.81, "SU": 0.35, "TV": 0.48, "BOJ": 17.39}, "nps_plan": 67.0, "nps_ist": 71.94, "crZielText": {"MF NG": "", "BB": "", "SU": "", "TV": "", "BOJ": ""}, "storno": {"MF NG": 6.49, "BB": 23.81, "SU": 17.33, "TV": 20.0, "BOJ": 17.39}, "crGesamtErreicht": 23.76}, "Februar": {"plan": {"MF NG": 542.0, "BB": 80.0, "SU": 44.0, "TV": 37.0, "BOJ": 20.0}, "ziel": {"MF NG": 753.0, "BB": 122.0, "SU": 61.0, "TV": 65.0, "BOJ": 10.0}, "erreicht": {"MF NG": 753.0, "BB": 122.0, "SU": 61.0, "TV": 65.0, "BOJ": 10.0}, "cr": {"MF NG": 3.71, "BB": 0.6, "SU": 0.3, "TV": 0.32, "BOJ": 0.05}, "nps_plan": 67.0, "nps_ist": 69.8, "crZielText": {"MF NG": "", "BB": "", "SU": "", "TV": "", "BOJ": ""}, "storno": {"MF NG": 11.93, "BB": 23.75, "SU": 25.61, "TV": 18.75, "BOJ": 50.0}, "crGesamtErreicht": 4.98}, "März": {"plan": {"MF NG": 623.0, "BB": 94.0, "SU": 51.0, "TV": 43.0, "BOJ": 23.0}, "ziel": {"MF NG": 353.0, "BB": 110.0, "SU": 62.0, "TV": 62.0, "BOJ": 13.0}, "erreicht": {"MF NG": 353.0, "BB": 110.0, "SU": 62.0, "TV": 62.0, "BOJ": 13.0}, "cr": {"MF NG": 1.77, "BB": 0.55, "SU": 0.31, "TV": 0.31, "BOJ": 0.07}, "nps_plan": 67.0, "nps_ist": 72.09, "crZielText": {"MF NG": "", "BB": "", "SU": "", "TV": "", "BOJ": ""}, "storno": {"MF NG": 48.54, "BB": 21.99, "SU": 20.51, "TV": 19.48, "BOJ": 48.0}, "crGesamtErreicht": 3.01}, "April": {"plan": {"MF NG": 565.0, "BB": 93.0, "SU": 48.0, "TV": 46.0, "BOJ": 12.0}, "ziel": {"MF NG": 578.0, "BB": 136.0, "SU": 54.0, "TV": 78.0, "BOJ": 13.0}, "erreicht": {"MF NG": 578.0, "BB": 136.0, "SU": 54.0, "TV": 78.0, "BOJ": 13.0}, "cr": {"MF NG": 3.46, "BB": 0.81, "SU": 0.32, "TV": 0.47, "BOJ": 0.08}, "nps_plan": 67.0, "nps_ist": 73.34, "crZielText": {"MF NG": "4%/4.8%", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "crZiel": {"MF NG": 4.0, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "storno": {"MF NG": 9.12, "BB": 19.53, "SU": 20.59, "TV": 21.21, "BOJ": 45.83}}, "Mai": {"plan": {"MF NG": 479.0, "BB": 84.0, "SU": 40.0, "TV": 49.0, "BOJ": 10.0}, "ziel": {"MF NG": 577.0, "BB": 147.0, "SU": 66.0, "TV": 83.0, "BOJ": 9.0}, "erreicht": {"MF NG": 577.0, "BB": 147.0, "SU": 66.0, "TV": 83.0, "BOJ": 9.0}, "cr": {"MF NG": 3.08, "BB": 0.79, "SU": 0.35, "TV": 0.44, "BOJ": 0.05}, "nps_plan": 68.0, "nps_ist": 71.05, "crZielText": {"MF NG": "4%/4.8%", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "crZiel": {"MF NG": 4.0, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "storno": {"MF NG": 25.84, "BB": 13.02, "SU": 17.5, "TV": 11.7, "BOJ": 40.0}, "crGesamtErreicht": 4.72, "crGesamtZiel": 7.0}, "Juni": {"plan": {"MF NG": 542.0, "BB": 87.0, "SU": 45.0, "TV": 48.0, "BOJ": 11.0}, "ziel": {"MF NG": 697.0, "BB": 114.0, "SU": 42.0, "TV": 61.0, "BOJ": 9.0}, "erreicht": {"MF NG": 697.0, "BB": 114.0, "SU": 42.0, "TV": 61.0, "BOJ": 9.0}, "cr": {"MF NG": 3.99, "BB": 0.65, "SU": 0.24, "TV": 0.35, "BOJ": 0.05}, "nps_plan": 68.0, "nps_ist": 70.86, "crZielText": {"MF NG": "4%/4.8%", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "crZiel": {"MF NG": 4.0, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "storno": {"MF NG": 9.95, "BB": 25.93, "SU": 6.25, "TV": 21.43, "BOJ": 30.77}, "crGesamtErreicht": 5.33, "crGesamtZiel": 7.0}, "Juli": {"plan": {"MF NG": 770, "BB": 109, "SU": 67, "TV": 52, "BOJ": 17}, "ziel": {"MF NG": 618.0, "BB": 73.0, "SU": 19.0, "TV": 46.0, "VVM": 10.0}, "erreicht": {"MF NG": 572.0, "BB": 75.0, "SU": 38.0, "TV": 35.0, "BOJ": 7.0}, "cr": {"MF NG": 3.06, "BB": 0.4, "SU": 0.2, "TV": 0.19, "BOJ": 0.04}, "nps_plan": 69.0, "nps_ist": 70.85, "crZiel": {"MF NG": 3.3, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "crZielText": {"MF NG": "3.3%/4%/4.5", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "storno": {"MF NG": 24.34, "BB": 31.19, "SU": 22.45, "TV": 22.22, "BOJ": 68.18}, "crGesamtErreicht": 3.89}, "August": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "VVM": 0, "BOJ": 0}, "ziel": {"MF NG": 612.0, "BB": 85.0, "SU": 15.0, "TV": 36.0, "VVM": 10.0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "VVM": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0.0, "SU": 0.0, "TV": 0.0, "VVM": 0.0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0.0}, "September": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}, "Oktober": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}, "November": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}, "Dezember": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}}, "fn": {"Januar": {"plan": {"NG (BB)": 184.0, "SU": 179.0, "BOJ": 102.0, "TV": 95.0, "MF": 16.0}, "ziel": {"NG (BB)": 289.0, "SU": 113.0, "BOJ": 73.0, "TV": 143.0, "MF": 24.0}, "erreicht": {"NG (BB)": 289.0, "SU": 113.0, "BOJ": 73.0, "TV": 143.0, "MF": 24.0}, "cr": {"NG (BB)": 3.61, "SU": 1.41, "BOJ": 0.91, "TV": 1.79, "MF": 0.3}, "nps_plan": 66.0, "nps_ist": 63.68, "crZielText": {"NG (BB)": "", "SU": "", "BOJ": "", "TV": "", "MF": ""}, "storno": {"NG (BB)": 19.05, "SU": 14.39, "BOJ": 27.7, "TV": 17.82, "MF": 17.24}, "crGesamtErreicht": 7.11}, "Februar": {"plan": {"NG (BB)": 180.0, "SU": 178.0, "BOJ": 100.0, "TV": 93.0, "MF": 16.0}, "ziel": {"NG (BB)": 181.0, "SU": 127.0, "BOJ": 81.0, "TV": 88.0, "MF": 17.0}, "erreicht": {"NG (BB)": 181.0, "SU": 127.0, "BOJ": 81.0, "TV": 88.0, "MF": 17.0}, "cr": {"NG (BB)": 2.64, "SU": 1.85, "BOJ": 1.18, "TV": 1.28, "MF": 0.25}, "nps_plan": 66.0, "nps_ist": 66.51, "crZielText": {"NG (BB)": "", "SU": "", "BOJ": "", "TV": "", "MF": ""}, "storno": {"NG (BB)": 27.31, "SU": 13.61, "BOJ": 21.36, "TV": 26.05, "MF": 10.53}, "crGesamtErreicht": 6.02}, "März": {"plan": {"NG (BB)": 224.0, "SU": 224.0, "BOJ": 124.0, "TV": 116.0, "MF": 19.0}, "ziel": {"NG (BB)": 257.0, "SU": 165.0, "BOJ": 99.0, "TV": 121.0, "MF": 21.0}, "erreicht": {"NG (BB)": 257.0, "SU": 165.0, "BOJ": 99.0, "TV": 121.0, "MF": 21.0}, "cr": {"NG (BB)": 2.98, "SU": 1.91, "BOJ": 1.15, "TV": 1.4, "MF": 0.24}, "nps_plan": 66.0, "nps_ist": 65.03, "crZielText": {"NG (BB)": "", "SU": "", "BOJ": "", "TV": "", "MF": ""}, "storno": {"NG (BB)": 22.36, "SU": 11.76, "BOJ": 16.81, "TV": 21.94, "MF": 19.23}, "crGesamtErreicht": 6.53}, "April": {"plan": {"NG (BB)": 209.0, "SU": 208.0, "BOJ": 107.0, "TV": 126.0, "MF": 16.0}, "ziel": {"NG (BB)": 235.0, "SU": 141.0, "BOJ": 104.0, "TV": 106.0, "MF": 26.0}, "erreicht": {"NG (BB)": 235.0, "SU": 141.0, "BOJ": 104.0, "TV": 106.0, "MF": 26.0}, "cr": {"NG (BB)": 2.56, "SU": 1.54, "BOJ": 1.13, "TV": 1.15, "MF": 0.28}, "nps_plan": 66.0, "nps_ist": 64.21, "crZielText": {"NG (BB)": "2.80%/3.40%", "SU": "3%/3.50%", "BOJ": "1.40%/2.40%", "TV": "1.60%/2%", "MF": "0.40%/0.60%"}, "crZiel": {"NG (BB)": 2.8, "SU": 3.0, "BOJ": 1.4, "TV": 1.6, "MF": 0.4}, "storno": {"NG (BB)": 25.87, "SU": 17.54, "BOJ": 21.21, "TV": 24.82, "MF": 16.13}, "crGesamtErreicht": 5.53}, "Mai": {"plan": {"NG (BB)": 243.0, "SU": 220.0, "BOJ": 110.0, "TV": 170.0, "MF": 17.0}, "ziel": {"NG (BB)": 273.0, "SU": 177.0, "BOJ": 113.0, "TV": 124.0, "MF": 17.0}, "erreicht": {"NG (BB)": 273.0, "SU": 177.0, "BOJ": 113.0, "TV": 124.0, "MF": 17.0}, "cr": {"NG (BB)": 3.23, "SU": 2.09, "BOJ": 1.34, "TV": 1.47, "MF": 0.2}, "nps_plan": 67.0, "nps_ist": 64.58, "crZielText": {"NG (BB)": "2.80%/3.40%", "SU": "3%/3.50%", "BOJ": "1.40%/2.40%", "TV": "1.60%/2%", "MF": "0.40%/0.60%"}, "crZiel": {"NG (BB)": 2.8, "SU": 3.0, "BOJ": 1.4, "TV": 1.6, "MF": 0.4}, "storno": {"NG (BB)": 23.96, "SU": 13.66, "BOJ": 28.03, "TV": 23.93, "MF": 22.73}, "crGesamtErreicht": 10.04, "crGesamtZiel": 10.0}, "Juni": {"plan": {"NG (BB)": 227.0, "SU": 220.0, "BOJ": 114.0, "VVM": 0, "TV": 151.0, "MF": 17.0}, "ziel": {"NG (BB)": 211.0, "SU": 158.0, "BOJ": 89.0, "VVM": 248.0, "TV": 131.0, "MF": 17.0}, "erreicht": {"NG (BB)": 211.0, "SU": 158.0, "BOJ": 89.0, "VVM": 248.0, "TV": 131.0, "MF": 17.0}, "cr": {"NG (BB)": 2.86, "SU": 2.14, "BOJ": 1.21, "VVM": 3.36, "TV": 1.78, "MF": 0.23}, "nps_plan": 67.0, "nps_ist": 67.36, "crZielText": {"NG (BB)": "2.80%/3.40%", "SU": "3%/3.50%", "BOJ": "1.40%/2.40%", "VVM": "3.50%/4.50%", "TV": "1.60%/2%", "MF": "0.40%/0.60%"}, "crZiel": {"NG (BB)": 2.8, "SU": 3.0, "BOJ": 1.4, "TV": 1.6, "MF": 0.4}, "storno": {"NG (BB)": 25.18, "SU": 18.13, "BOJ": 26.45, "VVM": 25.08, "TV": 19.63, "MF": 22.73}, "crGesamtErreicht": 10.37, "crGesamtZiel": 11.0}, "Juli": {"plan": {"NG (BB)": 271, "SU": 318, "BOJ": 155, "VVM": 0, "TV": 153, "MF": 20}, "ziel": {"NG (BB)": 226.0, "SU": 118.0, "VVM": 162.0, "TV": 108.0, "MF": 35.0}, "erreicht": {"NG (BB)": 0, "SU": 0, "VVM": 0, "TV": 0, "MF": 0, "BOJ": 0}, "cr": {"NG (BB)": 0, "SU": 0.0, "VVM": 0.0, "TV": 0.0, "MF": 0, "BOJ": 0}, "nps_plan": 68, "nps_ist": 0.0}, "August": {"plan": {"NG (BB)": 0, "SU": 0, "VVM": 0, "TV": 0, "MF": 0, "BOJ": 0}, "ziel": {"NG (BB)": 218.0, "SU": 174.0, "VVM": 144.0, "TV": 97.0, "MF": 34.0}, "erreicht": {"NG (BB)": 0, "SU": 0, "VVM": 0, "TV": 0, "MF": 0, "BOJ": 0}, "cr": {"NG (BB)": 0, "SU": 0.0, "VVM": 0.0, "TV": 0.0, "MF": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0.0}, "September": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}, "Oktober": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}, "November": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}, "Dezember": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}}};
 const VERLAUF_SEED = {};
-let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, tagesziele: [], deletedEntryIds: [], verlauf: JSON.parse(JSON.stringify(VERLAUF_SEED)), monatsabschluss: JSON.parse(JSON.stringify(MA_SEED)), teamziele: {
+let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, tagesziele: [], deletedEntryIds: [], deletedAgentIds: [], verlauf: JSON.parse(JSON.stringify(VERLAUF_SEED)), monatsabschluss: JSON.parse(JSON.stringify(MA_SEED)), teamziele: {
   mf: {
     datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 69, cht: 600, na: 1,
     soll: {MF:770, BB:109, SU:67, TV:52, BOJ:17, DA:0},
@@ -918,7 +918,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 133;
+const BOARD_VERSION = 135;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1538,6 +1538,191 @@ function showSyncDebug(message, isError){
   console.log('[Sync]', message);
 }
 
+// ============================================================
+// AGENT-SYNC (ab v134): zellgenaues Zusammenführen der Mitarbeiterdaten
+// ------------------------------------------------------------
+// Jede einzelne Zahl (Tageswert pro Mitarbeiter/Tag/Produkt, Calls, NPS, LQ, CHT, Notiz, ...)
+// ist eine eigene "Zelle" mit Zeitstempel der letzten Änderung. Beim Zusammenführen mit dem
+// Server gewinnt pro Zelle die NEUERE Änderung - egal wer sie gemacht hat. Vorher galt
+// "lokal gewinnt immer", wodurch ein bloß veralteter lokaler Stand frische Einträge anderer
+// Führungskräfte überschrieben hat.
+//
+// Lokale Änderungen werden erkannt, indem der aktuelle Stand mit dem Stand beim letzten
+// Abgleich (agentSyncBaseline) verglichen wird - dadurch werden ALLE Eingabewege erfasst
+// (Tippen, Mehrfach-Löschen, Rückgängig, Monat zurücksetzen, Helpsense-Import, ...).
+//
+// Zeitstempel: Tageswerte in dv._t[produkt], alle anderen Zellen in agent._ts[schlüssel].
+// Zellschlüssel: 'f|feld' (Agent-Feld), 's|produkt' (Monatsstand), 't|monat|tag|produkt'.
+// ============================================================
+// AGENT_SYNC_START
+const AGENT_SYNC_SKIP = new Set(['id','_ts','tageswerte','sales','coachingDatum']);
+let agentSyncBaseline = null; // { agentId: { zellSchlüssel: JSON-Wert } } - Stand beim letzten Abgleich
+let agLastMergeChangedLocal = false; // hat der letzte Abgleich Einträge anderer übernommen?
+
+function agNorm(v){ return v === undefined ? null : v; }
+function agCellsOf(agent){
+  const out = {};
+  Object.keys(agent).forEach(k=>{ if(!AGENT_SYNC_SKIP.has(k)) out['f|'+k] = agNorm(agent[k]); });
+  if(agent.sales) Object.keys(agent.sales).forEach(p=>{ out['s|'+p] = agNorm(agent.sales[p]); });
+  const tw = agent.tageswerte;
+  if(tw) Object.keys(tw).forEach(m=>{
+    const mo = tw[m]; if(!mo || typeof mo !== 'object') return;
+    Object.keys(mo).forEach(d=>{
+      const dv = mo[d]; if(!dv || !dv.sales) return;
+      Object.keys(dv.sales).forEach(p=>{ out['t|'+m+'|'+d+'|'+p] = agNorm(dv.sales[p]); });
+    });
+  });
+  return out;
+}
+function agEnsureDay(agent, m, d){
+  if(!agent.tageswerte) agent.tageswerte = {};
+  if(!agent.tageswerte[m]) agent.tageswerte[m] = {};
+  if(!agent.tageswerte[m][d]) agent.tageswerte[m][d] = { sales:{} };
+  if(!agent.tageswerte[m][d].sales) agent.tageswerte[m][d].sales = {};
+  return agent.tageswerte[m][d];
+}
+function agSetCell(agent, key, val){
+  const v = (val && typeof val === 'object') ? JSON.parse(JSON.stringify(val)) : agNorm(val);
+  const parts = key.split('|');
+  if(parts[0] === 'f'){ agent[parts[1]] = v; return; }
+  if(parts[0] === 's'){ if(!agent.sales) agent.sales = {}; agent.sales[parts[1]] = v; return; }
+  if(parts[0] === 't'){ agEnsureDay(agent, parts[1], parts[2]).sales[parts[3]] = v; }
+}
+function agGetTs(agent, key){
+  const parts = key.split('|');
+  if(parts[0] === 't'){
+    const dv = agent.tageswerte && agent.tageswerte[parts[1]] && agent.tageswerte[parts[1]][parts[2]];
+    return (dv && dv._t && dv._t[parts[3]]) || 0;
+  }
+  return (agent._ts && agent._ts[key]) || 0;
+}
+function agSetTs(agent, key, ts){
+  const parts = key.split('|');
+  if(parts[0] === 't'){
+    const dv = agEnsureDay(agent, parts[1], parts[2]);
+    if(!dv._t) dv._t = {};
+    dv._t[parts[3]] = ts;
+    return;
+  }
+  if(!agent._ts) agent._ts = {};
+  agent._ts[key] = ts;
+}
+function agCaptureBaseline(){
+  agentSyncBaseline = {};
+  (state.agents||[]).forEach(a=>{
+    if(!a || !a.id) return;
+    const cells = agCellsOf(a);
+    const b = {};
+    Object.keys(cells).forEach(k=>{ b[k] = JSON.stringify(cells[k]); });
+    agentSyncBaseline[a.id] = b;
+  });
+}
+// Alles, was sich seit dem letzten Abgleich lokal geändert hat, bekommt einen frischen Zeitstempel.
+function agStampLocalEdits(){
+  if(!agentSyncBaseline) return; // noch nie abgeglichen → nichts zu vergleichen
+  const ts = Date.now();
+  (state.agents||[]).forEach(a=>{
+    if(!a || !a.id) return;
+    const base = agentSyncBaseline[a.id];
+    const cur = agCellsOf(a);
+    if(!base){
+      // lokal neu angelegter Mitarbeiter: alle befüllten Zellen sind neue Eingaben
+      Object.keys(cur).forEach(k=>{ if(cur[k] !== null) agSetTs(a, k, ts); });
+      return;
+    }
+    const keys = new Set([...Object.keys(cur), ...Object.keys(base)]);
+    keys.forEach(k=>{
+      const cv = JSON.stringify(k in cur ? cur[k] : null);
+      const bv = (k in base) ? base[k] : 'null';
+      if(cv !== bv){
+        if(!(k in cur)) agSetCell(a, k, null); // z.B. ganzer Monat gelöscht → als "geleert" festhalten
+        agSetTs(a, k, ts);
+        base[k] = cv; // erfasst - nicht beim nächsten Durchlauf erneut (mit späterer Zeit) stempeln
+      }
+    });
+  });
+  // Baseline wird erst am Ende von mergeAgentsFromServer() neu gesetzt - bis dahin muss erkennbar
+  // bleiben, welche Mitarbeiter beim letzten Abgleich schon auf dem Server waren.
+}
+// Pro Zelle die neuere Änderung übernehmen. Rückgabe: true, wenn lokal etwas Neueres liegt,
+// das dem Server noch fehlt (→ es muss gespeichert werden).
+function agMergeAgentCells(la, sa){
+  const lc = agCellsOf(la), sc = agCellsOf(sa);
+  let localAhead = false;
+  const keys = new Set([...Object.keys(lc), ...Object.keys(sc)]);
+  keys.forEach(k=>{
+    const lt = agGetTs(la, k), st = agGetTs(sa, k);
+    const inL = k in lc, inS = k in sc;
+    const lv = inL ? lc[k] : null, sv = inS ? sc[k] : null;
+    if(st > lt){
+      if(JSON.stringify(lv) !== JSON.stringify(sv)) agLastMergeChangedLocal = true;
+      agSetCell(la, k, sv);
+      agSetTs(la, k, st);
+    } else if(lt > st){
+      localAhead = true; // Server kennt unsere neuere Änderung noch nicht
+    } else if(JSON.stringify(lv) !== JSON.stringify(sv)){
+      // Gleich alt (meist: beide ohne Zeitstempel = Altdaten) → Server-Stand ist maßgeblich,
+      // denn eigene Änderungen wurden vorher durch agStampLocalEdits() gestempelt.
+      // Ausnahme: Agent-Felder, die der Server gar nicht kennt, nicht wegwerfen.
+      if(!inS && k.startsWith('f|')) return;
+      agSetCell(la, k, sv);
+      agLastMergeChangedLocal = true;
+    }
+  });
+  return localAhead;
+}
+// Zeitstempel sehr alter Monate entfernen (hält die Datenmenge klein).
+function agPruneOldTs(){
+  const now = new Date();
+  const cutoff = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+  const cutoffKey = `${cutoff.getFullYear()}-${String(cutoff.getMonth()+1).padStart(2,'0')}`;
+  (state.agents||[]).forEach(a=>{
+    if(!a || !a.tageswerte) return;
+    Object.keys(a.tageswerte).forEach(m=>{
+      if(m >= cutoffKey) return;
+      const mo = a.tageswerte[m]; if(!mo) return;
+      Object.values(mo).forEach(dv=>{ if(dv && dv._t) delete dv._t; });
+    });
+  });
+}
+// Server-Mitarbeiterliste in den lokalen Stand einarbeiten (Liste + jede einzelne Zelle).
+// Rückgabe: true, wenn lokal Änderungen liegen, die der Server noch nicht hat.
+function mergeAgentsFromServer(serverAgents, serverDeletedAgentIds){
+  agLastMergeChangedLocal = false;
+  agStampLocalEdits();
+  if(!state.deletedAgentIds) state.deletedAgentIds = [];
+  (serverDeletedAgentIds||[]).forEach(id=>{ if(!state.deletedAgentIds.includes(id)) state.deletedAgentIds.push(id); });
+  const deleted = new Set(state.deletedAgentIds);
+  const localById = {};
+  (state.agents||[]).forEach(a=>{ if(a && a.id) localById[a.id] = a; });
+  const result = [];
+  const seen = new Set();
+  let localAhead = false;
+  (serverAgents||[]).forEach(sa=>{
+    if(!sa) return;
+    if(sa.id && deleted.has(sa.id)){ localAhead = true; return; } // gelöscht, Server weiß es evtl. noch nicht
+    if(sa.id) seen.add(sa.id);
+    const la = sa.id && localById[sa.id];
+    if(!la){ result.push(JSON.parse(JSON.stringify(sa))); agLastMergeChangedLocal = true; return; }
+    if(agMergeAgentCells(la, sa)) localAhead = true;
+    result.push(la);
+  });
+  (state.agents||[]).forEach(la=>{
+    if(!la || !la.id || seen.has(la.id) || deleted.has(la.id)) return;
+    // War beim letzten Abgleich schon auf dem Server und ist jetzt weg → woanders entfernt, nicht wiederbeleben
+    if(agentSyncBaseline && agentSyncBaseline[la.id]){ agLastMergeChangedLocal = true; return; }
+    result.push(la); // lokal neu angelegt, noch nicht gespeichert
+    localAhead = true;
+  });
+  state.agents = result;
+  agPruneOldTs();
+  // Monatssummen aus den (jetzt vollständigen) Tageswerten neu berechnen
+  state.agents.forEach(a=>{ const cfg = TEAM_CONFIGS[a.team]; if(cfg && a.sales) twRecomputeAgent(a, cfg); });
+  agCaptureBaseline();
+  return localAhead;
+}
+// AGENT_SYNC_END
+
 async function loadFromSharePoint(){
   setSyncStatus('syncing');
   const epochAtStart = saveEpoch;
@@ -1562,32 +1747,20 @@ async function loadFromSharePoint(){
     if(resp.ok){
       const data = await resp.json();
       if(data && data.agents && data.agents.length){
-        showSyncDebug(`✅ Daten geladen: ${data.agents.length} Mitarbeiter (HTTP ${resp.status}, ${new Date().toLocaleTimeString('de-DE')})`, false);
-        // Agents nicht blind überschreiben: Tageswerte und andere lokale Eingaben schützen.
-        // Server-Agents als Basis; für bekannte lokale Agents nur Tageswerte einmergen.
-        const localById = {};
-        state.agents.forEach(a=>{ if(a.id) localById[a.id] = a; });
-        state.agents = data.agents.map(serverAgent => {
-          const local = serverAgent.id && localById[serverAgent.id];
-          if(!local) return serverAgent; // Neuer Agent vom Server → übernehmen
-          // Tageswerte: lokale Einträge behalten; Server-Tage einmergen wenn lokal nicht da
-          const mergedTW = JSON.parse(JSON.stringify(serverAgent.tageswerte || {}));
-          if(local.tageswerte){
-            Object.keys(local.tageswerte).forEach(monthKey=>{
-              if(!mergedTW[monthKey]) mergedTW[monthKey] = {};
-              Object.keys(local.tageswerte[monthKey]).forEach(dayKey=>{
-                // Lokale Eingabe gewinnt immer
-                mergedTW[monthKey][dayKey] = local.tageswerte[monthKey][dayKey];
-              });
-            });
+        // Versionsprüfung ZUERST (vor jedem Zusammenführen): läuft hier eine ältere Board-Fassung
+        // als die zuletzt gespeicherte, wird Speichern sofort gesperrt.
+        if(typeof data.boardVersion === 'number' && data.boardVersion > BOARD_VERSION){
+          if(!saveBlockedByVersion){
+            saveBlockedByVersion = true;
+            showSyncDebug('⚠️ Dieses Fenster nutzt eine veraltete Fassung des Boards. Speichern ist gesperrt, damit keine alten Daten zurückgeschrieben werden. Bitte die Seite neu laden (Strg+F5).', true);
           }
-          // Alle anderen Felder vom Server übernehmen, Tageswerte aus Merge
-          return { ...serverAgent, tageswerte: mergedTW,
-            notiz: local.notiz || serverAgent.notiz || '',
-            sales: local.sales, calls: local.calls, nps: local.nps,
-            lq: local.lq, cht: local.cht, cr: local.cr
-          };
-        });
+          setSyncStatus('error');
+          return;
+        }
+        showSyncDebug(`✅ Daten geladen: ${data.agents.length} Mitarbeiter (HTTP ${resp.status}, ${new Date().toLocaleTimeString('de-DE')})`, false);
+        // Mitarbeiter + Tageswerte zellgenau zusammenführen (pro Zahl gewinnt die neuere Änderung,
+        // egal von welcher Führungskraft) - siehe AGENT-SYNC oben.
+        const agentsLocalAhead = mergeAgentsFromServer(data.agents, data.deletedAgentIds);
         if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
         if(data.teamziele){
           Object.keys(data.teamziele).forEach(k=>{
@@ -1763,6 +1936,10 @@ async function loadFromSharePoint(){
         applyChtVerlaufData();
         renderAll();
         setSyncStatus('ok');
+        // Selbstheilung: Liegen lokal Einträge, die dem Server fehlen (z.B. weil ein früherer
+        // Speichervorgang gescheitert ist oder von einem parallelen Speichern verdrängt wurde),
+        // werden sie jetzt automatisch nachgespeichert.
+        if(agentsLocalAhead && !saveBlockedByVersion) scheduleSave();
         return;
       }
       showSyncDebug(`⚠️ Datei geladen (HTTP ${resp.status}), aber keine Mitarbeiterdaten enthalten. Nichts wurde überschrieben.`, true);
@@ -1799,6 +1976,76 @@ async function loadFromSharePoint(){
 
 }
 
+// Server-Stand in den lokalen Stand einarbeiten, unmittelbar bevor gespeichert wird.
+// Danach enthält state alles: die eigenen Änderungen UND alle Änderungen der anderen.
+function mergeServerIntoLocalForSave(serverData){
+  // Dauerhafte Löschliste zusammenführen (server + lokal), BEVOR Einträge gemerged werden -
+  // verhindert, dass ein älterer lokaler Stand einen andernorts gelöschten Eintrag zurückbringt.
+  if(!state.deletedEntryIds) state.deletedEntryIds = [];
+  if(serverData.deletedEntryIds){
+    serverData.deletedEntryIds.forEach(id=>{ if(!state.deletedEntryIds.includes(id)) state.deletedEntryIds.push(id); });
+  }
+  const deletedSet = new Set(state.deletedEntryIds);
+
+  // Coaching Verlauf: pro Mitarbeiter die Einträge beider Seiten vereinen (nach id)
+  if(serverData.coachverlauf){
+    Object.keys(serverData.coachverlauf).forEach(key=>{
+      const serverCv = serverData.coachverlauf[key];
+      const localCv = state.coachverlauf[key];
+      if(!localCv){
+        state.coachverlauf[key] = serverCv;
+        state.coachverlauf[key].eintraege = (state.coachverlauf[key].eintraege||[]).filter(e=>!deletedSet.has(e.id));
+      } else {
+        const localIds = new Set(localCv.eintraege.map(e=>e.id));
+        const merged = [...localCv.eintraege].filter(e=>!deletedSet.has(e.id));
+        (serverCv.eintraege||[]).forEach(e=>{ if(!localIds.has(e.id) && !deletedSet.has(e.id)) merged.push(e); });
+        merged.sort((a,b)=>{
+          const da = (a.datum||'').split('.').reverse().join('-');
+          const db = (b.datum||'').split('.').reverse().join('-');
+          return db.localeCompare(da);
+        });
+        localCv.eintraege = merged;
+      }
+    });
+  }
+
+  // Geplante Coachings: nach id vereinen
+  if(serverData.coachingPlan){
+    const localIds = new Set((state.coachingPlan||[]).map(p=>p.id));
+    const extra = serverData.coachingPlan.filter(p=>!localIds.has(p.id) && !deletedSet.has(p.id));
+    state.coachingPlan = [...(state.coachingPlan||[]), ...extra].filter(p=>!deletedSet.has(p.id));
+  }
+
+  // To-Do's: jede Person behält nur ihre eigenen lokal, fremde Personen vom Server übernehmen
+  if(serverData.todosByUser){
+    Object.keys(serverData.todosByUser).forEach(uid=>{
+      if(uid !== currentUserId) state.todosByUser[uid] = serverData.todosByUser[uid];
+    });
+  }
+
+  // Mitarbeiter + Tageswerte + Monatsstand (Calls/NPS/LQ/CHT/...): zellgenau, neuere Änderung gewinnt.
+  if(serverData.agents){
+    mergeAgentsFromServer(serverData.agents, serverData.deletedAgentIds);
+  }
+}
+
+function blockSaveOutdated(){
+  if(!saveBlockedByVersion){
+    saveBlockedByVersion = true;
+    showSyncDebug('⚠️ Dieses Fenster nutzt eine veraltete Fassung des Boards. Speichern ist gesperrt, damit keine alten Daten zurückgeschrieben werden. Bitte die Seite neu laden (Strg+F5).', true);
+  }
+  setSyncStatus('error');
+}
+
+// Nach einem gescheiterten Speichern automatisch erneut versuchen (die Änderungen liegen
+// weiterhin lokal mit Zeitstempel vor und gehen nicht verloren).
+let saveRetryTimer = null;
+function scheduleSaveRetry(){
+  if(saveBlockedByVersion) return;
+  clearTimeout(saveRetryTimer);
+  saveRetryTimer = setTimeout(()=>{ if(!saveBlockedByVersion) scheduleSave(); }, 20000);
+}
+
 async function saveToSharePoint(){
   if(saveBlockedByVersion){
     console.warn('Speichern gesperrt: dieses Fenster nutzt eine veraltete Board-Fassung.');
@@ -1813,115 +2060,76 @@ async function saveToSharePoint(){
   }
   setSyncStatus('syncing');
   try {
-    // Vor dem Speichern: aktuellsten Serverstand holen und mit den eigenen Änderungen zusammenführen,
-    // statt blind zu überschreiben - verhindert, dass parallele Änderungen anderer Personen verloren gehen.
-    try {
-      const freshResp = await fetch(KI_PROXY_URL + '/data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
-        body: JSON.stringify({ action: 'load' })
-      });
-      if(freshResp && freshResp.ok){
-        const serverData = await freshResp.json();
-
-        // Dauerhafte Löschliste zusammenführen (server + lokal), BEVOR Einträge gemerged werden -
-        // verhindert, dass ein älterer lokaler Stand (z.B. von einer anderen Person) einen
-        // andernorts gelöschten Eintrag beim Speichern wieder zurückbringt.
-        if(!state.deletedEntryIds) state.deletedEntryIds = [];
-        if(serverData.deletedEntryIds){
-          serverData.deletedEntryIds.forEach(id=>{ if(!state.deletedEntryIds.includes(id)) state.deletedEntryIds.push(id); });
-        }
-        const deletedSet = new Set(state.deletedEntryIds);
-
-        // Coaching Verlauf: pro Mitarbeiter die Einträge beider Seiten vereinen (nach id)
-        if(serverData.coachverlauf){
-          Object.keys(serverData.coachverlauf).forEach(key=>{
-            const serverCv = serverData.coachverlauf[key];
-            const localCv = state.coachverlauf[key];
-            if(!localCv){
-              state.coachverlauf[key] = serverCv;
-              state.coachverlauf[key].eintraege = (state.coachverlauf[key].eintraege||[]).filter(e=>!deletedSet.has(e.id));
-            } else {
-              const localIds = new Set(localCv.eintraege.map(e=>e.id));
-              const merged = [...localCv.eintraege].filter(e=>!deletedSet.has(e.id));
-              (serverCv.eintraege||[]).forEach(e=>{ if(!localIds.has(e.id) && !deletedSet.has(e.id)) merged.push(e); });
-              merged.sort((a,b)=>{
-                const da = (a.datum||'').split('.').reverse().join('-');
-                const db = (b.datum||'').split('.').reverse().join('-');
-                return db.localeCompare(da);
-              });
-              localCv.eintraege = merged;
-            }
-          });
-        }
-
-        // Geplante Coachings: nach id vereinen
-        if(serverData.coachingPlan){
-          const localIds = new Set((state.coachingPlan||[]).map(p=>p.id));
-          const extra = serverData.coachingPlan.filter(p=>!localIds.has(p.id) && !deletedSet.has(p.id));
-          state.coachingPlan = [...(state.coachingPlan||[]), ...extra].filter(p=>!deletedSet.has(p.id));
-        }
-
-        // To-Do's: jede Person behält nur ihre eigenen lokal, fremde Personen vom Server übernehmen
-        if(serverData.todosByUser){
-          Object.keys(serverData.todosByUser).forEach(uid=>{
-            if(uid !== currentUserId) state.todosByUser[uid] = serverData.todosByUser[uid];
-          });
-        }
-
-        // Agents / Tageswerte: Tageswerte anderer Personen einmergen.
-        // Tageswerte sind pro Agent und pro Tag gespeichert (agent.tageswerte[monthKey][dayKey]).
-        // Strategie: für jeden Server-Agenten (per id) dessen Tageswerte Monat für Monat
-        // und Tag für Tag in den lokalen Stand einmergen, SOFERN der lokale Tag noch leer ist.
-        // Eigene lokale Änderungen (der Agent hat Fokus oder wurde gerade bearbeitet) gewinnen immer.
-        if(serverData.agents){
-          serverData.agents.forEach(serverAgent => {
-            if(!serverAgent.id) return;
-            const localAgent = state.agents.find(a => a.id === serverAgent.id);
-            if(!localAgent) return; // Unbekannter Agent – nicht anlegen, nur mergen
-            // Tageswerte mergen: Server-Tage einmergen wenn lokal nicht vorhanden
-            if(serverAgent.tageswerte){
-              if(!localAgent.tageswerte) localAgent.tageswerte = {};
-              Object.keys(serverAgent.tageswerte).forEach(monthKey => {
-                if(!localAgent.tageswerte[monthKey]) localAgent.tageswerte[monthKey] = {};
-                const serverMonth = serverAgent.tageswerte[monthKey];
-                Object.keys(serverMonth).forEach(dayKey => {
-                  // Nur einmergen wenn lokal kein Eintrag für diesen Tag existiert
-                  if(!localAgent.tageswerte[monthKey][dayKey]){
-                    localAgent.tageswerte[monthKey][dayKey] = serverMonth[dayKey];
-                  }
-                });
-              });
-            }
-            // Notizen anderer Führungskräfte übernehmen (eigene lokal-geänderte bleiben erhalten,
-            // da wir nur übernehmen wenn lokal leer)
-            if(serverAgent.notiz && !localAgent.notiz){
-              localAgent.notiz = serverAgent.notiz;
-            }
-          });
-        }
-      }
-    } catch(mergeErr){
-      console.warn('Zusammenführen vor dem Speichern fehlgeschlagen, speichere trotzdem lokalen Stand:', mergeErr);
-    }
-
-    const resp = await fetch(KI_PROXY_URL + '/data', {
+    // 1) Aktuellsten Serverstand holen. Klappt das nicht, wird NICHT blind gespeichert -
+    //    sonst würde ein lokaler Stand ohne Abgleich die Einträge anderer überschreiben.
+    let serverData = null;
+    const freshResp = await fetch(KI_PROXY_URL + '/data', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
-      body: JSON.stringify({ action: 'save', data: { ...state, boardVersion: BOARD_VERSION } })
+      body: JSON.stringify({ action: 'load' })
     });
-    if(resp && resp.ok){
-      setSyncStatus('ok');
-      saveEpoch++;
-      console.log('Gespeichert:', new Date().toLocaleTimeString());
+    if(freshResp.ok){
+      serverData = await freshResp.json();
+    } else if(freshResp.status === 404){
+      serverData = {}; // noch gar keine Daten auf dem Server (allererster Start)
     } else {
-      console.error('Speichern fehlgeschlagen:', resp?.status);
+      console.error('Abgleich vor dem Speichern fehlgeschlagen:', freshResp.status);
       setSyncStatus('error');
+      scheduleSaveRetry();
+      return;
     }
+
+    // 2) Zusammenführen + speichern. Der Server (ab worker-d1 v2) speichert nur, wenn sich sein
+    //    Stand seit unserem Abruf nicht verändert hat (baseRev). Hat zwischenzeitlich jemand
+    //    anderes gespeichert, kommt 409 mit dem neuen Stand zurück → erneut zusammenführen.
+    for(let attempt = 0; attempt < 5; attempt++){
+      if(typeof serverData.boardVersion === 'number' && serverData.boardVersion > BOARD_VERSION){
+        blockSaveOutdated();
+        return;
+      }
+      mergeServerIntoLocalForSave(serverData);
+      const baseRev = (typeof serverData._rev === 'number') ? serverData._rev : null;
+      const payload = { ...state, boardVersion: BOARD_VERSION };
+      delete payload._rev;
+      const resp = await fetch(KI_PROXY_URL + '/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
+        body: JSON.stringify({ action: 'save', baseRev, data: payload })
+      });
+      if(resp.ok){
+        setSyncStatus('ok');
+        saveEpoch++;
+        console.log('Gespeichert:', new Date().toLocaleTimeString(), attempt ? `(nach ${attempt} Wiederholung(en))` : '');
+        if(agLastMergeChangedLocal) renderAfterRemoteMerge();
+        return;
+      }
+      if(resp.status === 409){
+        let body = null;
+        try{ body = await resp.json(); }catch(e){}
+        if(body && body.outdated){ blockSaveOutdated(); return; }
+        if(body && body.data){ serverData = body.data; continue; } // parallel gespeichert → neu zusammenführen
+      }
+      console.error('Speichern fehlgeschlagen:', resp.status);
+      setSyncStatus('error');
+      scheduleSaveRetry();
+      return;
+    }
+    console.error('Speichern nach mehreren Versuchen nicht möglich (zu viele parallele Änderungen).');
+    setSyncStatus('error');
+    scheduleSaveRetry();
   } catch(e){
     console.error('Speicherfehler', e);
     setSyncStatus('error');
+    scheduleSaveRetry();
   }
+}
+
+// Nach dem Speichern sind ggf. Einträge anderer Führungskräfte dazugekommen → Ansicht auffrischen,
+// aber nicht, während jemand gerade in ein Feld tippt (sonst springt der Cursor weg).
+function renderAfterRemoteMerge(){
+  const ae = document.activeElement;
+  const typing = ae && ae.matches && ae.matches('input, textarea, select');
+  if(!typing){ try{ renderAll(); }catch(e){ console.warn(e); } }
 }
 
 function setSyncStatus(s){
@@ -2077,6 +2285,9 @@ async function loadState(){
 }
 
 function scheduleSave(){
+  // Zeitstempel im Moment der Eingabe vergeben (nicht erst beim Speichern) - so gewinnt bei zwei
+  // Eingaben in dieselbe Zelle wirklich die zuletzt gemachte.
+  try{ agStampLocalEdits(); }catch(e){ console.warn('Zeitstempel konnten nicht gesetzt werden', e); }
   clearTimeout(saveTimer);
   // 2.5s statt 400ms: bündelt mehrere schnelle Änderungen (z.B. beim Ausfüllen der Tageswerte)
   // zu einem einzigen Speichervorgang.
@@ -2128,7 +2339,7 @@ async function runSave(){
 // (die letzte Änderung wird erst 2,5s nach der Eingabe tatsächlich gespeichert) - verhindert,
 // dass ein zu schnelles Neuladen eine gerade erst eingetragene Änderung verwirft.
 window.addEventListener('beforeunload', (e)=>{
-  if(pendingSave){
+  if(pendingSave || saveInProgress){
     e.preventDefault();
     e.returnValue = 'Deine letzte Änderung wird noch gespeichert - bitte kurz warten.';
     return e.returnValue;
@@ -2557,6 +2768,8 @@ function renderCoaching(){
       removeBtn.addEventListener('click', ()=>{
         if(!confirm(`"${agent.name || 'Dieser Mitarbeiter'}" wirklich löschen? Das entfernt nur die Karte hier, Coaching-Verlauf und Monatsdaten bleiben erhalten.`)) return;
         state.agents = state.agents.filter(a=>a.id!==agent.id);
+        if(!state.deletedAgentIds) state.deletedAgentIds = [];
+        if(agent.id && !state.deletedAgentIds.includes(agent.id)) state.deletedAgentIds.push(agent.id);
         scheduleSave();
         renderAll();
       });
@@ -2790,6 +3003,8 @@ function renderCoaching(){
     removeBtn.addEventListener('click', ()=>{
       if(!confirm(`"${agent.name || 'Dieser Mitarbeiter'}" wirklich löschen?`)) return;
       state.agents = state.agents.filter(a=>a.id!==agent.id);
+        if(!state.deletedAgentIds) state.deletedAgentIds = [];
+        if(agent.id && !state.deletedAgentIds.includes(agent.id)) state.deletedAgentIds.push(agent.id);
       scheduleSave(); renderAll();
     });
 
@@ -2921,7 +3136,7 @@ function renderHallOfFame(){
       <strong>FN Ziele:</strong> SU 16, BB 17, TV 9, VVM+NVM 20, MF 2
     </div>
     <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px;padding:8px 12px;background:#f8f9fa;border-radius:8px;display:inline-block;">
-      💡 Produktziele werden automatisch aus den Tageswerten berechnet. NPS, LQ und CR werden aus dem zuletzt eingetragenen Monatsstand übernommen.
+      💡 Aktueller Monat: Live-Daten. Vergangene Monate: NPS, LQ und CR aus dem Mitarbeiter-Verlauf, Stückzahlen aus den Tageswerten (falls erfasst) bzw. dem Verlauf.
     </div>
   `;
   container.appendChild(wrap);
@@ -2941,17 +3156,61 @@ function renderHallOfFame(){
     'Juli':'07','August':'08','September':'09','Oktober':'10','November':'11','Dezember':'12'
   };
 
+  // Verlaufs-Eintrag eines Mitarbeiters finden. Im Verlauf sind viele Mitarbeiter nur mit Nachnamen
+  // gespeichert (z.B. "Rizou" statt "Rizou Maria") - deshalb wie im Reiter "Mitarbeiter Verlauf"
+  // unscharf abgleichen: exakter Schlüssel → exakter Name → Vor-/Nachname passt.
+  function findVerlauf(agent){
+    const vlAll = state.verlauf || {};
+    if(vlAll[agent.name + '_' + agent.team]) return vlAll[agent.name + '_' + agent.team];
+    const sameTeam = Object.values(vlAll).filter(v => v && v.team === agent.team && v.monate);
+    const exact = sameTeam.find(v => v.name === agent.name);
+    if(exact) return exact;
+    const fuzzy = sameTeam.filter(v => v.name && (
+      agent.name.startsWith(v.name + ' ') || agent.name.endsWith(' ' + v.name) ||
+      v.name.startsWith(agent.name + ' ') || v.name.endsWith(' ' + agent.name)
+    ));
+    if(fuzzy.length === 1) return fuzzy[0];
+    if(fuzzy.length > 1){
+      // mehrere Treffer (gleicher Nachname) → den mit den meisten Monatsdaten nehmen
+      return fuzzy.sort((a,b)=>Object.keys(b.monate).length - Object.keys(a.monate).length)[0];
+    }
+    return null;
+  }
+  // Monatsdaten aus dem Verlauf holen - Schlüssel kann "2026-Oktober" oder (ältere Einträge) nur "Oktober" sein.
+  function verlaufMonat(vl, monatKey){
+    if(!vl || !vl.monate) return null;
+    if(vl.monate[monatKey]) return vl.monate[monatKey];
+    const [j, m] = monatKey.split('-');
+    if(j === '2026' && vl.monate[m]) return vl.monate[m];
+    return null;
+  }
+  // Produktsummen eines Monats aus den Tageswerten (falls dort erfasst)
+  function salesAusTageswerten(agent, monatKey){
+    const [mkJahr, mkMonat] = monatKey.split('-');
+    const mkNr = MONAT_ZU_NR[mkMonat];
+    const tw = mkNr && agent.tageswerte && agent.tageswerte[`${mkJahr}-${mkNr}`];
+    if(!tw) return null;
+    const cfg2 = TEAM_CONFIGS[agent.team];
+    if(!cfg2) return null;
+    const extraProds = agent.team === 'Trikala01' ? ['VVM','DA'] : ['DA'];
+    const alleProds = [...cfg2.products, ...extraProds];
+    const sum = {}; let any = false;
+    alleProds.forEach(p=>{ sum[p] = 0; });
+    Object.values(tw).forEach(dv=>{
+      if(!dv || !dv.sales) return;
+      alleProds.forEach(p=>{ const v = dv.sales[p]; if(v !== null && v !== undefined){ sum[p] += v; any = true; } });
+    });
+    return any ? sum : null;
+  }
+
+  // Diagnose pro Monat: wie viele Mitarbeiter hatten überhaupt Daten?
+  const hofDatenProMonat = {};
+
   // Prüfe ob ein MA die Hall of Fame Kriterien erfüllt
   function checkHOF(agent, monatKey){
-    const vl = state.verlauf[agent.name + '_' + agent.team] || Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    const archivMd = vl && vl.monate && vl.monate[monatKey];
-
-    // Für aktuellen Monat: Live-Daten als Fallback wenn kein Archiv
     let md;
-    if(archivMd){
-      md = archivMd;
-    } else if(monatKey === aktuellerMonatKey){
-      // Live-Daten aus agent-Objekt
+    if(monatKey === aktuellerMonatKey){
+      // Aktueller Monat: Live-Daten aus dem Monatsstand
       md = {
         nps: agent.nps || 0,
         lq: agent.lq || 0,
@@ -2960,36 +3219,23 @@ function renderHallOfFame(){
         sales: agent.sales ? JSON.parse(JSON.stringify(agent.sales)) : {}
       };
     } else {
-      // Fallback: Tageswerte aus vergangenen Monaten summieren
-      // monatKey-Format: "2026-Oktober" → twKey: "2026-10"
-      const [mkJahr, mkMonat] = monatKey.split('-');
-      const mkNr = MONAT_ZU_NR[mkMonat];
-      const twKey = mkNr ? `${mkJahr}-${mkNr}` : null;
-      const tw = twKey && agent.tageswerte && agent.tageswerte[twKey];
-      if(!tw || !Object.keys(tw).length) return null;
-
-      // Produkt-Summen aus Tageswerten berechnen
-      const cfg2 = TEAM_CONFIGS[agent.team];
-      const extraProds = agent.team === 'Trikala01' ? ['VVM','DA'] : ['DA'];
-      const alleProds = cfg2 ? [...cfg2.products, ...extraProds] : [];
-      const salesSum = {};
-      alleProds.forEach(p=>{ salesSum[p]=0; });
-      Object.values(tw).forEach(dv=>{
-        if(!dv || !dv.sales) return;
-        alleProds.forEach(p=>{ if(dv.sales[p]) salesSum[p] += dv.sales[p]; });
-      });
-
-      // NPS / LQ / CR: aus agent-Feldern (zuletzt gespeicherte Werte)
-      // Das sind die aktuellen Monatswerte - für vergangene Monate sind das die
-      // zuletzt manuell eingetragenen Werte (best available)
+      // Vergangene Monate: NPS/LQ/CR aus dem Mitarbeiter-Verlauf dieses Monats.
+      // Ohne Monats-NPS kann das NPS-Kriterium nicht geprüft werden → kein Eintrag
+      // (früher wurde hier fälschlich der AKTUELLE NPS verwendet).
+      const vm = verlaufMonat(findVerlauf(agent), monatKey);
+      if(!vm) return null;
+      const twSales = salesAusTageswerten(agent, monatKey);
       md = {
-        sales: salesSum,
-        nps: agent.nps || 0,
-        lq: agent.lq || 0,
-        cr: totalCr(agent) || 0,
-        cht: agent.cht || 0
+        nps: vm.nps || 0,
+        lq: vm.lq || 0,
+        cr: vm.cr || 0,
+        cht: vm.cht || 0,
+        // Stückzahlen: Tageswerte, falls für diesen Monat erfasst, sonst Verlaufs-Snapshot
+        sales: twSales || vm.sales || {}
       };
+      if(!md.nps) return null;
     }
+    hofDatenProMonat[monatKey] = (hofDatenProMonat[monatKey] || 0) + 1;
     const cfg = TEAM_CONFIGS[agent.team];
     if(!cfg) return null;
 
@@ -3074,6 +3320,15 @@ function renderHallOfFame(){
       empty.className = 'hof-empty';
       empty.textContent = 'Keine Einträge';
       card.appendChild(empty);
+      const nDaten = hofDatenProMonat[periode] || 0;
+      const istZukunft = MONATE.indexOf(monat) > jetzt.getMonth() && aktuellesJahr === 2026;
+      const hint = document.createElement('div');
+      hint.style.cssText = "font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);margin-top:6px;";
+      if(istZukunft) hint.style.display = 'none';
+      hint.textContent = nDaten
+        ? `${nDaten} Mitarbeiter mit Monatsdaten – Kriterien nicht erfüllt`
+        : 'Keine Monatsdaten (NPS) gespeichert';
+      card.appendChild(hint);
     } else {
       Object.entries(winners).forEach(([teamId, list]) => {
         if(!list.length) return;
