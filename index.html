@@ -918,7 +918,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 135;
+const BOARD_VERSION = 136;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2351,6 +2351,23 @@ function trafficStatus(val, target){
   if(!val || val <= 0) return 'zero';
   return 'mid';
 }
+// Nach einem Kategorie-Wechsel wandert die Karte in einen anderen Block (z.B. "In Schulung") -
+// dorthin scrollen und kurz hervorheben, damit sie nicht "verschwunden" wirkt.
+function focusAgentCard(agentId){
+  if(!agentId) return;
+  requestAnimationFrame(()=>{
+    const card = document.querySelector(`.card[data-agent-id="${agentId}"]`);
+    if(!card) return;
+    card.scrollIntoView({behavior:'smooth', block:'center'});
+    const prev = card.style.boxShadow;
+    card.style.transition = 'box-shadow .3s';
+    card.style.boxShadow = '0 0 0 3px var(--tmg)';
+    setTimeout(()=>{ card.style.boxShadow = prev; }, 1600);
+    const nameInp = card.querySelector('.name-input');
+    if(nameInp && !nameInp.value.trim()) nameInp.focus();
+  });
+}
+
 function makeAgent(team){
   const cfg = TEAM_CONFIGS[team];
   const sales = {};
@@ -2692,6 +2709,7 @@ function renderCoaching(){
       const evalRes = evaluateAgent(agent);
       const card = document.createElement('div');
       card.className = 'card';
+      card.dataset.agentId = agent.id || '';
 
       const topRow = document.createElement('div');
       topRow.className = 'card-top';
@@ -2726,6 +2744,7 @@ function renderCoaching(){
         agent.category = e.target.value;
         scheduleSave();
         renderAll();
+        focusAgentCard(agent.id);
       });
       topLeft.appendChild(catSelect);
 
@@ -2935,6 +2954,7 @@ function renderCoaching(){
     const cfg = TEAM_CONFIGS[agent.team] || Object.values(TEAM_CONFIGS)[0];
     const card = document.createElement('div');
     card.className = 'card';
+    card.dataset.agentId = agent.id || '';
     card.style.cssText = `border:1.5px dashed ${borderColor};`;
 
     // === Top Row: Name (editierbar) + Kategorie-Dropdown + Löschen ===
@@ -2969,6 +2989,7 @@ function renderCoaching(){
       agent.category = e.target.value;
       scheduleSave();
       renderAll();
+      focusAgentCard(agent.id);
     });
     topLeft.appendChild(catSelect);
 
@@ -3090,7 +3111,9 @@ function renderCoaching(){
   }
 
   // Schulungs-Mitarbeiter Block
-  const schulungsAgents = state.agents.filter(a => a.category === 'schulung' && a.name.trim() !== '');
+  // Auch Karten ohne Namen zeigen - ein frisch angelegter Mitarbeiter hat noch keinen Namen und
+  // wäre sonst nach dem Umstellen auf "Schulung" nirgends mehr sichtbar.
+  const schulungsAgents = state.agents.filter(a => a.category === 'schulung');
   if(schulungsAgents.length){
     const schulungsBlock = document.createElement('div');
     schulungsBlock.className = 'team-block';
@@ -3105,7 +3128,7 @@ function renderCoaching(){
   }
 
   // Work-Mitarbeiter Block
-  const workAgents = state.agents.filter(a => a.category === 'work' && a.name.trim() !== '');
+  const workAgents = state.agents.filter(a => a.category === 'work');
   if(workAgents.length){
     const workBlock = document.createElement('div');
     workBlock.className = 'team-block';
