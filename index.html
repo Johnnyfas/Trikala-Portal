@@ -952,7 +952,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 139;
+const BOARD_VERSION = 140;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1945,9 +1945,27 @@ function mergeAgentsFromServer(serverAgents, serverDeletedAgentIds){
 // sich ebenfalls durchsetzen. Zeitstempel liegen in state._lww[bereich][pfad].
 // ============================================================
 // LWW_START
-const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf'];
+const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele'];
+// Bereiche, die als Liste gespeichert sind, werden für das Zusammenführen nach id aufgeschlüsselt
+const LWW_LIST_SECTIONS = { tagesziele: true };
+function lwwListToObj(arr){ const o = {}; (Array.isArray(arr) ? arr : []).forEach(e=>{ if(e && e.id) o[e.id] = e; }); return o; }
+// Arbeits-Objekt eines Bereichs (bei Listen: {id: eintrag} - die Einträge sind dieselben Objekte)
+function lwwRoot(section){
+  if(LWW_LIST_SECTIONS[section]) return lwwListToObj(state[section]);
+  if(!state[section] || typeof state[section] !== 'object') state[section] = {};
+  return state[section];
+}
+// Nach dem Zusammenführen Listen wieder als Liste ablegen (Reihenfolge bleibt, Neues hinten,
+// leere/gelöschte Einträge fallen weg)
+function lwwPutRoot(section, root){
+  if(!LWW_LIST_SECTIONS[section]) return;
+  const del = new Set(state.deletedEntryIds || []);
+  const order = (Array.isArray(state[section]) ? state[section] : []).map(e=>e && e.id).filter(Boolean);
+  Object.keys(root).forEach(id=>{ if(!order.includes(id)) order.push(id); });
+  state[section] = order.map(id=>root[id]).filter(e => e && Object.keys(e).length && !del.has(e.id));
+}
 // Beim allerersten Laden einer Sitzung: Server-Stand ab dieser Tiefe übernehmen (wie bisher)
-const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1 };
+const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1 };
 const LWW_KEEP_MS = 120 * 24 * 3600 * 1000; // Zeitstempel älter als ~4 Monate verwerfen
 let lwwBaseline = {};          // bereich → { pfad: JSON-Wert } - Stand beim letzten Abgleich
 let lwwLastMergeChanged = false;
@@ -1986,13 +2004,13 @@ function lwwTsMap(section){
   return state._lww[section];
 }
 function lwwCaptureBaseline(section){
-  lwwBaseline[section] = lwwFlatten(state[section] || {});
+  lwwBaseline[section] = lwwFlatten(lwwRoot(section));
 }
 // Lokale Änderungen seit dem letzten Abgleich mit Zeitstempel versehen
 function lwwStamp(section){
   const base = lwwBaseline[section];
   if(!base) return;
-  const cur = lwwFlatten(state[section] || {});
+  const cur = lwwFlatten(lwwRoot(section));
   const tsMap = lwwTsMap(section);
   const ts = Date.now();
   const keys = new Set([...Object.keys(cur), ...Object.keys(base)]);
@@ -2022,11 +2040,13 @@ function lwwFirstLoad(local, server, depth){
 function lwwMerge(section, serverSection, serverTsAll){
   const serverTs = (serverTsAll && serverTsAll[section]) || {};
   const tsMap = lwwTsMap(section);
-  if(!state[section] || typeof state[section] !== 'object') state[section] = {};
+  if(LWW_LIST_SECTIONS[section]) serverSection = lwwListToObj(serverSection);
   if(!serverSection || typeof serverSection !== 'object') serverSection = {};
   if(!lwwBaseline[section]){
     // Erstes Laden in dieser Sitzung: Server-Stand übernehmen (lokal ist nur die Code-Vorlage)
-    lwwFirstLoad(state[section], serverSection, LWW_FIRSTLOAD_DEPTH[section] || 1);
+    const root = lwwRoot(section);
+    lwwFirstLoad(root, serverSection, LWW_FIRSTLOAD_DEPTH[section] || 1);
+    lwwPutRoot(section, root);
     Object.keys(serverTs).forEach(k=>{ if(Math.abs(serverTs[k]) > Math.abs(tsMap[k]||0)) tsMap[k] = serverTs[k]; });
     lwwPrune(section);
     lwwCaptureBaseline(section);
@@ -2034,7 +2054,8 @@ function lwwMerge(section, serverSection, serverTsAll){
     return false;
   }
   lwwStamp(section);
-  const lc = lwwFlatten(state[section]);
+  const root = lwwRoot(section);
+  const lc = lwwFlatten(root);
   const sc = lwwFlatten(serverSection);
   let localAhead = false;
   const keys = new Set([...Object.keys(lc), ...Object.keys(sc), ...Object.keys(tsMap), ...Object.keys(serverTs)]);
@@ -2043,19 +2064,20 @@ function lwwMerge(section, serverSection, serverTsAll){
     if(st > lt){
       const path = JSON.parse(k);
       if(serverTs[k] < 0){
-        if(k in lc){ lwwDelPath(state[section], path); lwwLastMergeChanged = true; }
+        if(k in lc){ lwwDelPath(root, path); lwwLastMergeChanged = true; }
       } else if(k in sc){
-        if(lc[k] !== sc[k]){ lwwSetPath(state[section], path, JSON.parse(sc[k])); lwwLastMergeChanged = true; }
+        if(lc[k] !== sc[k]){ lwwSetPath(root, path, JSON.parse(sc[k])); lwwLastMergeChanged = true; }
       }
       tsMap[k] = serverTs[k];
     } else if(lt > st){
       localAhead = true;
     } else if((k in sc) && lc[k] !== sc[k]){
       // gleich alt (meist Altdaten ohne Zeitstempel): Server-Stand gilt
-      lwwSetPath(state[section], JSON.parse(k), JSON.parse(sc[k]));
+      lwwSetPath(root, JSON.parse(k), JSON.parse(sc[k]));
       lwwLastMergeChanged = true;
     }
   });
+  lwwPutRoot(section, root);
   lwwPrune(section);
   lwwCaptureBaseline(section);
   return localAhead;
@@ -2110,8 +2132,10 @@ async function loadFromSharePoint(){
         const agentsLocalAhead = mergeAgentsFromServer(data.agents, data.deletedAgentIds);
         // Team Ziele, Monatsabschluss und Mitarbeiter-Verlauf: pro Wert zusammenführen (siehe BEREICHS-SYNC)
         lwwLastMergeChanged = false;
+        if(!state.deletedEntryIds) state.deletedEntryIds = [];
+        (data.deletedEntryIds||[]).forEach(id=>{ if(!state.deletedEntryIds.includes(id)) state.deletedEntryIds.push(id); });
         const sectionsLocalAhead = lwwMergeAll(data);
-        if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
+        // (Führungskräfte-Rollen und Tagesziele werden oben per lwwMergeAll() zusammengeführt)
         // Dauerhafte Löschliste zusammenführen (server + lokal), BEVOR Einträge gemerged werden -
         // damit Löschungen auch nach einem Neuladen oder bei einer anderen Person mit älterem
         // Stand nicht versehentlich wiederhergestellt werden.
@@ -2146,7 +2170,7 @@ async function loadFromSharePoint(){
           state.coachingPlan = [...(state.coachingPlan||[]), ...extra].filter(p=>!deletedSet.has(p.id));
         }
         if(data.todosByUser) Object.assign(state.todosByUser, data.todosByUser);
-        if(data.tagesziele) state.tagesziele = data.tagesziele;
+        // (Tagesziele: per lwwMergeAll() zusammengeführt)
         // "Letztes Coaching" pro Mitarbeiter anhand der echten Verlaufsdaten geraderücken
         // (behebt veraltete Werte, die vor einem früheren Fix entstanden sind)
         state.agents.forEach(agent=>{
@@ -2960,6 +2984,9 @@ function renderCoaching(){
     };
   }
   const fk = state.fuehrungskraefte;
+  // Fehlende Rollen ergänzen (z.B. wenn auf dem Server noch keine oder nur einzelne Rollen gespeichert sind)
+  const fkDefaults = { standortleiter: 1, salescoach: 1, qualitaetscoach: 1, teamleiter: 5 };
+  Object.keys(fkDefaults).forEach(r=>{ if(!Array.isArray(fk[r])) fk[r] = Array(fkDefaults[r]).fill(''); });
   const fkRolesWrap = document.createElement('div');
   fkRolesWrap.className = 'fk-wrap';
   const fkRoleLabels = { standortleiter:'Standortleiter', salescoach:'Sales Coach', qualitaetscoach:'Qualitätscoach', teamleiter:'Teamleiter' };
@@ -4301,7 +4328,7 @@ function renderWorkshops(){
         const chip = document.createElement('span');
         chip.className = 'ws-list-chip';
         const teamLabel = TEAM_CONFIGS[t.team]?.label || t.team;
-        chip.textContent = `${t.name} · ${label}`;
+        chip.textContent = `${t.name} · ${teamLabel || ''}`;
         partWrap.appendChild(chip);
       });
     body.appendChild(partWrap);
@@ -5201,6 +5228,7 @@ function buildTageszielVerlauf(){
     delBtn.style.cssText = 'background:none;border:1px solid var(--border);border-radius:6px;padding:2px 7px;cursor:pointer;font-size:12px;';
     delBtn.addEventListener('click', ()=>{
       if(!confirm(`Tages Ziel für ${z.agentName} vom ${d.toLocaleDateString('de-DE')} wirklich löschen?`)) return;
+      markDeleted(z.id);
       state.tagesziele = (state.tagesziele||[]).filter(x=>x.id!==z.id);
       scheduleSave(); renderCoachPlan();
     });
@@ -5453,6 +5481,8 @@ function buildCoachingRecordForm(prefill){
     });
     agent.coachingDatum = datum;
     if(prefill.planId){
+      // als gelöscht vermerken - sonst holt der nächste Abgleich den Plan-Eintrag vom Server zurück
+      markDeleted(prefill.planId);
       state.coachingPlan = (state.coachingPlan||[]).filter(p=>p.id!==prefill.planId);
     }
     scheduleSave();
@@ -5732,8 +5762,8 @@ function buildPlanRow(p){
     <div class="cp-plan-row-main">
       <div class="cp-plan-row-name">${p.name}</div>
       <div class="cp-plan-row-meta">
-        <span class="cat-badge regular">${label}</span>
-        <span class="cp-theme-badge" style="background:${themeColor}22;color:${themeColor};">${p.thema}</span>
+        <span class="cat-badge regular">${teamLabel || ''}</span>
+        <span class="cp-theme-badge" style="background:${themeColor}22;color:${themeColor};">${p.thema || ''}</span>
         <span class="cp-plan-date">📅 ${dateDisplay} · ${p.dauerGeplant||0} Min</span>
       </div>
       ${p.ziel ? `<div class="cp-plan-row-ziel">${p.ziel}</div>` : ''}
