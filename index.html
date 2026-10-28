@@ -153,6 +153,53 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .empty-illus-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
 .empty-illus-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:340px;}
 /* tw-team-wrap: äußerer Container pro Team */
+.fk-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
+.fk-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;margin-bottom:4px;}
+.fk-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:720px;line-height:1.5;}
+.fk-filters{display:flex;gap:6px;flex-wrap:wrap;}
+.fk-chip{background:#fff;border:1px solid var(--border);border-radius:999px;padding:5px 12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;color:var(--text);}
+.fk-chip.active{background:var(--tmg);border-color:var(--tmg);color:#fff;}
+.fk-section{margin-bottom:26px;}
+.fk-sec-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.fk-sec-title span{font-family:'IBM Plex Mono',monospace;font-size:12px;background:#EEF1F4;color:var(--muted);border-radius:999px;padding:1px 9px;}
+.fk-hint{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);margin:-4px 0 10px;}
+.fk-empty{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);background:#fff;border:1px dashed var(--border);border-radius:12px;padding:14px 16px;line-height:1.5;}
+.fk-card{background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 6px 18px rgba(0,0,0,.04);padding:14px 16px;margin-bottom:10px;}
+.fk-card.fk-due{border-left:4px solid var(--amber);}
+.fk-card-top{display:flex;gap:12px;align-items:flex-start;}
+.fk-rank{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;width:26px;height:26px;border-radius:50%;background:#1D1D1F;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fk-name{font-family:'Inter',sans-serif;font-weight:700;font-size:14.5px;}
+.fk-meta{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);margin-top:2px;}
+.fk-reasons{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0 38px;}
+.fk-reason{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;border-radius:8px;padding:4px 9px;background:#F1F4F7;color:var(--text);}
+.fk-reason.bad{background:var(--red-soft);color:var(--red);}
+.fk-reason.warn{background:var(--amber-soft);color:var(--amber);}
+.fk-vereinbarung{font-family:'Inter',sans-serif;font-size:14px;font-weight:600;margin:10px 0 6px;}
+.fk-wirkung{font-family:'Inter',sans-serif;font-size:12.5px;border-radius:8px;padding:6px 10px;display:inline-block;margin-bottom:6px;font-variant-numeric:tabular-nums;}
+.fk-wirkung span{color:var(--muted);font-size:11.5px;}
+.fk-wirkung.up{background:var(--teal-soft);color:var(--teal);}
+.fk-wirkung.down{background:var(--red-soft);color:var(--red);}
+.fk-wirkung.flat,.fk-wirkung.muted{background:#F1F4F7;color:var(--muted);}
+.fk-q{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);margin-top:4px;}
+.fk-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.fk-card:not(.fk-due) .fk-actions{margin-left:38px;}
+.fk-btn{font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;border-radius:8px;padding:6px 12px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text);}
+.fk-btn.primary{background:var(--tmg);border-color:var(--tmg);color:#fff;}
+.fk-btn.ok{border-color:var(--teal);color:var(--teal);} .fk-btn.ok:hover{background:var(--teal-soft);}
+.fk-btn.warn{border-color:var(--amber);color:var(--amber);} .fk-btn.warn:hover{background:var(--amber-soft);}
+.fk-btn.bad{border-color:var(--red);color:var(--red);} .fk-btn.bad:hover{background:var(--red-soft);}
+.fk-more{background:none;border:none;color:var(--tmg);font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;padding:4px 0;}
+.fk-lob{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;}
+.fk-lob-item{background:#fff;border-radius:12px;padding:10px 14px;border-left:4px solid var(--teal);box-shadow:0 1px 3px rgba(0,0,0,.04);font-family:'Inter',sans-serif;display:flex;flex-direction:column;gap:2px;}
+.fk-lob-item b{font-size:13.5px;} .fk-lob-item span{font-size:12px;color:var(--muted);}
+.fk-list{background:#fff;border-radius:12px;box-shadow:0 1px 3px rgba(0,0,0,.04);padding:6px 14px;}
+.fk-list-row{display:flex;gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid #F0F0F2;font-family:'Inter',sans-serif;font-size:13px;flex-wrap:wrap;}
+.fk-list-row:last-child{border-bottom:none;}
+.fk-list-row b{min-width:160px;} .fk-list-text{flex:1;min-width:200px;} .fk-list-date{font-size:12px;color:var(--muted);white-space:nowrap;}
+.fk-list-date.st-umgesetzt{color:var(--teal);} .fk-list-date.st-teilweise{color:var(--amber);} .fk-list-date.st-nicht{color:var(--red);}
+.fk-list-sub{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:12px 0 2px;}
+.fk-badge{display:inline-block;background:var(--amber);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:0 7px;margin-left:4px;line-height:17px;}
+.cf-ver-hint{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);margin:-4px 0 8px;}
 .hr-intro{margin:0 0 18px;}
 .hr-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;margin-bottom:6px;}
 .hr-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);line-height:1.5;max-width:900px;}
@@ -819,14 +866,16 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   <div id="view-coachdash" style="display:none;">
     <div style="flex-direction:column;">
       <div id="coachdash-subtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;">
-        <button class="tab-btn active" id="sub-coachplan" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Coaching Plan</button>
+        <button class="tab-btn active" id="sub-fokus" style="font-size:13px;padding:7px 16px;">🎯 Fokus der Woche</button>
+        <button class="tab-btn" id="sub-coachplan" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Coaching Plan</button>
         <button class="tab-btn" id="sub-coachverlauf" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Coaching Verlauf</button>
         <button class="tab-btn" id="sub-workshops" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><circle cx="9" cy="8" r="3"/><path d="M2 20c0-3 3-5 7-5s7 2 7 5"/><circle cx="17" cy="8" r="2.5"/><path d="M17 13c2.5 0 5 1.5 5 4"/></svg>Workshops</button>
         <button class="tab-btn" id="sub-gespraeche" style="font-size:13px;padding:7px 16px;">💬 Einzelgespräche</button>
         <button class="tab-btn" id="sub-tagesziele" style="font-size:13px;padding:7px 16px;">🎯 Tages Ziele</button>
         <button class="tab-btn" id="sub-termine" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Termin Kalender</button>
       </div>
-      <div id="coachplan-container"></div>
+      <div id="fokus-container"></div>
+      <div id="coachplan-container" style="display:none;"></div>
       <div id="coachverlauf-container" style="display:none;"></div>
       <div id="workshops-container" style="display:none;"></div>
       <div id="gespraeche-container" style="display:none;"></div>
@@ -923,7 +972,7 @@ const CATEGORY_CSS = { regular: 'regular', '6h': 'sixh', helpline: 'helpline', s
 
 const MA_SEED = {"mf": {"Januar": {"plan": {"MF NG": 685.0, "BB": 97.0, "SU": 52.0, "TV": 45.0, "BOJ": 25.0}, "ziel": {"MF NG": 836.0, "BB": 144.0, "SU": 62.0, "TV": 84.0, "BOJ": 19.0}, "erreicht": {"MF NG": 836.0, "BB": 144.0, "SU": 62.0, "TV": 84.0, "BOJ": 19.0}, "cr": {"MF NG": 4.73, "BB": 0.81, "SU": 0.35, "TV": 0.48, "BOJ": 17.39}, "nps_plan": 67.0, "nps_ist": 71.94, "crZielText": {"MF NG": "", "BB": "", "SU": "", "TV": "", "BOJ": ""}, "storno": {"MF NG": 6.49, "BB": 23.81, "SU": 17.33, "TV": 20.0, "BOJ": 17.39}, "crGesamtErreicht": 23.76}, "Februar": {"plan": {"MF NG": 542.0, "BB": 80.0, "SU": 44.0, "TV": 37.0, "BOJ": 20.0}, "ziel": {"MF NG": 753.0, "BB": 122.0, "SU": 61.0, "TV": 65.0, "BOJ": 10.0}, "erreicht": {"MF NG": 753.0, "BB": 122.0, "SU": 61.0, "TV": 65.0, "BOJ": 10.0}, "cr": {"MF NG": 3.71, "BB": 0.6, "SU": 0.3, "TV": 0.32, "BOJ": 0.05}, "nps_plan": 67.0, "nps_ist": 69.8, "crZielText": {"MF NG": "", "BB": "", "SU": "", "TV": "", "BOJ": ""}, "storno": {"MF NG": 11.93, "BB": 23.75, "SU": 25.61, "TV": 18.75, "BOJ": 50.0}, "crGesamtErreicht": 4.98}, "März": {"plan": {"MF NG": 623.0, "BB": 94.0, "SU": 51.0, "TV": 43.0, "BOJ": 23.0}, "ziel": {"MF NG": 353.0, "BB": 110.0, "SU": 62.0, "TV": 62.0, "BOJ": 13.0}, "erreicht": {"MF NG": 353.0, "BB": 110.0, "SU": 62.0, "TV": 62.0, "BOJ": 13.0}, "cr": {"MF NG": 1.77, "BB": 0.55, "SU": 0.31, "TV": 0.31, "BOJ": 0.07}, "nps_plan": 67.0, "nps_ist": 72.09, "crZielText": {"MF NG": "", "BB": "", "SU": "", "TV": "", "BOJ": ""}, "storno": {"MF NG": 48.54, "BB": 21.99, "SU": 20.51, "TV": 19.48, "BOJ": 48.0}, "crGesamtErreicht": 3.01}, "April": {"plan": {"MF NG": 565.0, "BB": 93.0, "SU": 48.0, "TV": 46.0, "BOJ": 12.0}, "ziel": {"MF NG": 578.0, "BB": 136.0, "SU": 54.0, "TV": 78.0, "BOJ": 13.0}, "erreicht": {"MF NG": 578.0, "BB": 136.0, "SU": 54.0, "TV": 78.0, "BOJ": 13.0}, "cr": {"MF NG": 3.46, "BB": 0.81, "SU": 0.32, "TV": 0.47, "BOJ": 0.08}, "nps_plan": 67.0, "nps_ist": 73.34, "crZielText": {"MF NG": "4%/4.8%", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "crZiel": {"MF NG": 4.0, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "storno": {"MF NG": 9.12, "BB": 19.53, "SU": 20.59, "TV": 21.21, "BOJ": 45.83}}, "Mai": {"plan": {"MF NG": 479.0, "BB": 84.0, "SU": 40.0, "TV": 49.0, "BOJ": 10.0}, "ziel": {"MF NG": 577.0, "BB": 147.0, "SU": 66.0, "TV": 83.0, "BOJ": 9.0}, "erreicht": {"MF NG": 577.0, "BB": 147.0, "SU": 66.0, "TV": 83.0, "BOJ": 9.0}, "cr": {"MF NG": 3.08, "BB": 0.79, "SU": 0.35, "TV": 0.44, "BOJ": 0.05}, "nps_plan": 68.0, "nps_ist": 71.05, "crZielText": {"MF NG": "4%/4.8%", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "crZiel": {"MF NG": 4.0, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "storno": {"MF NG": 25.84, "BB": 13.02, "SU": 17.5, "TV": 11.7, "BOJ": 40.0}, "crGesamtErreicht": 4.72, "crGesamtZiel": 7.0}, "Juni": {"plan": {"MF NG": 542.0, "BB": 87.0, "SU": 45.0, "TV": 48.0, "BOJ": 11.0}, "ziel": {"MF NG": 697.0, "BB": 114.0, "SU": 42.0, "TV": 61.0, "BOJ": 9.0}, "erreicht": {"MF NG": 697.0, "BB": 114.0, "SU": 42.0, "TV": 61.0, "BOJ": 9.0}, "cr": {"MF NG": 3.99, "BB": 0.65, "SU": 0.24, "TV": 0.35, "BOJ": 0.05}, "nps_plan": 68.0, "nps_ist": 70.86, "crZielText": {"MF NG": "4%/4.8%", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "crZiel": {"MF NG": 4.0, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "storno": {"MF NG": 9.95, "BB": 25.93, "SU": 6.25, "TV": 21.43, "BOJ": 30.77}, "crGesamtErreicht": 5.33, "crGesamtZiel": 7.0}, "Juli": {"plan": {"MF NG": 770, "BB": 109, "SU": 67, "TV": 52, "BOJ": 17}, "ziel": {"MF NG": 618.0, "BB": 73.0, "SU": 19.0, "TV": 46.0, "VVM": 10.0}, "erreicht": {"MF NG": 572.0, "BB": 75.0, "SU": 38.0, "TV": 35.0, "BOJ": 7.0}, "cr": {"MF NG": 3.06, "BB": 0.4, "SU": 0.2, "TV": 0.19, "BOJ": 0.04}, "nps_plan": 69.0, "nps_ist": 70.85, "crZiel": {"MF NG": 3.3, "BB": 0.5, "SU": 0.4, "TV": 0.3, "BOJ": 0.1}, "crZielText": {"MF NG": "3.3%/4%/4.5", "BB": "0.50%/0.80%", "SU": "0.40%/0.70%", "TV": "0.30%/0.60%", "BOJ": "0.10%/0.30%"}, "storno": {"MF NG": 24.34, "BB": 31.19, "SU": 22.45, "TV": 22.22, "BOJ": 68.18}, "crGesamtErreicht": 3.89}, "August": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "VVM": 0, "BOJ": 0}, "ziel": {"MF NG": 612.0, "BB": 85.0, "SU": 15.0, "TV": 36.0, "VVM": 10.0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "VVM": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0.0, "SU": 0.0, "TV": 0.0, "VVM": 0.0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0.0}, "September": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}, "Oktober": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}, "November": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}, "Dezember": {"plan": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "ziel": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "erreicht": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "cr": {"MF NG": 0, "BB": 0, "SU": 0, "TV": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0}}, "fn": {"Januar": {"plan": {"NG (BB)": 184.0, "SU": 179.0, "BOJ": 102.0, "TV": 95.0, "MF": 16.0}, "ziel": {"NG (BB)": 289.0, "SU": 113.0, "BOJ": 73.0, "TV": 143.0, "MF": 24.0}, "erreicht": {"NG (BB)": 289.0, "SU": 113.0, "BOJ": 73.0, "TV": 143.0, "MF": 24.0}, "cr": {"NG (BB)": 3.61, "SU": 1.41, "BOJ": 0.91, "TV": 1.79, "MF": 0.3}, "nps_plan": 66.0, "nps_ist": 63.68, "crZielText": {"NG (BB)": "", "SU": "", "BOJ": "", "TV": "", "MF": ""}, "storno": {"NG (BB)": 19.05, "SU": 14.39, "BOJ": 27.7, "TV": 17.82, "MF": 17.24}, "crGesamtErreicht": 7.11}, "Februar": {"plan": {"NG (BB)": 180.0, "SU": 178.0, "BOJ": 100.0, "TV": 93.0, "MF": 16.0}, "ziel": {"NG (BB)": 181.0, "SU": 127.0, "BOJ": 81.0, "TV": 88.0, "MF": 17.0}, "erreicht": {"NG (BB)": 181.0, "SU": 127.0, "BOJ": 81.0, "TV": 88.0, "MF": 17.0}, "cr": {"NG (BB)": 2.64, "SU": 1.85, "BOJ": 1.18, "TV": 1.28, "MF": 0.25}, "nps_plan": 66.0, "nps_ist": 66.51, "crZielText": {"NG (BB)": "", "SU": "", "BOJ": "", "TV": "", "MF": ""}, "storno": {"NG (BB)": 27.31, "SU": 13.61, "BOJ": 21.36, "TV": 26.05, "MF": 10.53}, "crGesamtErreicht": 6.02}, "März": {"plan": {"NG (BB)": 224.0, "SU": 224.0, "BOJ": 124.0, "TV": 116.0, "MF": 19.0}, "ziel": {"NG (BB)": 257.0, "SU": 165.0, "BOJ": 99.0, "TV": 121.0, "MF": 21.0}, "erreicht": {"NG (BB)": 257.0, "SU": 165.0, "BOJ": 99.0, "TV": 121.0, "MF": 21.0}, "cr": {"NG (BB)": 2.98, "SU": 1.91, "BOJ": 1.15, "TV": 1.4, "MF": 0.24}, "nps_plan": 66.0, "nps_ist": 65.03, "crZielText": {"NG (BB)": "", "SU": "", "BOJ": "", "TV": "", "MF": ""}, "storno": {"NG (BB)": 22.36, "SU": 11.76, "BOJ": 16.81, "TV": 21.94, "MF": 19.23}, "crGesamtErreicht": 6.53}, "April": {"plan": {"NG (BB)": 209.0, "SU": 208.0, "BOJ": 107.0, "TV": 126.0, "MF": 16.0}, "ziel": {"NG (BB)": 235.0, "SU": 141.0, "BOJ": 104.0, "TV": 106.0, "MF": 26.0}, "erreicht": {"NG (BB)": 235.0, "SU": 141.0, "BOJ": 104.0, "TV": 106.0, "MF": 26.0}, "cr": {"NG (BB)": 2.56, "SU": 1.54, "BOJ": 1.13, "TV": 1.15, "MF": 0.28}, "nps_plan": 66.0, "nps_ist": 64.21, "crZielText": {"NG (BB)": "2.80%/3.40%", "SU": "3%/3.50%", "BOJ": "1.40%/2.40%", "TV": "1.60%/2%", "MF": "0.40%/0.60%"}, "crZiel": {"NG (BB)": 2.8, "SU": 3.0, "BOJ": 1.4, "TV": 1.6, "MF": 0.4}, "storno": {"NG (BB)": 25.87, "SU": 17.54, "BOJ": 21.21, "TV": 24.82, "MF": 16.13}, "crGesamtErreicht": 5.53}, "Mai": {"plan": {"NG (BB)": 243.0, "SU": 220.0, "BOJ": 110.0, "TV": 170.0, "MF": 17.0}, "ziel": {"NG (BB)": 273.0, "SU": 177.0, "BOJ": 113.0, "TV": 124.0, "MF": 17.0}, "erreicht": {"NG (BB)": 273.0, "SU": 177.0, "BOJ": 113.0, "TV": 124.0, "MF": 17.0}, "cr": {"NG (BB)": 3.23, "SU": 2.09, "BOJ": 1.34, "TV": 1.47, "MF": 0.2}, "nps_plan": 67.0, "nps_ist": 64.58, "crZielText": {"NG (BB)": "2.80%/3.40%", "SU": "3%/3.50%", "BOJ": "1.40%/2.40%", "TV": "1.60%/2%", "MF": "0.40%/0.60%"}, "crZiel": {"NG (BB)": 2.8, "SU": 3.0, "BOJ": 1.4, "TV": 1.6, "MF": 0.4}, "storno": {"NG (BB)": 23.96, "SU": 13.66, "BOJ": 28.03, "TV": 23.93, "MF": 22.73}, "crGesamtErreicht": 10.04, "crGesamtZiel": 10.0}, "Juni": {"plan": {"NG (BB)": 227.0, "SU": 220.0, "BOJ": 114.0, "VVM": 0, "TV": 151.0, "MF": 17.0}, "ziel": {"NG (BB)": 211.0, "SU": 158.0, "BOJ": 89.0, "VVM": 248.0, "TV": 131.0, "MF": 17.0}, "erreicht": {"NG (BB)": 211.0, "SU": 158.0, "BOJ": 89.0, "VVM": 248.0, "TV": 131.0, "MF": 17.0}, "cr": {"NG (BB)": 2.86, "SU": 2.14, "BOJ": 1.21, "VVM": 3.36, "TV": 1.78, "MF": 0.23}, "nps_plan": 67.0, "nps_ist": 67.36, "crZielText": {"NG (BB)": "2.80%/3.40%", "SU": "3%/3.50%", "BOJ": "1.40%/2.40%", "VVM": "3.50%/4.50%", "TV": "1.60%/2%", "MF": "0.40%/0.60%"}, "crZiel": {"NG (BB)": 2.8, "SU": 3.0, "BOJ": 1.4, "TV": 1.6, "MF": 0.4}, "storno": {"NG (BB)": 25.18, "SU": 18.13, "BOJ": 26.45, "VVM": 25.08, "TV": 19.63, "MF": 22.73}, "crGesamtErreicht": 10.37, "crGesamtZiel": 11.0}, "Juli": {"plan": {"NG (BB)": 271, "SU": 318, "BOJ": 155, "VVM": 0, "TV": 153, "MF": 20}, "ziel": {"NG (BB)": 226.0, "SU": 118.0, "VVM": 162.0, "TV": 108.0, "MF": 35.0}, "erreicht": {"NG (BB)": 0, "SU": 0, "VVM": 0, "TV": 0, "MF": 0, "BOJ": 0}, "cr": {"NG (BB)": 0, "SU": 0.0, "VVM": 0.0, "TV": 0.0, "MF": 0, "BOJ": 0}, "nps_plan": 68, "nps_ist": 0.0}, "August": {"plan": {"NG (BB)": 0, "SU": 0, "VVM": 0, "TV": 0, "MF": 0, "BOJ": 0}, "ziel": {"NG (BB)": 218.0, "SU": 174.0, "VVM": 144.0, "TV": 97.0, "MF": 34.0}, "erreicht": {"NG (BB)": 0, "SU": 0, "VVM": 0, "TV": 0, "MF": 0, "BOJ": 0}, "cr": {"NG (BB)": 0, "SU": 0.0, "VVM": 0.0, "TV": 0.0, "MF": 0, "BOJ": 0}, "nps_plan": 0, "nps_ist": 0.0}, "September": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}, "Oktober": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}, "November": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}, "Dezember": {"plan": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "ziel": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "erreicht": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "cr": {"NG (BB)": 0, "SU": 0, "BOJ": 0, "TV": 0, "MF": 0}, "nps_plan": 0, "nps_ist": 0}}};
 const VERLAUF_SEED = {};
-let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, tagesziele: [], deletedEntryIds: [], deletedAgentIds: [], verlauf: JSON.parse(JSON.stringify(VERLAUF_SEED)), monatsabschluss: JSON.parse(JSON.stringify(MA_SEED)), teamziele: {
+let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, tagesziele: [], deletedEntryIds: [], deletedAgentIds: [], coachReviews: {}, verlauf: JSON.parse(JSON.stringify(VERLAUF_SEED)), monatsabschluss: JSON.parse(JSON.stringify(MA_SEED)), teamziele: {
   mf: {
     datum: '', monat: new Date().toLocaleString('de-DE',{month:'long'}), nps: 69, cht: 600, na: 1,
     soll: {MF:770, BB:109, SU:67, TV:52, BOJ:17, DA:0},
@@ -952,7 +1001,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 140;
+const BOARD_VERSION = 141;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1945,7 +1994,7 @@ function mergeAgentsFromServer(serverAgents, serverDeletedAgentIds){
 // sich ebenfalls durchsetzen. Zeitstempel liegen in state._lww[bereich][pfad].
 // ============================================================
 // LWW_START
-const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele'];
+const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele', 'coachReviews'];
 // Bereiche, die als Liste gespeichert sind, werden für das Zusammenführen nach id aufgeschlüsselt
 const LWW_LIST_SECTIONS = { tagesziele: true };
 function lwwListToObj(arr){ const o = {}; (Array.isArray(arr) ? arr : []).forEach(e=>{ if(e && e.id) o[e.id] = e; }); return o; }
@@ -1965,7 +2014,7 @@ function lwwPutRoot(section, root){
   state[section] = order.map(id=>root[id]).filter(e => e && Object.keys(e).length && !del.has(e.id));
 }
 // Beim allerersten Laden einer Sitzung: Server-Stand ab dieser Tiefe übernehmen (wie bisher)
-const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1 };
+const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1, coachReviews: 1 };
 const LWW_KEEP_MS = 120 * 24 * 3600 * 1000; // Zeitstempel älter als ~4 Monate verwerfen
 let lwwBaseline = {};          // bereich → { pfad: JSON-Wert } - Stand beim letzten Abgleich
 let lwwLastMergeChanged = false;
@@ -2879,6 +2928,7 @@ document.getElementById('tab-coachdash').addEventListener('click', ()=>switchTab
 
 // Sub-Tab Steuerung für Coaching Dashboard (Coaching Plan / Coaching Verlauf / Termin Kalender)
 const COACHDASH_SUBS = {
+  fokus:        { btn: 'sub-fokus',        container: 'fokus-container',        render: ()=>renderFokus() },
   coachplan:    { btn: 'sub-coachplan',    container: 'coachplan-container',    render: ()=>renderCoachPlan() },
   coachverlauf: { btn: 'sub-coachverlauf', container: 'coachverlauf-container', render: ()=>renderCoachVerlauf() },
   workshops:    { btn: 'sub-workshops',    container: 'workshops-container',    render: ()=>renderWorkshops() },
@@ -2946,6 +2996,7 @@ document.getElementById('tab-halloffame').addEventListener('click', ()=>switchTa
 document.getElementById('tab-kianalyse').addEventListener('click', ()=>switchTab('kianalyse'));
 
 function renderAll(){
+  try{ updateFokusBadge(); }catch(e){}
   if(currentTab === 'coaching') renderCoaching();
   else if(currentTab === 'coachdash'){
     const activeSub = Object.keys(COACHDASH_SUBS).find(key=>{
@@ -4466,6 +4517,15 @@ function renderCoachVerlauf(){
         b.textContent = entry.dauer + ' Min';
         meta.appendChild(b);
       }
+      if(entry.vereinbarung){
+        const rv = (state.coachReviews||{})[entry.id];
+        const stTxt = { umgesetzt: '✓ umgesetzt', teilweise: '½ teilweise', nicht: '✗ nicht umgesetzt' };
+        const b = document.createElement('span');
+        b.className = 'cv-meta-badge';
+        b.style.cssText = 'background:var(--teal-soft);color:var(--teal);white-space:normal;';
+        b.textContent = '🤝 ' + entry.vereinbarung + (rv ? ' · ' + (stTxt[rv.status]||rv.status) : (entry.pruefDatum ? ' · Überprüfung ' + fkFmt(fkParseDe(entry.pruefDatum)) : ''));
+        meta.appendChild(b);
+      }
       if(entry.performance !== undefined && entry.performance !== null){
         const p = entry.performance;
         const col = p>=8 ? '#0E7C7B' : p>=5 ? '#C2792B' : '#B4423A';
@@ -5424,6 +5484,43 @@ function buildCoachingRecordForm(prefill){
   evalRow.appendChild(labeledField('Zeitaufwand (Minuten)', dauerInput));
   wrap.appendChild(evalRow);
 
+  // ---- Vereinbarung & Nachkontrolle (erscheint bei Fälligkeit im "Fokus der Woche") ----
+  const verTitle = document.createElement('div');
+  verTitle.className = 'cf-section-title';
+  verTitle.textContent = '🤝 Vereinbarung & Nachkontrolle';
+  wrap.appendChild(verTitle);
+  const verHint = document.createElement('div');
+  verHint.className = 'cf-ver-hint';
+  verHint.textContent = 'Ein konkretes, beobachtbares Verhalten – z.B. „Brückensatz in jedem Servicegespräch nutzen“. Zum Überprüfungsdatum erinnert dich der Fokus der Woche und zeigt die Zahlen vorher/nachher.';
+  wrap.appendChild(verHint);
+  const verInput = document.createElement('input');
+  verInput.type = 'text';
+  verInput.className = 'cp-form-input';
+  verInput.placeholder = 'Was wurde vereinbart? (optional)';
+  verInput.value = prefill.vereinbarung || '';
+  const fokusSel = document.createElement('select');
+  fokusSel.className = 'cp-form-select';
+  const fillFokus = ()=>{
+    const ag = allAgents.find(a=>a.id===agentSel.value);
+    const cfgA = ag && TEAM_CONFIGS[ag.team];
+    const cur = fokusSel.value || prefill.fokusProdukt || '';
+    fokusSel.innerHTML = '<option value="">Alle Produkte</option>' + (cfgA ? displayOrderProducts(cfgA.products.slice(), ag.team).map(p=>`<option value="${p}" ${cur===p?'selected':''}>${productLabel(p, ag.team)}</option>`).join('') : '');
+  };
+  fillFokus();
+  agentSel.addEventListener('change', fillFokus);
+  const pruefInput = document.createElement('input');
+  pruefInput.type = 'date';
+  pruefInput.className = 'cp-form-input';
+  pruefInput.value = fkIsoDate(new Date(Date.now() + 14*86400000));
+  const verRow = document.createElement('div');
+  verRow.className = 'cp-form-row';
+  const verField = labeledField('Vereinbarung', verInput);
+  verField.style.flex = '3';
+  verRow.appendChild(verField);
+  verRow.appendChild(labeledField('Fokus-Produkt', fokusSel));
+  verRow.appendChild(labeledField('Überprüfen am', pruefInput));
+  wrap.appendChild(verRow);
+
   const notesTitle = document.createElement('div');
   notesTitle.className = 'cf-section-title';
   notesTitle.textContent = '📝 Notizen';
@@ -5477,7 +5574,10 @@ function buildCoachingRecordForm(prefill){
       tcapId: stilSel.value === 'TCAP' ? tcapInput.value.trim() : '',
       checkliste: Object.assign({}, checklistState),
       performance: parseInt(slider.value),
-      coach: getCoachName()
+      coach: getCoachName(),
+      vereinbarung: verInput.value.trim(),
+      fokusProdukt: verInput.value.trim() ? fokusSel.value : '',
+      pruefDatum: verInput.value.trim() ? (pruefInput.value || '') : ''
     });
     agent.coachingDatum = datum;
     if(prefill.planId){
@@ -8789,6 +8889,323 @@ function renderHochrechnung(){
     container.appendChild(block);
   });
   if(!anyTeam) container.appendChild(emptyStateEl('Noch keine Mitarbeiter angelegt', 'Lege zuerst Mitarbeiter an.'));
+}
+
+// ============================================================
+// COACHING-VEREINBARUNGEN & FOKUS DER WOCHE (ab v141)
+// Zu jedem Coaching kann EINE konkrete Vereinbarung mit Überprüfungsdatum festgehalten werden.
+// Ist sie fällig, erscheint sie im "Fokus der Woche" - samt Vorher/Nachher-Vergleich aus den
+// Tageswerten. Das Ergebnis der Überprüfung liegt in state.coachReviews[eintragId] (eigener,
+// pro Wert abgeglichener Bereich - Coaching-Einträge selbst werden nicht nachträglich verändert).
+// ============================================================
+function fkIsoDate(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function fkParseDe(s){
+  if(!s) return null;
+  const m = String(s).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if(m) return new Date(+m[3], +m[2]-1, +m[1]);
+  const i = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(i) return new Date(+i[1], +i[2]-1, +i[3]);
+  return null;
+}
+function fkFmt(d){ return d ? d.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'}) : '–'; }
+function fkNum(n, dec){ return (Math.round(n * Math.pow(10, dec||1)) / Math.pow(10, dec||1)).toLocaleString('de-DE'); }
+// Zu welchem Mitarbeiter gehört ein Coaching-Verlauf-Eintrag?
+function fkAgentForCv(key, cv){
+  return state.agents.find(a => a.id === key) || state.agents.find(a => cv && a.name === cv.name && String(a.team) === String(cv.team)) || null;
+}
+// Alle Vereinbarungen (neueste zuerst)
+function fkVereinbarungen(){
+  const out = [];
+  const reviews = state.coachReviews || {};
+  Object.keys(state.coachverlauf || {}).forEach(key=>{
+    const cv = state.coachverlauf[key];
+    const agent = fkAgentForCv(key, cv);
+    (cv && cv.eintraege || []).forEach(e=>{
+      if(!e || !e.vereinbarung) return;
+      out.push({ entry: e, agent, review: reviews[e.id] || null, pruef: fkParseDe(e.pruefDatum), coachDate: fkParseDe(e.datum) });
+    });
+  });
+  return out.sort((a,b)=>(b.coachDate||0) - (a.coachDate||0));
+}
+// Wert eines Monatsfelds (NPS, LQ, ...) nur, wenn er im laufenden Monat eingetragen wurde
+function fkCurVal(agent, f, now){
+  const v = agent[f];
+  if(typeof v !== 'number' || !(v > 0)) return null;
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const ts = agGetTs(agent, 'f|' + f);
+  const isOkt26 = now.getFullYear() === 2026 && now.getMonth() === 9;
+  return (ts >= monthStart || (ts === 0 && isOkt26)) ? v : null;
+}
+// Vorher/Nachher: Ø Abschlüsse pro Arbeitstag (Arbeitstag = Tag, an dem im Team Werte erfasst wurden)
+function fkWirkung(agent, since, product){
+  if(!agent || !since) return null;
+  const cfg = TEAM_CONFIGS[agent.team]; if(!cfg) return null;
+  const prods = product ? [product] : cfg.products;
+  const teamDays = new Set();
+  state.agents.filter(a => String(a.team) === String(agent.team)).forEach(a=>{
+    Object.keys(a.tageswerte || {}).forEach(mk=>{
+      Object.keys(a.tageswerte[mk] || {}).forEach(d=>{
+        const dv = a.tageswerte[mk][d];
+        if(dv && dv.sales && Object.values(dv.sales).some(v => typeof v === 'number')) teamDays.add(`${mk}-${String(d).padStart(2,'0')}`);
+      });
+    });
+  });
+  const val = iso => {
+    const mk = iso.slice(0,7), d = String(parseInt(iso.slice(8)));
+    const dv = agent.tageswerte && agent.tageswerte[mk] && agent.tageswerte[mk][d];
+    if(!dv || !dv.sales) return 0;
+    return prods.reduce((s,p)=> s + (typeof dv.sales[p] === 'number' ? dv.sales[p] : 0), 0);
+  };
+  const sinceIso = fkIsoDate(since);
+  const todayIso = fkIsoDate(new Date());
+  const days = [...teamDays].sort();
+  const before = days.filter(d => d < sinceIso).slice(-10);
+  const after = days.filter(d => d > sinceIso && d <= todayIso);
+  if(before.length < 2 || after.length < 2) return { tooFew: true, nB: before.length, nA: after.length };
+  const avgB = before.reduce((s,d)=>s+val(d),0) / before.length;
+  const avgA = after.reduce((s,d)=>s+val(d),0) / after.length;
+  return { avgB, avgA, nB: before.length, nA: after.length, label: product ? productLabel(product, agent.team) : 'Abschlüsse gesamt' };
+}
+function fkWirkungHtml(w){
+  if(!w) return '';
+  if(w.tooFew) return `<div class="fk-wirkung muted">Vorher/Nachher: noch zu wenig Tageswerte (${w.nB} Tage vorher, ${w.nA} nachher – je mind. 2 nötig)</div>`;
+  const diff = w.avgA - w.avgB;
+  const pct = w.avgB > 0 ? Math.round(diff / w.avgB * 100) : null;
+  const cls = diff > 0.05 ? 'up' : (diff < -0.05 ? 'down' : 'flat');
+  const arrow = cls === 'up' ? '▲' : cls === 'down' ? '▼' : '●';
+  return `<div class="fk-wirkung ${cls}">Ø ${w.label} pro Arbeitstag: <b>${fkNum(w.avgB,2)} → ${fkNum(w.avgA,2)}</b> ${arrow}${pct !== null ? ` ${pct > 0 ? '+' : ''}${pct} %` : ''} <span>(${w.nB} Tage vorher / ${w.nA} nachher)</span></div>`;
+}
+function fkSetReview(entryId, status){
+  if(!state.coachReviews || typeof state.coachReviews !== 'object') state.coachReviews = {};
+  state.coachReviews[entryId] = { status, datum: fkIsoDate(new Date()), coach: getCoachName() };
+  scheduleSave();
+  renderAll();
+}
+function fkOpenCoachingForm(agentId, extra){
+  cpFormType = 'coaching';
+  cpShowForm = true;
+  cpPrefill = Object.assign({ agentId }, extra || {});
+  switchCoachDashSub('coachplan');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+// Anzahl fälliger Überprüfungen im Reiter-Button anzeigen
+function updateFokusBadge(){
+  const btn = document.getElementById('sub-fokus');
+  if(!btn) return;
+  const today = fkIsoDate(new Date());
+  const n = fkVereinbarungen().filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) <= today && v.agent).length;
+  btn.innerHTML = '🎯 Fokus der Woche' + (n ? ` <span class="fk-badge">${n}</span>` : '');
+}
+
+let fkTeamFilter = 'alle';
+let fkShowAll = false;
+function renderFokus(){
+  const container = document.getElementById('fokus-container');
+  if(!container) return;
+  container.innerHTML = '';
+  const now = new Date();
+  const todayIso = fkIsoDate(now);
+  const inTeam = a => fkTeamFilter === 'alle' || String(a.team) === fkTeamFilter;
+
+  const head = document.createElement('div');
+  head.className = 'fk-head';
+  head.innerHTML = `<div><div class="fk-title">🎯 Fokus der Woche</div>
+    <div class="fk-sub">Das Board wertet Tageswerte, Hochrechnung, NPS/LQ, Coachings und Vereinbarungen aus und schlägt vor, wo sich deine Zeit diese Woche am meisten lohnt. Stand ${now.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'long'})}.</div></div>`;
+  const filters = document.createElement('div');
+  filters.className = 'fk-filters';
+  [['alle','Alle Teams'], ...Object.keys(TEAM_CONFIGS).map(t=>[t, TEAM_CONFIGS[t].label])].forEach(([v,l])=>{
+    const b = document.createElement('button');
+    b.className = 'fk-chip' + (fkTeamFilter === v ? ' active' : '');
+    b.textContent = l;
+    b.addEventListener('click', ()=>{ fkTeamFilter = v; renderFokus(); });
+    filters.appendChild(b);
+  });
+  head.appendChild(filters);
+  container.appendChild(head);
+
+  // ---------- 1) Fällige Überprüfungen ----------
+  const alleV = fkVereinbarungen().filter(v => v.agent && inTeam(v.agent));
+  const faellig = alleV.filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) <= todayIso)
+    .sort((a,b)=> a.pruef - b.pruef);
+  const sec1 = document.createElement('div');
+  sec1.className = 'fk-section';
+  sec1.innerHTML = `<div class="fk-sec-title">⏰ Fällige Überprüfungen <span>${faellig.length}</span></div>`;
+  if(!faellig.length){
+    sec1.innerHTML += `<div class="fk-empty">Keine fälligen Vereinbarungen. Tipp: Beim Erfassen eines Coachings unter „🤝 Vereinbarung & Nachkontrolle“ ein konkretes Verhalten festhalten – dann erinnert dich das Board hier an die Überprüfung.</div>`;
+  }
+  faellig.forEach(v=>{
+    const card = document.createElement('div');
+    card.className = 'fk-card fk-due';
+    const overdue = Math.round((new Date(todayIso) - new Date(fkIsoDate(v.pruef))) / 86400000);
+    const w = fkWirkung(v.agent, v.coachDate, v.entry.fokusProdukt || null);
+    card.innerHTML = `
+      <div class="fk-card-top">
+        <div><div class="fk-name">${v.agent.name}</div>
+        <div class="fk-meta">${TEAM_CONFIGS[v.agent.team]?.label || ''} · Coaching am ${fkFmt(v.coachDate)}${v.entry.coach ? ' von ' + v.entry.coach : ''} · fällig ${overdue > 0 ? 'seit ' + overdue + ' Tag' + (overdue>1?'en':'') : 'heute'}</div></div>
+      </div>
+      <div class="fk-vereinbarung">🤝 ${v.entry.vereinbarung}</div>
+      ${fkWirkungHtml(w)}
+      <div class="fk-q">Wurde die Vereinbarung umgesetzt? (z.B. nach dem nächsten Mithören)</div>`;
+    const actions = document.createElement('div');
+    actions.className = 'fk-actions';
+    [['umgesetzt','✓ Umgesetzt','ok'],['teilweise','½ Teilweise','warn'],['nicht','✗ Nicht umgesetzt','bad']].forEach(([st,lbl,cls])=>{
+      const b = document.createElement('button');
+      b.className = 'fk-btn ' + cls;
+      b.textContent = lbl;
+      b.addEventListener('click', ()=>fkSetReview(v.entry.id, st));
+      actions.appendChild(b);
+    });
+    const nb = document.createElement('button');
+    nb.className = 'fk-btn';
+    nb.textContent = '🗣️ Folge-Coaching erfassen';
+    nb.title = 'Öffnet ein neues Coaching mit derselben Vereinbarung als Vorlage';
+    nb.addEventListener('click', ()=>fkOpenCoachingForm(v.agent.id, { vereinbarung: v.entry.vereinbarung, fokusProdukt: v.entry.fokusProdukt || '' }));
+    actions.appendChild(nb);
+    card.appendChild(actions);
+    sec1.appendChild(card);
+  });
+  container.appendChild(sec1);
+
+  // ---------- 2) Wen coachen? ----------
+  const agents = state.agents.filter(a => a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work' && inTeam(a));
+  const teamInfo = {};
+  Object.keys(TEAM_CONFIGS).forEach(t=>{
+    const ta = state.agents.filter(a => String(a.team) === t && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
+    teamInfo[t] = hrWorkdayInfo(ta, now);
+  });
+  const prevD = vormonatDate(now);
+  const openV = new Set(alleV.filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) > todayIso).map(v => v.agent.id));
+  const planned = {};
+  (state.coachingPlan || []).forEach(p=>{ if(p && p.agentId && p.datum && p.datum >= todayIso && (!planned[p.agentId] || p.datum < planned[p.agentId])) planned[p.agentId] = p.datum; });
+
+  const rated = agents.map(agent=>{
+    const cfg = TEAM_CONFIGS[agent.team];
+    const info = teamInfo[agent.team];
+    const reasons = []; let score = 0; let onTrack = null, avgPct = 1, nT = 0;
+    if(cfg && info && info.hasData && info.elapsed >= 3){
+      const targets = agentTargets(agent);
+      const ist = hrAgentSums(agent, info.mk, cfg.products);
+      onTrack = 0; let pctSum = 0;
+      cfg.products.forEach((p,i)=>{
+        const ziel = targets[i] || 0; if(!ziel) return;
+        const prog = ist[p] + (ist[p] / info.elapsed) * info.remaining;
+        const pct = prog / ziel; nT++; pctSum += Math.min(pct, 1.5);
+        if(pct >= 1){ onTrack++; return; }
+        if(pct < 0.85){
+          const perDay = info.remaining > 0 ? Math.max(0, (ziel - ist[p]) / info.remaining) : 0;
+          reasons.push({ cls: pct < 0.6 ? 'bad' : 'warn', text: `${productLabel(p, agent.team)}: Prognose ${fkNum(prog)} von ${ziel}${info.remaining ? ` · braucht ${fkNum(perDay)}/Tag` : ''}` });
+          score += (0.85 - pct) * 40;
+        }
+      });
+      avgPct = nT ? pctSum / nT : 1;
+    }
+    if(cfg){
+      const nps = fkCurVal(agent, 'nps', now), lq = fkCurVal(agent, 'lq', now);
+      if(nps !== null && nps < cfg.npsTarget){ reasons.push({ cls: nps < cfg.npsTarget - 8 ? 'bad' : 'warn', text: `NPS ${fkNum(nps)} % (Ziel ${cfg.npsTarget} %)` }); score += (cfg.npsTarget - nps) * 1.5; }
+      const prevNps = (agentVerlaufMonat(agent, prevD.getFullYear(), VL_MONATE[prevD.getMonth()]) || {}).nps;
+      if(nps !== null && prevNps > 0 && prevNps - nps >= 5){ reasons.push({ cls: 'warn', text: `NPS gefallen: ${fkNum(prevNps)} → ${fkNum(nps)} %` }); score += 10; }
+      if(lq !== null && cfg.lqTarget && lq < cfg.lqTarget){ reasons.push({ cls: 'warn', text: `LQ ${fkNum(lq)} % (Ziel ${cfg.lqTarget} %)` }); score += (cfg.lqTarget - lq) * 1.2; }
+    }
+    const last = fkParseDe(agent.coachingDatum);
+    const daysSince = last ? Math.round((new Date(todayIso) - new Date(fkIsoDate(last))) / 86400000) : null;
+    if(daysSince === null){ reasons.push({ cls: 'info', text: 'Noch kein Coaching erfasst' }); score += 8; }
+    else if(daysSince > 30){ reasons.push({ cls: 'info', text: `Letztes Coaching vor ${daysSince} Tagen` }); score += Math.min(20, 6 + (daysSince - 30) / 3); }
+    const notes = [];
+    if(planned[agent.id]){ notes.push(`📅 Coaching geplant am ${fkFmt(fkParseDe(planned[agent.id]))}`); score *= 0.5; }
+    if(openV.has(agent.id)) notes.push('🤝 Vereinbarung läuft');
+    return { agent, reasons, score, notes, onTrack, nT, avgPct };
+  });
+
+  const coachen = rated.filter(r => r.score >= 12 && r.reasons.some(x => x.cls !== 'info')).sort((a,b)=>b.score - a.score);
+  const sec2 = document.createElement('div');
+  sec2.className = 'fk-section';
+  sec2.innerHTML = `<div class="fk-sec-title">🔎 Wen diese Woche coachen? <span>${coachen.length}</span></div>`;
+  if(!coachen.length){
+    sec2.innerHTML += `<div class="fk-empty">Aktuell gibt es keine auffälligen Rückstände. ${Object.values(teamInfo).some(i=>i.hasData && i.elapsed < 3) ? 'Die Hochrechnung startet ab dem 3. Arbeitstag des Monats.' : ''}</div>`;
+  }
+  const limit = fkShowAll ? coachen.length : 8;
+  coachen.slice(0, limit).forEach((r, idx)=>{
+    const card = document.createElement('div');
+    card.className = 'fk-card';
+    card.innerHTML = `
+      <div class="fk-card-top">
+        <div class="fk-rank">${idx+1}</div>
+        <div style="flex:1;min-width:0;"><div class="fk-name">${r.agent.name}${r.agent.category && r.agent.category !== 'regular' ? ` <span class="hr-cat">${CATEGORY_LABELS[r.agent.category] || r.agent.category}</span>` : ''}</div>
+        <div class="fk-meta">${TEAM_CONFIGS[r.agent.team]?.label || ''}${r.onTrack !== null ? ` · auf Kurs bei ${r.onTrack}/${r.nT} Zielen` : ''}${r.notes.length ? ' · ' + r.notes.join(' · ') : ''}</div></div>
+      </div>
+      <div class="fk-reasons">${r.reasons.map(x=>`<span class="fk-reason ${x.cls}">${x.text}</span>`).join('')}</div>`;
+    const actions = document.createElement('div');
+    actions.className = 'fk-actions';
+    const b = document.createElement('button');
+    b.className = 'fk-btn primary';
+    b.textContent = '🗣️ Coaching erfassen';
+    b.addEventListener('click', ()=>fkOpenCoachingForm(r.agent.id));
+    actions.appendChild(b);
+    card.appendChild(actions);
+    sec2.appendChild(card);
+  });
+  if(coachen.length > 8){
+    const more = document.createElement('button');
+    more.className = 'fk-more';
+    more.textContent = fkShowAll ? 'Weniger anzeigen' : `Alle ${coachen.length} anzeigen`;
+    more.addEventListener('click', ()=>{ fkShowAll = !fkShowAll; renderFokus(); });
+    sec2.appendChild(more);
+  }
+  container.appendChild(sec2);
+
+  // ---------- 3) Anerkennung verdient ----------
+  const lob = [];
+  rated.forEach(r=>{
+    const cfg = TEAM_CONFIGS[r.agent.team];
+    const nps = cfg ? fkCurVal(r.agent, 'nps', now) : null;
+    if(r.onTrack !== null && r.nT && r.onTrack >= Math.min(4, r.nT) && (nps === null || nps >= cfg.npsTarget)){
+      lob.push({ agent: r.agent, text: `Auf Kurs bei ${r.onTrack}/${r.nT} Zielen${nps !== null ? ` · NPS ${fkNum(nps)} %` : ''}`, sort: 2 + r.avgPct });
+    }
+  });
+  alleV.filter(v => v.review && v.review.status === 'umgesetzt' && v.review.datum >= fkIsoDate(new Date(now.getTime() - 14*86400000))).forEach(v=>{
+    if(lob.some(l => l.agent.id === v.agent.id)) return;
+    lob.push({ agent: v.agent, text: `Vereinbarung umgesetzt: „${v.entry.vereinbarung.length > 60 ? v.entry.vereinbarung.slice(0,57) + '…' : v.entry.vereinbarung}“`, sort: 1 });
+  });
+  lob.sort((a,b)=>b.sort - a.sort);
+  const sec3 = document.createElement('div');
+  sec3.className = 'fk-section';
+  sec3.innerHTML = `<div class="fk-sec-title">👏 Anerkennung verdient <span>${lob.length}</span></div>
+    <div class="fk-hint">Positives Feedback stärkt das Selbstvertrauen – oft der Schlüssel, damit Mitarbeiter Verkaufschancen auch wirklich ansprechen.</div>`;
+  if(!lob.length) sec3.innerHTML += `<div class="fk-empty">Noch niemand mit mind. 4 Zielen auf Kurs.</div>`;
+  const lobWrap = document.createElement('div');
+  lobWrap.className = 'fk-lob';
+  lob.slice(0, 8).forEach(l=>{
+    const el = document.createElement('div');
+    el.className = 'fk-lob-item';
+    el.innerHTML = `<b>${l.agent.name}</b><span>${l.text}</span>`;
+    lobWrap.appendChild(el);
+  });
+  sec3.appendChild(lobWrap);
+  container.appendChild(sec3);
+
+  // ---------- 4) Laufende Vereinbarungen ----------
+  const laufend = alleV.filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) > todayIso).sort((a,b)=>a.pruef - b.pruef);
+  const erledigt = alleV.filter(v => v.review).slice(0, 10);
+  if(laufend.length || erledigt.length){
+    const sec4 = document.createElement('div');
+    sec4.className = 'fk-section';
+    sec4.innerHTML = `<div class="fk-sec-title">🤝 Laufende Vereinbarungen <span>${laufend.length}</span></div>`;
+    const list = document.createElement('div');
+    list.className = 'fk-list';
+    laufend.forEach(v=>{
+      list.innerHTML += `<div class="fk-list-row"><b>${v.agent.name}</b><span class="fk-list-text">${v.entry.vereinbarung}</span><span class="fk-list-date">Überprüfung ${fkFmt(v.pruef)}</span></div>`;
+    });
+    if(erledigt.length){
+      const stTxt = { umgesetzt: '✓ umgesetzt', teilweise: '½ teilweise', nicht: '✗ nicht umgesetzt' };
+      list.innerHTML += `<div class="fk-list-sub">Zuletzt überprüft</div>`;
+      erledigt.forEach(v=>{
+        list.innerHTML += `<div class="fk-list-row"><b>${v.agent.name}</b><span class="fk-list-text">${v.entry.vereinbarung}</span><span class="fk-list-date st-${v.review.status}">${stTxt[v.review.status] || v.review.status} · ${fkFmt(fkParseDe(v.review.datum))}</span></div>`;
+      });
+    }
+    sec4.appendChild(list);
+    container.appendChild(sec4);
+  }
+  updateFokusBadge();
 }
 
 function renderOverview(){
