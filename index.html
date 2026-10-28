@@ -205,6 +205,13 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .tw-input:hover{border-color:var(--border);}
 .tw-input:focus{outline:none;border-color:var(--tmg);background:#fff;box-shadow:0 0 0 3px rgba(226,0,116,.1);}
 .tw-input::placeholder{color:#C8CDD3;}
+.tw-monthtabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.tw-monthtab{display:flex;flex-direction:column;align-items:flex-start;gap:1px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:7px 14px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--text);}
+.tw-monthtab b{font-family:'Space Grotesk',sans-serif;font-size:14px;}
+.tw-monthtab span{font-size:11px;color:var(--muted);}
+.tw-monthtab.active{border-color:var(--tmg);box-shadow:0 0 0 2px var(--tmg-soft);}
+.tw-monthtab.active span{color:var(--tmg);}
+.tw-prev-banner{font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.5;color:#7A4A12;background:var(--amber-soft);border:1px solid #EBC99A;border-radius:10px;padding:10px 14px;margin-bottom:14px;}
 .tw-daytabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
 .tw-daytab{background:#fff;border:1px solid var(--border);border-radius:8px;padding:6px 11px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:700;color:var(--text);cursor:pointer;min-width:34px;text-align:center;}
 .tw-daytab:hover{border-color:var(--tmg);color:var(--tmg);}
@@ -945,7 +952,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 138;
+const BOARD_VERSION = 139;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1081,6 +1088,52 @@ function liveMonthSnapshot(agent, now){
   }
   return Object.keys(snap).length ? { key: mKey, snap } : null;
 }
+// ---- Vormonat nachträglich vervollständigen (endgültige Werte kommen oft erst Anfang des Folgemonats) ----
+function vormonatDate(now){ now = now || new Date(); return new Date(now.getFullYear(), now.getMonth() - 1, 1); }
+function vormonatKey(now){ const d = vormonatDate(now); return `${d.getFullYear()}-${VL_MONATE[d.getMonth()]}`; }
+// Monatsdaten eines Mitarbeiters zum Bearbeiten holen (legt den Monat im verknüpften Eintrag an und
+// übernimmt dabei vorhandene Werte aus älteren Einträgen, damit nichts "verschwindet").
+function verlaufMonatForEdit(agent, d){
+  const key = `${d.getFullYear()}-${VL_MONATE[d.getMonth()]}`;
+  const vl = verlaufTargetEntry(agent);
+  if(!vl.monate[key]){
+    const existing = agentVerlaufMonat(agent, d.getFullYear(), VL_MONATE[d.getMonth()]);
+    vl.monate[key] = existing ? JSON.parse(JSON.stringify(existing)) : {};
+  }
+  if(!vl.monate[key].sales || typeof vl.monate[key].sales !== 'object') vl.monate[key].sales = {};
+  return vl.monate[key];
+}
+function verlaufRecalcCr(agent, md){
+  const cfg = TEAM_CONFIGS[agent.team];
+  if(!cfg || !md) return;
+  if(md.sales && md.calls > 0){
+    const stk = cfg.products.filter(p => p !== 'BOJ').reduce((s,p)=> s + (md.sales[p]||0), 0);
+    md.cr = Math.round((stk / md.calls) * 10000) / 100;
+  }
+}
+// Stückzahlen des Vormonats aus dessen Tageswerten in den Verlauf übernehmen (Nachträge).
+function syncVormonatSales(agent, now){
+  const d = vormonatDate(now);
+  const tw = agent.tageswerte && agent.tageswerte[twMonthKey(d)];
+  if(!tw) return false;
+  const cfg = TEAM_CONFIGS[agent.team]; if(!cfg) return false;
+  const extra = agent.team === 'Trikala01' ? ['VVM','DA'] : ['DA'];
+  const prods = [...cfg.products, ...extra];
+  const sum = {}; let any = false;
+  prods.forEach(p=>{ sum[p] = 0; });
+  Object.values(tw).forEach(dv=>{
+    if(!dv || !dv.sales) return;
+    prods.forEach(p=>{ const v = dv.sales[p]; if(typeof v === 'number'){ sum[p] += v; any = true; } });
+  });
+  if(!any) return false;
+  const md = verlaufMonatForEdit(agent, d);
+  let changed = false;
+  prods.forEach(p=>{ if(md.sales[p] !== sum[p]){ md.sales[p] = sum[p]; changed = true; } });
+  const crBefore = md.cr;
+  verlaufRecalcCr(agent, md);
+  return changed || md.cr !== crBefore;
+}
+
 // Laufenden Monat aller Mitarbeiter in den Verlauf schreiben. Rückgabe: true, wenn sich etwas geändert hat.
 function updateLiveVerlaufSnapshot(){
   if(!state.verlauf) state.verlauf = {};
@@ -1089,6 +1142,7 @@ function updateLiveVerlaufSnapshot(){
   (state.agents||[]).forEach(agent=>{
     if(!agent || !agent.id || !agent.name || !agent.name.trim()) return;
     if(agent.category === 'schulung' || agent.category === 'work') return;
+    if(syncVormonatSales(agent, now)) changed = true;
     const res = liveMonthSnapshot(agent, now);
     if(!res) return;
     const vl = verlaufTargetEntry(agent);
@@ -7928,6 +7982,7 @@ function renderTeamZiele(){
 }
 
 
+let twMonthOffset = 0;       // 0 = laufender Monat, -1 = Vormonat (Nachträge)
 let twSelectedDay = 'total'; // 'total' = Monatsstand, sonst Tag-Nummer als String ('1'..'31')
 
 function twMonthKey(d){
@@ -8038,23 +8093,69 @@ function parseHelpsenseSheet(rows){
   return result;
 }
 
-function applyHelpsenseData(mergedData){
+// Fragt (nur in den ersten 10 Tagen eines Monats), ob die Import-Daten zum laufenden Monat oder zum
+// gerade abgeschlossenen Vormonat gehören. Liefert 0, -1 oder null (abgebrochen).
+function chooseImportMonth(){
+  return new Promise(resolve=>{
+    const now = new Date();
+    const cur = now.toLocaleString('de-DE', {month:'long', year:'numeric'});
+    const prev = vormonatDate(now).toLocaleString('de-DE', {month:'long', year:'numeric'});
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:2000;display:flex;align-items:center;justify-content:center;padding:16px;';
+    const box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:18px;padding:24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:Inter,sans-serif;';
+    box.innerHTML = `<div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin-bottom:8px;">Für welchen Monat sind die Daten?</div>
+      <div style="font-size:13px;color:#64748B;margin-bottom:18px;line-height:1.5;">Anfang des Monats kommen oft noch die endgültigen Werte des Vormonats. Bitte wählen, wohin der Import geschrieben wird.</div>`;
+    const mk = (label, sub, val, primary)=>{
+      const b = document.createElement('button');
+      b.style.cssText = `display:block;width:100%;text-align:left;margin-bottom:10px;padding:11px 14px;border-radius:10px;cursor:pointer;font-family:Inter,sans-serif;border:1px solid ${primary?'var(--tmg)':'#E0E0E0'};background:${primary?'var(--tmg-soft)':'#fff'};`;
+      b.innerHTML = `<div style="font-weight:700;font-size:14px;">${label}</div><div style="font-size:12px;color:#64748B;">${sub}</div>`;
+      b.addEventListener('click', ()=>{ overlay.remove(); resolve(val); });
+      return b;
+    };
+    box.appendChild(mk(prev, 'Vormonat – endgültige Werte nachtragen', -1, true));
+    box.appendChild(mk(cur, 'laufender Monat', 0, false));
+    const cancel = document.createElement('button');
+    cancel.textContent = 'Abbrechen';
+    cancel.style.cssText = 'margin-top:4px;background:none;border:none;color:#64748B;cursor:pointer;font-size:13px;';
+    cancel.addEventListener('click', ()=>{ overlay.remove(); resolve(null); });
+    box.appendChild(cancel);
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+  });
+}
+
+async function applyHelpsenseData(mergedData){
+  // Zielmonat: was oben in den Tageswerten gewählt ist. Steht dort der laufende Monat und wir sind
+  // in den ersten 10 Tagen, sicherheitshalber nachfragen (endgültige Vormonatswerte kommen spät).
+  let offset = twMonthOffset;
+  if(offset === 0 && new Date().getDate() <= 10){
+    offset = await chooseImportMonth();
+    if(offset === null) return;
+  }
+  const isPrev = offset === -1;
+  const prevDate = vormonatDate();
   let matched = 0, unmatched = [];
   state.agents.forEach(agent=>{
     if(!agent.pylon) return;
     const pylon = parseInt(agent.pylon);
     const data = mergedData[pylon];
     if(!data || Object.keys(data).length === 0){ unmatched.push(`${agent.name} (Pylon ${pylon})`); return; }
-    if(data.cht   !== undefined && !isNaN(data.cht))   agent.cht   = data.cht;
-    if(data.calls !== undefined && !isNaN(data.calls)) agent.calls = data.calls;
-    if(data.nps   !== undefined && !isNaN(data.nps))   agent.nps   = data.nps;
-    if(data.lq    !== undefined && !isNaN(data.lq))    agent.lq    = data.lq;
+    // Vormonat → in den Mitarbeiter-Verlauf dieses Monats; laufender Monat → Monatsstand
+    const target = isPrev ? verlaufMonatForEdit(agent, prevDate) : agent;
+    if(data.cht   !== undefined && !isNaN(data.cht))   target.cht   = data.cht;
+    if(data.calls !== undefined && !isNaN(data.calls)) target.calls = data.calls;
+    if(data.nps   !== undefined && !isNaN(data.nps))   target.nps   = data.nps;
+    if(data.lq    !== undefined && !isNaN(data.lq))    target.lq    = data.lq;
+    if(isPrev) verlaufRecalcCr(agent, target);
     matched++;
   });
+  if(isPrev && twMonthOffset !== -1){ twMonthOffset = -1; twSelectedDay = 'total'; } // Ergebnis gleich anzeigen
   scheduleSave();
   renderAll();
+  const monatTxt = (isPrev ? prevDate : new Date()).toLocaleString('de-DE', {month:'long', year:'numeric'});
   const unmatchedMsg = unmatched.length ? `\n\nNicht gefunden (keine Pylon-Nr. oder nicht im Report):\n${unmatched.join(', ')}` : '';
-  alert(`✅ ${matched} Mitarbeiter erfolgreich importiert.${unmatchedMsg}`);
+  alert(`✅ ${matched} Mitarbeiter für ${monatTxt} importiert.${unmatchedMsg}`);
 }
 
 document.getElementById('tw-import-helpsense-input').addEventListener('change', async function(){
@@ -8149,9 +8250,37 @@ function renderTageswerte(){
   container.innerHTML = '';
 
   const now = new Date();
-  const monthKey = twMonthKey(now);
-  const daysInMonth = twDaysInMonth(now);
-  const todayNum = now.getDate();
+  const isPrev = twMonthOffset === -1;
+  const viewDate = isPrev ? vormonatDate(now) : now;
+  const monthKey = twMonthKey(viewDate);
+  const daysInMonth = twDaysInMonth(viewDate);
+  const todayNum = isPrev ? -1 : now.getDate();
+  const viewMonatName = viewDate.toLocaleString('de-DE', {month:'long', year:'numeric'});
+
+  // === Monats-Auswahl: Vormonat (Nachträge) / laufender Monat ===
+  const monthTabs = document.createElement('div');
+  monthTabs.className = 'tw-monthtabs';
+  [[-1, 'Vormonat · Nachträge'], [0, 'laufender Monat']].forEach(([off, lbl])=>{
+    const d = new Date(now.getFullYear(), now.getMonth() + off, 1);
+    const b = document.createElement('button');
+    b.className = 'tw-monthtab' + (twMonthOffset === off ? ' active' : '');
+    b.innerHTML = `<b>${d.toLocaleString('de-DE', {month:'long', year:'numeric'})}</b><span>${lbl}</span>`;
+    b.addEventListener('click', ()=>{ if(twMonthOffset === off) return; twMonthOffset = off; twSelectedDay = 'total'; renderTageswerte(); });
+    monthTabs.appendChild(b);
+  });
+  container.appendChild(monthTabs);
+  const resetBtn = document.getElementById('tw-reset-btn');
+  if(resetBtn){
+    resetBtn.disabled = isPrev;
+    resetBtn.style.opacity = isPrev ? '.4' : '';
+    resetBtn.title = isPrev ? 'Im Vormonat nicht möglich' : '';
+  }
+  if(isPrev){
+    const pv = document.createElement('div');
+    pv.className = 'tw-prev-banner';
+    pv.innerHTML = `<b>Du bearbeitest den abgeschlossenen Monat ${viewMonatName}.</b> Hier kannst du fehlende Tage nachtragen und im Monatsstand die endgültigen Werte (Calls, CHT, NPS, LQ) eintragen oder per „📥 Datei importieren“ übernehmen. Alles wird im Mitarbeiter-Verlauf von ${viewMonatName} gespeichert und erscheint in Hall of Fame, Mitarbeiter Verlauf und Monatsabschluss-Diagrammen. Der laufende Monat bleibt unberührt.`;
+    container.appendChild(pv);
+  }
 
   // === Tages-Reiter ===
   const dayTabs = document.createElement('div');
@@ -8174,7 +8303,7 @@ function renderTageswerte(){
   if(isTotal){
     const hint = document.createElement('div');
     hint.className = 'tw-hint';
-    hint.textContent = 'Die Produkt-Spalten werden automatisch aus allen Tages-Seiten dieses Monats summiert (nicht bearbeitbar). Calls, CHT, NPS und LQ trägst du hier direkt manuell ein.';
+    hint.textContent = 'Die Produkt-Spalten werden automatisch aus allen Tages-Seiten dieses Monats summiert (nicht bearbeitbar). Calls, CHT, NPS und LQ trägst du hier direkt manuell ein.' + (isPrev ? ' Gibt es für den Vormonat keine Tageswerte, werden die Stückzahlen aus dem Verlauf angezeigt.' : '');
     container.appendChild(hint);
   }
 
@@ -8183,7 +8312,7 @@ function renderTageswerte(){
     const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim()!=='' && a.category !== 'schulung' && a.category !== 'work');
     if(!teamAgents.length) return;
 
-    if(isTotal){ teamAgents.forEach(a=>twRecomputeAgent(a, cfg)); }
+    if(isTotal && !isPrev){ teamAgents.forEach(a=>twRecomputeAgent(a, cfg)); }
 
     const teamDiv = document.createElement('div');
     teamDiv.className = 'tw-team-wrap';
@@ -8313,11 +8442,24 @@ function renderTageswerte(){
       if(isTotal){
         // Calls, CHT, NPS, LQ: manuell editierbar. Produkte: automatisch aus den Tages-Seiten summiert (nicht editierbar).
         let col = 0;
+        if(isPrev){
+          // Vormonat: Werte liegen im Mitarbeiter-Verlauf dieses Monats
+          const vmRead = () => agentVerlaufMonat(agent, viewDate.getFullYear(), VL_MONATE[viewDate.getMonth()]) || {};
+          const getF = f => () => { const v = vmRead()[f]; return (v === undefined) ? null : v; };
+          const setF = f => v => { const md = verlaufMonatForEdit(agent, viewDate); md[f] = v; verlaufRecalcCr(agent, md); };
+          const twSums = (agent.tageswerte && agent.tageswerte[monthKey]) ? hrAgentSums(agent, monthKey, orderedProducts) : null;
+          row.appendChild(mkTwInput(getF('calls'), setF('calls'), false, rowIdx, col++));
+          row.appendChild(mkTwInput(getF('cht'), setF('cht'), false, rowIdx, col++));
+          orderedProducts.forEach(p=> row.appendChild(mkTwInput(()=> twSums ? twSums[p] : ((vmRead().sales||{})[p] ?? null), ()=>{}, true)));
+          row.appendChild(mkTwInput(getF('nps'), setF('nps'), false, rowIdx, col++));
+          row.appendChild(mkTwInput(getF('lq'), setF('lq'), false, rowIdx, col++));
+        } else {
         row.appendChild(mkTwInput(()=>agent.calls, v=>{ agent.calls=v; }, false, rowIdx, col++));
         row.appendChild(mkTwInput(()=>agent.cht, v=>{ agent.cht=v; }, false, rowIdx, col++));
         orderedProducts.forEach(p=> row.appendChild(mkTwInput(()=>agent.sales[p], ()=>{}, true)));
         row.appendChild(mkTwInput(()=>agent.nps, v=>{ agent.nps=v; }, false, rowIdx, col++));
         row.appendChild(mkTwInput(()=>agent.lq, v=>{ agent.lq=v; }, false, rowIdx, col++));
+        }
       } else {
         // Wichtig: den Tageseintrag NICHT beim bloßen Rendern/Anschauen anlegen, sondern erst,
         // wenn wirklich ein Wert eingetragen wird - sonst erzeugt reines Durchklicken der
@@ -8337,7 +8479,7 @@ function renderTageswerte(){
               const dv = ensureDv(); if(!dv.sales) dv.sales = {}; dv.sales[p] = v;
               // Monatssumme sofort neu berechnen, damit "Mitarbeiter Ziele" den Wert direkt
               // übernimmt - vorher passierte das erst beim Öffnen der Monatsstand-Seite.
-              twRecomputeAgent(agent, cfg);
+              if(isPrev) syncVormonatSales(agent, now); else twRecomputeAgent(agent, cfg);
             },
             false, rowIdx, colIdx
           ));
