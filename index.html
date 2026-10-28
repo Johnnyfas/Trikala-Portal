@@ -153,6 +153,29 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .empty-illus-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
 .empty-illus-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:340px;}
 /* tw-team-wrap: äußerer Container pro Team */
+.hr-intro{margin:0 0 18px;}
+.hr-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;margin-bottom:6px;}
+.hr-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);line-height:1.5;max-width:900px;}
+.hr-team{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;overflow:hidden;}
+.hr-team-head{background:#1D1D1F;color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.hr-days{font-family:'Inter',sans-serif;font-weight:500;font-size:12.5px;color:#C9CDD3;}
+.hr-days b{color:#fff;}
+.hr-empty{padding:18px 20px;font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);}
+.hr-table-wrap{overflow-x:auto;}
+.hr-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;}
+.hr-table th{background:#FAFAFA;border-bottom:2px solid var(--border);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:10px 8px;text-align:center;white-space:nowrap;}
+.hr-table td{border-bottom:1px solid #F0F0F2;padding:7px 8px;text-align:center;vertical-align:middle;min-width:84px;}
+.hr-table .hr-name-col{text-align:left;padding-left:20px;font-family:'Inter',sans-serif;font-weight:600;font-size:13.5px;white-space:nowrap;min-width:180px;}
+.hr-cat{display:inline-block;margin-left:6px;font-size:10px;font-weight:600;color:var(--muted);background:#F1F4F7;border-radius:999px;padding:1px 7px;vertical-align:1px;}
+.hr-prog{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;}
+.hr-of{font-weight:500;font-size:11px;color:var(--muted);}
+.hr-meta{font-family:'Inter',sans-serif;font-size:10.5px;color:var(--muted);margin-top:1px;}
+.hr-need{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;margin-top:2px;}
+.hr-ok{background:var(--teal-soft);} .hr-ok .hr-prog{color:var(--teal);}
+.hr-warn{background:var(--amber-soft);} .hr-warn .hr-prog,.hr-warn .hr-need{color:var(--amber);}
+.hr-bad{background:var(--red-soft);} .hr-bad .hr-prog,.hr-bad .hr-need{color:var(--red);}
+.hr-sum{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;}
+.hr-sum.hr-ok{color:var(--teal);} .hr-sum.hr-warn{color:var(--amber);} .hr-sum.hr-bad{color:var(--red);}
 .tw-team-wrap{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
 /* tw-team-sticky: schwarzer Balken + Spalten-Header-Klon; wird per JS fixed geschaltet */
 .tw-team-sticky{background:#fff;border-radius:16px 16px 0 0;z-index:20;}
@@ -848,6 +871,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
     <div id="ov-subtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;max-width:1320px;margin-left:auto;margin-right:auto;padding-left:20px;padding-right:20px;">
       <button class="tab-btn active" id="sub-ovziele" style="font-size:13px;padding:7px 16px;">Mitarbeiter Ziele</button>
       <button class="tab-btn" id="sub-ovtageswerte" style="font-size:13px;padding:7px 16px;">📝 Tageswerte</button>
+      <button class="tab-btn" id="sub-ovhochrechnung" style="font-size:13px;padding:7px 16px;">📈 Hochrechnung</button>
     </div>
     <div id="ov-ziele-container">
       <div class="toolbar" style="max-width:1320px;margin:0 auto 14px;padding:0 20px;">
@@ -869,6 +893,9 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
         </div>
       </div>
       <div id="tageswerte-capture"></div>
+    </div>
+    <div id="ov-hochrechnung-container" style="display:none;max-width:1320px;margin:0 auto;padding:0 20px;">
+      <div id="hochrechnung-capture"></div>
     </div>
   </div>
 
@@ -918,28 +945,57 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 137;
+const BOARD_VERSION = 138;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
 // Monatsabschluss Verlaufsdaten anzeigen kann.
 const CHT_VERLAUF_DATA = {"30782":{"Januar":724,"Februar":731,"März":736,"April":661,"Mai":717,"Juni":807,"Juli":741},"40818":{"Januar":753,"März":783,"April":708,"Mai":760,"Juni":842,"Juli":703},"40810":{"Januar":602,"Februar":591,"März":614,"April":558,"Mai":584,"Juni":565,"Juli":580},"40838":{"Januar":723,"Februar":587,"März":620,"April":574,"Mai":632,"Juni":682,"Juli":630},"40826":{"Januar":622,"März":626,"April":596,"Mai":632,"Juni":650,"Juli":591},"40820":{"Januar":615,"Februar":633,"März":612,"April":618,"Mai":608,"Juni":634,"Juli":564},"40835":{"Januar":693,"Februar":648,"März":724,"April":630,"Mai":742,"Juni":667,"Juli":677},"40840":{"Januar":666,"Februar":621,"März":618,"April":691,"Mai":778,"Juni":749,"Juli":678},"41026":{"Januar":834,"Februar":862,"März":834,"April":791,"Mai":806,"Juni":918,"Juli":834},"41032":{"Januar":793,"Februar":703,"März":831,"April":751,"Mai":853,"Juni":882,"Juli":872},"41028":{"Januar":834,"Februar":843,"März":815,"April":843,"Mai":836,"Juni":920,"Juli":924},"41234":{"Januar":672,"Februar":642,"März":581,"April":534,"Mai":607,"Juni":679,"Juli":604},"51141":{"Januar":736,"Februar":866,"März":711,"April":733,"Juli":750},"51165":{"Januar":940,"Februar":914,"März":931,"April":944,"Mai":968,"Juni":998,"Juli":1183},"51206":{"Januar":611,"Februar":613,"März":570,"April":553,"Mai":644,"Juni":684,"Juli":603},"51205":{"Januar":534,"Februar":544,"März":552,"April":544,"Mai":599,"Juni":571,"Juli":560},"51234":{"Januar":909,"Februar":810,"März":820,"April":677,"Mai":849,"Juni":807,"Juli":767},"51235":{"Januar":816,"Februar":842,"März":825,"April":773,"Mai":859,"Juni":875,"Juli":867},"51237":{"Januar":748,"Februar":679,"März":549,"April":561,"Mai":571,"Juni":505,"Juli":482},"51291":{"Januar":521,"Februar":542,"März":451,"April":438,"Mai":457,"Juni":584,"Juli":515},"51292":{"Januar":862,"Februar":692,"März":600,"April":644,"Mai":711,"Juni":760,"Juli":859},"51298":{"Januar":782,"Februar":1020,"März":796,"April":690,"Mai":704,"Juni":834,"Juli":746},"51350":{"Januar":753,"Februar":896,"März":734,"April":728,"Mai":733,"Juni":827,"Juli":717},"51346":{"Januar":705,"Februar":701,"März":734,"April":683,"Mai":695,"Juni":803,"Juli":724},"51347":{"Januar":671,"Februar":594,"März":595,"April":604,"Mai":650,"Juni":658,"Juli":694},"51372":{"Januar":604,"Februar":612,"März":581,"April":509,"Mai":592,"Juni":674,"Juli":650},"51373":{"Januar":1044,"Februar":976,"März":1060,"April":1083,"Mai":1131,"Juni":1232,"Juli":1159},"51463":{"Januar":652,"Februar":606,"März":487,"April":570,"Mai":574,"Juni":681,"Juli":611},"51615":{"Januar":692,"Februar":707,"März":666,"April":670,"Mai":625,"Juni":671,"Juli":672},"51617":{"Januar":593,"Februar":570,"März":550,"April":509,"Mai":556,"Juni":720,"Juli":648},"51618":{"Januar":840,"Februar":698,"März":663,"April":670,"Mai":615,"Juni":716,"Juli":736},"51619":{"Januar":674,"Februar":760,"März":616,"April":635,"Mai":586,"Juni":618,"Juli":604},"51616":{"Januar":591,"Februar":502,"März":541,"April":485,"Mai":586,"Juni":635,"Juli":528},"51657":{"Januar":779,"Februar":686,"März":673,"April":667,"Mai":755,"Juni":759,"Juli":600},"51703":{"Januar":584,"Februar":523,"März":577,"April":540,"Mai":567,"Juni":599,"Juli":474},"51881":{"Mai":860,"Juni":916,"Juli":919},"51885":{"Mai":705,"Juni":573,"Juli":549},"51886":{"Mai":800,"Juni":868,"Juli":759},"41233":{"Januar":701,"Februar":680,"März":723,"Mai":954,"Juni":914,"Juli":756},"41235":{"Januar":718,"Februar":776,"März":680,"April":691,"Mai":796,"Juni":919,"Juli":703},"41236":{"Januar":865,"Februar":868,"März":849,"April":806,"Mai":831,"Juni":877,"Juli":744},"41240":{"Januar":910,"Februar":868,"März":789,"April":852,"Mai":887,"Juni":1138,"Juli":943},"41241":{"Januar":651,"März":700,"April":682,"Mai":842,"Juni":838,"Juli":706},"41243":{"Januar":773,"Februar":689,"März":782,"April":795,"Mai":904,"Juni":1082,"Juli":912},"41248":{"Januar":844,"Februar":930,"März":876,"April":979,"Mai":1005,"Juni":1128,"Juli":1045},"41254":{"Januar":696,"Februar":751,"März":743,"April":738,"Mai":747,"Juni":754,"Juli":735},"51091":{"Januar":631,"Februar":622,"März":623,"April":590,"Mai":613,"Juni":868,"Juli":596},"51166":{"Juni":1097,"Juli":973},"51239":{"Januar":782,"Februar":753,"März":848,"April":821,"Mai":973,"Juni":965,"Juli":883},"51376":{"Juni":1097,"Juli":1028},"51738":{"Januar":1268,"Februar":1004,"März":1428,"April":1259,"Mai":1313,"Juni":1551,"Juli":1193},"51399":{"Juni":1046,"Juli":973},"51807":{"März":987,"April":911,"Mai":1005,"Juni":1149,"Juli":1077},"51806":{"März":920,"April":899,"Mai":989,"Juni":1070,"Juli":991},"51805":{"März":773,"April":679,"Mai":702,"Juni":787,"Juli":634},"51906":{"Juni":1366,"Juli":1276},"51899":{"Juni":1311,"Juli":1237},"51942":{"Juli":1190},"51960":{"Juli":1134}};
 const MONATE_IDX = {Januar:1,Februar:2,März:3,April:4,Mai:5,Juni:6,Juli:7,August:8,September:9,Oktober:10,November:11,Dezember:12};
-// Verlaufs-Eintrag eines Mitarbeiters finden. Im Verlauf stehen viele Mitarbeiter nur mit Nachnamen
-// (z.B. "Rizou" statt "Rizou Maria") - deshalb unscharf abgleichen: exakter Schlüssel → exakter
-// Name → Vor-/Nachname passt. Bei mehreren Treffern gewinnt der mit den meisten Monatsdaten.
+// ============================================================
+// MITARBEITER-VERLAUF (ab v138)
+// - Verlaufs-Einträge werden fest mit der Mitarbeiter-ID verknüpft (Feld agentId). Vorher lief die
+//   Zuordnung nur über den Namen - im Verlauf stehen aber oft nur Nachnamen ("Rizou").
+// - Der laufende Monat wird automatisch fortlaufend in den Verlauf geschrieben (bei jedem Speichern).
+//   Am Monatsende bleibt der Stand einfach stehen = automatischer Monats-Snapshot.
+// ============================================================
+const VL_MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+// Unscharfer Namensabgleich (nur für noch nicht verknüpfte Einträge)
+function vlNameMatches(vName, aName){
+  if(!vName || !aName) return false;
+  const n = aName.trim(), v = vName.trim();
+  return v === n || n.startsWith(v + ' ') || n.endsWith(' ' + v) || v.startsWith(n + ' ') || v.endsWith(' ' + n);
+}
+// Alle Verlaufs-Einträge eines Mitarbeiters: zuerst die fest verknüpften (meiste Monate zuerst),
+// sonst Fallback über den Namen.
+function verlaufEntriesForAgent(agent){
+  if(!agent) return [];
+  const all = Object.values(state.verlauf || {}).filter(v => v && v.monate);
+  const linked = all.filter(v => agent.id && v.agentId === agent.id)
+    .sort((a,b)=>Object.keys(b.monate).length - Object.keys(a.monate).length);
+  // Danach (als Rückfall für ältere Monate) ein noch nicht verknüpfter Eintrag mit passendem Namen
+  const unlinked = all.filter(v => !v.agentId && v.team === agent.team);
+  const fb = unlinked.find(v => v.name === agent.name)
+    || unlinked.filter(v => vlNameMatches(v.name, agent.name)).sort((a,b)=>Object.keys(b.monate).length - Object.keys(a.monate).length)[0];
+  if(linked.length) return fb ? [...linked, fb] : linked;
+  const f = findVerlaufForAgent(agent);
+  return f ? [f] : [];
+}
 function findVerlaufForAgent(agent){
   const vlAll = state.verlauf || {};
   if(!agent || !agent.name) return null;
-  if(vlAll[agent.name + '_' + agent.team]) return vlAll[agent.name + '_' + agent.team];
-  const sameTeam = Object.values(vlAll).filter(v => v && v.team === agent.team && v.monate);
+  const all = Object.values(vlAll).filter(v => v && v.monate);
+  if(agent.id){
+    const linked = all.filter(v => v.agentId === agent.id)
+      .sort((a,b)=>Object.keys(b.monate).length - Object.keys(a.monate).length);
+    if(linked.length) return linked[0];
+  }
+  if(vlAll[agent.name + '_' + agent.team] && vlAll[agent.name + '_' + agent.team].monate) return vlAll[agent.name + '_' + agent.team];
+  const sameTeam = all.filter(v => v.team === agent.team && !(v.agentId && v.agentId !== agent.id));
   const exact = sameTeam.find(v => v.name === agent.name);
   if(exact) return exact;
-  const n = agent.name.trim();
-  const fuzzy = sameTeam.filter(v => v.name && (
-    n.startsWith(v.name + ' ') || n.endsWith(' ' + v.name) ||
-    v.name.startsWith(n + ' ') || v.name.endsWith(' ' + n)
-  ));
+  const fuzzy = sameTeam.filter(v => vlNameMatches(v.name, agent.name));
   if(!fuzzy.length) return null;
   return fuzzy.sort((a,b)=>Object.keys(b.monate).length - Object.keys(a.monate).length)[0];
 }
@@ -947,6 +1003,109 @@ function findVerlaufForAgent(agent){
 function verlaufMonatOf(vl, jahr, monat){
   if(!vl || !vl.monate) return null;
   return vl.monate[`${jahr}-${monat}`] || (String(jahr) === '2026' ? vl.monate[monat] : null) || null;
+}
+// Monatsdaten eines Mitarbeiters aus allen zu ihm gehörenden Verlaufs-Einträgen
+function agentVerlaufMonat(agent, jahr, monat){
+  for(const vl of verlaufEntriesForAgent(agent)){
+    const md = verlaufMonatOf(vl, jahr, monat);
+    if(md) return md;
+  }
+  return null;
+}
+// Einmalige, eindeutige Verknüpfung alter Verlaufs-Einträge mit Mitarbeitern. Verknüpft wird nur,
+// wenn die Zuordnung in BEIDE Richtungen eindeutig ist (z.B. nicht bei zwei Mitarbeitern mit
+// gleichem Nachnamen im selben Team) - lieber gar nicht als falsch verknüpfen.
+function linkVerlaufToAgents(){
+  if(!state.verlauf) return false;
+  let changed = false;
+  const agents = (state.agents||[]).filter(a => a && a.id && a.name && a.name.trim());
+  Object.values(state.verlauf).forEach(v=>{
+    if(!v || !v.monate || v.agentId || !v.name) return;
+    const team = agents.filter(a => a.team === v.team);
+    // Eindeutigkeit gegen ALLE Mitarbeiter des Teams prüfen (auch bereits verknüpfte), damit z.B.
+    // ein alter Eintrag "Papa" nie einer von zwei Personen namens Papa zugeschlagen wird.
+    let m = team.filter(a => a.name === v.name);
+    if(!m.length) m = team.filter(a => vlNameMatches(v.name, a.name));
+    if(m.length === 1){ v.agentId = m[0].id; changed = true; }
+  });
+  return changed;
+}
+// Ziel-Eintrag für neue Monatsdaten eines Mitarbeiters (verknüpfter Eintrag oder neu anlegen)
+function verlaufTargetEntry(agent){
+  if(!state.verlauf) state.verlauf = {};
+  const linked = verlaufEntriesForAgent(agent).filter(v => v.agentId === agent.id);
+  if(linked.length) return linked[0];
+  const key = agent.name + '_' + agent.team;
+  const ex = state.verlauf[key];
+  if(ex && (!ex.agentId || ex.agentId === agent.id)){
+    if(!ex.monate) ex.monate = {};
+    ex.agentId = agent.id;
+    return ex;
+  }
+  const k2 = ex ? key + '_' + agent.id : key;
+  state.verlauf[k2] = { name: agent.name, team: agent.team, agentId: agent.id, monate: {} };
+  return state.verlauf[k2];
+}
+// Monatswerte eines Mitarbeiters für den laufenden Monat - nur Werte, die sicher zu diesem Monat
+// gehören: Stückzahlen aus den Tageswerten des Monats, Calls/NPS/LQ/CHT nur, wenn sie in diesem
+// Monat eingetragen/importiert wurden (Zeitstempel). So landet nach dem Monatswechsel nicht
+// versehentlich der NPS vom Vormonat im neuen Monat.
+function liveMonthSnapshot(agent, now){
+  const cfg = TEAM_CONFIGS[agent.team];
+  if(!cfg) return null;
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+  const mKey = `${now.getFullYear()}-${VL_MONATE[now.getMonth()]}`;
+  const snap = {};
+  const tw = agent.tageswerte && agent.tageswerte[twMonthKey(now)];
+  if(tw){
+    const extra = agent.team === 'Trikala01' ? ['VVM','DA'] : ['DA'];
+    const prods = [...cfg.products, ...extra];
+    const sum = {}; let any = false;
+    prods.forEach(p=>{ sum[p] = 0; });
+    Object.values(tw).forEach(dv=>{
+      if(!dv || !dv.sales) return;
+      prods.forEach(p=>{ const v = dv.sales[p]; if(v !== null && v !== undefined){ sum[p] += v; any = true; } });
+    });
+    if(any) snap.sales = sum;
+  }
+  ['calls','nps','lq','cht'].forEach(f=>{
+    const v = agent[f];
+    if(typeof v !== 'number' || !(v > 0)) return;
+    const ts = (typeof agGetTs === 'function') ? agGetTs(agent, 'f|' + f) : 0;
+    // ts 0 = Wert stammt aus der Zeit vor den Zeitstempeln (Oktober 2026) → nur für diesen Monat übernehmen
+    if(ts >= monthStart || (ts === 0 && mKey === '2026-Oktober')) snap[f] = v;
+  });
+  if(snap.sales && snap.calls){
+    const stk = cfg.products.filter(p => p !== 'BOJ').reduce((s,p)=> s + (snap.sales[p]||0), 0);
+    snap.cr = Math.round((stk / snap.calls) * 10000) / 100;
+  }
+  return Object.keys(snap).length ? { key: mKey, snap } : null;
+}
+// Laufenden Monat aller Mitarbeiter in den Verlauf schreiben. Rückgabe: true, wenn sich etwas geändert hat.
+function updateLiveVerlaufSnapshot(){
+  if(!state.verlauf) state.verlauf = {};
+  let changed = linkVerlaufToAgents();
+  const now = new Date();
+  (state.agents||[]).forEach(agent=>{
+    if(!agent || !agent.id || !agent.name || !agent.name.trim()) return;
+    if(agent.category === 'schulung' || agent.category === 'work') return;
+    const res = liveMonthSnapshot(agent, now);
+    if(!res) return;
+    const vl = verlaufTargetEntry(agent);
+    if(!vl.monate[res.key]) vl.monate[res.key] = {};
+    const md = vl.monate[res.key];
+    // Ältere Ansichten erwarten immer ein sales-Objekt
+    if(!md.sales || typeof md.sales !== 'object'){ md.sales = {}; changed = true; }
+    Object.keys(res.snap).forEach(f=>{
+      if(f === 'sales'){
+        if(!md.sales || typeof md.sales !== 'object') md.sales = {};
+        Object.keys(res.snap.sales).forEach(p=>{
+          if(md.sales[p] !== res.snap.sales[p]){ md.sales[p] = res.snap.sales[p]; changed = true; }
+        });
+      } else if(md[f] !== res.snap[f]){ md[f] = res.snap[f]; changed = true; }
+    });
+  });
+  return changed;
 }
 
 function applyChtVerlaufData(){
@@ -968,11 +1127,9 @@ function applyChtVerlaufData(){
     if(!vl) return;
     Object.entries(chtData).forEach(([monat, cht])=>{
       const key = `2026-${monat}`;
-      if(vl.monate[key]){
-        vl.monate[key].cht = cht;
-      } else {
-        vl.monate[key] = { sales: {}, calls: 0, nps: 0, lq: 0, cr: 0, cht };
-      }
+      // Nur in vorhandene Monate eintragen - keine fast leeren Monate (NPS 0, Stück 0) mehr anlegen,
+      // die den Verlauf verfälschen würden. Das CHT-Diagramm liest diese Werte ohnehin direkt.
+      if(vl.monate[key] && !(vl.monate[key].cht > 0)) vl.monate[key].cht = cht;
     });
   });
   if(chtCleaned) scheduleSave();
@@ -1362,29 +1519,7 @@ async function loadFromSharePoint(){
 
         if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
         if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
-        if(data.verlauf && Object.keys(data.verlauf).length > 0){
-          // Gespeicherte Verlauf-Snapshots mit Seed zusammenführen (Seed bleibt Basis)
-          Object.keys(data.verlauf).forEach(k=>{
-            if(!state.verlauf[k]) state.verlauf[k] = { name: data.verlauf[k].name, team: data.verlauf[k].team, monate: {} };
-            // Monat für Monat zusammenführen - Seed-Werte (NPS etc.) bleiben erhalten
-            Object.keys(data.verlauf[k].monate||{}).forEach(m=>{
-              if(!state.verlauf[k].monate[m]){
-                state.verlauf[k].monate[m] = data.verlauf[k].monate[m];
-              } else {
-                // Nur Felder übernehmen die im Seed 0 sind
-                const saved = data.verlauf[k].monate[m];
-                const seed = state.verlauf[k].monate[m];
-                if(saved.calls > 0) seed.calls = saved.calls;
-                if(saved.cr > 0) seed.cr = saved.cr;
-                if(saved.lq > 0) seed.lq = saved.lq;
-                if(saved.nps > 0 && seed.nps === 0) seed.nps = saved.nps;
-                Object.keys(saved.sales||{}).forEach(p=>{
-                  if(saved.sales[p] > 0) seed.sales[p] = saved.sales[p];
-                });
-              }
-            });
-          });
-        }
+        // (Mitarbeiter-Verlauf wird oben per lwwMergeAll() zusammengeführt)
         if(data.monatsabschluss){
           // Server-Stand direkt übernehmen - identisch zur aktiven Ladefunktion weiter unten.
           // Die frühere Logik hier hat md.plan bedingungslos aus der Code-Vorlage (Seed)
@@ -1747,6 +1882,140 @@ function mergeAgentsFromServer(serverAgents, serverDeletedAgentIds){
 }
 // AGENT_SYNC_END
 
+// ============================================================
+// BEREICHS-SYNC (ab v138): Team Ziele, Monatsabschluss, Mitarbeiter-Verlauf
+// ------------------------------------------------------------
+// Gleiches Prinzip wie AGENT-SYNC: jeder einzelne Wert (z.B. monatsabschluss.mf.Oktober.plan.BB)
+// bekommt beim Ändern einen Zeitstempel, beim Zusammenführen gewinnt pro Wert die neuere Änderung.
+// Gelöschte Werte werden als "Grabstein" (negativer Zeitstempel) festgehalten, damit Löschungen
+// sich ebenfalls durchsetzen. Zeitstempel liegen in state._lww[bereich][pfad].
+// ============================================================
+// LWW_START
+const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf'];
+// Beim allerersten Laden einer Sitzung: Server-Stand ab dieser Tiefe übernehmen (wie bisher)
+const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1 };
+const LWW_KEEP_MS = 120 * 24 * 3600 * 1000; // Zeitstempel älter als ~4 Monate verwerfen
+let lwwBaseline = {};          // bereich → { pfad: JSON-Wert } - Stand beim letzten Abgleich
+let lwwLastMergeChanged = false;
+
+function lwwClone(v){ return (v && typeof v === 'object') ? JSON.parse(JSON.stringify(v)) : v; }
+function lwwFlatten(obj, path, out){
+  out = out || {}; path = path || [];
+  if(!obj || typeof obj !== 'object') return out;
+  Object.keys(obj).forEach(k=>{
+    const v = obj[k];
+    const p = path.concat(k);
+    if(v && typeof v === 'object' && !Array.isArray(v)) lwwFlatten(v, p, out);
+    else out[JSON.stringify(p)] = JSON.stringify(v === undefined ? null : v);
+  });
+  return out;
+}
+function lwwSetPath(root, path, val){
+  let cur = root;
+  for(let i=0;i<path.length-1;i++){
+    if(!cur[path[i]] || typeof cur[path[i]] !== 'object' || Array.isArray(cur[path[i]])) cur[path[i]] = {};
+    cur = cur[path[i]];
+  }
+  cur[path[path.length-1]] = val;
+}
+function lwwDelPath(root, path){
+  let cur = root;
+  for(let i=0;i<path.length-1;i++){
+    if(!cur || typeof cur !== 'object') return;
+    cur = cur[path[i]];
+  }
+  if(cur && typeof cur === 'object') delete cur[path[path.length-1]];
+}
+function lwwTsMap(section){
+  if(!state._lww || typeof state._lww !== 'object') state._lww = {};
+  if(!state._lww[section]) state._lww[section] = {};
+  return state._lww[section];
+}
+function lwwCaptureBaseline(section){
+  lwwBaseline[section] = lwwFlatten(state[section] || {});
+}
+// Lokale Änderungen seit dem letzten Abgleich mit Zeitstempel versehen
+function lwwStamp(section){
+  const base = lwwBaseline[section];
+  if(!base) return;
+  const cur = lwwFlatten(state[section] || {});
+  const tsMap = lwwTsMap(section);
+  const ts = Date.now();
+  const keys = new Set([...Object.keys(cur), ...Object.keys(base)]);
+  keys.forEach(k=>{
+    if(cur[k] === base[k]) return;
+    if(k in cur){ tsMap[k] = ts; base[k] = cur[k]; }
+    else { tsMap[k] = -ts; delete base[k]; } // gelöscht → Grabstein
+  });
+}
+function lwwStampAll(){ LWW_SECTIONS.forEach(lwwStamp); }
+function lwwPrune(section){
+  const tsMap = lwwTsMap(section);
+  const limit = Date.now() - LWW_KEEP_MS;
+  Object.keys(tsMap).forEach(k=>{ if(Math.abs(tsMap[k]) < limit) delete tsMap[k]; });
+}
+function lwwFirstLoad(local, server, depth){
+  Object.keys(server).forEach(k=>{
+    const sv = server[k];
+    if(depth > 1 && sv && typeof sv === 'object' && !Array.isArray(sv) && local[k] && typeof local[k] === 'object' && !Array.isArray(local[k])){
+      lwwFirstLoad(local[k], sv, depth - 1);
+    } else {
+      local[k] = lwwClone(sv);
+    }
+  });
+}
+// Server-Stand eines Bereichs einarbeiten. Rückgabe: true, wenn lokal Neueres liegt (→ speichern).
+function lwwMerge(section, serverSection, serverTsAll){
+  const serverTs = (serverTsAll && serverTsAll[section]) || {};
+  const tsMap = lwwTsMap(section);
+  if(!state[section] || typeof state[section] !== 'object') state[section] = {};
+  if(!serverSection || typeof serverSection !== 'object') serverSection = {};
+  if(!lwwBaseline[section]){
+    // Erstes Laden in dieser Sitzung: Server-Stand übernehmen (lokal ist nur die Code-Vorlage)
+    lwwFirstLoad(state[section], serverSection, LWW_FIRSTLOAD_DEPTH[section] || 1);
+    Object.keys(serverTs).forEach(k=>{ if(Math.abs(serverTs[k]) > Math.abs(tsMap[k]||0)) tsMap[k] = serverTs[k]; });
+    lwwPrune(section);
+    lwwCaptureBaseline(section);
+    lwwLastMergeChanged = true;
+    return false;
+  }
+  lwwStamp(section);
+  const lc = lwwFlatten(state[section]);
+  const sc = lwwFlatten(serverSection);
+  let localAhead = false;
+  const keys = new Set([...Object.keys(lc), ...Object.keys(sc), ...Object.keys(tsMap), ...Object.keys(serverTs)]);
+  keys.forEach(k=>{
+    const lt = Math.abs(tsMap[k] || 0), st = Math.abs(serverTs[k] || 0);
+    if(st > lt){
+      const path = JSON.parse(k);
+      if(serverTs[k] < 0){
+        if(k in lc){ lwwDelPath(state[section], path); lwwLastMergeChanged = true; }
+      } else if(k in sc){
+        if(lc[k] !== sc[k]){ lwwSetPath(state[section], path, JSON.parse(sc[k])); lwwLastMergeChanged = true; }
+      }
+      tsMap[k] = serverTs[k];
+    } else if(lt > st){
+      localAhead = true;
+    } else if((k in sc) && lc[k] !== sc[k]){
+      // gleich alt (meist Altdaten ohne Zeitstempel): Server-Stand gilt
+      lwwSetPath(state[section], JSON.parse(k), JSON.parse(sc[k]));
+      lwwLastMergeChanged = true;
+    }
+  });
+  lwwPrune(section);
+  lwwCaptureBaseline(section);
+  return localAhead;
+}
+function lwwMergeAll(serverData){
+  let ahead = false;
+  LWW_SECTIONS.forEach(sec=>{
+    if(serverData[sec] === undefined && lwwBaseline[sec]) return;
+    if(lwwMerge(sec, serverData[sec], serverData._lww)) ahead = true;
+  });
+  return ahead;
+}
+// LWW_END
+
 async function loadFromSharePoint(){
   setSyncStatus('syncing');
   const epochAtStart = saveEpoch;
@@ -1785,12 +2054,10 @@ async function loadFromSharePoint(){
         // Mitarbeiter + Tageswerte zellgenau zusammenführen (pro Zahl gewinnt die neuere Änderung,
         // egal von welcher Führungskraft) - siehe AGENT-SYNC oben.
         const agentsLocalAhead = mergeAgentsFromServer(data.agents, data.deletedAgentIds);
+        // Team Ziele, Monatsabschluss und Mitarbeiter-Verlauf: pro Wert zusammenführen (siehe BEREICHS-SYNC)
+        lwwLastMergeChanged = false;
+        const sectionsLocalAhead = lwwMergeAll(data);
         if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
-        if(data.teamziele){
-          Object.keys(data.teamziele).forEach(k=>{
-            if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
-          });
-        }
         // Dauerhafte Löschliste zusammenführen (server + lokal), BEVOR Einträge gemerged werden -
         // damit Löschungen auch nach einem Neuladen oder bei einer anderen Person mit älterem
         // Stand nicht versehentlich wiederhergestellt werden.
@@ -1869,29 +2136,7 @@ async function loadFromSharePoint(){
           }
         });
 
-        if(data.verlauf && Object.keys(data.verlauf).length > 0){
-          // Gespeicherte Verlauf-Snapshots mit Seed zusammenführen (Seed bleibt Basis)
-          Object.keys(data.verlauf).forEach(k=>{
-            if(!state.verlauf[k]) state.verlauf[k] = { name: data.verlauf[k].name, team: data.verlauf[k].team, monate: {} };
-            // Monat für Monat zusammenführen - Seed-Werte (NPS etc.) bleiben erhalten
-            Object.keys(data.verlauf[k].monate||{}).forEach(m=>{
-              if(!state.verlauf[k].monate[m]){
-                state.verlauf[k].monate[m] = data.verlauf[k].monate[m];
-              } else {
-                // Nur Felder übernehmen die im Seed 0 sind
-                const saved = data.verlauf[k].monate[m];
-                const seed = state.verlauf[k].monate[m];
-                if(saved.calls > 0) seed.calls = saved.calls;
-                if(saved.cr > 0) seed.cr = saved.cr;
-                if(saved.lq > 0) seed.lq = saved.lq;
-                if(saved.nps > 0 && seed.nps === 0) seed.nps = saved.nps;
-                Object.keys(saved.sales||{}).forEach(p=>{
-                  if(saved.sales[p] > 0) seed.sales[p] = saved.sales[p];
-                });
-              }
-            });
-          });
-        }
+        // (Mitarbeiter-Verlauf wird oben per lwwMergeAll() zusammengeführt)
         if(data.monatsabschluss){
           // Versionsprüfung: läuft hier eine ältere Board-Fassung als die zuletzt gespeicherte,
           // darf dieser Tab nichts mehr speichern (siehe BOARD_VERSION oben).
@@ -1902,45 +2147,14 @@ async function loadFromSharePoint(){
             }
             return;
           }
-          // Server-Stand direkt übernehmen - genau wie bei den Mitarbeiterdaten (state.agents),
-          // die zuverlässig funktionieren. Nur komplett fehlende Monate werden lokal ergänzt.
-          const merged = data.monatsabschluss;
-          Object.keys(state.monatsabschluss||{}).forEach(team=>{
-            if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
-            Object.keys(state.monatsabschluss[team]).forEach(monat=>{
-              if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
-            });
-          });
-          state.monatsabschluss = merged;
+          // (Monatsabschluss wird oben per lwwMergeAll() zusammengeführt)
         }
         // Einmalige automatische Bereinigung: September-Dezember enthielten noch alte
         // Platzhalter-/Testzahlen aus einer früheren Ersteinrichtung. Wird nur einmal ausgeführt
         // (per localStorage-Merker), danach nie wieder - damit spätere echte Eingaben nicht
         // versehentlich erneut überschrieben werden.
-        if(!localStorage.getItem('ma_sept_dez_bereinigt')){
-          const futureMonths = ['September','Oktober','November','Dezember'];
-          Object.keys(state.monatsabschluss||{}).forEach(team=>{
-            futureMonths.forEach(monat=>{
-              const md = state.monatsabschluss[team] && state.monatsabschluss[team][monat];
-              if(!md) return;
-              const zeroObj = {};
-              Object.keys(md.plan||{}).forEach(p=>{ zeroObj[p] = 0; });
-              md.plan = {...zeroObj};
-              if(md.ziel) md.ziel = {...zeroObj};
-              md.erreicht = {...zeroObj};
-              md.cr = {...zeroObj};
-              md.storno = {...zeroObj};
-              md.crZiel = {};
-              md.crZielText = {};
-              md.nps_plan = 0;
-              md.nps_ist = 0;
-              md.crGesamtZiel = 0;
-              md.crGesamtErreicht = 0;
-            });
-          });
-          localStorage.setItem('ma_sept_dez_bereinigt', '1');
-          scheduleSave();
-        }
+        // (Die frühere "einmalige Bereinigung" September-Dezember wurde entfernt: sie lief in jedem
+        // NEUEN Browser erneut und hätte dort echte, inzwischen eingetragene Werte auf 0 gesetzt.)
         // BOJ global sicherstellen (falls in älteren Datensätzen nicht vorhanden)
         // Nur einfügen wenn BOJ noch in md.plan ist – nicht wenn User es gelöscht hat
         Object.keys(state.monatsabschluss||{}).forEach(team=>{
@@ -1963,7 +2177,8 @@ async function loadFromSharePoint(){
         // Selbstheilung: Liegen lokal Einträge, die dem Server fehlen (z.B. weil ein früherer
         // Speichervorgang gescheitert ist oder von einem parallelen Speichern verdrängt wurde),
         // werden sie jetzt automatisch nachgespeichert.
-        if(agentsLocalAhead && !saveBlockedByVersion) scheduleSave();
+        const verlaufUpdated = updateLiveVerlaufSnapshot();
+        if((agentsLocalAhead || sectionsLocalAhead || verlaufUpdated) && !saveBlockedByVersion) scheduleSave();
         return;
       }
       showSyncDebug(`⚠️ Datei geladen (HTTP ${resp.status}), aber keine Mitarbeiterdaten enthalten. Nichts wurde überschrieben.`, true);
@@ -2051,6 +2266,11 @@ function mergeServerIntoLocalForSave(serverData){
   if(serverData.agents){
     mergeAgentsFromServer(serverData.agents, serverData.deletedAgentIds);
   }
+  // Team Ziele, Monatsabschluss, Mitarbeiter-Verlauf: pro Wert, neuere Änderung gewinnt.
+  lwwMergeAll(serverData);
+  // Laufenden Monat automatisch in den Verlauf schreiben (= automatischer Monats-Snapshot)
+  updateLiveVerlaufSnapshot();
+  lwwStamp('verlauf');
 }
 
 function blockSaveOutdated(){
@@ -2111,6 +2331,7 @@ async function saveToSharePoint(){
         blockSaveOutdated();
         return;
       }
+      lwwLastMergeChanged = false;
       mergeServerIntoLocalForSave(serverData);
       const baseRev = (typeof serverData._rev === 'number') ? serverData._rev : null;
       const payload = { ...state, boardVersion: BOARD_VERSION };
@@ -2124,7 +2345,7 @@ async function saveToSharePoint(){
         setSyncStatus('ok');
         saveEpoch++;
         console.log('Gespeichert:', new Date().toLocaleTimeString(), attempt ? `(nach ${attempt} Wiederholung(en))` : '');
-        if(agLastMergeChangedLocal) renderAfterRemoteMerge();
+        if(agLastMergeChangedLocal || lwwLastMergeChanged) renderAfterRemoteMerge();
         return;
       }
       if(resp.status === 409){
@@ -2311,7 +2532,7 @@ async function loadState(){
 function scheduleSave(){
   // Zeitstempel im Moment der Eingabe vergeben (nicht erst beim Speichern) - so gewinnt bei zwei
   // Eingaben in dieselbe Zelle wirklich die zuletzt gemachte.
-  try{ agStampLocalEdits(); }catch(e){ console.warn('Zeitstempel konnten nicht gesetzt werden', e); }
+  try{ agStampLocalEdits(); lwwStampAll(); }catch(e){ console.warn('Zeitstempel konnten nicht gesetzt werden', e); }
   clearTimeout(saveTimer);
   // 2.5s statt 400ms: bündelt mehrere schnelle Änderungen (z.B. beim Ausfüllen der Tageswerte)
   // zu einem einzigen Speichervorgang.
@@ -2614,7 +2835,8 @@ document.getElementById('tab-coachdash').addEventListener('click', ()=>{
 // Sub-Tab Steuerung für Mitarbeiter Ziele (Mitarbeiter Ziele / Tageswerte)
 const OVERVIEW_SUBS = {
   ziele:      { btn: 'sub-ovziele',      container: 'ov-ziele-container',      render: ()=>renderOverview() },
-  tageswerte: { btn: 'sub-ovtageswerte', container: 'ov-tageswerte-container', render: ()=>renderTageswerte() }
+  tageswerte: { btn: 'sub-ovtageswerte', container: 'ov-tageswerte-container', render: ()=>renderTageswerte() },
+  hochrechnung: { btn: 'sub-ovhochrechnung', container: 'ov-hochrechnung-container', render: ()=>renderHochrechnung() }
 };
 function switchOverviewSub(sub){
   Object.keys(OVERVIEW_SUBS).forEach(key=>{
@@ -3269,7 +3491,7 @@ function renderHallOfFame(){
       // Vergangene Monate: NPS/LQ/CR aus dem Mitarbeiter-Verlauf dieses Monats.
       // Ohne Monats-NPS kann das NPS-Kriterium nicht geprüft werden → kein Eintrag
       // (früher wurde hier fälschlich der AKTUELLE NPS verwendet).
-      const vm = verlaufMonat(findVerlauf(agent), monatKey);
+      const vm = agentVerlaufMonat(agent, monatKey.split('-')[0], monatKey.split('-').slice(1).join('-'));
       if(!vm) return null;
       const twSales = salesAusTageswerten(agent, monatKey);
       md = {
@@ -5985,9 +6207,9 @@ function saveMonatSnapshot(){
     if(!state.verlauf) state.verlauf = {};
     state.agents.forEach(agent => {
       if(!agent.name.trim()) return;
-      const key = agent.name + '_' + agent.team;
-      if(!state.verlauf[key]) state.verlauf[key] = { name: agent.name, team: agent.team, monate: {} };
-      state.verlauf[key].monate[periode] = {
+      // In den fest verknüpften Verlaufs-Eintrag des Mitarbeiters schreiben (nicht per Name)
+      const vlEntry = verlaufTargetEntry(agent);
+      vlEntry.monate[periode] = {
         sales: JSON.parse(JSON.stringify(agent.sales)),
         calls: agent.calls,
         cht: agent.cht,
@@ -6487,7 +6709,7 @@ function renderVerlauf(){
       const tr = document.createElement('tr');
       let html = `<td>${m.includes('-') ? m.split('-')[1]+' '+m.split('-')[0] : m}</td>`;
       prods.forEach((p,i) => {
-        const val = md.sales[p]||0;
+        const val = (md.sales && md.sales[p]) || 0;
         const tgt = agentTargets({team:teamId, category:agentCategoryForCharts})[i];
         const cls = val >= tgt ? 'ok' : val > 0 ? 'mid' : 'bad';
         html += `<td><span class="vl-badge ${cls}">${Math.round(val)}</span></td>`;
@@ -6778,7 +7000,7 @@ function renderMonatsabschluss(){
       let cht = 0;
       if(istAktuell && a.cht > 0) cht = a.cht;
       if(!cht){
-        const vm = verlaufMonatOf(findVerlaufForAgent(a), 2026, monat);
+        const vm = agentVerlaufMonat(a, 2026, monat);
         if(vm && vm.cht > 0) cht = vm.cht;
       }
       if(!cht && a.pylon){
@@ -8248,6 +8470,153 @@ function displayOrderProducts(products, teamId){
   const order = (teamId && PRODUCT_DISPLAY_ORDER_BY_TEAM[teamId]) || PRODUCT_DISPLAY_ORDER;
   const idx = p => { const i = order.indexOf(p); return i === -1 ? 999 : i; };
   return products.slice().sort((a,b)=> idx(a) - idx(b));
+}
+
+// ============================================================
+// HOCHRECHNUNG (ab v138): Wo landet jeder Mitarbeiter am Monatsende, wenn er im bisherigen
+// Tempo weitermacht? Basis sind die Tageswerte des laufenden Monats.
+//   Prognose = Ist + (Ist / bisherige Arbeitstage) × verbleibende Arbeitstage
+// Arbeitstage: Wochentage, an denen im Team gearbeitet wird (Mo–Fr; Samstag, sobald im Monat
+// samstags Werte erfasst wurden). Feiertage werden nicht berücksichtigt.
+// ============================================================
+function hrWorkdayInfo(teamAgents, now){
+  const y = now.getFullYear(), m = now.getMonth(), today = now.getDate();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const mk = twMonthKey(now);
+  const workedDays = new Set();
+  teamAgents.forEach(a=>{
+    const tw = a.tageswerte && a.tageswerte[mk];
+    if(!tw) return;
+    Object.keys(tw).forEach(d=>{
+      const dv = tw[d];
+      if(dv && dv.sales && Object.values(dv.sales).some(v => v !== null && v !== undefined)) workedDays.add(parseInt(d));
+    });
+  });
+  const weekdays = new Set([1,2,3,4,5]);
+  workedDays.forEach(d=>{ const wd = new Date(y, m, d).getDay(); weekdays.add(wd); });
+  const isWork = d => weekdays.has(new Date(y, m, d).getDay());
+  const todayDone = workedDays.has(today);
+  let elapsed = 0, remaining = 0;
+  for(let d=1; d<=daysInMonth; d++){
+    if(!isWork(d) && !workedDays.has(d)) continue;
+    if(d < today || (d === today && todayDone)) elapsed++;
+    else remaining++;
+  }
+  return { elapsed, remaining, total: elapsed + remaining, saturday: weekdays.has(6), sunday: weekdays.has(0), mk, hasData: workedDays.size > 0 };
+}
+function hrAgentSums(agent, mk, products){
+  const tw = (agent.tageswerte && agent.tageswerte[mk]) || {};
+  const sum = {}; products.forEach(p=>{ sum[p] = 0; });
+  Object.values(tw).forEach(dv=>{
+    if(!dv || !dv.sales) return;
+    products.forEach(p=>{ const v = dv.sales[p]; if(typeof v === 'number') sum[p] += v; });
+  });
+  return sum;
+}
+function renderHochrechnung(){
+  const container = document.getElementById('hochrechnung-capture');
+  if(!container) return;
+  container.innerHTML = '';
+  const now = new Date();
+  const monatName = now.toLocaleString('de-DE', {month:'long', year:'numeric'});
+  const fmt = n => (Math.round(n*10)/10).toLocaleString('de-DE', {maximumFractionDigits:1});
+
+  const intro = document.createElement('div');
+  intro.className = 'hr-intro';
+  intro.innerHTML = `<div class="hr-title">Hochrechnung ${monatName}</div>
+    <div class="hr-sub">Prognose = bisheriges Tempo aus den Tageswerten × verbleibende Arbeitstage. Grün = Ziel wird erreicht,
+    Gelb = knapp darunter (ab 85 %), Rot = deutlich darunter. „/Tag“ = so viele Abschlüsse pro verbleibendem Arbeitstag fehlen noch zum Ziel.
+    Mitarbeiter mit dem größten Rückstand stehen oben. Feiertage und Urlaub werden nicht berücksichtigt.</div>`;
+  container.appendChild(intro);
+
+  let anyTeam = false;
+  Object.keys(TEAM_CONFIGS).forEach(teamId=>{
+    const cfg = TEAM_CONFIGS[teamId];
+    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
+    if(!teamAgents.length) return;
+    anyTeam = true;
+    const info = hrWorkdayInfo(teamAgents, now);
+    const prods = displayOrderProducts(cfg.products.slice(), teamId);
+
+    const block = document.createElement('div');
+    block.className = 'hr-team';
+    const head = document.createElement('div');
+    head.className = 'hr-team-head';
+    const wdText = 'Mo–Fr' + (info.saturday ? ' + Sa' : '') + (info.sunday ? ' + So' : '');
+    head.innerHTML = `<span>${cfg.label} — ${cfg.project}</span>
+      ${info.hasData ? `<span class="hr-days">Arbeitstag <b>${info.elapsed}</b> von <b>${info.total}</b> · noch ${info.remaining} (${wdText})</span>` : ''}`;
+    block.appendChild(head);
+
+    if(!info.hasData || info.elapsed === 0){
+      const e = document.createElement('div');
+      e.className = 'hr-empty';
+      e.textContent = 'Für diesen Monat sind noch keine Tageswerte erfasst – die Hochrechnung startet mit dem ersten Eintrag.';
+      block.appendChild(e);
+      container.appendChild(block);
+      return;
+    }
+
+    // Werte je Mitarbeiter berechnen
+    const rows = teamAgents.map(agent=>{
+      const targets = agentTargets(agent);
+      const ist = hrAgentSums(agent, info.mk, cfg.products);
+      let onTrack = 0, pctSum = 0, n = 0;
+      const cells = {};
+      cfg.products.forEach((p, i)=>{
+        const ziel = targets[i] || 0;
+        const prog = ist[p] + (ist[p] / info.elapsed) * info.remaining;
+        const pct = ziel > 0 ? prog / ziel : null;
+        const perDay = (ziel > 0 && info.remaining > 0) ? Math.max(0, (ziel - ist[p]) / info.remaining) : 0;
+        if(pct !== null){ n++; pctSum += Math.min(pct, 1.5); if(pct >= 1) onTrack++; }
+        cells[p] = { ist: ist[p], ziel, prog, pct, perDay };
+      });
+      return { agent, cells, onTrack, total: n, avgPct: n ? pctSum / n : 1 };
+    }).sort((a,b)=> (a.onTrack - b.onTrack) || (a.avgPct - b.avgPct));
+
+    const wrap = document.createElement('div');
+    wrap.className = 'hr-table-wrap';
+    const t = document.createElement('table');
+    t.className = 'hr-table';
+    const thead = document.createElement('tr');
+    thead.innerHTML = `<th class="hr-name-col">Mitarbeiter</th>` + prods.map(p=>`<th>${productLabel(p, teamId)}</th>`).join('') + `<th>Auf Kurs</th>`;
+    t.appendChild(thead);
+    rows.forEach(r=>{
+      const tr = document.createElement('tr');
+      const nameTd = document.createElement('td');
+      nameTd.className = 'hr-name-col';
+      nameTd.textContent = r.agent.name;
+      if(r.agent.category && r.agent.category !== 'regular'){
+        const tag = document.createElement('span');
+        tag.className = 'hr-cat';
+        tag.textContent = CATEGORY_LABELS[r.agent.category] || r.agent.category;
+        nameTd.appendChild(tag);
+      }
+      tr.appendChild(nameTd);
+      prods.forEach(p=>{
+        const c = r.cells[p];
+        const td = document.createElement('td');
+        if(c.pct === null){
+          td.innerHTML = `<div class="hr-prog">${fmt(c.prog)}</div><div class="hr-meta">Ist ${fmt(c.ist)} · ohne Ziel</div>`;
+        } else {
+          td.className = c.pct >= 1 ? 'hr-ok' : (c.pct >= 0.85 ? 'hr-warn' : 'hr-bad');
+          const need = c.pct >= 1 || info.remaining === 0 ? '' : `<div class="hr-need">${fmt(c.perDay)}/Tag</div>`;
+          td.innerHTML = `<div class="hr-prog">${fmt(c.prog)} <span class="hr-of">/ ${fmt(c.ziel)}</span></div><div class="hr-meta">Ist ${fmt(c.ist)}</div>${need}`;
+          td.title = `${productLabel(p, teamId)}: Ist ${fmt(c.ist)}, Prognose ${fmt(c.prog)}, Ziel ${fmt(c.ziel)} (${Math.round(c.pct*100)} %)`;
+        }
+        tr.appendChild(td);
+      });
+      const sumTd = document.createElement('td');
+      sumTd.className = 'hr-sum ' + (r.onTrack >= 4 ? 'hr-ok' : (r.onTrack >= 3 ? 'hr-warn' : 'hr-bad'));
+      sumTd.textContent = `${r.onTrack}/${r.total}`;
+      sumTd.title = 'Produkte, bei denen die Prognose das Ziel erreicht (Hall of Fame braucht mind. 4/5)';
+      tr.appendChild(sumTd);
+      t.appendChild(tr);
+    });
+    wrap.appendChild(t);
+    block.appendChild(wrap);
+    container.appendChild(block);
+  });
+  if(!anyTeam) container.appendChild(emptyStateEl('Noch keine Mitarbeiter angelegt', 'Lege zuerst Mitarbeiter an.'));
 }
 
 function renderOverview(){
