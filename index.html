@@ -153,6 +153,41 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .empty-illus-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
 .empty-illus-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:340px;}
 /* tw-team-wrap: äußerer Container pro Team */
+.fg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px;margin-bottom:6px;}
+.fg-box{background:#FAFBFC;border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0;}
+.fg-box-head{display:flex;align-items:center;gap:10px;}
+.fg-box-head div{display:flex;flex-direction:column;flex:1;min-width:0;} .fg-box-head b{font-family:'Space Grotesk',sans-serif;font-size:14px;} .fg-box-head span{font-family:'Inter',sans-serif;font-size:11.5px;color:var(--muted);}
+.fg-icon{font-size:20px;line-height:1;color:var(--tmg);font-weight:700;}
+.fg-box-head .fg-score{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;flex:0 0 auto;}
+.fg-row{display:flex;align-items:center;gap:8px;justify-content:space-between;}
+.fg-row-text{font-family:'Inter',sans-serif;font-size:12.5px;line-height:1.35;flex:1;min-width:0;}
+.fg-btns{display:flex;gap:4px;flex-shrink:0;}
+.fg-btn{width:30px;height:28px;border-radius:7px;border:1px solid var(--border);background:#fff;cursor:pointer;font-weight:700;font-size:13px;color:var(--muted);}
+.fg-btn.fg-ok.active{background:var(--teal);border-color:var(--teal);color:#fff;}
+.fg-btn.fg-half.active{background:var(--amber);border-color:var(--amber);color:#fff;}
+.fg-btn.fg-nok.active{background:var(--red);border-color:var(--red);color:#fff;}
+.fg-note{border:1px dashed var(--border);border-radius:8px;padding:6px 9px;font-family:'Inter',sans-serif;font-size:12px;background:#fff;width:100%;box-sizing:border-box;}
+.fg-guide{background:#fff;border:1px solid var(--border);border-left:4px solid var(--tmg);border-radius:12px;padding:12px 16px;margin-bottom:8px;}
+.fg-guide-empty{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);line-height:1.5;}
+.fg-steps{margin:0;padding-left:20px;font-family:'Inter',sans-serif;}
+.fg-steps li{margin-bottom:10px;} .fg-steps li::marker{font-weight:700;color:var(--tmg);}
+.fg-step-t{font-weight:700;font-size:13.5px;margin-bottom:2px;}
+.fg-step-b{font-size:12.5px;line-height:1.5;color:var(--text);} .fg-step-b ul{margin:4px 0;padding-left:18px;} .fg-step-b i{color:#475569;}
+.cf-details{margin:4px 0 6px;} .cf-details summary{cursor:pointer;list-style:revert;}
+.fg-bars{display:flex;gap:6px;align-items:flex-end;}
+.fg-bar{display:flex;flex-direction:column;align-items:center;gap:3px;} .fg-bar span{font-size:12px;color:var(--muted);font-weight:700;}
+.fg-bar-track{width:16px;height:46px;background:#F1F4F7;border-radius:5px;display:flex;align-items:flex-end;overflow:hidden;}
+.fg-bars.small .fg-bar-track{height:28px;width:12px;}
+.fg-bar-fill{width:100%;border-radius:5px;}
+.fg-profile{display:flex;gap:16px;align-items:center;padding:10px 16px;background:#FAFBFC;border-bottom:1px solid #F0F0F2;font-family:'Inter',sans-serif;font-size:12.5px;flex-wrap:wrap;}
+.fg-profile-right{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.fg-profile-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:2px;}
+.fg-trends{color:var(--muted);} .fg-trend{margin-right:6px;font-weight:700;} .fg-trend.up{color:var(--teal);} .fg-trend.down{color:var(--red);}
+.fg-team{display:flex;gap:24px;align-items:flex-start;background:#fff;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 6px 18px rgba(0,0,0,.04);padding:14px 16px;flex-wrap:wrap;}
+.fg-team .fg-bar-track{height:70px;width:22px;}
+.fg-team-gaps{flex:1;min-width:240px;font-family:'Inter',sans-serif;}
+.fg-gap{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-bottom:1px solid #F0F0F2;font-size:13px;}
+.fg-gap b{font-family:'IBM Plex Mono',monospace;color:var(--red);min-width:44px;} .fg-gap span{flex:1;} .fg-gap em{font-size:11px;color:var(--muted);font-style:normal;white-space:nowrap;}
 .fk-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
 .fk-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;margin-bottom:4px;}
 .fk-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:720px;line-height:1.5;}
@@ -1001,7 +1036,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 141;
+const BOARD_VERSION = 142;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -4457,6 +4492,8 @@ function renderCoachVerlauf(){
     const teamLabel = TEAM_CONFIGS[cv.team]?.label || cv.team;
     head.innerHTML = `<span class="cv-agent-name">${cv.name}</span><span style="font-size:11px;opacity:.8;">${teamLabel} · ${cv.eintraege.length} Coaching${cv.eintraege.length>1?'s':''}</span>`;
     block.appendChild(head);
+    const fgProfile = buildFingerProfile(cv.eintraege);
+    if(fgProfile) block.appendChild(fgProfile);
 
     cv.eintraege.forEach(entry => {
       const row = document.createElement('div');
@@ -4516,6 +4553,16 @@ function renderCoachVerlauf(){
         b.className = 'cv-meta-badge';
         b.textContent = entry.dauer + ' Min';
         meta.appendChild(b);
+      }
+      if(entry.fingerBewertung && Object.keys(entry.fingerBewertung).length){
+        const an = fingerAnalyse(entry.fingerBewertung);
+        if(an){
+          const b = document.createElement('span');
+          b.className = 'cv-meta-badge';
+          b.style.cssText = 'background:#EEF1F4;color:var(--text);';
+          b.innerHTML = (an.staerke ? `💪 ${an.staerke.icon} ${an.staerke.name}` : '') + (an.staerke && an.hebel ? ' · ' : '') + (an.hebel ? `🎯 ${an.hebel.icon} ${an.hebel.name}` : '');
+          if(b.innerHTML) meta.appendChild(b);
+        }
       }
       if(entry.vereinbarung){
         const rv = (state.coachReviews||{})[entry.id];
@@ -5443,15 +5490,28 @@ function buildCoachingRecordForm(prefill){
   wrap.appendChild(row1);
   wrap.appendChild(tcapField);
 
-  const checkTitle = document.createElement('div');
-  checkTitle.className = 'cf-section-title';
-  checkTitle.textContent = '✅ Leitfaden-Checkliste';
-  wrap.appendChild(checkTitle);
+  // Geführtes Coaching: Beobachtungsbogen nach 5-Finger-Pitch + Gesprächsleitfaden
+  const fingerBew = Object.assign({}, prefill.fingerBewertung || {});
+  const fingerNotes = {};
+  wrap.appendChild(buildFingerSection({ bew: fingerBew, notes: fingerNotes }, v=>{
+    verInput.value = v;
+    verInput.scrollIntoView({ behavior:'smooth', block:'center' });
+    verInput.focus();
+  }));
+
+  // Leitfaden-Checkliste (Gesprächsablauf) - einklappbar
+  const checkDetails = document.createElement('details');
+  checkDetails.className = 'cf-details';
+  const checkSummary = document.createElement('summary');
+  checkSummary.className = 'cf-section-title';
+  checkSummary.textContent = '✅ Leitfaden-Checkliste (Gesprächsablauf, optional)';
+  checkDetails.appendChild(checkSummary);
   const checklistState = {};
   const checkBox = document.createElement('div');
   checkBox.className = 'cf-checklist';
   CHECKLIST_ITEMS.forEach(item=>{ checkBox.appendChild(buildChecklistRow(item, checklistState)); });
-  wrap.appendChild(checkBox);
+  checkDetails.appendChild(checkBox);
+  wrap.appendChild(checkDetails);
 
   const evalTitle = document.createElement('div');
   evalTitle.className = 'cf-section-title';
@@ -5527,7 +5587,7 @@ function buildCoachingRecordForm(prefill){
   wrap.appendChild(notesTitle);
   const notesArea = document.createElement('textarea');
   notesArea.className = 'cp-form-textarea';
-  notesArea.placeholder = 'Hier können Sie weitere Anmerkungen zum Coaching hinterlegen...';
+  notesArea.placeholder = 'Weitere Anmerkungen (optional) – das Wichtigste steht schon im Beobachtungsbogen und in der Vereinbarung.';
   wrap.appendChild(notesArea);
 
   const nextBtn = document.createElement('button');
@@ -5575,6 +5635,8 @@ function buildCoachingRecordForm(prefill){
       checkliste: Object.assign({}, checklistState),
       performance: parseInt(slider.value),
       coach: getCoachName(),
+      fingerBewertung: Object.fromEntries(Object.entries(fingerBew).filter(([k,v]) => v in FINGER_VAL)),
+      fingerNotizen: Object.fromEntries(Object.entries(fingerNotes).map(([k,v]) => [k, String(v||'').trim()]).filter(([k,v]) => v)),
       vereinbarung: verInput.value.trim(),
       fokusProdukt: verInput.value.trim() ? fokusSel.value : '',
       pruefDatum: verInput.value.trim() ? (pruefInput.value || '') : ''
@@ -9113,6 +9175,8 @@ function renderFokus(){
     const notes = [];
     if(planned[agent.id]){ notes.push(`📅 Coaching geplant am ${fkFmt(fkParseDe(planned[agent.id]))}`); score *= 0.5; }
     if(openV.has(agent.id)) notes.push('🤝 Vereinbarung läuft');
+    const lh = fingerLastHebel(agent);
+    if(lh) notes.push(`🎯 letzter Hebel: ${lh.finger.icon} ${lh.finger.name} (${lh.datum.slice(0,6)})`);
     return { agent, reasons, score, notes, onTrack, nT, avgPct };
   });
 
@@ -9183,6 +9247,9 @@ function renderFokus(){
   sec3.appendChild(lobWrap);
   container.appendChild(sec3);
 
+  // ---------- Team-Analyse 5-Finger-Pitch ----------
+  container.appendChild(buildFingerTeamAnalyse(fkTeamFilter));
+
   // ---------- 4) Laufende Vereinbarungen ----------
   const laufend = alleV.filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) > todayIso).sort((a,b)=>a.pruef - b.pruef);
   const erledigt = alleV.filter(v => v.review).slice(0, 10);
@@ -9206,6 +9273,306 @@ function renderFokus(){
     container.appendChild(sec4);
   }
   updateFokusBadge();
+}
+
+// ============================================================
+// GEFÜHRTES COACHING nach dem 5-Finger-Pitch (ab v142)
+// Beobachtungsbogen (je Finger 3 konkret beobachtbare Punkte), daraus automatisch ein
+// Gesprächsleitfaden für das Feedback (Selbsteinschätzung → Stärke → EIN Hebel → Übung →
+// Vereinbarung), ein Entwicklungsprofil je Mitarbeiter und eine Team-Analyse.
+// Die Punkte können hier zentral angepasst werden.
+// ============================================================
+const FINGER_MODEL = [
+  { key:'daumen', icon:'①', name:'Daumen', thema:'Einstellung & Mut',
+    anchors:[
+      { id:'d1', text:'Leitet nach dem gelösten Anliegen aktiv mit einem Brückensatz zur Ansprache über' },
+      { id:'d2', text:'Wirkt sicher und überzeugt (Stimme, Tempo, eigene Begeisterung)' },
+      { id:'d3', text:'Bleibt nach dem ersten „Nein“ souverän und freundlich' } ],
+    staerke:'Spricht Verkaufschancen mutig und überzeugt an',
+    frage:'Was hält dich manchmal davon ab, das Angebot anzusprechen?',
+    uebung:'Brückensatz-Training (2 Min.): Du nennst 5 typische Service-Anliegen, der Mitarbeiter formuliert zu jedem einen Brückensatz – z.B. „Jetzt, wo das erledigt ist, habe ich noch einen Tipp für Sie …“. Danach den besten Satz gemeinsam auswählen.',
+    vereinbarung:'Nach jedem gelösten Anliegen mit einem Brückensatz zur Ansprache überleiten' },
+  { key:'zeige', icon:'②', name:'Zeigefinger', thema:'Produktwissen',
+    anchors:[
+      { id:'z1', text:'Erklärt Tarif bzw. Produkt korrekt und verständlich' },
+      { id:'z2', text:'Kennt Prozesse und Systeme sicher (keine langen Pausen oder Rückfragen)' },
+      { id:'z3', text:'Wählt das zum Kunden passende Produkt aus' } ],
+    staerke:'Erklärt Produkte sicher und verständlich',
+    frage:'Bei welchem Produkt fühlst du dich noch unsicher?',
+    uebung:'30-Sekunden-Pitch: Der Mitarbeiter erklärt das Fokus-Produkt ohne Unterlagen, du spielst den Kunden und stellst zwei Nachfragen. Unklare Stellen danach gemeinsam nachschlagen.',
+    vereinbarung:'Die drei wichtigsten Vorteile des Fokus-Produkts sicher und in eigenen Worten erklären' },
+  { key:'mittel', icon:'③', name:'Mittelfinger', thema:'Bedarf & Umfeld',
+    anchors:[
+      { id:'m1', text:'Stellt mindestens zwei offene Fragen zu Nutzung oder Umfeld (Haushalt, Geräte, Verträge)' },
+      { id:'m2', text:'Nutzt Bestandscheck/KEK, um Chancen zu erkennen' },
+      { id:'m3', text:'Fasst den Bedarf des Kunden kurz zusammen' } ],
+    staerke:'Ermittelt den Bedarf gründlich',
+    frage:'Was hättest du über den Kunden noch wissen wollen?',
+    uebung:'Fragen-Pingpong: Du beschreibst eine Kundensituation, der Mitarbeiter stellt drei offene W-Fragen, ohne ein Produkt zu nennen. Danach: Welches Produkt passt – und warum?',
+    vereinbarung:'In jedem Gespräch mindestens zwei offene Bedarfsfragen stellen' },
+  { key:'ring', icon:'④', name:'Ringfinger', thema:'Kundennutzen',
+    anchors:[
+      { id:'r1', text:'Formuliert den Nutzen in Kundensprache („Damit können Sie …“) statt in Merkmalen' },
+      { id:'r2', text:'Verknüpft das Angebot mit dem ermittelten Bedarf' },
+      { id:'r3', text:'Nennt einen konkreten Vorteil (Ersparnis, Komfort, Sicherheit)' } ],
+    staerke:'Macht den Nutzen für den Kunden greifbar',
+    frage:'Warum sollte genau dieser Kunde das Angebot haben wollen?',
+    uebung:'Merkmal → Nutzen: Du nennst Merkmale („50 Mbit“, „5G“, „Speed Up“), der Mitarbeiter übersetzt jedes in einen Satz mit „Das bedeutet für Sie …“.',
+    vereinbarung:'Jedes Angebot mit „Das bedeutet für Sie …“ an den Bedarf des Kunden knüpfen' },
+  { key:'klein', icon:'⑤', name:'Kleiner Finger', thema:'Abschluss & Einwände',
+    anchors:[
+      { id:'k1', text:'Stellt eine klare Abschlussfrage' },
+      { id:'k2', text:'Nimmt Einwände auf und behandelt sie, statt sie zu übergehen' },
+      { id:'k3', text:'Schließt ab oder vereinbart einen konkreten nächsten Schritt' } ],
+    staerke:'Führt sicher zum Abschluss',
+    frage:'Wie reagierst du, wenn der Kunde sagt „Ich muss mir das noch überlegen“?',
+    uebung:'Einwand-Training: Du bringst drei typische Einwände („zu teuer“, „muss ich überlegen“, „brauche ich nicht“). Der Mitarbeiter antwortet jeweils mit Verständnis → Rückfrage → Nutzen und endet mit einer Abschlussfrage.',
+    vereinbarung:'Nach jedem Angebot eine klare Abschlussfrage stellen' }
+];
+const FINGER_VAL = { ok: 2, half: 1, nok: 0 };
+// Punktzahl je Finger (0–2) aus einer Bewertung {d1:'ok', ...}; null = nicht bewertet
+function fingerScores(bew){
+  const out = {};
+  FINGER_MODEL.forEach(f=>{
+    const vals = f.anchors.map(a => bew && bew[a.id]).filter(v => v in FINGER_VAL).map(v => FINGER_VAL[v]);
+    out[f.key] = vals.length ? vals.reduce((s,v)=>s+v,0) / vals.length : null;
+  });
+  return out;
+}
+// Stärke (bester Finger, mind. 1,5) und Hebel (schwächster Finger, unter 1,5; bei Gleichstand der
+// "frühere" Finger - Einstellung vor Technik)
+function fingerAnalyse(bew){
+  const sc = fingerScores(bew);
+  const rated = FINGER_MODEL.filter(f => sc[f.key] !== null);
+  if(!rated.length) return null;
+  let best = null, weak = null;
+  rated.forEach(f=>{
+    if(sc[f.key] >= 1.5 && (!best || sc[f.key] > sc[best.key])) best = f;
+    if(sc[f.key] < 1.5 && (!weak || sc[f.key] < sc[weak.key])) weak = f;
+  });
+  return { scores: sc, staerke: best, hebel: weak };
+}
+function fingerColor(v){ return v === null || v === undefined ? '#E5E7EB' : (v >= 1.5 ? 'var(--teal)' : (v >= 0.75 ? 'var(--amber)' : 'var(--red)')); }
+// kompaktes 5-Balken-Profil
+function fingerBarsHtml(sc, small){
+  return `<div class="fg-bars${small?' small':''}">` + FINGER_MODEL.map(f=>{
+    const v = sc ? sc[f.key] : null;
+    const h = v === null || v === undefined ? 8 : Math.max(8, Math.round(v / 2 * 100));
+    return `<div class="fg-bar" title="${f.name} – ${f.thema}: ${v === null || v === undefined ? 'nicht bewertet' : Math.round(v/2*100) + ' %'}"><div class="fg-bar-track"><div class="fg-bar-fill" style="height:${h}%;background:${fingerColor(v)};"></div></div><span>${f.icon}</span></div>`;
+  }).join('') + `</div>`;
+}
+
+// ---- Formular-Abschnitt: Beobachtungsbogen + Live-Gesprächsleitfaden ----
+function buildFingerSection(state0, onSuggestVereinbarung){
+  const bew = state0.bew, notes = state0.notes;
+  const wrap = document.createElement('div');
+  const title = document.createElement('div');
+  title.className = 'cf-section-title';
+  title.textContent = '🖐️ Beobachtung nach dem 5-Finger-Pitch';
+  wrap.appendChild(title);
+  const hint = document.createElement('div');
+  hint.className = 'cf-ver-hint';
+  hint.textContent = 'Beim Mithören je Punkt bewerten: ✓ gezeigt · ½ teilweise · ✗ nicht gezeigt. Nicht Beobachtetes einfach leer lassen. Daraus entsteht unten automatisch dein Leitfaden für das Feedback-Gespräch.';
+  wrap.appendChild(hint);
+
+  const grid = document.createElement('div');
+  grid.className = 'fg-grid';
+  const guide = document.createElement('div');
+  guide.className = 'fg-guide';
+
+  const refreshGuide = ()=>{ guide.innerHTML = ''; guide.appendChild(buildFeedbackGuide(bew, notes, onSuggestVereinbarung)); };
+
+  FINGER_MODEL.forEach(f=>{
+    const box = document.createElement('div');
+    box.className = 'fg-box';
+    const h = document.createElement('div');
+    h.className = 'fg-box-head';
+    h.innerHTML = `<span class="fg-icon">${f.icon}</span><div><b>${f.name}</b><span>${f.thema}</span></div><div class="fg-score"></div>`;
+    box.appendChild(h);
+    const scoreEl = h.querySelector('.fg-score');
+    const updScore = ()=>{
+      const v = fingerScores(bew)[f.key];
+      scoreEl.textContent = v === null ? '' : Math.round(v/2*100) + ' %';
+      scoreEl.style.color = fingerColor(v);
+    };
+    f.anchors.forEach(a=>{
+      const row = document.createElement('div');
+      row.className = 'fg-row';
+      const lbl = document.createElement('span');
+      lbl.className = 'fg-row-text';
+      lbl.textContent = a.text;
+      const btns = document.createElement('div');
+      btns.className = 'fg-btns';
+      [['ok','✓'],['half','½'],['nok','✗']].forEach(([v,t])=>{
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'fg-btn fg-' + v + (bew[a.id] === v ? ' active' : '');
+        b.textContent = t;
+        b.title = v === 'ok' ? 'gezeigt' : v === 'half' ? 'teilweise' : 'nicht gezeigt';
+        b.addEventListener('click', ()=>{
+          bew[a.id] = bew[a.id] === v ? undefined : v;
+          if(bew[a.id] === undefined) delete bew[a.id];
+          [...btns.children].forEach(x=>x.classList.remove('active'));
+          if(bew[a.id]) b.classList.add('active');
+          updScore(); refreshGuide();
+        });
+        btns.appendChild(b);
+      });
+      row.appendChild(lbl); row.appendChild(btns);
+      box.appendChild(row);
+    });
+    const note = document.createElement('input');
+    note.type = 'text';
+    note.className = 'fg-note';
+    note.placeholder = 'Beispiel aus dem Call (optional) – z.B. was genau gesagt wurde';
+    note.value = notes[f.key] || '';
+    note.addEventListener('input', ()=>{ notes[f.key] = note.value; refreshGuide(); });
+    box.appendChild(note);
+    updScore();
+    grid.appendChild(box);
+  });
+  wrap.appendChild(grid);
+
+  const gTitle = document.createElement('div');
+  gTitle.className = 'cf-section-title';
+  gTitle.textContent = '🗣️ So führst du das Feedback-Gespräch';
+  wrap.appendChild(gTitle);
+  wrap.appendChild(guide);
+  refreshGuide();
+  return wrap;
+}
+function buildFeedbackGuide(bew, notes, onSuggestVereinbarung){
+  const el = document.createElement('div');
+  const an = fingerAnalyse(bew);
+  if(!an){
+    el.innerHTML = `<div class="fg-guide-empty">Bewerte oben beim Mithören die Punkte – dann erscheint hier Schritt für Schritt, worüber du sprichst: welche Stärke du lobst, an welchem einen Punkt ihr arbeitet und mit welcher Übung.</div>`;
+    return el;
+  }
+  const gezeigt = f => f.anchors.filter(a => bew[a.id] === 'ok').map(a => a.text);
+  const fehlt = f => f.anchors.filter(a => bew[a.id] === 'nok' || bew[a.id] === 'half').map(a => (bew[a.id] === 'half' ? '½ ' : '✗ ') + a.text);
+  const steps = [];
+  steps.push({ t:'Selbsteinschätzung zuerst', b:'Frag: <i>„Wie lief der Call aus deiner Sicht? Was lief gut, was würdest du beim nächsten Mal anders machen?“</i> Erst zuhören – wer sich selbst einschätzt, nimmt Feedback viel besser an.' });
+  if(an.staerke){
+    const ex = notes[an.staerke.key] ? ` Beispiel aus dem Call: <i>„${notes[an.staerke.key]}“</i>` : '';
+    steps.push({ t:`Stärke anerkennen: ${an.staerke.icon} ${an.staerke.name}`, b:`<b>${an.staerke.staerke}.</b> Konkret benennen, was gut war:<ul>${gezeigt(an.staerke).map(x=>`<li>${x}</li>`).join('')}</ul>${ex}` });
+  } else {
+    steps.push({ t:'Stärke anerkennen', b:'Noch kein Finger klar stark bewertet – such trotzdem <b>eine</b> Sache aus dem Call, die gut war, und benenne sie konkret. Lob vor Kritik baut Unsicherheit ab.' });
+  }
+  if(an.hebel){
+    const ex = notes[an.hebel.key] ? ` Beispiel aus dem Call: <i>„${notes[an.hebel.key]}“</i>` : '';
+    steps.push({ t:`Genau EIN Hebel: ${an.hebel.icon} ${an.hebel.name} – ${an.hebel.thema}`, b:`Nur diesen Punkt ansprechen, nicht alles auf einmal:<ul>${fehlt(an.hebel).map(x=>`<li>${x}</li>`).join('')}</ul>${ex} Frag nach: <i>„${an.hebel.frage}“</i>` });
+    steps.push({ t:'Kurz üben (2–3 Minuten)', b: an.hebel.uebung });
+    const vorschlag = an.hebel.vereinbarung;
+    const s5 = { t:'Vereinbarung festhalten', b:`Gemeinsam ein konkretes Verhalten vereinbaren – am besten in den Worten des Mitarbeiters. Vorschlag: <b>„${vorschlag}“</b>`, btn: vorschlag };
+    steps.push(s5);
+  } else {
+    steps.push({ t:'Kein klarer Hebel', b:'Alle bewerteten Punkte wurden gut gezeigt. Nutze das Gespräch für Anerkennung und frag, was der Mitarbeiter selbst als Nächstes verbessern möchte – oder hör einen weiteren Call mit anderem Anliegen.' });
+  }
+  const ol = document.createElement('ol');
+  ol.className = 'fg-steps';
+  steps.forEach(s=>{
+    const li = document.createElement('li');
+    li.innerHTML = `<div class="fg-step-t">${s.t}</div><div class="fg-step-b">${s.b}</div>`;
+    if(s.btn && onSuggestVereinbarung){
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'fk-btn';
+      b.style.marginTop = '6px';
+      b.textContent = '↓ Als Vereinbarung übernehmen';
+      b.addEventListener('click', ()=>onSuggestVereinbarung(s.btn));
+      li.appendChild(b);
+    }
+    ol.appendChild(li);
+  });
+  el.appendChild(ol);
+  return el;
+}
+
+// ---- Entwicklungsprofil je Mitarbeiter (Coaching-Verlauf) ----
+function buildFingerProfile(eintraege){
+  const rated = (eintraege||[]).filter(e => e && e.fingerBewertung && Object.keys(e.fingerBewertung).length)
+    .sort((a,b)=> (fkParseDe(b.datum)||0) - (fkParseDe(a.datum)||0));
+  if(!rated.length) return null;
+  const latest = fingerAnalyse(rated[0].fingerBewertung);
+  const prev = rated[1] ? fingerScores(rated[1].fingerBewertung) : null;
+  const el = document.createElement('div');
+  el.className = 'fg-profile';
+  const trend = FINGER_MODEL.map(f=>{
+    const a = latest.scores[f.key], b = prev ? prev[f.key] : null;
+    if(a === null || b === null || b === undefined) return '';
+    const d = a - b;
+    return Math.abs(d) < 0.01 ? '' : `<span class="fg-trend ${d>0?'up':'down'}">${f.icon} ${d>0?'▲':'▼'}</span>`;
+  }).join('');
+  el.innerHTML = `<div class="fg-profile-left">${fingerBarsHtml(latest.scores)}</div>
+    <div class="fg-profile-right">
+      <div class="fg-profile-title">Entwicklungsprofil · letztes Coaching ${rated[0].datum}${rated.length > 1 ? ` · ${rated.length} bewertete Coachings` : ''}</div>
+      ${latest.staerke ? `<div>💪 Stärke: <b>${latest.staerke.name}</b> – ${latest.staerke.thema}</div>` : ''}
+      ${latest.hebel ? `<div>🎯 Hebel: <b>${latest.hebel.name}</b> – ${latest.hebel.thema}</div>` : ''}
+      ${trend ? `<div class="fg-trends">Seit dem Coaching davor: ${trend}</div>` : ''}
+    </div>`;
+  return el;
+}
+// Letzter Hebel eines Mitarbeiters (für "Wen coachen?")
+function fingerLastHebel(agent){
+  let best = null;
+  Object.keys(state.coachverlauf || {}).forEach(key=>{
+    const cv = state.coachverlauf[key];
+    if(fkAgentForCv(key, cv) !== agent) return;
+    (cv.eintraege||[]).forEach(e=>{
+      if(!e.fingerBewertung || !Object.keys(e.fingerBewertung).length) return;
+      const d = fkParseDe(e.datum);
+      if(!best || (d && d > best.d)) best = { d, e };
+    });
+  });
+  if(!best) return null;
+  const an = fingerAnalyse(best.e.fingerBewertung);
+  return an && an.hebel ? { finger: an.hebel, datum: best.e.datum } : null;
+}
+// ---- Team-Analyse: häufigste Lücken der letzten 60 Tage ----
+function buildFingerTeamAnalyse(teamFilter){
+  const since = new Date(Date.now() - 60*86400000);
+  const counts = {}; // anchorId → {n, gap}
+  const fingerSum = {}; FINGER_MODEL.forEach(f=>{ fingerSum[f.key] = { s:0, n:0 }; });
+  let nCoachings = 0;
+  Object.keys(state.coachverlauf || {}).forEach(key=>{
+    const cv = state.coachverlauf[key];
+    const agent = fkAgentForCv(key, cv);
+    const team = agent ? agent.team : cv.team;
+    if(teamFilter !== 'alle' && String(team) !== teamFilter) return;
+    (cv.eintraege||[]).forEach(e=>{
+      if(!e.fingerBewertung || !Object.keys(e.fingerBewertung).length) return;
+      const d = fkParseDe(e.datum); if(d && d < since) return;
+      nCoachings++;
+      Object.keys(e.fingerBewertung).forEach(id=>{
+        const v = e.fingerBewertung[id]; if(!(v in FINGER_VAL)) return;
+        if(!counts[id]) counts[id] = { n:0, gap:0 };
+        counts[id].n++; if(v !== 'ok') counts[id].gap++;
+      });
+      const sc = fingerScores(e.fingerBewertung);
+      FINGER_MODEL.forEach(f=>{ if(sc[f.key] !== null){ fingerSum[f.key].s += sc[f.key]; fingerSum[f.key].n++; } });
+    });
+  });
+  const sec = document.createElement('div');
+  sec.className = 'fk-section';
+  sec.innerHTML = `<div class="fk-sec-title">🖐️ Team-Analyse 5-Finger-Pitch <span>${nCoachings} Coaching${nCoachings===1?'':'s'} · 60 Tage</span></div>`;
+  if(!nCoachings){
+    sec.innerHTML += `<div class="fk-empty">Sobald Coachings mit dem Beobachtungsbogen erfasst werden, zeigt das Board hier, wo das Team insgesamt am meisten Unterstützung braucht – ideal für die Wahl des nächsten Workshop-Themas.</div>`;
+    return sec;
+  }
+  const avg = {}; FINGER_MODEL.forEach(f=>{ avg[f.key] = fingerSum[f.key].n ? fingerSum[f.key].s / fingerSum[f.key].n : null; });
+  const anchorById = {}; FINGER_MODEL.forEach(f=>f.anchors.forEach(a=>{ anchorById[a.id] = { a, f }; }));
+  const gaps = Object.keys(counts).filter(id => anchorById[id] && counts[id].n >= 2)
+    .map(id => ({ id, pct: counts[id].gap / counts[id].n, n: counts[id].n }))
+    .filter(g => g.pct > 0).sort((a,b)=> b.pct - a.pct).slice(0, 3);
+  const box = document.createElement('div');
+  box.className = 'fg-team';
+  box.innerHTML = `<div>${fingerBarsHtml(avg)}</div><div class="fg-team-gaps">
+    <div class="fg-profile-title">Häufigste Lücken</div>
+    ${gaps.length ? gaps.map(g=>`<div class="fg-gap"><b>${Math.round(g.pct*100)} %</b><span>${anchorById[g.id].f.icon} ${anchorById[g.id].a.text}</span><em>${g.n} Bewertungen</em></div>`).join('') : '<div class="fk-hint">Noch zu wenige Bewertungen (je Punkt mind. 2).</div>'}
+    ${gaps.length ? `<div class="fk-hint" style="margin-top:8px;">💡 Workshop-Idee: ${anchorById[gaps[0].id].f.name} – ${anchorById[gaps[0].id].f.thema}. Übung: ${anchorById[gaps[0].id].f.uebung}</div>` : ''}
+  </div>`;
+  sec.appendChild(box);
+  return sec;
 }
 
 function renderOverview(){
