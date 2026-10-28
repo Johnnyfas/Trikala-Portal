@@ -928,7 +928,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   <div id="view-coachdash" style="display:none;">
     <div style="flex-direction:column;">
       <div id="coachdash-subtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;flex-wrap:wrap;align-items:center;">
-        <button class="tab-btn active" id="sub-fokus" style="font-size:13px;padding:7px 16px;">🎯 Fokus der Woche</button>
+        <button class="tab-btn active" id="sub-fokus" style="font-size:13px;padding:7px 16px;">📌 Fokus der Woche</button>
         <button class="tab-btn" id="sub-coachplan" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Coaching Plan</button>
         <button class="tab-btn" id="sub-gespraeche" style="font-size:13px;padding:7px 16px;">💬 Einzelgespräche</button>
         <button class="tab-btn" id="sub-tagesziele" style="font-size:13px;padding:7px 16px;">🎯 Tages Ziele</button>
@@ -1053,7 +1053,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 146;
+const BOARD_VERSION = 147;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -5752,7 +5752,7 @@ function renderCoachPlan(){
     );
   }
 
-  // (Frühere Liste "Wen zuerst coachen – Top 5" entfernt: ersetzt durch den Reiter "🎯 Fokus der Woche")
+  // (Frühere Liste "Wen zuerst coachen – Top 5" entfernt: ersetzt durch den Reiter "📌 Fokus der Woche")
 
   // ===== Verlauf: Coachings / Workshops (früher eigene Reiter) =====
   const hist = document.createElement('div');
@@ -9119,7 +9119,7 @@ function updateFokusBadge(){
   const today = fkIsoDate(new Date());
   const lf = fkGetLeaderFilter();
   const n = fkVereinbarungen().filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) <= today && v.agent && fkMatchesLeader(v.agent, lf)).length;
-  btn.innerHTML = '🎯 Fokus der Woche' + (n ? ` <span class="fk-badge">${n}</span>` : '');
+  btn.innerHTML = '📌 Fokus der Woche' + (n ? ` <span class="fk-badge">${n}</span>` : '');
 }
 
 let fkTeamFilter = 'alle';
@@ -9135,7 +9135,7 @@ function renderFokus(){
 
   const head = document.createElement('div');
   head.className = 'fk-head';
-  head.innerHTML = `<div><div class="fk-title">🎯 Fokus der Woche</div>
+  head.innerHTML = `<div><div class="fk-title">📌 Fokus der Woche</div>
     <div class="fk-sub">Das Board wertet Tageswerte, Hochrechnung, NPS/LQ, Coachings und Vereinbarungen aus und schlägt vor, wo sich deine Zeit diese Woche am meisten lohnt. Stand ${now.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'long'})}.</div></div>`;
   const filters = document.createElement('div');
   filters.className = 'fk-filters';
