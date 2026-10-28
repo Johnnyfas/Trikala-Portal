@@ -1036,7 +1036,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 142;
+const BOARD_VERSION = 143;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -5727,7 +5727,7 @@ function renderCoachPlan(){
     );
   }
 
-  container.appendChild(buildPriorityList());
+  // (Frühere Liste "Wen zuerst coachen – Top 5" entfernt: ersetzt durch den Reiter "🎯 Fokus der Woche")
 
   // ===== Diagramme =====
   const { countByTeam, dauerByTeam, themen, checklistStats } = computeCoachStats();
