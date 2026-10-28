@@ -153,6 +153,14 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .empty-illus-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:var(--text);margin-bottom:4px;}
 .empty-illus-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:340px;}
 /* tw-team-wrap: äußerer Container pro Team */
+.fk-assign-row{display:flex;align-items:center;gap:6px;margin:6px 0 2px;font-size:13px;}
+.fk-assign{flex:1;min-width:0;border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-family:'Inter',sans-serif;font-size:12.5px;background:#fff;color:var(--text);}
+.fk-assign-overview{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);background:#fff;border:1px solid var(--border);border-radius:10px;padding:8px 12px;margin:-4px 0 18px;line-height:1.7;}
+.fk-assign-overview b{color:var(--text);} .fk-assign-overview span{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--text);background:#F1F4F7;border-radius:6px;padding:0 6px;}
+.fk-assign-overview em{color:var(--amber);font-style:normal;} .fk-assign-overview em span{color:var(--amber);background:var(--amber-soft);}
+.fk-assign-overview .ok{color:var(--teal);background:none;font-family:'Inter',sans-serif;}
+.fk-leader-filter{display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--muted);}
+.fk-leader-filter select{border:1px solid var(--border);border-radius:999px;padding:5px 10px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;background:#fff;color:var(--text);max-width:280px;}
 .fg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:12px;margin-bottom:6px;}
 .fg-box{background:#FAFBFC;border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0;}
 .fg-box-head{display:flex;align-items:center;gap:10px;}
@@ -1036,7 +1044,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 143;
+const BOARD_VERSION = 144;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -3092,8 +3100,15 @@ function renderCoaching(){
       inp.placeholder = fk[roleKey].length > 1 ? `Name ${idx+1}` : 'Name';
       inp.value = name || '';
       inp.addEventListener('change', e=>{
-        fk[roleKey][idx] = e.target.value.trim();
+        const alt = (fk[roleKey][idx] || '').trim();
+        const neu = e.target.value.trim();
+        fk[roleKey][idx] = neu;
+        // Umbenennung: zugeordnete Mitarbeiter ziehen mit (nur wenn der alte Name sonst nirgends mehr vorkommt)
+        if(alt && neu && alt !== neu && !fkAllLeaders().some(l => l.name === alt)){
+          state.agents.forEach(a=>{ if(a.fuehrungskraft === alt) a.fuehrungskraft = neu; });
+        }
         scheduleSave();
+        renderAll();
       });
       inputsWrap.appendChild(inp);
     });
@@ -3101,6 +3116,19 @@ function renderCoaching(){
     fkRolesWrap.appendChild(roleBox);
   });
   container.appendChild(fkRolesWrap);
+  // Übersicht der Zuordnung
+  {
+    const named = state.agents.filter(a => a.name && a.name.trim() && a.category !== 'work');
+    const leaders = fkAllLeaders();
+    if(leaders.length){
+      const ov = document.createElement('div');
+      ov.className = 'fk-assign-overview';
+      const ohne = named.filter(a => !leaders.some(l => fkNorm(l.name) === fkNorm(a.fuehrungskraft))).length;
+      ov.innerHTML = '<b>Zuordnung:</b> ' + leaders.map(l => `${l.name} <span>${named.filter(a => fkNorm(a.fuehrungskraft) === fkNorm(l.name)).length}</span>`).join(' · ') +
+        (ohne ? ` · <em>ohne Führungskraft <span>${ohne}</span></em>` : ' · <span class="ok">alle zugeordnet ✓</span>');
+      container.appendChild(ov);
+    }
+  }
 
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
     const cfg = TEAM_CONFIGS[teamId];
@@ -3208,6 +3236,7 @@ function renderCoaching(){
 
       topRow.appendChild(topLeft); topRow.appendChild(removeBtn);
       card.appendChild(topRow);
+      card.appendChild(buildAgentLeaderSelect(agent));
 
       // === Kumulierte Werte über alle erfassten Monate (aus dem Verlauf-Archiv), vs. Team ===
       const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
@@ -3444,6 +3473,7 @@ function renderCoaching(){
 
     topRow.appendChild(topLeft); topRow.appendChild(removeBtn);
     card.appendChild(topRow);
+    card.appendChild(buildAgentLeaderSelect(agent));
 
     // === vs. Teamdurchschnitt ===
     const vlEntry = Object.values(state.verlauf).find(v=>v.name===agent.name && v.team===agent.team);
@@ -5457,8 +5487,10 @@ function buildCoachingRecordForm(prefill){
 
   const agentSel = document.createElement('select');
   agentSel.className = 'cp-form-select';
-  agentSel.innerHTML = Object.keys(TEAM_CONFIGS).map(teamId=>{
-    const teamAgents = allAgents.filter(a=>a.team===teamId);
+  const myLeader = fkMyLeaderName();
+  const mine = myLeader ? allAgents.filter(a => fkNorm(a.fuehrungskraft) === fkNorm(myLeader)) : [];
+  agentSel.innerHTML = (mine.length ? `<optgroup label="Meine Mitarbeiter">` + mine.map(a=>`<option value="${a.id}" ${prefill.agentId===a.id?'selected':''}>${a.name}</option>`).join('') + `</optgroup>` : '') + Object.keys(TEAM_CONFIGS).map(teamId=>{
+    const teamAgents = allAgents.filter(a=>a.team===teamId && !mine.includes(a));
     if(!teamAgents.length) return '';
     return `<optgroup label="${TEAM_CONFIGS[teamId].label}">` +
       teamAgents.map(a=>`<option value="${a.id}" ${prefill.agentId===a.id?'selected':''}>${a.name}</option>`).join('') +
@@ -8862,6 +8894,11 @@ function renderHochrechnung(){
     Gelb = knapp darunter (ab 85 %), Rot = deutlich darunter. „/Tag“ = so viele Abschlüsse pro verbleibendem Arbeitstag fehlen noch zum Ziel.
     Mitarbeiter mit dem größten Rückstand stehen oben. Feiertage und Urlaub werden nicht berücksichtigt.</div>`;
   container.appendChild(intro);
+  const hrLeader = fkGetLeaderFilter();
+  const hrBar = document.createElement('div');
+  hrBar.style.cssText = 'margin:-6px 0 16px;';
+  hrBar.appendChild(buildLeaderFilter(()=>renderHochrechnung()));
+  container.appendChild(hrBar);
 
   let anyTeam = false;
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
@@ -8869,8 +8906,10 @@ function renderHochrechnung(){
     const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
     if(!teamAgents.length) return;
     anyTeam = true;
-    const info = hrWorkdayInfo(teamAgents, now);
+    const info = hrWorkdayInfo(teamAgents, now); // Arbeitstage immer aus dem ganzen Team
     const prods = displayOrderProducts(cfg.products.slice(), teamId);
+    const shownAgents = teamAgents.filter(a => fkMatchesLeader(a, hrLeader));
+    if(!shownAgents.length) return;
 
     const block = document.createElement('div');
     block.className = 'hr-team';
@@ -8891,7 +8930,7 @@ function renderHochrechnung(){
     }
 
     // Werte je Mitarbeiter berechnen
-    const rows = teamAgents.map(agent=>{
+    const rows = shownAgents.map(agent=>{
       const targets = agentTargets(agent);
       const ist = hrAgentSums(agent, info.mk, cfg.products);
       let onTrack = 0, pctSum = 0, n = 0;
@@ -9055,7 +9094,8 @@ function updateFokusBadge(){
   const btn = document.getElementById('sub-fokus');
   if(!btn) return;
   const today = fkIsoDate(new Date());
-  const n = fkVereinbarungen().filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) <= today && v.agent).length;
+  const lf = fkGetLeaderFilter();
+  const n = fkVereinbarungen().filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) <= today && v.agent && fkMatchesLeader(v.agent, lf)).length;
   btn.innerHTML = '🎯 Fokus der Woche' + (n ? ` <span class="fk-badge">${n}</span>` : '');
 }
 
@@ -9067,7 +9107,8 @@ function renderFokus(){
   container.innerHTML = '';
   const now = new Date();
   const todayIso = fkIsoDate(now);
-  const inTeam = a => fkTeamFilter === 'alle' || String(a.team) === fkTeamFilter;
+  const leaderFilter = fkGetLeaderFilter();
+  const inTeam = a => (fkTeamFilter === 'alle' || String(a.team) === fkTeamFilter) && fkMatchesLeader(a, leaderFilter);
 
   const head = document.createElement('div');
   head.className = 'fk-head';
@@ -9082,6 +9123,7 @@ function renderFokus(){
     b.addEventListener('click', ()=>{ fkTeamFilter = v; renderFokus(); });
     filters.appendChild(b);
   });
+  filters.insertBefore(buildLeaderFilter(()=>renderFokus()), filters.firstChild);
   head.appendChild(filters);
   container.appendChild(head);
 
@@ -9174,6 +9216,7 @@ function renderFokus(){
     else if(daysSince > 30){ reasons.push({ cls: 'info', text: `Letztes Coaching vor ${daysSince} Tagen` }); score += Math.min(20, 6 + (daysSince - 30) / 3); }
     const notes = [];
     if(planned[agent.id]){ notes.push(`📅 Coaching geplant am ${fkFmt(fkParseDe(planned[agent.id]))}`); score *= 0.5; }
+    if(leaderFilter === 'alle' && agent.fuehrungskraft) notes.unshift('👤 ' + agent.fuehrungskraft);
     if(openV.has(agent.id)) notes.push('🤝 Vereinbarung läuft');
     const lh = fingerLastHebel(agent);
     if(lh) notes.push(`🎯 letzter Hebel: ${lh.finger.icon} ${lh.finger.name} (${lh.datum.slice(0,6)})`);
@@ -9248,7 +9291,7 @@ function renderFokus(){
   container.appendChild(sec3);
 
   // ---------- Team-Analyse 5-Finger-Pitch ----------
-  container.appendChild(buildFingerTeamAnalyse(fkTeamFilter));
+  container.appendChild(buildFingerTeamAnalyse(fkTeamFilter, a => fkMatchesLeader(a, leaderFilter)));
 
   // ---------- 4) Laufende Vereinbarungen ----------
   const laufend = alleV.filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) > todayIso).sort((a,b)=>a.pruef - b.pruef);
@@ -9529,7 +9572,7 @@ function fingerLastHebel(agent){
   return an && an.hebel ? { finger: an.hebel, datum: best.e.datum } : null;
 }
 // ---- Team-Analyse: häufigste Lücken der letzten 60 Tage ----
-function buildFingerTeamAnalyse(teamFilter){
+function buildFingerTeamAnalyse(teamFilter, agentFilter){
   const since = new Date(Date.now() - 60*86400000);
   const counts = {}; // anchorId → {n, gap}
   const fingerSum = {}; FINGER_MODEL.forEach(f=>{ fingerSum[f.key] = { s:0, n:0 }; });
@@ -9539,6 +9582,7 @@ function buildFingerTeamAnalyse(teamFilter){
     const agent = fkAgentForCv(key, cv);
     const team = agent ? agent.team : cv.team;
     if(teamFilter !== 'alle' && String(team) !== teamFilter) return;
+    if(agentFilter && (!agent || !agentFilter(agent))) return;
     (cv.eintraege||[]).forEach(e=>{
       if(!e.fingerBewertung || !Object.keys(e.fingerBewertung).length) return;
       const d = fkParseDe(e.datum); if(d && d < since) return;
@@ -9573,6 +9617,97 @@ function buildFingerTeamAnalyse(teamFilter){
   </div>`;
   sec.appendChild(box);
   return sec;
+}
+
+// ============================================================
+// ZUORDNUNG MITARBEITER → FÜHRUNGSKRAFT (ab v144)
+// agent.fuehrungskraft = Name aus der Rollenliste im Standort-Überblick. Wird wie alle
+// Mitarbeiterfelder pro Wert abgeglichen. Filter "Mitarbeiter von …" in Fokus der Woche und
+// Hochrechnung; im Coaching-Formular stehen die eigenen Mitarbeiter oben.
+// ============================================================
+const FK_ROLE_ORDER = [['teamleiter','Teamleiter'], ['salescoach','Sales Coach'], ['qualitaetscoach','Qualitätscoach'], ['standortleiter','Standortleiter']];
+function fkNorm(n){ return String(n || '').trim().toLowerCase(); }
+// Alle Führungskräfte aus der Rollenliste: [{name, rolle}]
+function fkAllLeaders(){
+  const fk = state.fuehrungskraefte || {};
+  const out = [], seen = new Set();
+  FK_ROLE_ORDER.forEach(([key, label])=>{
+    (Array.isArray(fk[key]) ? fk[key] : []).forEach(n=>{
+      const name = String(n || '').trim();
+      if(!name || seen.has(fkNorm(name))) return;
+      seen.add(fkNorm(name));
+      out.push({ name, rolle: label });
+    });
+  });
+  return out;
+}
+// Eigener Name ohne Nachfrage-Dialog (Login-Name oder gespeicherter Coach-Name)
+function fkMyName(){
+  // currentUserName wird erst weiter unten im Skript angelegt - beim allerersten Zeichnen gibt es ihn noch nicht
+  let u = '';
+  try{ u = currentUserName || ''; }catch(e){ u = ''; }
+  if(u) return u;
+  try{ return localStorage.getItem('coach_display_name') || ''; }catch(e){ return ''; }
+}
+// Passt der eigene Name zu einer Führungskraft in der Liste? (auch "Ioannis" ↔ "Ioannis Fasoulas")
+function fkMyLeaderName(){
+  const me = fkNorm(fkMyName());
+  if(!me) return '';
+  const leaders = fkAllLeaders();
+  const exact = leaders.find(l => fkNorm(l.name) === me);
+  if(exact) return exact.name;
+  const part = leaders.filter(l => fkNorm(l.name).startsWith(me + ' ') || me.startsWith(fkNorm(l.name) + ' '));
+  return part.length === 1 ? part[0].name : '';
+}
+// Gewählter Filter (pro Browser gemerkt): 'alle' | '__ohne' | Name
+function fkGetLeaderFilter(){
+  let v = null;
+  try{ v = localStorage.getItem('fk_leader_filter'); }catch(e){}
+  if(v === null){ v = fkMyLeaderName() ? fkMyLeaderName() : 'alle'; }
+  if(v !== 'alle' && v !== '__ohne' && !fkAllLeaders().some(l => l.name === v)) v = 'alle';
+  return v;
+}
+function fkSetLeaderFilter(v){ try{ localStorage.setItem('fk_leader_filter', v); }catch(e){} }
+function fkMatchesLeader(agent, filter){
+  if(filter === 'alle') return true;
+  if(filter === '__ohne') return !agent.fuehrungskraft || !fkAllLeaders().some(l => fkNorm(l.name) === fkNorm(agent.fuehrungskraft));
+  return fkNorm(agent.fuehrungskraft) === fkNorm(filter);
+}
+// Auswahlfeld "Mitarbeiter von …" (für Fokus/Hochrechnung)
+function buildLeaderFilter(onChange){
+  const wrap = document.createElement('label');
+  wrap.className = 'fk-leader-filter';
+  wrap.innerHTML = '<span>👤 Mitarbeiter von</span>';
+  const sel = document.createElement('select');
+  const cur = fkGetLeaderFilter();
+  const me = fkMyLeaderName();
+  const counts = {};
+  state.agents.forEach(a=>{ if(a.name && a.name.trim()) counts[fkNorm(a.fuehrungskraft)] = (counts[fkNorm(a.fuehrungskraft)]||0) + 1; });
+  const opts = [['alle','Alle Führungskräfte']]
+    .concat(fkAllLeaders().map(l => [l.name, `${l.name}${l.name === me ? ' (ich)' : ''} · ${l.rolle} · ${counts[fkNorm(l.name)]||0} MA`]))
+    .concat([['__ohne','Ohne Zuordnung']]);
+  sel.innerHTML = opts.map(([v,t]) => `<option value="${String(v).replace(/"/g,'&quot;')}" ${v===cur?'selected':''}>${t}</option>`).join('');
+  sel.addEventListener('change', ()=>{ fkSetLeaderFilter(sel.value); onChange(); });
+  wrap.appendChild(sel);
+  return wrap;
+}
+// Auswahlfeld auf der Mitarbeiterkarte
+function buildAgentLeaderSelect(agent){
+  const row = document.createElement('div');
+  row.className = 'fk-assign-row';
+  const leaders = fkAllLeaders();
+  const sel = document.createElement('select');
+  sel.className = 'fk-assign';
+  const cur = agent.fuehrungskraft || '';
+  const known = leaders.some(l => l.name === cur);
+  sel.innerHTML = `<option value="">– keine Führungskraft –</option>` +
+    leaders.map(l => `<option value="${l.name.replace(/"/g,'&quot;')}" ${l.name===cur?'selected':''}>${l.name} (${l.rolle})</option>`).join('') +
+    (cur && !known ? `<option value="${cur.replace(/"/g,'&quot;')}" selected>${cur} (nicht mehr in der Rollenliste)</option>` : '');
+  sel.title = leaders.length ? 'Welche Führungskraft coacht diesen Mitarbeiter?' : 'Zuerst oben bei den Rollen Namen eintragen';
+  sel.addEventListener('change', ()=>{ agent.fuehrungskraft = sel.value; scheduleSave(); });
+  row.innerHTML = '<span>👤</span>';
+  row.appendChild(sel);
+  return row;
 }
 
 function renderOverview(){
