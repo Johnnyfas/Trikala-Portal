@@ -1077,7 +1077,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 157;
+const BOARD_VERSION = 158;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -10134,6 +10134,35 @@ Ein konkretes, beobachtbares Verhalten in einem Satz.`);
   }
 }
 
+
+// v158: Zwei Spalten nebeneinander nur, wenn sie wirklich ganz hineinpassen – sonst untereinander.
+// Wird nach dem Zeichnen und bei jeder Größenänderung (Fenster, Seitenleiste ein-/ausklappen, Zoom) geprüft.
+function ovFitColumns(){
+  document.querySelectorAll('#overview-capture .ov-team').forEach(team=>{
+    const wrap = team.querySelector('.ov-columns-wrap');
+    if(!wrap || wrap.children.length < 2) return;
+    team.classList.remove('ov-stacked');
+    let need = 0;
+    wrap.querySelectorAll(':scope > .ov-grid').forEach(g=>{
+      const row = g.querySelector('.ov-header-row');
+      if(!row) return;
+      // Mindestbreite = Summe der Mindest-Spaltenbreiten (Namensspalte + minmax-Minima)
+      const tpl = row.style.gridTemplateColumns || '';
+      const nameW = parseFloat(tpl) || 120;
+      let reps = 0; (tpl.match(/repeat\((\d+), minmax\((\d+)px/g)||[]).forEach(r=>{ const m = r.match(/repeat\((\d+), minmax\((\d+)px/); reps += m[1]*m[2]; });
+      const single = (tpl.replace(/repeat\([^)]*\)\)/g,'').match(/minmax\((\d+)px/g)||[]).reduce((a,x)=>a+parseFloat(x.replace('minmax(','')),0);
+      need += nameW + reps + single;
+    });
+    need += 10; // Trenner
+    if(need > wrap.clientWidth) team.classList.add('ov-stacked');
+  });
+}
+(function(){
+  let t; const run = ()=>{ clearTimeout(t); t = setTimeout(()=>{ try{ ovFitColumns(); }catch(e){} }, 120); };
+  window.addEventListener('resize', run);
+  if(window.ResizeObserver){ const ro = new ResizeObserver(run); const el = document.getElementById('overview-capture'); if(el) ro.observe(el); }
+})();
+
 function renderOverview(){
   document.getElementById('ov-count').textContent = state.agents.length + ' Mitarbeiter';
   const container = document.getElementById('overview-capture');
@@ -10277,6 +10306,7 @@ function renderOverview(){
     container.appendChild(teamDiv);
   });
 
+  ovFitColumns();
   const foot = document.createElement('div');
   foot.className = 'ov-foot';
   foot.innerHTML = 'Grün = Ziel erreicht · Rot = unter Ziel &nbsp;·&nbsp; <span style="background:#E4ECF5;color:var(--sixh);padding:1px 6px;border-radius:4px;font-size:11px;">6-Stündler</span> &nbsp; <span style="background:#EFE9F7;color:var(--helpline);padding:1px 6px;border-radius:4px;font-size:11px;">Helpline</span>';
@@ -11382,6 +11412,7 @@ body{padding:0;background:var(--bg);}
 /* Hauptbereich + Kopfzeile */
 .wrap{max-width:none;margin:0 0 0 var(--side-w);padding:0 32px 80px;}
 .wrap > [id^="view-"]{max-width:1480px;}
+.wrap > #view-overview{max-width:none;}
 .tabs-sticky-wrap.app-top{display:flex;align-items:center;gap:16px;padding:18px 0 14px;margin:0 0 24px;background:var(--bg);box-shadow:none;border-bottom:1px solid var(--border);}
 .app-title{flex:1;min-width:0;}
 .app-title .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--tmg);}
@@ -11421,7 +11452,7 @@ button.primary,.cp-add-btn{border-radius:8px;}
 #overview-capture > .ov-watermark{position:absolute;bottom:14px;right:22px;font-size:13px;color:rgba(226,0,116,.28);}
 .ov-team{container-type:inline-size;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);}
 .ov-team-head{background:#161B22!important;}
-@container (max-width: 1320px){ .ov-columns-wrap{flex-direction:column;} .ov-column-divider{width:100%!important;height:8px;} }
+.ov-team.ov-stacked .ov-columns-wrap{flex-direction:column;} .ov-team.ov-stacked .ov-column-divider{width:100%!important;height:8px;}
 .ov-cell.sales-cell{background:none!important;}
 .ov-badge-glass{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;padding:3px 6px!important;}
 #sync-debug-box{left:calc(var(--side-w) + 16px)!important;}
