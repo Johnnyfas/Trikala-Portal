@@ -169,6 +169,7 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .ki-prep-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);margin-top:2px;}
 .ki-prep-x{background:none;border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--muted);font-size:14px;flex-shrink:0;}
 .ki-prep-body{max-width:none!important;margin:0 0 6px!important;}
+.board-version-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);background:var(--tmg-light);border:1px solid var(--border);border-radius:999px;padding:3px 9px;}
 .zo-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .zo-sum-card{display:flex;flex-direction:column;align-items:flex-start;gap:1px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;min-width:130px;text-align:left;color:var(--text);}
 .zo-sum-card b{font-family:'IBM Plex Mono',monospace;font-size:20px;} .zo-sum-card span{font-weight:700;font-size:13px;} .zo-sum-card em{font-style:normal;font-size:11px;color:var(--muted);}
@@ -922,6 +923,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   <div class="topbar">
     <button class="undo-mini" id="undo-btn" disabled title="Letzte Änderung rückgängig machen (Strg+Z)" onclick="performUndo()">↶</button>
     <span id="sync-status" class="sync-badge sync-idle">Nicht verbunden</span>
+    <span id="board-version-label" class="board-version-label" title="Version dieser Board-Datei – nach dem Hochladen einer neuen Datei mit Strg+F5 neu laden, bis hier die neue Nummer steht"></span>
     <span id="user-label" class="user-label"></span>
   </div>
   <div class="tabs-sticky-wrap">
@@ -1064,7 +1066,8 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 149;
+const BOARD_VERSION = 151;
+try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -1177,7 +1180,7 @@ function liveMonthSnapshot(agent, now){
   const snap = {};
   const tw = agent.tageswerte && agent.tageswerte[twMonthKey(now)];
   if(tw){
-    const extra = agent.team === 'Trikala01' ? ['VVM','DA'] : ['DA'];
+    const extra = teamExtraProducts(agent.team);
     const prods = [...cfg.products, ...extra];
     const sum = {}; let any = false;
     prods.forEach(p=>{ sum[p] = 0; });
@@ -1229,7 +1232,7 @@ function syncVormonatSales(agent, now){
   const tw = agent.tageswerte && agent.tageswerte[twMonthKey(d)];
   if(!tw) return false;
   const cfg = TEAM_CONFIGS[agent.team]; if(!cfg) return false;
-  const extra = agent.team === 'Trikala01' ? ['VVM','DA'] : ['DA'];
+  const extra = teamExtraProducts(agent.team);
   const prods = [...cfg.products, ...extra];
   const sum = {}; let any = false;
   prods.forEach(p=>{ sum[p] = 0; });
@@ -3663,7 +3666,7 @@ function renderHallOfFame(){
     if(!tw) return null;
     const cfg2 = TEAM_CONFIGS[agent.team];
     if(!cfg2) return null;
-    const extraProds = agent.team === 'Trikala01' ? ['VVM','DA'] : ['DA'];
+    const extraProds = teamExtraProducts(agent.team);
     const alleProds = [...cfg2.products, ...extraProds];
     const sum = {}; let any = false;
     alleProds.forEach(p=>{ sum[p] = 0; });
@@ -8217,6 +8220,11 @@ function renderTeamZiele(){
 let twMonthOffset = 0;       // 0 = laufender Monat, -1 = Vormonat (Nachträge)
 let twSelectedDay = 'total'; // 'total' = Monatsstand, sonst Tag-Nummer als String ('1'..'31')
 
+// Zusatzprodukte je Team (zusätzlich zu den Zielprodukten aus TEAM_CONFIGS), z.B. für Tageswerte und
+// Mitarbeiter Ziele. MF-Team: Avia (VVM) und DA. FN-Team: keine (DA wird dort nicht erfasst).
+function teamExtraProducts(team){
+  return String(team) === 'Trikala01' ? ['VVM', 'DA'] : [];
+}
 function twMonthKey(d){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 }
@@ -8457,7 +8465,7 @@ function twRecomputeAgent(agent, cfg){
   if(!tw){ return; }
   const days = Object.keys(tw);
   if(!days.length) return;
-  const extraRecompute = cfg === TEAM_CONFIGS['Trikala01'] ? ['VVM', 'DA'] : ['DA'];
+  const extraRecompute = teamExtraProducts(Object.keys(TEAM_CONFIGS).find(k => TEAM_CONFIGS[k] === cfg));
   const produkte = [...cfg.products, ...extraRecompute];
   const salesSum = {};
   // Sobald Tageswerte existieren, ist Tageswerte die einzige Quelle für Produktverkäufe:
@@ -8571,7 +8579,7 @@ function renderTageswerte(){
     teamDiv.appendChild(stickyWrap);
 
     // Zusätzliche Produkte pro Team in Tageswerte: DA für alle, Avia (VVM) für MF-Team nach SU
-    const extraProds = teamId === 'Trikala01' ? ['VVM', 'DA'] : ['DA'];
+    const extraProds = teamExtraProducts(teamId);
     const orderedProducts = displayOrderProducts([...cfg.products, ...extraProds], teamId);
     const productHeaders = orderedProducts.map(p=>productLabel(p, teamId));
     const headers = isTotal
@@ -10250,7 +10258,7 @@ function renderOverview(){
     teamDiv.className = 'ov-team';
     teamDiv.id = 'ov-team-' + teamId;
     // Angezeigte Produkte (inkl. team-spezifische Extras wie DA und ggf. VVM für MF-Team)
-    const extraProdsOv = teamId === 'Trikala01' ? ['VVM', 'DA'] : ['DA'];
+    const extraProdsOv = teamExtraProducts(teamId);
     const displayedProducts = displayOrderProducts([...cfg.products, ...extraProdsOv], teamId);
     const legendLine = (catKey) => {
       const targets = cfg.targets[catKey];
