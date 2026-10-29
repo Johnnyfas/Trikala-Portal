@@ -539,6 +539,12 @@ button.logout-btn{background:transparent;border:1px solid var(--border);color:va
 .cr-box.ziel{background:linear-gradient(135deg,#E3F2FD,#90CAF9);color:#0D47A1;}
 
 
+
+.tz-team-layout{align-items:flex-start;}
+.tz-table-wrap{overflow-x:auto;}
+.tz-team-layout .cr-sidebar{flex:0 0 210px;min-width:0;}
+.cr-box .cr-box-val,.cr-box .cr-box-val input{text-align:left!important;}
+@media (max-width: 900px){ .tz-team-layout .cr-sidebar{flex:1 1 auto;} }
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
@@ -904,49 +910,50 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="top-fab-row">
-    <button class="todo-fab coachdash-fab" id="tab-coachdash">📋 Coaching Dashboard</button>
-    <button class="todo-fab" id="todo-fab">✅ To-Do's <span class="todo-fab-badge" id="todo-fab-badge" style="display:none;">0</span></button>
-  </div>
-
-
-  <header class="board-header">
-    <div class="title-block">
-      <div class="eyebrow">Inbound &middot; Mobilfunk &amp; Festnetz Privatkunden</div>
-      <h1>Standort-Portal</h1>
-      <p>Ein Datenstand — Coaching-Ansicht zum Bearbeiten, Übersicht zum Teilen. Änderungen wirken sofort in beiden Ansichten.</p>
-    </div>
-  </header>
-
-  
-  <div class="topbar">
-    <button class="undo-mini" id="undo-btn" disabled title="Letzte Änderung rückgängig machen (Strg+Z)" onclick="performUndo()">↶</button>
-    <span id="sync-status" class="sync-badge sync-idle">Nicht verbunden</span>
-    <span id="board-version-label" class="board-version-label" title="Version dieser Board-Datei – nach dem Hochladen einer neuen Datei mit Strg+F5 neu laden, bis hier die neue Nummer steht"></span>
+<aside class="app-side" id="app-side" aria-label="Navigation">
+  <div id="fx-logo"><span class="mark"><span class="ring"></span><span class="orb"><b></b></span></span><span><span class="word">Standort-Portal</span><br><span class="sub">Trikala · Inbound PK</span></span></div>
+  <nav class="side-nav">
+    <div class="side-label">Standort</div>
+      <button class="tab-btn side-link active" id="tab-coaching" data-title="Standort Überblick"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M9 10h.01M15 10h.01M9 14h.01M15 14h.01M10 21v-3h4v3"/></svg><span>Standort Überblick</span></button>
+      <button class="tab-btn side-link" id="tab-overview" data-title="Mitarbeiter Ziele"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Mitarbeiter Ziele</span></button>
+      <button class="tab-btn side-link" id="tab-verlauf" data-title="Mitarbeiter Verlauf"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg><span>Mitarbeiter Verlauf</span></button>
+      <button class="tab-btn side-link" id="tab-teamziele" data-title="Team Ziele"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg><span>Team Ziele</span></button>
+      <button class="tab-btn side-link" id="tab-monatsabschluss" data-title="Monatsabschluss"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 15.5l2 2 4-4"/></svg><span>Monatsabschluss</span></button>
+      <button class="tab-btn side-link" id="tab-halloffame" data-title="Hall of Fame"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg><span>Hall of Fame</span></button>
+    <div class="side-label">Coaching</div>
+      <button class="tab-btn side-link" id="tab-coachdash" data-title="Coaching Dashboard"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4V2.5h6V4M9 11h6M9 15h4"/></svg><span>Coaching Dashboard</span></button>
+      <button class="side-link" id="todo-fab" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/></svg><span>To-Do's</span><span class="todo-fab-badge" id="todo-fab-badge" style="display:none;">0</span></button>
+    <div class="side-label">Auswertung</div>
+      <button class="tab-btn side-link" id="tab-kianalyse" data-title="KI Analyse"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7-4.7-1.8 4.7-1.8z"/><path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z"/></svg><span>KI Analyse</span></button>
+  </nav>
+  <div class="side-foot">
     <span id="user-label" class="user-label"></span>
+    <span id="board-version-label" class="board-version-label" title="Version dieser Board-Datei – nach dem Hochladen einer neuen Datei mit Strg+F5 neu laden, bis hier die neue Nummer steht"></span>
   </div>
-  <div class="tabs-sticky-wrap">
-    <div class="tabs">
-      <button class="tab-btn active" id="tab-coaching">Standort Überblick</button>
-      <button class="tab-btn" id="tab-verlauf">Mitarbeiter Verlauf</button>
-      <button class="tab-btn" id="tab-overview">Mitarbeiter Ziele</button>
-      <button class="tab-btn" id="tab-teamziele">Team Ziele</button>
-      <button class="tab-btn" id="tab-monatsabschluss">Monatsabschluss</button>
-      <button class="tab-btn" id="tab-halloffame"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px;"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg>Hall of Fame</button>
-      <button class="tab-btn" id="tab-kianalyse"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:5px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V5a3 3 0 0 1 6 0v3M9 14h.01M15 14h.01"/></svg>KI Analyse</button>
+</aside>
+<div class="side-scrim" id="side-scrim"></div>
+<div class="wrap">
+  <div class="tabs-sticky-wrap app-top">
+    <button class="side-burger" id="side-burger" type="button" aria-label="Menü öffnen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <div class="app-title">
+      <div class="eyebrow">Inbound &middot; Mobilfunk &amp; Festnetz Privatkunden</div>
+      <h1 id="app-page-title">Standort Überblick</h1>
+    </div>
+    <div class="topbar">
+      <button class="undo-mini" id="undo-btn" disabled title="Letzte Änderung rückgängig machen (Strg+Z)" onclick="performUndo()">↶</button>
+      <span id="sync-status" class="sync-badge sync-idle">Nicht verbunden</span>
     </div>
   </div>
 
   <div id="view-coachdash" style="display:none;">
     <div style="flex-direction:column;">
-      <div id="coachdash-subtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;flex-wrap:wrap;align-items:center;">
-        <button class="tab-btn active" id="sub-fokus" style="font-size:13px;padding:7px 16px;">📌 Fokus der Woche</button>
-        <button class="tab-btn" id="sub-coachplan" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Coaching Plan</button>
-        <button class="tab-btn" id="sub-gespraeche" style="font-size:13px;padding:7px 16px;">💬 Einzelgespräche</button>
-        <button class="tab-btn" id="sub-tagesziele" style="font-size:13px;padding:7px 16px;">🎯 Tages Ziele</button>
-        <button class="tab-btn" id="sub-zuordnung" style="font-size:13px;padding:7px 16px;">👥 Team-Zuordnung</button>
-        <button class="tab-btn" id="sub-termine" style="font-size:13px;padding:7px 16px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Termin Kalender</button>
+      <div id="coachdash-subtabs" class="subtabs">
+        <button class="tab-btn active" id="sub-fokus" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5M9 3h6l-1 6 4 4H6l4-4z"/></svg><span>Fokus der Woche</span></button>
+        <button class="tab-btn" id="sub-coachplan" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Coaching Plan</span></button>
+        <button class="tab-btn" id="sub-gespraeche" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg><span>Einzelgespräche</span></button>
+        <button class="tab-btn" id="sub-tagesziele" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg><span>Tages Ziele</span></button>
+        <button class="tab-btn" id="sub-zuordnung" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span>Team-Zuordnung</span></button>
+        <button class="tab-btn" id="sub-termine" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>Termin Kalender</span></button>
         <span class="cd-new-wrap"><button class="cp-add-btn" id="cd-new-coaching" type="button"><span class="cp-add-icon">+</span> Neues Coaching ▾</button></span>
       </div>
       <div id="fokus-container"></div>
@@ -989,33 +996,33 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   </div>
 
   <div id="view-overview" class="ov-view-outer" style="display:none;">
-    <div id="ov-subtabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid var(--border);padding-bottom:12px;max-width:1320px;margin-left:auto;margin-right:auto;padding-left:20px;padding-right:20px;">
-      <button class="tab-btn active" id="sub-ovziele" style="font-size:13px;padding:7px 16px;">Mitarbeiter Ziele</button>
-      <button class="tab-btn" id="sub-ovtageswerte" style="font-size:13px;padding:7px 16px;">📝 Tageswerte</button>
-      <button class="tab-btn" id="sub-ovhochrechnung" style="font-size:13px;padding:7px 16px;">📈 Hochrechnung</button>
+    <div id="ov-subtabs" class="subtabs">
+      <button class="tab-btn active" id="sub-ovziele" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><span>Mitarbeiter Ziele</span></button>
+      <button class="tab-btn" id="sub-ovtageswerte" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Tageswerte</span></button>
+      <button class="tab-btn" id="sub-ovhochrechnung" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Hochrechnung</span></button>
     </div>
     <div id="ov-ziele-container">
-      <div class="toolbar" style="max-width:1320px;margin:0 auto 14px;padding:0 20px;">
+      <div class="toolbar">
         <span class="count" id="ov-count"></span>
         <button class="primary" id="export-png-btn">Als Bild speichern</button>
       </div>
-      <div id="overview-capture" style="padding:0 20px;overflow-x:auto;"></div>
+      <div id="overview-capture" style="overflow-x:auto;"></div>
     </div>
     <div id="ov-tageswerte-container" style="display:none;">
       <div class="toolbar">
         <span class="count" id="tw-count"></span>
         <div style="display:flex;align-items:center;gap:14px;">
-          <span style="font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);">Änderungen werden automatisch gespeichert</span>
-          <label class="primary" style="background:var(--teal);cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
-            📥 Datei importieren
+          <span class="toolbar-hint">Änderungen werden automatisch gespeichert</span>
+          <label class="btn-secondary" style="cursor:pointer;">
+            <svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg> Datei importieren
             <input type="file" id="tw-import-helpsense-input" accept=".xlsx,.xls,.csv" multiple style="display:none;">
           </label>
-          <button class="primary" id="tw-reset-btn" style="background:var(--red);">🗑️ Monat zurücksetzen</button>
+          <button class="btn-danger-ghost" id="tw-reset-btn" type="button">Monat zurücksetzen</button>
         </div>
       </div>
       <div id="tageswerte-capture"></div>
     </div>
-    <div id="ov-hochrechnung-container" style="display:none;max-width:1320px;margin:0 auto;padding:0 20px;">
+    <div id="ov-hochrechnung-container" style="display:none;">
       <div id="hochrechnung-capture"></div>
     </div>
   </div>
@@ -1066,7 +1073,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 151;
+const BOARD_VERSION = 152;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -1861,6 +1868,9 @@ function showSyncDebug(message, isError){
     document.body.appendChild(box);
   }
   box.style.border = '2px solid ' + (isError ? 'var(--red)' : 'var(--teal)');
+  // v152: Erfolgsmeldungen verschwinden nach ein paar Sekunden von selbst, Fehler bleiben stehen
+  clearTimeout(box._hideT);
+  if(!isError) box._hideT = setTimeout(()=>{ const b = document.getElementById('sync-debug-box'); if(b) b.remove(); }, 5000);
   box.innerHTML = message +
     '<div><button onclick="document.getElementById(\'sync-debug-box\').remove()" style="margin-top:6px;background:none;border:1px solid var(--border);border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;">Schließen</button></div>';
   console.log('[Sync]', message);
@@ -7055,10 +7065,10 @@ function crStuffeProd(p, val, tz){
   const s2 = parseFloat((tz.crZiel2 && tz.crZiel2[p])||0);
   // Stufe 3 nur für das MF-Produkt
   const s3 = (p === 'MF' && tz.crZiel3) ? parseFloat(tz.crZiel3[p]||0) : null;
-  if(s3 !== null && v >= s3) return 'background:#1B5E20;color:#fff;border-radius:6px;';
-  if(v >= s2) return 'background:#4CAF50;color:#fff;border-radius:6px;';
-  if(v >= s1) return 'background:#81C784;color:#1B5E20;border-radius:6px;';
-  return 'background:#CE93D8;color:#4A148C;border-radius:6px;';
+  if(s3 !== null && v >= s3) return 'background:var(--st3-bg);color:var(--st3-fg);';
+  if(v >= s2) return 'background:var(--st2-bg);color:var(--st2-fg);';
+  if(v >= s1) return 'background:var(--st1-bg);color:var(--st1-fg);';
+  return 'background:var(--st0-bg);color:var(--st0-fg);';
 }
 // Produkt-Namen in Monatsabschluss sind teils anders benannt als in Team Ziele - Zuordnung, damit
 // beide dieselben CR-Stufen-Werte finden.
@@ -7077,61 +7087,59 @@ function renderMonatsabschluss(){
   chartsWrap.className = 'ma-charts-wrap';
 
   const makeSVGChart = (datasets, isPercent, w, h, fixedMax) => {
-    const pad = {l:48,r:20,t:30,b:36};
+    // v152: ruhigeres Diagramm – Werte nur am letzten Punkt, alle anderen beim Drüberfahren (Tooltip)
+    const pad = {l:44,r:52,t:34,b:28};
     const cw = w-pad.l-pad.r; const ch = h-pad.t-pad.b;
     const allVals = datasets.flatMap(d=>d.values.filter(v=>v>0));
-    const maxVal = fixedMax ? fixedMax : isPercent
-      ? (Math.max(...allVals, 1) > 25 ? Math.min(Math.max(...allVals)*1.1, 100) : 20)
-      : (allVals.length ? Math.max(...allVals)*1.15 : 10);
+    // „Schöne“ Achsenwerte (z.B. 0/250/500/750/1000) und nie Werte außerhalb des Diagramms
+    const dataMax = allVals.length ? Math.max(...allVals) : 0;
+    const niceStep = raw => { const m = Math.pow(10, Math.floor(Math.log10(raw||1))); const f = raw/m; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*m; };
+    let maxVal = Math.max(fixedMax || 0, dataMax*1.08, isPercent ? 5 : 10);
+    if(fixedMax && dataMax <= fixedMax) maxVal = fixedMax;
+    else maxVal = niceStep(maxVal/4)*4;
+    if(isPercent && maxVal > 100 && dataMax <= 100) maxVal = 100;
     const labels = datasets[0].labels;
     const xPos = (i) => pad.l + (labels.length>1 ? (i/(labels.length-1))*cw : cw/2);
     const yPos = (v) => pad.t + ch - (v/maxVal)*ch;
+    const fmt = v => isPercent ? v.toFixed(1).replace('.',',')+'%' : String(Math.round(v));
+    const T = 'font-family:Inter,sans-serif;';
 
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" style="width:100%;height:100%;">`;
-
-    // Grid
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block;overflow:visible;">`;
     for(let i=0;i<=4;i++){
       const y = pad.t + ch - (i/4)*ch;
-      const val = (maxVal*i/4).toFixed(isPercent?1:0)+(isPercent?'%':'');
-      svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" stroke="#F0F0F0" stroke-width="1"/>`;
-      svg += `<text x="${pad.l-6}" y="${y+4}" text-anchor="end" font-size="10" fill="#94A3B8" font-family="IBM Plex Mono,monospace">${val}</text>`;
+      const tv = maxVal*i/4; const val = isPercent ? (Number.isInteger(tv)?tv:tv.toFixed(1)).toString().replace('.',',')+'%' : Math.round(tv).toLocaleString('de-DE');
+      svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" style="stroke:var(--border);" stroke-width="1"${i===0?'':' stroke-dasharray="2 4"'}/>`;
+      svg += `<text x="${pad.l-8}" y="${y+3.5}" text-anchor="end" font-size="10" style="${T}fill:var(--muted);font-variant-numeric:tabular-nums;">${val}</text>`;
     }
-
-    // X Labels
     labels.forEach((m,i)=>{
-      const x = xPos(i);
-      svg += `<text x="${x}" y="${h-6}" text-anchor="middle" font-size="10" fill="#94A3B8" font-family="Inter,sans-serif">${m.substring(0,3)}</text>`;
-      // Vertikale Hilfslinien
-      svg += `<line x1="${x}" y1="${pad.t}" x2="${x}" y2="${pad.t+ch}" stroke="#F5F5F5" stroke-width="1"/>`;
+      svg += `<text x="${xPos(i)}" y="${h-8}" text-anchor="middle" font-size="10" style="${T}fill:var(--muted);">${m.substring(0,3)}</text>`;
     });
-
-    // Y-Achse
-    svg += `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t+ch}" stroke="#E0E0E0" stroke-width="1"/>`;
-
-    // Linien + Punkte
+    // Endwerte sammeln, damit sie sich nicht überlappen
+    const ends = [];
     datasets.forEach(ds=>{
       const pts = ds.values.map((v,i)=>({v,i,x:xPos(i),y:yPos(v)})).filter(p=>p.v>0);
       if(!pts.length) return;
-      // Linie
-      const path = pts.map((p,j)=>`${j===0?'M':'L'}${p.x},${p.y}`).join(' ');
-      svg += `<path d="${path}" stroke="${ds.color}" stroke-width="2.5" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`;
-      // Punkte + Labels
-      pts.forEach(p=>{
-        svg += `<circle cx="${p.x}" cy="${p.y}" r="5" fill="${ds.color}"/>`;
-        svg += `<circle cx="${p.x}" cy="${p.y}" r="3" fill="white"/>`;
-        const label = p.v.toFixed(isPercent?1:0)+(isPercent?'%':'');
-        svg += `<text x="${p.x}" y="${p.y-9}" text-anchor="middle" font-size="10" font-weight="700" fill="#1C2733" font-family="IBM Plex Mono,monospace">${label}</text>`;
+      const path = pts.map((p,j)=>`${j===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+      svg += `<path d="${path}" stroke="${ds.color}" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`;
+      pts.forEach((p,j)=>{
+        const last = j === pts.length-1;
+        svg += `<circle cx="${p.x}" cy="${p.y}" r="${last?4:2.8}" fill="${ds.color}" style="stroke:var(--panel);" stroke-width="1.5"/>`;
+        svg += `<circle class="ma-pt" cx="${p.x}" cy="${p.y}" r="10" fill="transparent" data-tip="${ds.label} · ${labels[p.i]}: ${fmt(p.v)}"/>`;
       });
+      const l = pts[pts.length-1];
+      ends.push({x:l.x, y:l.y, txt:fmt(l.v), color:ds.color});
     });
-
-    // Legende
+    ends.sort((a,b)=>a.y-b.y);
+    for(let i=1;i<ends.length;i++){ if(ends[i].y - ends[i-1].y < 14) ends[i].y = ends[i-1].y + 14; }
+    ends.forEach(e=>{
+      svg += `<text x="${e.x+8}" y="${e.y+4}" font-size="11" font-weight="700" fill="${e.color}" style="${T}font-variant-numeric:tabular-nums;">${e.txt}</text>`;
+    });
     let lx = pad.l;
     datasets.forEach(ds=>{
-      svg += `<rect x="${lx}" y="8" width="12" height="8" rx="2" fill="${ds.color}"/>`;
-      svg += `<text x="${lx+16}" y="16" font-size="11" fill="#1C2733" font-family="Inter,sans-serif">${ds.label}</text>`;
-      lx += ds.label.length * 7 + 28;
+      svg += `<rect x="${lx}" y="6" width="10" height="10" rx="3" fill="${ds.color}"/>`;
+      svg += `<text x="${lx+15}" y="15" font-size="11" font-weight="600" style="${T}fill:var(--text);">${ds.label}</text>`;
+      lx += ds.label.length * 7 + 30;
     });
-
     svg += '</svg>';
     return svg;
   };
@@ -7163,7 +7171,7 @@ function renderMonatsabschluss(){
     box.appendChild(chartDiv); chartsWrap.appendChild(box);
     setTimeout(()=>{
       const w = box.offsetWidth-40 || 440;
-      chartDiv.innerHTML = makeSVGChart(buildFn(), isPercent, w, 200, fixedMax);
+      chartDiv.innerHTML = makeSVGChart(buildFn(), isPercent, w, 210, fixedMax);
       box.addEventListener('click',()=>{
         const overlay = document.createElement('div');
         overlay.className = 'chart-overlay';
@@ -7447,7 +7455,7 @@ function renderMonatsabschluss(){
       // "+ Neu" Button
       const addBtn = document.createElement('button');
       addBtn.textContent = '+ Produkt';
-      addBtn.style.cssText = 'font-size:12px;padding:4px 10px;border-radius:20px;border:1px dashed #9B59B6;background:transparent;color:#9B59B6;cursor:pointer;';
+      addBtn.style.cssText = 'font-size:12px;padding:4px 10px;border-radius:20px;border:1px dashed #9B59B6;background:transparent;color:var(--muted);cursor:pointer;';
       addBtn.addEventListener('click', ()=>{
         const name = prompt('Name des neuen Produkts:');
         if(!name || !name.trim()) return;
@@ -7542,7 +7550,7 @@ function renderMonatsabschluss(){
       const val = md.erreicht[p] || 0;
       const plan = md.plan[p] || 0;
       if(val > 0 && val >= plan){
-        td.style.cssText = 'background:#E6F7F4;'; // grün
+        td.style.cssText = 'background:var(--good-soft);color:var(--good);'; // grün
       } else if(val > 0 && val < plan){
         td.style.cssText = 'background:#FEF0EF;'; // hellrot
       }
@@ -7578,9 +7586,9 @@ function renderMonatsabschluss(){
           if(manualCrZiel > 0){
             // Manuelles CR-Ziel vorhanden → einfacher Vergleich: grün wenn erreicht, lila wenn nicht
             if(val > 0 && val >= manualCrZiel){
-              td.style.cssText = 'background:#4CAF50;color:#fff;border-radius:6px;';
+              td.style.cssText = 'background:var(--st2-bg);color:var(--st2-fg);';
             } else if(val > 0){
-              td.style.cssText = 'background:#CE93D8;color:#4A148C;border-radius:6px;';
+              td.style.cssText = 'background:var(--st0-bg);color:var(--st0-fg);';
             }
           } else {
             // Kein manuelles Ziel → Teamziel-Stufen als Fallback
@@ -7589,12 +7597,12 @@ function renderMonatsabschluss(){
             if(tzProduct && tz){
               td.style.cssText = crStuffeProd(tzProduct, val, tz);
             } else if(val > 0){
-              td.style.cssText = 'background:#CE93D8;color:#4A148C;border-radius:6px;';
+              td.style.cssText = 'background:var(--st0-bg);color:var(--st0-fg);';
             }
           }
         } else if(compareKey){
           const cmp = md[compareKey][p] || 0;
-          if(val >= cmp && val > 0) td.style.cssText = 'background:#E6F7F4;';
+          if(val >= cmp && val > 0) td.style.cssText = 'background:var(--good-soft);color:var(--good);';
         }
         const inp = document.createElement('input');
         inp.className = 'ma-input'; inp.type='text'; inp.inputMode='decimal';
@@ -7645,10 +7653,10 @@ function renderMonatsabschluss(){
 
     const mkNpsBox = (cls, labelTxt, val, onChange) => {
       const box = document.createElement('div');
-      box.style.cssText = `border-radius:16px;padding:14px 18px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.09);`;
-      if(cls === 'ziel') box.style.background = 'linear-gradient(135deg,#E3F2FD,#90CAF9)';
-      else if(val >= md.nps_plan && val > 0) box.style.background = 'linear-gradient(135deg,#E8F5E9,#A5D6A7)';
-      else box.style.background = 'linear-gradient(135deg,#FFF8E1,#FFE082)';
+      box.style.cssText = `border-radius:16px;padding:14px 18px;text-align:center;border:1px solid var(--border);`;
+      if(cls === 'ziel') box.style.background = 'var(--kpi-bg)';
+      else if(val >= md.nps_plan && val > 0) box.style.background = 'var(--good-soft)';
+      else box.style.background = 'var(--warn-soft)';
       const lbl = document.createElement('div');
       lbl.style.cssText = 'font-family:"Inter",sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;opacity:.75;';
       lbl.textContent = labelTxt;
@@ -7671,12 +7679,12 @@ function renderMonatsabschluss(){
 
     const mkCrGesamtBox = (cls, labelTxt, val, onChange, compareVal) => {
       const box = document.createElement('div');
-      box.style.cssText = `border-radius:16px;padding:14px 18px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.09);`;
-      if(cls === 'ziel') box.style.background = 'linear-gradient(135deg,#E3F2FD,#90CAF9)';
+      box.style.cssText = `border-radius:16px;padding:14px 18px;text-align:center;border:1px solid var(--border);`;
+      if(cls === 'ziel') box.style.background = 'var(--kpi-bg)';
       else if(compareVal !== undefined && val >= compareVal && val > 0)
-        box.style.background = 'linear-gradient(135deg,#E8F5E9,#A5D6A7)';
+        box.style.background = 'var(--good-soft)';
       else
-        box.style.background = 'linear-gradient(135deg,#FFF8E1,#FFE082)';
+        box.style.background = 'var(--warn-soft)';
 
       const lbl = document.createElement('div');
       lbl.style.cssText = 'font-family:"Inter",sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;opacity:.75;';
@@ -7697,7 +7705,7 @@ function renderMonatsabschluss(){
       if(isReached && cls !== 'ziel'){
         // Grüner Kreis
         const circle = document.createElement('div');
-        circle.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:#4CAF50;color:#fff;font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:700;cursor:pointer;';
+        circle.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:var(--good);color:#fff;font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:700;cursor:pointer;';
         circle.textContent = parseFloat(val||0).toFixed(2) + '%';
         circle.addEventListener('click', ()=>{ valDiv.innerHTML=''; valDiv.appendChild(inp); inp.focus(); inp.select(); });
         valDiv.appendChild(circle);
@@ -7731,11 +7739,11 @@ function renderMonatsabschluss(){
 
     // CR Gesamt Erreicht: berechnet, nicht editierbar
     const crErrBox = document.createElement('div');
-    crErrBox.style.cssText = `border-radius:16px;padding:14px 18px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.09);`;
+    crErrBox.style.cssText = `border-radius:16px;padding:14px 18px;text-align:center;border:1px solid var(--border);`;
     const isGreen = md.crGesamtZiel > 0 && crGesamtDisplay >= md.crGesamtZiel;
     crErrBox.style.background = isGreen
-      ? 'linear-gradient(135deg,#E8F5E9,#A5D6A7)'
-      : 'linear-gradient(135deg,#FFF8E1,#FFE082)';
+      ? 'var(--good-soft)'
+      : 'var(--warn-soft)';
     const crErrLbl = document.createElement('div');
     crErrLbl.style.cssText = 'font-family:"Inter",sans-serif;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;opacity:.75;';
     crErrLbl.textContent = 'CR Gesamt Erreicht';
@@ -7743,7 +7751,7 @@ function renderMonatsabschluss(){
     crErrVal.style.cssText = 'font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;text-align:center;';
     if(isGreen){
       const circle = document.createElement('div');
-      circle.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:#4CAF50;color:#fff;font-family:"IBM Plex Mono",monospace;font-size:16px;font-weight:700;';
+      circle.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:var(--good);color:#fff;font-family:"IBM Plex Mono",monospace;font-size:16px;font-weight:700;';
       circle.textContent = crGesamtDisplay.toFixed(2) + '%';
       crErrVal.appendChild(circle);
     } else {
@@ -7763,8 +7771,8 @@ function renderMonatsabschluss(){
     // CHT & Calls Luftbalsen (unter der NPS-Seite)
     const mkSimpleBox = (labelTxt, val, onChange, colorFn) => {
       const box = document.createElement('div');
-      box.style.cssText = 'border-radius:16px;padding:10px 8px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.09);';
-      box.style.background = colorFn ? colorFn(val) : 'linear-gradient(135deg,#F3E5F5,#CE93D8)';
+      box.style.cssText = 'border-radius:16px;padding:10px 8px;text-align:center;border:1px solid var(--border);';
+      box.style.background = colorFn ? colorFn(val) : 'var(--kpi-bg)';
       const lbl = document.createElement('div');
       lbl.style.cssText = 'font-family:"Inter",sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;opacity:.75;';
       lbl.textContent = labelTxt;
@@ -7790,15 +7798,15 @@ function renderMonatsabschluss(){
     chtCalls.style.cssText = 'display:flex;flex-direction:column;gap:10px;min-width:80px;max-width:80px;flex-shrink:0;';
 
     const chtColor = v => {
-      if(!v) return 'linear-gradient(135deg,#F3E5F5,#CE93D8)';
-      if(v <= 550) return 'linear-gradient(135deg,#E8F5E9,#A5D6A7)';
-      if(v <= 680) return 'linear-gradient(135deg,#FFF8E1,#FFE082)';
-      return 'linear-gradient(135deg,#FFEBEE,#EF9A9A)';
+      if(!v) return 'var(--kpi-bg)';
+      if(v <= 550) return 'var(--good-soft)';
+      if(v <= 680) return 'var(--warn-soft)';
+      return 'var(--bad-soft)';
     };
     if(!md.cht) md.cht = 0;
     if(!md.calls) md.calls = 0;
     chtCalls.appendChild(mkSimpleBox('CHT', md.cht, v=>{ md.cht=v; }, chtColor));
-    chtCalls.appendChild(mkSimpleBox('Calls', md.calls, v=>{ md.calls=v; }, ()=>'linear-gradient(135deg,#E3F2FD,#90CAF9)'));
+    chtCalls.appendChild(mkSimpleBox('Calls', md.calls, v=>{ md.calls=v; }, ()=>'var(--kpi-bg)'));
 
     // DA-Blase: nur für MF-Team, nur ab Oktober
     const DA_MONATE = ['Oktober','November','Dezember'];
@@ -7807,10 +7815,10 @@ function renderMonatsabschluss(){
       if(md.daQteAssisted === undefined) md.daQteAssisted = 0;
 
       const daBox = document.createElement('div');
-      daBox.style.cssText = 'border:2px solid #9B59B6;border-radius:16px;padding:14px 18px;text-align:center;box-shadow:0 4px 14px rgba(155,89,182,0.18);background:rgba(155,89,182,0.06);min-width:150px;';
+      daBox.style.cssText = 'border:1px solid var(--border);border-radius:12px;padding:14px 18px;text-align:center;background:var(--kpi-bg);min-width:150px;';
 
       const daTitle = document.createElement('div');
-      daTitle.style.cssText = 'font-family:"Inter",sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#9B59B6;margin-bottom:10px;';
+      daTitle.style.cssText = 'font-family:"Inter",sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px;';
       daTitle.textContent = 'DA';
       daBox.appendChild(daTitle);
 
@@ -7822,7 +7830,7 @@ function renderMonatsabschluss(){
         lbl.textContent = labelTxt;
         const inp = document.createElement('input');
         inp.type = 'text'; inp.inputMode = 'decimal';
-        inp.style.cssText = 'background:transparent;border:none;border-bottom:1px solid rgba(155,89,182,0.4);outline:none;font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;width:100%;text-align:center;color:#6C3483;';
+        inp.style.cssText = 'background:transparent;border:none;border-bottom:1px solid var(--border);outline:none;font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;width:100%;text-align:center;color:var(--text);';
         inp.value = parseFloat(val||0).toFixed(2);
         inp.addEventListener('focus', e=>e.target.select());
         inp.addEventListener('change', e=>{
@@ -7836,7 +7844,7 @@ function renderMonatsabschluss(){
       daBox.appendChild(mkDaField('NETTO STAND', md.daNettoStand, v=>{ md.daNettoStand=v; }));
 
       const sep = document.createElement('div');
-      sep.style.cssText = 'border-top:1px solid rgba(155,89,182,0.2);margin:6px 0;';
+      sep.style.cssText = 'border-top:1px solid var(--border);margin:6px 0;';
       daBox.appendChild(sep);
 
       daBox.appendChild(mkDaField('QTE. ASSISTED', md.daQteAssisted, v=>{ md.daQteAssisted=v; }));
@@ -7895,13 +7903,13 @@ function renderTeamZiele(){
   function crStuffeStyle(val, tz){
     const v = parseFloat(val)||0;
     // Stufe 3 (höchste) - nur MF
-    if(tz.crZiel3 && v >= parseFloat(Object.values(tz.crZiel3)[0]||0)) return 'background:#1B5E20;color:#fff;';
+    if(tz.crZiel3 && v >= parseFloat(Object.values(tz.crZiel3)[0]||0)) return 'background:var(--st3-bg);color:var(--st3-fg);';
     // Stufe 2
-    if(tz.crZiel2 && v >= parseFloat(Object.values(tz.crZiel2)[0]||0)) return 'background:#4CAF50;color:#fff;';
+    if(tz.crZiel2 && v >= parseFloat(Object.values(tz.crZiel2)[0]||0)) return 'background:var(--st2-bg);color:var(--st2-fg);';
     // Stufe 1
-    if(tz.crZiel1 && v >= parseFloat(Object.values(tz.crZiel1)[0]||0)) return 'background:#81C784;color:#1B5E20;';
+    if(tz.crZiel1 && v >= parseFloat(Object.values(tz.crZiel1)[0]||0)) return 'background:var(--st1-bg);color:var(--st1-fg);';
     // Unter Stufe 1
-    return 'background:#CE93D8;color:#4A148C;';
+    return 'background:var(--st0-bg);color:var(--st0-fg);';
   }
 
   function crStuffeProd(p, val, tz){
@@ -7910,10 +7918,10 @@ function renderTeamZiele(){
     const s2 = parseFloat(tz.crZiel2[p]||0);
     // Stufe 3 nur für MF-Produkt
     const s3 = (p === 'MF' && tz.crZiel3) ? parseFloat(tz.crZiel3[p]||0) : null;
-    if(s3 !== null && v >= s3) return 'background:#1B5E20;color:#fff;border-radius:6px;';
-    if(v >= s2) return 'background:#4CAF50;color:#fff;border-radius:6px;';
-    if(v >= s1) return 'background:#81C784;color:#1B5E20;border-radius:6px;';
-    return 'background:#CE93D8;color:#4A148C;border-radius:6px;';
+    if(s3 !== null && v >= s3) return 'background:var(--st3-bg);color:var(--st3-fg);';
+    if(v >= s2) return 'background:var(--st2-bg);color:var(--st2-fg);';
+    if(v >= s1) return 'background:var(--st1-bg);color:var(--st1-fg);';
+    return 'background:var(--st0-bg);color:var(--st0-fg);';
   }
 
   function addRow(t, rowCls, labelTxt, leftCells, prodCells){
@@ -7993,24 +8001,24 @@ function renderTeamZiele(){
       if(tz.daQteAssisted === undefined) tz.daQteAssisted = 0;
       const daTd = document.createElement('td');
       daTd.rowSpan = 2; daTd.colSpan = 2;
-      daTd.style.cssText = 'border:2px solid #9B59B6;border-radius:10px;padding:8px 10px;text-align:center;vertical-align:middle;background:rgba(155,89,182,0.06);';
+      daTd.style.cssText = 'border:1px solid var(--border);border-radius:10px;padding:8px 10px;text-align:center;vertical-align:middle;background:var(--kpi-bg);';
       const mkDaField = (labelTxt, val, onChange) => {
         const wrap = document.createElement('div');
         wrap.style.marginBottom = '4px';
         const lbl = document.createElement('div');
-        lbl.style.cssText = 'font-size:9px;font-weight:700;color:#9B59B6;letter-spacing:.07em;margin-bottom:2px;';
+        lbl.style.cssText = 'font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.07em;margin-bottom:2px;';
         lbl.textContent = labelTxt;
         const inp = document.createElement('input');
         inp.type = 'text'; inp.inputMode = 'decimal';
         inp.value = val;
-        inp.style.cssText = 'width:100%;background:transparent;border:none;border-bottom:1px solid #9B59B6;outline:none;font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:700;text-align:center;color:#9B59B6;';
+        inp.style.cssText = 'width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);outline:none;font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:700;text-align:center;color:var(--muted);';
         inp.addEventListener('focus', e=>e.target.select());
         inp.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); scheduleSave(); renderTeamZiele(); });
         wrap.appendChild(lbl); wrap.appendChild(inp);
         return wrap;
       };
       const daTitle = document.createElement('div');
-      daTitle.style.cssText = 'font-size:11px;font-weight:800;color:#9B59B6;margin-bottom:6px;letter-spacing:.06em;';
+      daTitle.style.cssText = 'font-size:11px;font-weight:800;color:var(--muted);margin-bottom:6px;letter-spacing:.06em;';
       daTitle.textContent = 'DA';
       daTd.appendChild(daTitle);
       daTd.appendChild(mkDaField('NETTO STAND', tz.daNettoStand, v=>{ tz.daNettoStand=v; }));
@@ -8045,7 +8053,7 @@ function renderTeamZiele(){
 
       if(erreicht){
         const circle = document.createElement('div');
-        circle.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#4CAF50;color:#fff;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:700;cursor:pointer;margin:auto;';
+        circle.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:var(--good);color:#fff;font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:700;cursor:pointer;margin:auto;';
         circle.textContent = val;
         circle.title = 'Klicken zum Bearbeiten';
         circle.addEventListener('click', ()=>{ circle.replaceWith(inp); inp.focus(); inp.select(); });
@@ -9120,7 +9128,7 @@ function updateFokusBadge(){
   const today = fkIsoDate(new Date());
   const lf = fkGetLeaderFilter();
   const n = fkVereinbarungen().filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) <= today && v.agent && fkMatchesLeader(v.agent, lf)).length;
-  btn.innerHTML = '📌 Fokus der Woche' + (n ? ` <span class="fk-badge">${n}</span>` : '');
+  btn.innerHTML = '<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5M9 3h6l-1 6 4 4H6l4-4z"/></svg><span>Fokus der Woche</span>' + (n ? ` <span class="fk-badge">${n}</span>` : '');
 }
 
 let fkTeamFilter = 'alle';
@@ -10291,7 +10299,8 @@ function renderOverview(){
     const longestNameWidth = teamAgents.reduce((max,a)=>Math.max(max, measureCtx.measureText(a.name||'').width), 30);
     const nameColWidth = Math.ceil(longestNameWidth + 20 /* Zell-Padding links */ + 18 /* Pill-Padding */ + 4 /* Zell-Padding rechts */ + 6 /* Puffer */) + 'px';
     // +2 = NPS + LQ, +1 = CR, +2 = Calls + CHT
-    const gridCols = `${nameColWidth} repeat(${2 + displayedProducts.length + 1 + 2}, 1fr)`;
+    // v152: Mindestbreiten je Spaltenart, damit Produkt- und CR-Spalten nie zusammengedrückt werden
+    const gridCols = `${nameColWidth} repeat(2, minmax(78px,1fr)) repeat(${displayedProducts.length}, minmax(46px,1fr)) minmax(70px,1fr) repeat(2, minmax(78px,1fr))`;
 
     function buildGrid(agentsSubset){
       const grid = document.createElement('div');
@@ -10856,7 +10865,7 @@ if('serviceWorker' in navigator){
     p.style.left=a.offsetLeft+'px'; p.style.top=a.offsetTop+'px';
     p.style.width=a.offsetWidth+'px'; p.style.height=a.offsetHeight+'px';
   }
-  function pills(){ pill(document.querySelector('.tabs')); pill(document.getElementById('coachdash-subtabs')); pill(document.getElementById('ov-subtabs')); }
+  function pills(){ /* v152: Seitenleiste + Unterstrich-Tabs, keine gleitende Pille mehr */ }
   addEventListener('resize', pills);
   document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('.tab-btn')) setTimeout(pills, 30); }, true);
 
@@ -11239,10 +11248,10 @@ html[data-fx-theme="dark"] [style*="; color:#4A148C" i]:not(#overview-capture *)
 html[data-fx-theme="dark"] [style*="'color:#4A148C" i]:not(#overview-capture *),
 html[data-fx-theme="dark"] [style*="\"color:#4A148C" i]:not(#overview-capture *),
 html[data-fx-theme="dark"] [style*="color: rgb(74, 20, 140)"]:not(#overview-capture *){color:#BD94F0!important;}
-html[data-fx-theme="dark"] [style*=";color:#6C3483" i]:not(#overview-capture *),
-html[data-fx-theme="dark"] [style*="; color:#6C3483" i]:not(#overview-capture *),
-html[data-fx-theme="dark"] [style*="'color:#6C3483" i]:not(#overview-capture *),
-html[data-fx-theme="dark"] [style*="\"color:#6C3483" i]:not(#overview-capture *),
+html[data-fx-theme="dark"] [style*=";color:var(--text)" i]:not(#overview-capture *),
+html[data-fx-theme="dark"] [style*="; color:var(--text)" i]:not(#overview-capture *),
+html[data-fx-theme="dark"] [style*="'color:var(--text)" i]:not(#overview-capture *),
+html[data-fx-theme="dark"] [style*="\"color:var(--text)" i]:not(#overview-capture *),
 html[data-fx-theme="dark"] [style*="color: rgb(108, 52, 131)"]:not(#overview-capture *){color:#CDA6DD!important;}
 html[data-fx-theme="dark"] [style*=";color:#B00" i]:not(#overview-capture *),
 html[data-fx-theme="dark"] [style*="; color:#B00" i]:not(#overview-capture *),
@@ -11439,6 +11448,233 @@ html[data-fx-theme="dark"] .cr-box{box-shadow:none;}
 })();
 </script>
 
+
+
+<!-- ===== Layout v152: Seitenleiste · Kopfzeile · einheitliche Tabs & Buttons ===== -->
+<style id="fx-layer-4">
+:root{
+  --side-w:244px;
+  --bg:#F4F5F7;--panel:#FFFFFF;--border:#E3E6EB;--text:#161B22;--muted:#5D6877;
+  --good:#1E8A4F;--good-soft:#E6F4EC;--warn:#A86400;--warn-soft:#FCF1DF;--bad:#C2302B;--bad-soft:#FBEAE9;--kpi-bg:#F7F8FA;--ink:#161B22;
+  --st0-bg:#FBEAE9;--st0-fg:#B42B26;--st1-bg:#DCF0E3;--st1-fg:#1A7343;--st2-bg:#2E9D63;--st2-fg:#FFFFFF;--st3-bg:#176A40;--st3-fg:#FFFFFF;
+  --side-bg:#12161C;--side-border:#222932;--side-fg:#C3CBD5;--side-muted:#6F7B89;--side-hover:#1B2129;--side-active:#26131E;
+}
+html[data-fx-theme="dark"]{--side-bg:#0C1015;--side-border:#1E252E;--side-hover:#161C24;--side-active:#2A1222;
+  --good:#4CC38A;--good-soft:#15301F;--warn:#E5A54B;--warn-soft:#33270F;--bad:#F07070;--bad-soft:#3A1B1B;--kpi-bg:#18202A;--ink:#0E1319;
+  --st0-bg:#3A1B1B;--st0-fg:#F49A96;--st1-bg:#1A3A28;--st1-fg:#86DDA9;--st2-bg:#24804F;--st2-fg:#FFFFFF;--st3-bg:#3CB979;--st3-fg:#08170F;}
+
+body{padding:0;background:var(--bg);}
+#fx-bg{display:none!important;}
+.fx-pill{display:none!important;}
+
+/* Seitenleiste */
+.app-side{position:fixed;top:0;bottom:0;left:0;width:var(--side-w);background:var(--side-bg);color:var(--side-fg);
+  display:flex;flex-direction:column;z-index:1100;padding:22px 14px 16px;overflow-y:auto;border-right:1px solid var(--side-border);}
+.app-side #fx-logo{margin:0 6px 18px;}
+.app-side #fx-logo .word{color:#fff;font-size:16px;}
+.app-side #fx-logo .sub{color:var(--side-muted);font-size:9.5px;}
+.side-nav{display:flex;flex-direction:column;gap:2px;flex:1;}
+.side-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--side-muted);padding:16px 10px 6px;}
+.app-side .side-link{display:flex;align-items:center;gap:11px;width:100%;background:transparent!important;border:0!important;border-radius:8px;
+  color:var(--side-fg)!important;padding:9px 10px;font-family:'Inter',sans-serif;font-weight:500;font-size:13.5px;text-align:left;cursor:pointer;position:relative;box-shadow:none!important;transition:background .15s,color .15s;}
+.app-side .side-link:hover{background:var(--side-hover)!important;color:#fff!important;}
+.app-side .side-link.active{background:var(--side-active)!important;color:#fff!important;font-weight:600;}
+.app-side .side-link.active::before{content:'';position:absolute;left:-14px;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:var(--tmg);}
+.app-side .side-link.active .nav-ic{color:var(--tmg);}
+.app-side .side-link:focus-visible{outline:2px solid var(--tmg);outline-offset:1px;}
+.nav-ic{width:17px;height:17px;flex-shrink:0;display:inline-block;vertical-align:-3px;}
+.app-side .todo-fab-badge{margin-left:auto;background:var(--tmg)!important;color:#fff;border-radius:999px;padding:1px 7px;font-size:11px;font-weight:700;}
+.side-foot{display:flex;flex-direction:column;gap:4px;padding:14px 10px 0;border-top:1px solid var(--side-border);margin-top:14px;}
+.side-foot .user-label{color:var(--side-fg);font-size:11.5px;}
+.side-foot .board-version-label{background:none;border:0;padding:0;color:var(--side-muted);font-size:10.5px;}
+.side-burger{display:none;align-items:center;justify-content:center;width:38px;height:38px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--text);cursor:pointer;flex-shrink:0;}
+.side-burger svg{width:20px;height:20px;}
+.side-scrim{display:none;}
+
+/* Hauptbereich + Kopfzeile */
+.wrap{max-width:none;margin:0 0 0 var(--side-w);padding:0 32px 80px;}
+.wrap > [id^="view-"]{max-width:1480px;}
+.tabs-sticky-wrap.app-top{display:flex;align-items:center;gap:16px;padding:18px 0 14px;margin:0 0 24px;background:var(--bg);box-shadow:none;border-bottom:1px solid var(--border);}
+.app-title{flex:1;min-width:0;}
+.app-title .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--tmg);}
+.app-title h1{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;letter-spacing:-.015em;margin:3px 0 0;line-height:1.15;text-wrap:balance;}
+.app-top .topbar{margin:0;padding:0;background:transparent!important;border:0;border-radius:0;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;gap:10px;flex-wrap:nowrap;}
+.app-top #fx-theme-btn{width:34px;height:34px;}
+.ov-view-outer{width:auto!important;margin-left:0!important;}
+
+/* Flächen: ruhig statt Milchglas */
+.card,.agent-panel,.cv-agent-block,.ranking-box,.ma-chart-box,.hof-month-card,.vl-chart-wrap,.cp-card,#fx-pulse{
+  background-color:var(--panel);backdrop-filter:none;-webkit-backdrop-filter:none;}
+
+/* Unter-Reiter: einheitlich als Unterstrich-Tabs */
+.subtabs{display:flex;flex-wrap:wrap;align-items:flex-end;gap:2px;border-bottom:1px solid var(--border);margin:0 0 22px;padding:0;position:relative;}
+.subtabs .tab-btn{display:inline-flex;align-items:center;gap:7px;background:none!important;border:0!important;border-bottom:2px solid transparent!important;border-radius:0!important;
+  color:var(--muted)!important;padding:10px 14px 11px!important;font-family:'Inter',sans-serif!important;font-weight:600!important;font-size:13px!important;margin-bottom:-1px;box-shadow:none!important;}
+.subtabs .tab-btn:hover{color:var(--text)!important;}
+.subtabs .tab-btn.active{color:var(--text)!important;border-bottom-color:var(--tmg)!important;}
+.subtabs .tab-btn.active .nav-ic{color:var(--tmg);}
+.subtabs .nav-ic{width:15px;height:15px;}
+.subtabs .fk-badge{margin-left:2px;}
+.subtabs .cd-new-wrap{margin-left:auto;align-self:center;margin-bottom:8px;}
+
+/* Buttons */
+button.primary,.cp-add-btn{border-radius:8px;}
+.btn-secondary{display:inline-flex;align-items:center;gap:7px;background:var(--panel);color:var(--text);border:1px solid var(--border);padding:9px 14px;border-radius:8px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;line-height:1.2;}
+.btn-secondary:hover{border-color:var(--text);}
+.btn-danger-ghost{background:transparent;color:var(--red);border:1px solid var(--border);padding:9px 14px;border-radius:8px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;}
+.btn-danger-ghost:hover:not(:disabled){background:var(--red-soft);border-color:var(--red);}
+.toolbar{flex-wrap:wrap;gap:12px;}
+.toolbar-hint{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);}
+
+
+/* Mitarbeiter Ziele (Bild-Übersicht): ruhiger Look, zwei Spalten nur wenn genug Platz */
+#overview-capture{background:var(--panel)!important;border:1px solid var(--border)!important;border-radius:16px!important;box-shadow:0 1px 2px rgba(16,24,40,.04)!important;padding:24px!important;border-top:4px solid var(--tmg)!important;}
+#overview-capture::before,#overview-capture::after{display:none!important;}
+#overview-capture > .ov-watermark{position:absolute;bottom:14px;right:22px;font-size:13px;color:rgba(226,0,116,.28);}
+.ov-team{container-type:inline-size;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);}
+.ov-team-head{background:#161B22!important;}
+@container (max-width: 1320px){ .ov-columns-wrap{flex-direction:column;} .ov-column-divider{width:100%!important;height:8px;} }
+.ov-cell.sales-cell{background:none!important;}
+.ov-badge-glass{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;padding:3px 6px!important;}
+#sync-debug-box{left:calc(var(--side-w) + 16px)!important;}
+@media (max-width:900px){#sync-debug-box{left:16px!important;}}
+
+
+/* ===== Team Ziele: neutrale Zeilen, Farbe nur für Status ===== */
+.tz-table,.ma-table{border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);background:var(--panel);overflow:hidden;border-collapse:separate!important;border-spacing:0;}
+.tz-table td,.tz-table th{border:0!important;border-bottom:1px solid var(--border)!important;box-shadow:none!important;padding:10px 12px;color:inherit;}
+.tz-table tr:last-child td{border-bottom:0!important;}
+.tz-table tr{background:var(--panel)!important;color:var(--text)!important;}
+.tz-table tr.tz-row-header{background:var(--ink)!important;}
+.tz-table tr.tz-row-header td{color:#AEB8C4!important;font-weight:600;border-bottom:0!important;}
+.tz-table tr.tz-row-header td:first-child{color:#fff!important;}
+.tz-table td.tz-label{color:var(--muted)!important;font-weight:600;white-space:nowrap;}
+.tz-table tr.tz-row-soll td:not(.tz-label),.tz-table tr.tz-row-ist td:not(.tz-label){font-size:14px;}
+.tz-table tr.tz-row-soll td.tz-label,.tz-table tr.tz-row-ist td.tz-label{color:var(--text)!important;}
+.tz-table tr.tz-row-noch td:not(.tz-label){color:var(--text);}
+.tz-table tr.tz-row-protag td:not(.tz-label){color:var(--muted);font-weight:500;}
+.tz-table tr.tz-row-cr td{border-top:2px solid var(--border)!important;}
+.tz-table tr.tz-row-cr td.tz-label{color:var(--text)!important;}
+.tz-table tr.tz-row-crziel1 td:not(.tz-label),.tz-table tr.tz-row-crziel2 td:not(.tz-label),.tz-table tr.tz-row-crziel3 td:not(.tz-label){color:var(--muted);font-weight:500;}
+.tz-table tr[class^="tz-row-crziel"] td.tz-label::before{content:'';display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:8px;vertical-align:0;}
+.tz-table tr.tz-row-crziel1 td.tz-label::before{background:var(--st1-bg);box-shadow:inset 0 0 0 1px var(--st1-fg);}
+.tz-table tr.tz-row-crziel2 td.tz-label::before{background:var(--st2-bg);}
+.tz-table tr.tz-row-crziel3 td.tz-label::before{background:var(--st3-bg);}
+.tz-table tr.tz-row-storno td{border-top:2px solid var(--border)!important;}
+.tz-table tr.tz-row-storno td:not(.tz-label){color:var(--warn);}
+.tz-table td[style*="--st"]{border-radius:0;font-weight:700;}
+.tz-table td input:focus{background:var(--tmg-soft)!important;border-radius:4px;}
+.tz-title,.ma-title{font-size:17px!important;}
+
+/* KPI-Kästen rechts (CR gestern/Monat/Ziel) */
+.cr-box{background:var(--panel)!important;background-image:none!important;border:1px solid var(--border);box-shadow:none!important;border-radius:12px!important;text-align:left!important;padding:14px 16px!important;color:var(--text)!important;}
+.cr-box::before{display:none!important;}
+.cr-box .cr-box-label{color:var(--muted);opacity:1!important;font-size:10.5px;}
+.cr-box .cr-box-val{font-size:26px!important;}
+.cr-box.gestern .cr-box-val{color:var(--warn);}
+.cr-box.monat .cr-box-val{color:var(--good);}
+.cr-box.ziel .cr-box-val{color:var(--text);}
+.cr-box.gestern{border-top:3px solid var(--warn);} .cr-box.monat{border-top:3px solid var(--good);} .cr-box.ziel{border-top:3px solid var(--ink);}
+
+
+.tz-team-layout{align-items:flex-start;}
+.tz-table-wrap{overflow-x:auto;}
+.tz-team-layout .cr-sidebar{flex:0 0 210px;min-width:0;}
+.cr-box .cr-box-val,.cr-box .cr-box-val input{text-align:left!important;}
+@media (max-width: 900px){ .tz-team-layout .cr-sidebar{flex:1 1 auto;} }
+/* ===== Monatsabschluss ===== */
+.ma-charts-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+.ma-chart-box{min-width:0!important;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);padding:16px 18px 10px!important;}
+.ma-chart-box-title{font-family:'Inter',sans-serif!important;font-size:13px!important;font-weight:600!important;color:var(--text);}
+.ma-table th{background:var(--ink)!important;color:#AEB8C4!important;font-weight:600!important;}
+.ma-table th:first-child{color:#fff!important;}
+.ma-table td{border-bottom:1px solid var(--border)!important;color:var(--text);}
+.ma-table tr td,.ma-table tr:nth-child(even) td{background:var(--panel);}
+.ma-table tr td:first-child{color:var(--muted)!important;font-weight:600!important;}
+.ma-table tr.ma-row-erreicht td:first-child,.ma-table tr.ma-row-cr td:first-child{color:var(--text)!important;}
+.ma-table tr.ma-row-cr td{border-top:2px solid var(--border);}
+.ma-table tr.ma-row-crziel td:not(:first-child){color:var(--muted);font-weight:500;}
+.ma-table tr.ma-row-storno td:not(:first-child){color:var(--warn);}
+.ma-nps-row td{background:var(--panel)!important;color:var(--text)!important;}
+.ma-month-tabs{gap:4px!important;}
+.ma-month-btn{border-radius:8px!important;font-family:'Inter',sans-serif!important;font-size:12.5px!important;background:var(--panel)!important;color:var(--muted)!important;}
+.ma-month-btn.active{background:var(--ink)!important;border-color:var(--ink)!important;color:#fff!important;}
+.ma-side-box > div{border-radius:12px!important;}
+.ma-tip{position:fixed;z-index:5000;pointer-events:none;background:var(--ink);color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:6px 9px;border-radius:6px;box-shadow:0 6px 18px rgba(0,0,0,.25);white-space:nowrap;font-variant-numeric:tabular-nums;}
+
+.ma-table tr.ma-row-plan td,.ma-table tr.ma-row-erreicht td,.ma-table tr.ma-row-cr td,.ma-table tr.ma-row-crziel td,.ma-table tr.ma-row-storno td{background:var(--panel);}
+.ma-table tr.ma-row-plan td:first-child,.ma-table tr.ma-row-crziel td:first-child,.ma-table tr.ma-row-storno td:first-child{color:var(--muted)!important;}
+.ma-table tr.ma-row-erreicht td:first-child,.ma-table tr.ma-row-cr td:first-child{color:var(--text)!important;}
+.cr-box .cr-box-val{color:var(--text)!important;}
+@media (max-width: 1000px){ .ma-charts-wrap{grid-template-columns:1fr;} }
+
+
+/* ===== Allgemein: doppelte Überschriften weg (Seitentitel steht oben), einheitliche Karten ===== */
+.hof-trophy,.hof-title,.ki-title,.fk-title{display:none!important;}
+.hof-month-card,.vl-chart-wrap,.ranking-box,.cp-card,.cp-chart-card,.cv-agent-block,.tw-team-wrap,#fx-pulse,.fk-wrap,.card{
+  box-shadow:none!important;border:1px solid var(--border)!important;border-radius:12px!important;}
+.tw-team-wrap{overflow:hidden;}
+.tw-team-head,.ov-team-head{background:var(--ink)!important;}
+.wrap svg text:not([font-family]):not([style*="font-family"]){font-family:'Inter',sans-serif;}
+
+
+/* Dunkel: Tabellen-Eingabefelder ohne eigene Kästen, Zeilen neutral */
+html[data-fx-theme="dark"] .tz-table td input,html[data-fx-theme="dark"] .ma-table input,html[data-fx-theme="dark"] .cr-box input,html[data-fx-theme="dark"] .ma-side-box input,html[data-fx-theme="dark"] .tw-table input{background:transparent!important;}
+html[data-fx-theme="dark"] .tz-table td input:focus,html[data-fx-theme="dark"] .ma-table input:focus{background:var(--tmg-soft)!important;}
+html[data-fx-theme="dark"] .tz-table tr{background:var(--panel)!important;}
+html[data-fx-theme="dark"] .tz-table tr.tz-row-header{background:var(--ink)!important;}
+html[data-fx-theme="dark"] .cr-box{background-color:var(--panel)!important;color:var(--text)!important;}
+html[data-fx-theme="dark"] .ma-table tr.ma-row-plan td,html[data-fx-theme="dark"] .ma-table tr.ma-row-erreicht td,html[data-fx-theme="dark"] .ma-table tr.ma-row-cr td,html[data-fx-theme="dark"] .ma-table tr.ma-row-crziel td,html[data-fx-theme="dark"] .ma-table tr.ma-row-storno td,html[data-fx-theme="dark"] .ma-table tr:nth-child(even) td,html[data-fx-theme="dark"] .ma-nps-row td{background-color:var(--panel);}
+html[data-fx-theme="dark"] .ma-table tr.ma-row-plan td:first-child,html[data-fx-theme="dark"] .ma-table tr.ma-row-crziel td:first-child,html[data-fx-theme="dark"] .ma-table tr.ma-row-storno td:first-child{color:var(--muted)!important;}
+html[data-fx-theme="dark"] .ma-table tr.ma-row-erreicht td:first-child,html[data-fx-theme="dark"] .ma-table tr.ma-row-cr td:first-child{color:var(--text)!important;}
+
+/* Handy / Tablet: Seitenleiste ausklappbar */
+@media (max-width: 900px){
+  .app-side{transform:translateX(-100%);transition:transform .25s ease;}
+  body.side-open .app-side{transform:none;box-shadow:0 0 40px rgba(0,0,0,.35);}
+  body.side-open .side-scrim{display:block;position:fixed;inset:0;background:rgba(10,14,20,.45);z-index:1090;}
+  .wrap{margin-left:0;padding:0 16px 60px;}
+  .side-burger{display:inline-flex;}
+  .tabs-sticky-wrap.app-top{gap:12px;padding:12px 0 10px;margin-bottom:18px;}
+  .app-title .eyebrow{display:none;}
+  .app-title h1{font-size:19px;margin:0;}
+  .app-top .sync-badge{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .subtabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;}
+  .subtabs .tab-btn{white-space:nowrap;}
+  #coachdash-subtabs{flex-wrap:wrap;overflow:visible;}
+  #coachdash-subtabs .cd-new-wrap{order:-1;flex:0 0 100%;margin:0 0 10px;}
+}
+@media print{.app-side,.side-burger{display:none!important}.wrap{margin-left:0}}
+</style>
+<script>
+(function(){
+  function setTitle(){
+    var a=document.querySelector('.app-side .side-link.active'), t=document.getElementById('app-page-title');
+    if(a && t){ t.textContent = a.dataset.title || a.textContent.trim(); }
+  }
+
+  // Tooltip für Diagrammpunkte (Monatsabschluss)
+  var tip=null;
+  document.addEventListener('mouseover',function(e){
+    var t=e.target.closest && e.target.closest('.ma-pt'); if(!t) return;
+    if(!tip){ tip=document.createElement('div'); tip.className='ma-tip'; document.body.appendChild(tip); }
+    tip.textContent=t.getAttribute('data-tip'); tip.hidden=false;
+    var r=t.getBoundingClientRect(); tip.style.left=(r.left+r.width/2 - tip.offsetWidth/2)+'px'; tip.style.top=(r.top-tip.offsetHeight-6)+'px';
+  });
+  document.addEventListener('mouseout',function(e){ if(tip && e.target.closest && e.target.closest('.ma-pt')) tip.hidden=true; });
+  function closeSide(){ document.body.classList.remove('side-open'); }
+  function boot(){
+    var side=document.getElementById('app-side');
+    if(side) new MutationObserver(setTitle).observe(side,{attributes:true,attributeFilter:['class'],subtree:true});
+    var bu=document.getElementById('side-burger'); if(bu) bu.addEventListener('click',function(){ document.body.classList.toggle('side-open'); });
+    var sc=document.getElementById('side-scrim'); if(sc) sc.addEventListener('click',closeSide);
+    if(side) side.addEventListener('click',function(e){ if(e.target.closest('.side-link')) setTimeout(closeSide,60); });
+    addEventListener('keydown',function(e){ if(e.key==='Escape') closeSide(); });
+    setTitle();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+})();
+</script>
 
 </body>
 </html>
