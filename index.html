@@ -613,7 +613,7 @@ canvas.vl-canvas{width:100%;max-height:280px;}
 .chart-zoom-btn:hover{border-color:var(--tmg);color:var(--tmg);}
 .chart-zoom-reset{font-size:14px;}
 .chart-zoom-label{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);min-width:42px;text-align:center;}
-.chart-zoom-viewport{width:100%;height:400px;overflow:hidden;border-radius:12px;position:relative;touch-action:none;}
+.chart-zoom-viewport{width:100%;height:auto;min-height:300px;overflow:hidden;border-radius:12px;position:relative;touch-action:none;}
 .vl-chart-wrap{cursor:zoom-in;transition:box-shadow 0.2s;}
 .vl-chart-wrap:hover{box-shadow:0 6px 24px rgba(0,0,0,0.14);}
 
@@ -1074,7 +1074,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 153;
+const BOARD_VERSION = 154;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -7089,51 +7089,59 @@ function renderMonatsabschluss(){
 
   const makeSVGChart = (datasets, isPercent, w, h, fixedMax) => {
     // v152: ruhigeres Diagramm – Werte nur am letzten Punkt, alle anderen beim Drüberfahren (Tooltip)
-    const pad = {l:44,r:52,t:34,b:28};
+    const pad = {l:44,r:26,t:42,b:30};
     const cw = w-pad.l-pad.r; const ch = h-pad.t-pad.b;
     const allVals = datasets.flatMap(d=>d.values.filter(v=>v>0));
     // „Schöne“ Achsenwerte (z.B. 0/250/500/750/1000) und nie Werte außerhalb des Diagramms
     const dataMax = allVals.length ? Math.max(...allVals) : 0;
     const niceStep = raw => { const m = Math.pow(10, Math.floor(Math.log10(raw||1))); const f = raw/m; return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*m; };
-    let maxVal = Math.max(fixedMax || 0, dataMax*1.08, isPercent ? 5 : 10);
-    if(fixedMax && dataMax <= fixedMax) maxVal = fixedMax;
-    else maxVal = niceStep(maxVal/4)*4;
-    if(isPercent && maxVal > 100 && dataMax <= 100) maxVal = 100;
+    let maxVal, nTicks = 4;
+    if(fixedMax && dataMax*1.08 <= fixedMax){ maxVal = fixedMax; }
+    else {
+      const raw = Math.max(dataMax*1.08, isPercent ? 5 : 10);
+      const step = niceStep(raw/5);
+      nTicks = Math.max(3, Math.ceil(raw/step));
+      maxVal = nTicks*step;
+    }
+    if(isPercent && maxVal > 100 && dataMax <= 100){ maxVal = 100; nTicks = 4; }
     const labels = datasets[0].labels;
-    const xPos = (i) => pad.l + (labels.length>1 ? (i/(labels.length-1))*cw : cw/2);
+    const inset = 18; // Abstand zur Achse, damit die ersten Zahlen nicht mit der Achsenbeschriftung kollidieren
+    const xPos = (i) => pad.l + inset + (labels.length>1 ? (i/(labels.length-1))*(cw-2*inset) : (cw-2*inset)/2);
     const yPos = (v) => pad.t + ch - (v/maxVal)*ch;
     const fmt = v => isPercent ? v.toFixed(1).replace('.',',')+'%' : String(Math.round(v));
     const T = 'font-family:Inter,sans-serif;';
+    const fs = w >= 600 ? 12 : 10;   // Schriftgröße: im großen Pop-up etwas größer
 
     let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block;overflow:visible;">`;
-    for(let i=0;i<=4;i++){
-      const y = pad.t + ch - (i/4)*ch;
-      const tv = maxVal*i/4; const val = isPercent ? (Number.isInteger(tv)?tv:tv.toFixed(1)).toString().replace('.',',')+'%' : Math.round(tv).toLocaleString('de-DE');
+    for(let i=0;i<=nTicks;i++){
+      const y = pad.t + ch - (i/nTicks)*ch;
+      const tv = maxVal*i/nTicks; const val = isPercent ? (Number.isInteger(tv)?tv:tv.toFixed(1)).toString().replace('.',',')+'%' : Math.round(tv).toLocaleString('de-DE');
       svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" style="stroke:var(--border);" stroke-width="1"${i===0?'':' stroke-dasharray="2 4"'}/>`;
       svg += `<text x="${pad.l-8}" y="${y+3.5}" text-anchor="end" font-size="10" style="${T}fill:var(--muted);font-variant-numeric:tabular-nums;">${val}</text>`;
     }
     labels.forEach((m,i)=>{
-      svg += `<text x="${xPos(i)}" y="${h-8}" text-anchor="middle" font-size="10" style="${T}fill:var(--muted);">${m.substring(0,3)}</text>`;
+      svg += `<text x="${xPos(i)}" y="${h-8}" text-anchor="middle" font-size="${fs}" style="${T}fill:var(--muted);">${m.substring(0,3)}</text>`;
     });
-    // Endwerte sammeln, damit sie sich nicht überlappen
-    const ends = [];
-    datasets.forEach(ds=>{
-      const pts = ds.values.map((v,i)=>({v,i,x:xPos(i),y:yPos(v)})).filter(p=>p.v>0);
+    // Werte an jedem Punkt: pro Monat steht der Wert der oberen Linie über, der unteren unter dem Punkt
+    const ptsBy = datasets.map(ds => ds.values.map((v,i)=>({v,i,x:xPos(i),y:yPos(v)})).filter(p=>p.v>0));
+    datasets.forEach((ds, k)=>{
+      const pts = ptsBy[k];
       if(!pts.length) return;
       const path = pts.map((p,j)=>`${j===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
       svg += `<path d="${path}" stroke="${ds.color}" stroke-width="2" fill="none" stroke-linejoin="round" stroke-linecap="round"/>`;
-      pts.forEach((p,j)=>{
-        const last = j === pts.length-1;
-        svg += `<circle cx="${p.x}" cy="${p.y}" r="${last?4:2.8}" fill="${ds.color}" style="stroke:var(--panel);" stroke-width="1.5"/>`;
+    });
+    datasets.forEach((ds, k)=>{
+      ptsBy[k].forEach((p,j)=>{
+        const last = j === ptsBy[k].length-1;
+        const others = ptsBy.filter((_,o)=>o!==k).map(arr=>arr.find(q=>q.i===p.i)).filter(Boolean);
+        const below = others.some(q => q.y < p.y || (q.y === p.y && k > 0));
+        let ty = below ? p.y + fs + 6 : p.y - 8;
+        if(ty < pad.t - 6) ty = p.y + fs + 6;
+        if(ty > pad.t + ch - 2 && !below) ty = p.y - 8;
+        svg += `<circle cx="${p.x}" cy="${p.y}" r="${last?4:3}" fill="${ds.color}" style="stroke:var(--panel);" stroke-width="1.5"/>`;
+        svg += `<text x="${p.x}" y="${ty}" text-anchor="middle" font-size="${fs}" font-weight="${last?700:600}" fill="${ds.color}" style="${T}font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round;">${fmt(p.v)}</text>`;
         svg += `<circle class="ma-pt" cx="${p.x}" cy="${p.y}" r="10" fill="transparent" data-tip="${ds.label} · ${labels[p.i]}: ${fmt(p.v)}"/>`;
       });
-      const l = pts[pts.length-1];
-      ends.push({x:l.x, y:l.y, txt:fmt(l.v), color:ds.color});
-    });
-    ends.sort((a,b)=>a.y-b.y);
-    for(let i=1;i<ends.length;i++){ if(ends[i].y - ends[i-1].y < 14) ends[i].y = ends[i-1].y + 14; }
-    ends.forEach(e=>{
-      svg += `<text x="${e.x+8}" y="${e.y+4}" font-size="11" font-weight="700" fill="${e.color}" style="${T}font-variant-numeric:tabular-nums;">${e.txt}</text>`;
     });
     let lx = pad.l;
     datasets.forEach(ds=>{
@@ -7172,7 +7180,7 @@ function renderMonatsabschluss(){
     box.appendChild(chartDiv); chartsWrap.appendChild(box);
     setTimeout(()=>{
       const w = box.offsetWidth-40 || 440;
-      chartDiv.innerHTML = makeSVGChart(buildFn(), isPercent, w, 210, fixedMax);
+      chartDiv.innerHTML = makeSVGChart(buildFn(), isPercent, w, 250, fixedMax);
       box.addEventListener('click',()=>{
         const overlay = document.createElement('div');
         overlay.className = 'chart-overlay';
