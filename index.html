@@ -158,6 +158,17 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .cp-history{margin:6px 0 10px;}
 .cp-history-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
 .cp-history-toggle{display:flex;gap:6px;}
+.ki-scope{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 14px;font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);font-weight:600;}
+.ki-scope em{font-weight:400;font-style:normal;margin-left:6px;}
+.cf-prep-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:4px 0 10px;padding:10px 12px;background:var(--tmg-soft);border-radius:10px;}
+.cf-prep-row span{font-family:'Inter',sans-serif;font-size:12px;color:var(--text);flex:1;min-width:220px;line-height:1.45;}
+.ki-prep-overlay{position:fixed;inset:0;background:rgba(15,20,26,.45);z-index:2000;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
+.ki-prep-box{background:var(--panel);color:var(--text);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:100%;max-width:760px;padding:20px 24px;}
+.ki-prep-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;}
+.ki-prep-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;}
+.ki-prep-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);margin-top:2px;}
+.ki-prep-x{background:none;border:1px solid var(--border);border-radius:8px;width:32px;height:32px;cursor:pointer;color:var(--muted);font-size:14px;flex-shrink:0;}
+.ki-prep-body{max-width:none!important;margin:0 0 6px!important;}
 .zo-summary{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
 .zo-sum-card{display:flex;flex-direction:column;align-items:flex-start;gap:1px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px 14px;cursor:pointer;font-family:'Inter',sans-serif;min-width:130px;text-align:left;color:var(--text);}
 .zo-sum-card b{font-family:'IBM Plex Mono',monospace;font-size:20px;} .zo-sum-card span{font-weight:700;font-size:13px;} .zo-sum-card em{font-style:normal;font-size:11px;color:var(--muted);}
@@ -1053,7 +1064,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 148;
+const BOARD_VERSION = 149;
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
@@ -2860,8 +2871,7 @@ function buildAgentSummary(agent){
 function agentsWithNotesForTeam(teamAgents){
   return teamAgents.filter(agent=>{
     if(!agent.name.trim()) return false;
-    const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') : [];
+    const eintraege = kiAgentEntries(agent).filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch');
     const echteNotizen = eintraege.filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)');
     return echteNotizen.length >= 2;
   });
@@ -2880,8 +2890,7 @@ async function generateTeamKiSummaries(teamId, cfg, teamAgents, btn){
   btn.textContent = '⏳ Wird generiert...';
 
   const payload = kandidaten.map(agent=>{
-    const cvEntry = Object.values(state.coachverlauf).find(v=>v.name===agent.name && v.team===agent.team);
-    const eintraege = (cvEntry && cvEntry.eintraege) ? cvEntry.eintraege.filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch') : [];
+    const eintraege = kiAgentEntries(agent).filter(e=>e.stil !== 'Workshop' && e.stil !== 'Einzelgespräch');
     const notizen = eintraege
       .filter(e=>e.text && e.text.trim() && e.text !== '(Coaching ohne Notiz)')
       .sort((a,b)=>{
@@ -3954,15 +3963,34 @@ function renderKIAnalyse(){
   // Daten-Übersicht Badges
   const badgeRow = document.createElement('div');
   badgeRow.className = 'ki-badge-row';
-  const t01 = state.agents.filter(a=>a.team==='Trikala01').length;
-  const t06 = state.agents.filter(a=>a.team==='Trikala06').length;
+  const t01 = state.agents.filter(a=>a.team==='Trikala01' && a.name && a.name.trim()).length;
+  const t06 = state.agents.filter(a=>a.team==='Trikala06' && a.name && a.name.trim()).length;
+  const alleMonate = new Set();
+  state.agents.forEach(a=>{ if(a.name && a.name.trim()) kiAgentMonths(a).forEach(m=>alleMonate.add(m.monat)); });
+  const mSort = [...alleMonate].sort((a,b)=>{ const o=k=>{ const [j,m]=k.split('-'); return parseInt(j)*100+VL_MONATE.indexOf(m); }; return o(a)-o(b); });
+  const zeitraum = mSort.length ? `${mSort[0].replace('-', ' ').split(' ').reverse().join(' ')} – heute` : 'laufender Monat';
   badgeRow.innerHTML = `
-    <span class="ki-badge">👥 ${t01} MF Mitarbeiter</span>
-    <span class="ki-badge">👥 ${t06} FN Mitarbeiter</span>
-    <span class="ki-badge">📅 Jan–Jul 2026</span>
-    <span class="ki-badge">📝 Coaching-Notizen & Checkliste inklusive</span>
+    <span class="ki-badge">👥 ${t01} MF · ${t06} FN Mitarbeiter</span>
+    <span class="ki-badge">📅 ${zeitraum}</span>
+    <span class="ki-badge">📝 Coachings, 5-Finger, Vereinbarungen, Tageswerte & Hochrechnung</span>
   `;
+  const scopeRow = document.createElement('div');
+  scopeRow.className = 'ki-scope';
+  scopeRow.innerHTML = '<span>Daten für die Frage:</span>';
+  const scopeOpts = [['alle','Alle Mitarbeiter']].concat(fkMyLeaderName() ? [['meine','Meine Mitarbeiter']] : []).concat(Object.keys(TEAM_CONFIGS).map(t=>[t, TEAM_CONFIGS[t].label]));
+  if(!scopeOpts.some(o=>o[0]===kiScope)) kiScope = 'alle';
+  scopeOpts.forEach(([v,l])=>{
+    const b = document.createElement('button');
+    b.className = 'fk-chip' + (kiScope === v ? ' active' : '');
+    b.textContent = l;
+    b.addEventListener('click', ()=>{ kiScope = v; renderKIAnalyse(); });
+    scopeRow.appendChild(b);
+  });
+  const scopeHint = document.createElement('em');
+  scopeHint.textContent = 'Nennst du in der Frage Namen, werden nur diese Mitarbeiter mitgeschickt.';
+  scopeRow.appendChild(scopeHint);
   wrap.appendChild(badgeRow);
+  wrap.appendChild(scopeRow);
 
   // Zugangs-Passwort (gemeinsam für alle Führungskräfte, kein echter API-Key)
   const keyRow = document.createElement('div');
@@ -3987,16 +4015,16 @@ function renderKIAnalyse(){
   }
 
   // Vorschläge
+  const monatJetzt = new Date().toLocaleString('de-DE', {month:'long', year:'numeric'});
   const suggestions = [
-    'Zusammenfassung aller Mitarbeiter',
-    'Welche 5 Mitarbeiter brauchen am dringendsten Coaching?',
-    'Wer hat sich dieses Jahr am meisten verbessert?',
-    'Wie entwickelt sich das Festnetz Team?',
-    'Welche Mitarbeiter haben die beste CR?',
+    'Welche 5 Mitarbeiter brauchen am dringendsten Coaching – und mit welchem Fokus?',
+    'Wer ist laut Hochrechnung gefährdet, sein Monatsziel zu verfehlen?',
+    'Welche Vereinbarungen haben gewirkt und welche nicht?',
+    'Welcher Finger des 5-Finger-Pitch ist im Team der größte Engpass? Schlag einen Workshop vor.',
+    'Wer hat sich in den letzten Monaten am meisten verbessert?',
     'Wer hat lange kein Coaching gehabt?',
-    'Vergleiche MF und FN Team',
-    'Welche Mitarbeiter erreichen ihr NPS Ziel nicht?',
-    'Zusammenfassung Juli 2026',
+    'Vergleiche das MF- und das FN-Team',
+    `Zusammenfassung ${monatJetzt}`,
   ];
 
   const chipWrap = document.createElement('div');
@@ -4099,9 +4127,9 @@ function renderKIAnalyse(){
     const el = document.createElement('div');
     el.className = 'ki-msg ' + role;
     if(role === 'assistant'){
-      el.innerHTML = renderMarkdown(text);
+      el.innerHTML = kiRenderMarkdown(text);
     } else {
-      el.innerHTML = text.split(String.fromCharCode(10)).join('<br>');
+      el.innerHTML = kiEsc(text).split(String.fromCharCode(10)).join('<br>');
     }
     parent.appendChild(el);
     el.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -4128,68 +4156,16 @@ function renderKIAnalyse(){
 
     const loadingEl = addMsgBubble('loading', '🤔 Analysiere deine Daten...', historyEl);
 
-    // Kontext aufbauen
-    const ctx = buildKIContext();
-    const systemPrompt = `Du bist ein erfahrener Salescoach-Assistent für ein Telekom Callcenter.
-Du analysierst die echten Daten von Ioannis Fasoulas, Salescoach bei CHO Group.
-
-DEINE AUFGABE:
-- Beziehe bei JEDER Frage automatisch ALLE verfügbaren Daten mit ein: Verkaufszahlen (CR, NPS, LQ, Calls, Stückzahlen) über ALLE vorhandenen Monate (nicht nur den aktuellen), die Team-Ziele (Soll/Ist) UND die komplette Coaching-Historie (Notizen, Leitfaden-Checkliste, Thema, Performance-Note) — auch wenn die Frage sich nur auf einen Teilaspekt bezieht, prüfe ob andere Daten (z.B. frühere Monate, Coaching-Notizen) die Antwort ergänzen oder erklären können
-- monatsverlauf_alle_monate enthält pro Mitarbeiter die kompletten historischen Kennzahlen für jeden verfügbaren Monat — nutze diese für Entwicklungs-/Trendfragen, nicht nur den aktuellen Snapshot
-- Nenne immer echte Namen aus den Daten
-
-WICHTIG - KEINE REINE ZUSAMMENFASSUNG: Wenn es um einen oder mehrere Mitarbeiter geht, liste NICHT einfach die Coaching-Notizen oder Zahlen auf. Interpretiere sie stattdessen:
-1. STÄRKEN zuerst benennen: Was läuft bei diesem Mitarbeiter gut? (z.B. übertroffene Ziele, positive Trends, im Leitfaden konsequent erfüllte Punkte, gute Performance-Noten). Das gehört genauso in die Antwort wie die Schwachstellen, nicht nur als Nebensatz.
-2. SCHWACHSTELLEN konkret benennen und BEGRÜNDEN: nicht nur "CR ist niedrig", sondern warum (z.B. gestützt auf wiederkehrende "nicht erfüllt"-Punkte im Leitfaden oder Notizen-Muster über mehrere Coachings).
-3. Zu JEDER benannten Schwachstelle eine KONKRETE, UMSETZBARE LÖSUNG bzw. einen nächsten Coaching-Schritt vorschlagen — kein generischer Ratschlag, sondern passend zum tatsächlichen Muster in den Daten dieses Mitarbeiters.
-4. Schließe mit einer kurzen, klaren Einschätzung/Ausblick ab (z.B. wo der Mitarbeiter in den nächsten Wochen stehen könnte, wenn die Empfehlung umgesetzt wird).
-
-FORM: Antworte ausführlich genug, um direkt als Grundlage für ein Mitarbeitergespräch zu dienen, aber klar strukturiert (z.B. mit kurzen Abschnitten oder Aufzählungen für Stärken / Schwachstellen / Empfehlung) statt als ein dichter Fließtext-Block. Vermeide bloßes Nacherzählen von Notizen in eigenen Worten — jede Aussage soll eine Bewertung oder Handlungsempfehlung enthalten, keine reine Wiedergabe.
-- Markiere Zahlen/Kennzahlen IMMER mit einem Farbsymbol direkt davor, damit auf einen Blick klar ist, ob sie gut oder schlecht sind: 🟢 wenn Ziel erreicht/übertroffen, 🟡 wenn knapp darunter (grob within 15% des Ziels), 🔴 wenn deutlich unter Ziel. Das gilt in Tabellen genauso wie im Fließtext.
-- Nutze zusätzlich passende Symbole zur Orientierung: ✅ für Stärken, ⚠️ für Schwachstellen, 💡 für Lösungsvorschläge, 📈/📉 für steigende/fallende Trends.
-- Vergleiche mit Zielen (CR-Ziel, NPS-Ziel, LQ-Ziel, Team-Soll/Ist)
-- Bei einer "Zusammenfassung" oder allgemeinen Fragen zu mehreren Mitarbeitern: wende das gleiche Prinzip (Stärken + Schwachstellen + Lösung) kompakt auf jeden relevanten Mitarbeiter an, nicht nur eine Liste von Kennzahlen
-- Antworte auf Deutsch, klar und verständlich formuliert - keine unnötigen Fachbegriffe ohne Erklärung
-
-AKTUELLE TEAMDATEN:
-${JSON.stringify(ctx, null, 2)}
-
-Beachte:
-- Trikala01 = Mobilfunk PK (CR-Ziel: 7%, NPS-Ziel: 70%, LQ-Ziel: 78%)
-- Trikala06 = Festnetz PK (CR-Ziel: 11%, NPS-Ziel: 68%, LQ-Ziel: 74%)
-- Kategorien: Standard, 6-Stündler, Helpline (unterschiedliche Ziele)
-- coaching_historie enthält die letzten Coachings je Mitarbeiter (neueste zuerst)
-- leitfaden_checkliste: pro Kriterium "ok" (erfüllt), "nok" (nicht erfüllt) oder "na" (nicht bewertet)`;
-
+    // Datenbasis: genannte Mitarbeiter, sonst gewählter Umfang
+    const sel = kiAgentsForQuestion(question);
+    const ctx = buildKIContextFor(sel.agents);
+    const systemPrompt = kiSystemPrompt(ctx, 'AUFGABE: Beantworte die Frage der Führungskraft auf Basis der Daten. Antworte so, dass die Antwort direkt als Grundlage für Coachings und Mitarbeitergespräche dienen kann – klar strukturiert (kurze Abschnitte, Aufzählungen oder Tabellen) statt Fließtext.');
     try {
-      const response = await fetch(KI_PROXY_URL + '/analyze', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-app-token': appToken,
-          'x-user-id': currentUserId || currentUserName || getCoachName()
-        },
-        body: JSON.stringify({
-          system: systemPrompt,
-          messages: kiHistory.slice(-6) // Letzte 6 Nachrichten als Kontext
-        })
-      });
-
-      if(!response.ok){
-        const errData = await response.json().catch(()=>({}));
-        if(response.status === 429){
-          throw new Error(errData.error?.message || 'Tageslimit erreicht. Bitte morgen wieder versuchen.');
-        }
-        throw new Error(errData.error?.message || ('HTTP ' + response.status));
-      }
-
-      const data = await response.json();
-      const answer = data.content?.[0]?.text || 'Keine Antwort erhalten.';
-
+      const answer = await kiCall(systemPrompt, kiHistory.slice(-6), 4000);
       loadingEl.remove();
-      addMsgBubble('assistant', answer, historyEl);
+      const shown = answer + '\n\n*Datenbasis: ' + sel.grund + '*';
+      addMsgBubble('assistant', shown, historyEl);
       kiHistory.push({role:'assistant', content:answer});
-
     } catch(e){
       loadingEl.className = 'ki-msg assistant';
       loadingEl.textContent = 'Fehler bei der Analyse: ' + e.message;
@@ -5519,6 +5495,15 @@ function buildCoachingRecordForm(prefill){
   row1.appendChild(labeledField('Coaching Thema', themaSel));
   wrap.appendChild(row1);
   wrap.appendChild(tcapField);
+  const prepRow = document.createElement('div');
+  prepRow.className = 'cf-prep-row';
+  const prepBtn = kiPrepButton(()=>agentSel.value);
+  prepRow.appendChild(prepBtn);
+  const prepHint = document.createElement('span');
+  prepHint.textContent = 'Unsicher, worauf du achten sollst? Die KI fasst Zahlen, letzte Coachings, 5-Finger-Muster und Vereinbarungen zusammen und schlägt Fokus, Einstieg und Übung vor.';
+  prepRow.appendChild(prepHint);
+  agentSel.addEventListener('change', ()=>prepBtn._refreshLabel());
+  wrap.appendChild(prepRow);
 
   // Geführtes Coaching: Beobachtungsbogen nach 5-Finger-Pitch + Gesprächsleitfaden
   const fingerBew = Object.assign({}, prefill.fingerBewertung || {});
@@ -9035,7 +9020,15 @@ function fkFmt(d){ return d ? d.toLocaleDateString('de-DE', {day:'2-digit', mont
 function fkNum(n, dec){ return (Math.round(n * Math.pow(10, dec||1)) / Math.pow(10, dec||1)).toLocaleString('de-DE'); }
 // Zu welchem Mitarbeiter gehört ein Coaching-Verlauf-Eintrag?
 function fkAgentForCv(key, cv){
-  return state.agents.find(a => a.id === key) || state.agents.find(a => cv && a.name === cv.name && String(a.team) === String(cv.team)) || null;
+  const byId = state.agents.find(a => a.id === key);
+  if(byId) return byId;
+  if(!cv || !cv.name) return null;
+  const team = state.agents.filter(a => String(a.team) === String(cv.team) && a.name);
+  const exact = team.find(a => a.name === cv.name);
+  if(exact) return exact;
+  // ältere Einträge stehen teils nur unter dem Nachnamen → nur bei eindeutigem Treffer zuordnen
+  const fuzzy = team.filter(a => vlNameMatches(cv.name, a.name));
+  return fuzzy.length === 1 ? fuzzy[0] : null;
 }
 // Alle Vereinbarungen (neueste zuerst)
 function fkVereinbarungen(){
@@ -9188,6 +9181,7 @@ function renderFokus(){
     nb.title = 'Öffnet ein neues Coaching mit derselben Vereinbarung als Vorlage';
     nb.addEventListener('click', ()=>fkOpenCoachingForm(v.agent.id, { vereinbarung: v.entry.vereinbarung, fokusProdukt: v.entry.fokusProdukt || '' }));
     actions.appendChild(nb);
+    actions.appendChild(kiPrepButton(v.agent.id));
     card.appendChild(actions);
     sec1.appendChild(card);
   });
@@ -9271,6 +9265,7 @@ function renderFokus(){
     b.textContent = '🗣️ Coaching erfassen';
     b.addEventListener('click', ()=>fkOpenCoachingForm(r.agent.id));
     actions.appendChild(b);
+    actions.appendChild(kiPrepButton(r.agent.id));
     card.appendChild(actions);
     sec2.appendChild(card);
   });
@@ -9873,6 +9868,365 @@ function renderZuordnung(){
     e.className = 'fk-empty';
     e.textContent = zoNurOhne || zoLeaderFilter === '__ohne' ? 'Alle Mitarbeiter sind einer Führungskraft zugeordnet ✓' : 'Keine Mitarbeiter für diese Auswahl.';
     container.appendChild(e);
+  }
+}
+
+// ============================================================
+// KI-DATENBASIS & COACHING-VORBEREITUNG (ab v149)
+// Sammelt pro Mitarbeiter alle relevanten Daten (richtig zugeordnet, auch ältere Einträge unter
+// Nachnamen) - inkl. Tageswerte/Hochrechnung, 5-Finger-Bewertungen, Vereinbarungen mit Wirkung,
+// Tagesziele und zuständige Führungskraft. Wird von "KI Analyse" und "Coaching vorbereiten" genutzt.
+// ============================================================
+function kiEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function kiInlineMd(s){
+  return s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>');
+}
+// Markdown (Überschriften, Listen, Tabellen, fett/kursiv) → HTML; Text wird vorher maskiert
+function kiRenderMarkdown(text){
+  const lines = kiEsc(text || '').split('\n');
+  let html = '', i = 0, inList = false;
+  while(i < lines.length){
+    const line = lines[i];
+    if(/^\s*\|.*\|\s*$/.test(line)){
+      if(inList){ html += '</ul>'; inList = false; }
+      const tl = [];
+      while(i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])){ tl.push(lines[i]); i++; }
+      const rows = tl.filter(l => !/^\s*\|[\s:|-]+\|\s*$/.test(l)).map(l => l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()));
+      if(rows.length) html += '<table class="ki-table"><thead><tr>' + rows[0].map(c=>`<th>${kiInlineMd(c)}</th>`).join('') + '</tr></thead><tbody>' +
+        rows.slice(1).map(r=>'<tr>' + r.map(c=>`<td>${kiInlineMd(c)}</td>`).join('') + '</tr>').join('') + '</tbody></table>';
+      continue;
+    }
+    let m;
+    if((m = /^###\s+(.*)/.exec(line)) || (m = /^##\s+(.*)/.exec(line)) || (m = /^#\s+(.*)/.exec(line))){
+      if(inList){ html += '</ul>'; inList = false; }
+      html += `<h4 class="ki-h">${kiInlineMd(m[1])}</h4>`; i++; continue;
+    }
+    if(/^\s*---+\s*$/.test(line)){ if(inList){ html += '</ul>'; inList = false; } html += '<hr class="ki-hr">'; i++; continue; }
+    if((m = /^\s*(?:[-*]|\d+\.)\s+(.*)/.exec(line))){
+      if(!inList){ html += '<ul class="ki-list">'; inList = true; }
+      html += `<li>${kiInlineMd(m[1])}</li>`; i++; continue;
+    }
+    if(inList){ html += '</ul>'; inList = false; }
+    if(line.trim() === ''){ html += '<div class="ki-gap"></div>'; i++; continue; }
+    html += `<p class="ki-p">${kiInlineMd(line)}</p>`; i++;
+  }
+  if(inList) html += '</ul>';
+  return html;
+}
+
+// Alle Coaching-/Workshop-/Gesprächseinträge eines Mitarbeiters (neueste zuerst)
+function kiAgentEntries(agent){
+  const del = new Set(state.deletedEntryIds || []);
+  const out = [];
+  Object.keys(state.coachverlauf || {}).forEach(key=>{
+    const cv = state.coachverlauf[key];
+    if(fkAgentForCv(key, cv) !== agent) return;
+    (cv.eintraege || []).forEach(e=>{ if(e && !del.has(e.id)) out.push(e); });
+  });
+  return out.sort((a,b)=>(fkParseDe(b.datum)||0) - (fkParseDe(a.datum)||0));
+}
+// Monatsverlauf aus allen zugehörigen Verlaufs-Einträgen, chronologisch
+function kiAgentMonths(agent){
+  const months = {};
+  verlaufEntriesForAgent(agent).forEach(vl=>{
+    Object.keys(vl.monate || {}).forEach(k=>{
+      const key = /^\d{4}-/.test(k) ? k : '2026-' + k;
+      if(!months[key]) months[key] = vl.monate[k];
+    });
+  });
+  const ord = k => { const [j, m] = k.split('-'); return parseInt(j) * 100 + VL_MONATE.indexOf(m); };
+  return Object.keys(months).sort((a,b)=>ord(a) - ord(b)).map(k=>{
+    const md = months[k] || {};
+    const sales = md.sales || {};
+    const r = { monat: k };
+    ['cr','nps','lq','calls','cht'].forEach(f=>{ if(typeof md[f] === 'number' && md[f] > 0) r[f] = Math.round(md[f]*100)/100; });
+    const stk = Object.values(sales).reduce((s,v)=>s + (typeof v === 'number' ? v : 0), 0);
+    if(stk) { r.stueck_gesamt = stk; r.stueck = sales; }
+    return r;
+  }).filter(r => Object.keys(r).length > 1);
+}
+function kiTeamFingerGaps(teamId){
+  const counts = {};
+  Object.keys(state.coachverlauf || {}).forEach(key=>{
+    const cv = state.coachverlauf[key];
+    const ag = fkAgentForCv(key, cv);
+    if(!ag || String(ag.team) !== String(teamId)) return;
+    (cv.eintraege||[]).forEach(e=>{
+      Object.entries(e.fingerBewertung || {}).forEach(([id,v])=>{
+        if(!(v in FINGER_VAL)) return;
+        if(!counts[id]) counts[id] = { n:0, gap:0 };
+        counts[id].n++; if(v !== 'ok') counts[id].gap++;
+      });
+    });
+  });
+  const txt = {}; FINGER_MODEL.forEach(f=>f.anchors.forEach(a=>{ txt[a.id] = `${f.name}: ${a.text}`; }));
+  return Object.keys(counts).filter(id=>txt[id] && counts[id].n >= 2)
+    .map(id=>({ punkt: txt[id], nicht_oder_teilweise_gezeigt_prozent: Math.round(counts[id].gap / counts[id].n * 100), bewertungen: counts[id].n }))
+    .sort((a,b)=>b.nicht_oder_teilweise_gezeigt_prozent - a.nicht_oder_teilweise_gezeigt_prozent).slice(0, 5);
+}
+// Daten eines Mitarbeiters für die KI
+function kiAgentData(agent, now, teamInfo){
+  const cfg = TEAM_CONFIGS[agent.team];
+  const targets = agentTargets(agent);
+  const r1 = n => Math.round(n * 10) / 10;
+  const d = {
+    name: agent.name,
+    team: agent.team,
+    kategorie: CATEGORY_LABELS[agent.category || 'regular'] || agent.category,
+    fuehrungskraft: agent.fuehrungskraft || null,
+    ziele: Object.assign({ nps: cfg.npsTarget, lq: cfg.lqTarget, cr: cfg.crTarget },
+      { produkte: Object.fromEntries(cfg.products.map((p,i)=>[productLabel(p, agent.team), targets[i] || 0])) })
+  };
+  // laufender Monat (NPS/LQ/Calls/CHT nur, wenn in diesem Monat eingetragen)
+  const akt = { monat: now.toLocaleString('de-DE', {month:'long', year:'numeric'}) };
+  ['calls','nps','lq','cht'].forEach(f=>{ const v = fkCurVal(agent, f, now); if(v !== null) akt[f] = v; });
+  const info = teamInfo[agent.team];
+  if(info && info.hasData){
+    const ist = hrAgentSums(agent, info.mk, cfg.products);
+    akt.stueck_bisher = Object.fromEntries(cfg.products.map(p=>[productLabel(p, agent.team), ist[p]]));
+    const stk = cfg.products.filter(p => p !== 'BOJ').reduce((s,p)=>s + ist[p], 0);
+    if(akt.calls) akt.cr = r1(stk / akt.calls * 100);
+    if(info.elapsed >= 2){
+      akt.hochrechnung = { arbeitstag: info.elapsed, von: info.total, prognose_monatsende: Object.fromEntries(cfg.products.map((p,i)=>{
+        const prog = ist[p] + (ist[p] / info.elapsed) * info.remaining;
+        return [productLabel(p, agent.team), { prognose: r1(prog), ziel: targets[i] || 0, prozent: targets[i] ? Math.round(prog / targets[i] * 100) : null }];
+      })) };
+    }
+  }
+  d.aktueller_monat = akt;
+  d.monatsverlauf = kiAgentMonths(agent);
+  // Coachings mit 5-Finger-Auswertung und Vereinbarung
+  const reviews = state.coachReviews || {};
+  const entries = kiAgentEntries(agent);
+  const last = entries.find(e => e.stil !== 'Workshop');
+  d.letztes_coaching = last ? last.datum : 'noch keins';
+  d.coachings = entries.slice(0, 8).map(e=>{
+    const c = { datum: e.datum, art: e.stil || 'Coaching' };
+    if(e.thema) c.thema = e.thema;
+    if(e.coach) c.coach = e.coach;
+    if(e.workshopTitel) c.workshop = e.workshopTitel;
+    if(e.text && e.text !== '(Coaching ohne Notiz)') c.notiz = e.text.length > 500 ? e.text.slice(0, 500) + '…' : e.text;
+    if(typeof e.performance === 'number') c.performance_note = e.performance + '/10';
+    const nok = Object.entries(e.checkliste || {}).filter(([k,v]) => v === 'nok').map(([k]) => k);
+    if(nok.length) c.leitfaden_nicht_erfuellt = nok;
+    if(e.fingerBewertung && Object.keys(e.fingerBewertung).length){
+      const an = fingerAnalyse(e.fingerBewertung);
+      const anchors = {}; FINGER_MODEL.forEach(f=>f.anchors.forEach(a=>{ anchors[a.id] = `${f.name}: ${a.text}`; }));
+      c.fuenf_finger = {
+        werte_prozent: Object.fromEntries(FINGER_MODEL.filter(f => an.scores[f.key] !== null).map(f => [f.name, Math.round(an.scores[f.key] / 2 * 100)])),
+        staerke: an.staerke ? an.staerke.name + ' – ' + an.staerke.thema : null,
+        hebel: an.hebel ? an.hebel.name + ' – ' + an.hebel.thema : null,
+        nicht_gezeigt: Object.entries(e.fingerBewertung).filter(([k,v]) => v === 'nok').map(([k]) => anchors[k]).filter(Boolean),
+        teilweise: Object.entries(e.fingerBewertung).filter(([k,v]) => v === 'half').map(([k]) => anchors[k]).filter(Boolean)
+      };
+      if(e.fingerNotizen && Object.keys(e.fingerNotizen).length) c.fuenf_finger.beispiele = e.fingerNotizen;
+    }
+    if(e.vereinbarung){
+      const rv = reviews[e.id];
+      c.vereinbarung = { text: e.vereinbarung, ueberpruefen_am: e.pruefDatum || null, ergebnis: rv ? rv.status : 'noch offen' };
+      if(e.fokusProdukt) c.vereinbarung.fokus_produkt = productLabel(e.fokusProdukt, agent.team);
+      const w = fkWirkung(agent, fkParseDe(e.datum), e.fokusProdukt || null);
+      if(w && !w.tooFew) c.vereinbarung.wirkung = `Ø ${w.label}/Arbeitstag ${r1(w.avgB)} → ${r1(w.avgA)} (${w.nB} Tage vorher, ${w.nA} nachher)`;
+    }
+    return c;
+  });
+  const tz = (state.tagesziele || []).filter(z => z.agentId === agent.id).slice().sort((a,b)=>(b.datum||'').localeCompare(a.datum||'')).slice(0, 5);
+  if(tz.length) d.tagesziele = tz.map(z => ({ datum: z.datum, ziel: z.produkte, erreicht: z.erreicht || {} }));
+  return d;
+}
+// Gesamter Kontext; agents = Liste der einzubeziehenden Mitarbeiter
+function buildKIContextFor(agents){
+  const now = new Date();
+  const teamInfo = {};
+  Object.keys(TEAM_CONFIGS).forEach(t=>{
+    const ta = state.agents.filter(a => String(a.team) === t && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
+    teamInfo[t] = hrWorkdayInfo(ta, now);
+  });
+  const ctx = { stand: now.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'long', year:'numeric'}), teams: {} };
+  Object.keys(TEAM_CONFIGS).forEach(teamId=>{
+    const cfg = TEAM_CONFIGS[teamId];
+    const list = agents.filter(a => String(a.team) === teamId);
+    const key = teamId === 'Trikala01' ? 'mf' : 'fn';
+    const team = { name: cfg.label + ' — ' + cfg.project, ziele: { cr: cfg.crTarget, nps: cfg.npsTarget, lq: cfg.lqTarget } };
+    const ma = state.monatsabschluss && state.monatsabschluss[key] || {};
+    const maOut = {};
+    Object.keys(ma).forEach(m=>{
+      const md = ma[m]; if(!md) return;
+      const o = {};
+      if(md.crGesamtErreicht) o.cr_gesamt = md.crGesamtErreicht;
+      if(md.crGesamtZiel) o.cr_ziel = md.crGesamtZiel;
+      if(md.nps_ist) o.nps_ist = md.nps_ist;
+      if(md.nps_plan) o.nps_plan = md.nps_plan;
+      if(md.erreicht && Object.values(md.erreicht).some(v=>v>0)) o.erreicht = md.erreicht;
+      if(md.plan && Object.values(md.plan).some(v=>v>0)) o.planmenge = md.plan;
+      if(Object.keys(o).length) maOut[m] = o;
+    });
+    if(Object.keys(maOut).length) team.monatsabschluss = maOut;
+    const tzd = state.teamziele && state.teamziele[key];
+    if(tzd) team.team_ziele_aktuell = { monat: tzd.monat, cr_monat: tzd.crMonat, cr_ziel: tzd.crZiel, soll: tzd.soll, ist: tzd.ist };
+    const gaps = kiTeamFingerGaps(teamId);
+    if(gaps.length) team.haeufigste_5_finger_luecken = gaps;
+    if(list.length) team.mitarbeiter = list.map(a => kiAgentData(a, now, teamInfo));
+    if(list.length || agents.length === 0) ctx.teams[teamId] = team;
+    else ctx.teams[teamId] = { name: team.name, hinweis: 'Mitarbeiter dieses Teams sind in dieser Frage nicht enthalten.' };
+  });
+  return ctx;
+}
+// Datenbasis für die freie KI-Analyse: erwähnte Namen > gewählter Umfang
+let kiScope = 'alle';
+function kiAgentsForQuestion(question){
+  const named = state.agents.filter(a => a.name && a.name.trim() && a.category !== 'work');
+  const q = ' ' + question.toLowerCase() + ' ';
+  const hit = named.filter(a=>{
+    const n = a.name.toLowerCase().trim();
+    if(q.includes(n)) return true;
+    return n.split(/\s+/).filter(p => p.length >= 4).some(p => new RegExp('[^a-zäöüß]' + p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + '[^a-zäöüß]').test(q));
+  });
+  if(hit.length) return { agents: hit, grund: 'genannte Mitarbeiter: ' + hit.map(a=>a.name).join(', ') };
+  const base = named.filter(a => a.category !== 'schulung');
+  if(kiScope === 'meine'){
+    const me = fkMyLeaderName();
+    if(me) return { agents: base.filter(a => fkNorm(a.fuehrungskraft) === fkNorm(me)), grund: 'meine Mitarbeiter (' + me + ')' };
+  }
+  if(TEAM_CONFIGS[kiScope]) return { agents: base.filter(a => String(a.team) === kiScope), grund: 'Team ' + TEAM_CONFIGS[kiScope].label };
+  return { agents: base, grund: 'alle Mitarbeiter' };
+}
+function kiSystemPrompt(ctx, auftrag){
+  const me = fkMyName() || 'eine Führungskraft';
+  const zielText = Object.keys(TEAM_CONFIGS).map(t => `- ${t} = ${TEAM_CONFIGS[t].project} (CR-Ziel ${TEAM_CONFIGS[t].crTarget} %, NPS-Ziel ${TEAM_CONFIGS[t].npsTarget} %, LQ-Ziel ${TEAM_CONFIGS[t].lqTarget} %)`).join('\n');
+  return `Du bist ein erfahrener Salescoach-Assistent für ein Telekom-Inbound-Callcenter (Mobilfunk & Festnetz Privatkunden, CHO Group, Standort Trikala).
+Fragen stellt: ${me}. Heute ist ${ctx.stand}.
+
+${auftrag}
+
+DATEN (JSON, nur die für diese Frage relevanten Mitarbeiter):
+${JSON.stringify(ctx)}
+
+ERKLÄRUNG DER DATEN:
+${zielText}
+- ziele.produkte = Stückzahl-Ziele je Produkt für diesen Mitarbeiter (abhängig von Kategorie Standard/6-Stündler/Helpline)
+- aktueller_monat: NPS/LQ/Calls/CHT nur, wenn in diesem Monat schon eingetragen; stueck_bisher aus den Tageswerten; hochrechnung = Prognose zum Monatsende im bisherigen Tempo
+- monatsverlauf = abgeschlossene/archivierte Monate (für Trends)
+- coachings (neueste zuerst): fuenf_finger = Beobachtung nach dem 5-Finger-Pitch des Salescoaches (Daumen = Einstellung/Mut inkl. Brückensatz, Zeigefinger = Produktwissen, Mittelfinger = Bedarfsanalyse, Ringfinger = Kundennutzen, Kleiner Finger = Abschluss/Einwände); hebel = schwächster Finger; vereinbarung.ergebnis = umgesetzt/teilweise/nicht/noch offen; vereinbarung.wirkung = Vorher/Nachher aus den Tageswerten
+- leitfaden_nicht_erfuellt = Schritte des Gesprächsleitfadens, die beim Coaching nicht erfüllt waren
+- haeufigste_5_finger_luecken = Team-Muster der letzten Coachings
+
+REGELN:
+- Nenne echte Namen und konkrete Zahlen aus den Daten. Erfinde nichts. Fehlen Daten (z.B. kein NPS diesen Monat, keine Coachings), sag das kurz und offen, statt zu raten.
+- Markiere Kennzahlen mit 🟢 (Ziel erreicht), 🟡 (knapp darunter, bis ca. 15 %) oder 🔴 (deutlich darunter). Symbole: ✅ Stärke, ⚠️ Schwachstelle, 💡 Empfehlung, 📈/📉 Trend.
+- Interpretiere statt nachzuerzählen: Stärken zuerst, Schwachstellen begründen (Muster über mehrere Coachings, 5-Finger-Hebel, Wirkung von Vereinbarungen), zu jeder Schwachstelle EIN konkreter nächster Coaching-Schritt.
+- Beziehe den 5-Finger-Pitch ein: Welcher Finger ist wiederholt der Engpass? Hat eine Vereinbarung gewirkt?
+- Bei vielen Mitarbeitern kompakt bleiben (Tabelle + nur die wichtigsten Punkte je Person), damit die Antwort vollständig bleibt.
+- Antworte auf Deutsch, klar und ohne unnötige Fachbegriffe.`;
+}
+async function kiCall(system, messages, maxTokens){
+  const appToken = getKIAppToken();
+  if(!appToken) throw new Error('Bitte zuerst im Reiter „KI Analyse“ das Zugangs-Passwort eingeben.');
+  let uid = '';
+  try{ uid = currentUserId || currentUserName || ''; }catch(e){ uid = ''; }
+  const response = await fetch(KI_PROXY_URL + '/analyze', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-app-token': appToken, 'x-user-id': uid || fkMyName() || 'unbekannt' },
+    body: JSON.stringify({ system, messages, max_tokens: maxTokens })
+  });
+  if(!response.ok){
+    const err = await response.json().catch(()=>({}));
+    if(response.status === 429) throw new Error(err.error?.message || 'Tageslimit erreicht. Bitte morgen wieder versuchen.');
+    throw new Error(err.error?.message || ('HTTP ' + response.status));
+  }
+  const data = await response.json();
+  let text = (data.content || []).map(c => c.text || '').join('') || 'Keine Antwort erhalten.';
+  if(data.stop_reason === 'max_tokens') text += '\n\n⚠️ *Die Antwort wurde wegen ihrer Länge abgeschnitten. Stell die Frage enger (z.B. ein Team, „meine Mitarbeiter“ oder einzelne Namen).*';
+  return text;
+}
+
+// Knopf "Coaching vorbereiten" (zeigt an, wenn es von heute schon eine Vorbereitung gibt)
+function kiPrepButton(agentIdOrFn, cls){
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = cls || 'fk-btn';
+  const getId = typeof agentIdOrFn === 'function' ? agentIdOrFn : ()=>agentIdOrFn;
+  const label = ()=>{
+    const ag = state.agents.find(a => a.id === getId());
+    const has = ag && ag.kiVorbereitung && ag.kiVorbereitung.datum === new Date().toLocaleDateString('de-DE');
+    b.textContent = has ? '🤖 Vorbereitung ansehen' : '🤖 Coaching vorbereiten';
+    b.title = has ? 'Heute bereits erstellt – kostet keine weitere KI-Anfrage' : 'KI-Vorbereitung für dieses Coaching (1 der täglichen KI-Anfragen)';
+  };
+  label();
+  b.addEventListener('click', ()=>{ const id = getId(); if(id) kiPrepareCoaching(id); });
+  b._refreshLabel = label;
+  return b;
+}
+// ---- Coaching vorbereiten (ein Mitarbeiter) ----
+async function kiPrepareCoaching(agentId, force){
+  const agent = state.agents.find(a => a.id === agentId);
+  if(!agent) return;
+  const overlay = document.createElement('div');
+  overlay.className = 'ki-prep-overlay';
+  const box = document.createElement('div');
+  box.className = 'ki-prep-box';
+  overlay.appendChild(box);
+  overlay.addEventListener('click', e=>{ if(e.target === overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+  const show = (prep, loading, error)=>{
+    box.innerHTML = `<div class="ki-prep-head"><div><div class="ki-prep-title">🤖 Coaching-Vorbereitung</div>
+      <div class="ki-prep-sub">${kiEsc(agent.name)} · ${kiEsc(TEAM_CONFIGS[agent.team]?.label || '')}${prep ? ` · erstellt ${kiEsc(prep.datum)}${prep.von ? ' von ' + kiEsc(prep.von) : ''}` : ''}</div></div>
+      <button class="ki-prep-x" title="Schließen">✕</button></div>`;
+    box.querySelector('.ki-prep-x').addEventListener('click', ()=>overlay.remove());
+    const body = document.createElement('div');
+    body.className = 'ki-prep-body ki-msg assistant';
+    if(loading) body.innerHTML = '<p class="ki-p">🤔 Die KI wertet Zahlen, Coachings, 5-Finger-Bewertungen und Vereinbarungen aus …</p>';
+    else if(error) body.innerHTML = `<p class="ki-p">⚠️ ${kiEsc(error)}</p>`;
+    else body.innerHTML = kiRenderMarkdown(prep.text);
+    box.appendChild(body);
+    if(!loading){
+      const act = document.createElement('div');
+      act.className = 'fk-actions';
+      const go = document.createElement('button');
+      go.className = 'fk-btn primary';
+      go.textContent = '🗣️ Coaching jetzt erfassen';
+      go.addEventListener('click', ()=>{ overlay.remove(); switchTab('coachdash'); fkOpenCoachingForm(agent.id); });
+      act.appendChild(go);
+      if(prep){
+        const re = document.createElement('button');
+        re.className = 'fk-btn';
+        re.textContent = '↻ Neu erstellen';
+        re.title = 'Verbraucht eine der täglichen KI-Anfragen';
+        re.addEventListener('click', ()=>{ overlay.remove(); kiPrepareCoaching(agent.id, true); });
+        act.appendChild(re);
+      }
+      box.appendChild(act);
+    }
+  };
+  const cached = agent.kiVorbereitung;
+  const today = new Date().toLocaleDateString('de-DE');
+  if(cached && cached.text && !force && cached.datum === today){ show(cached); return; }
+  show(null, true);
+  try{
+    const ctx = buildKIContextFor([agent]);
+    const system = kiSystemPrompt(ctx, `AUFGABE: Bereite die Führungskraft auf ihr nächstes Coaching mit ${agent.name} vor. Die Führungskräfte haben keine Coaching-Ausbildung – die Vorbereitung muss sofort umsetzbar sein. Höchstens ca. 300 Wörter, genau diese Abschnitte:
+### Kurzbild
+2–3 Sätze: Wo steht ${agent.name} gerade (Zahlen + Trend)?
+### Letzte Vereinbarung
+Was war vereinbart, wurde es umgesetzt, hat es gewirkt (Vorher/Nachher)? Falls keine: kurz sagen.
+### Muster aus den Coachings
+Wiederkehrender Engpass (5-Finger-Hebel, Leitfaden, Notizen) und eine klare Stärke.
+### Fokus für dieses Coaching
+GENAU EIN Hebel mit Begründung aus den Daten.
+### Gesprächseinstieg
+Eine offene Frage zur Selbsteinschätzung, wörtlich formuliert.
+### Übung (2–3 Minuten)
+Eine konkrete Mini-Übung zum Hebel.
+### Vorschlag Vereinbarung
+Ein konkretes, beobachtbares Verhalten in einem Satz.`);
+    const text = await kiCall(system, [{ role:'user', content: `Bitte bereite mein Coaching mit ${agent.name} vor.` }], 1600);
+    const prep = { text, datum: today, von: fkMyName() || '' };
+    agent.kiVorbereitung = prep;
+    scheduleSave();
+    overlay.remove();
+    kiPrepareCoaching(agent.id);
+  }catch(e){
+    show(null, false, 'Fehler bei der KI-Vorbereitung: ' + e.message);
   }
 }
 
