@@ -926,6 +926,9 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
     <div class="side-label">Auswertung</div>
       <button class="tab-btn side-link" id="tab-kianalyse" data-title="KI Analyse"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7-4.7-1.8 4.7-1.8z"/><path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z"/></svg><span>KI Analyse</span></button>
   </nav>
+  <button class="side-collapse" id="side-collapse" type="button" title="Menü einklappen">
+    <svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16M15.5 10l-2 2 2 2"/></svg><span>Menü einklappen</span>
+  </button>
   <div class="side-foot">
     <span id="user-label" class="user-label"></span>
     <span id="board-version-label" class="board-version-label" title="Version dieser Board-Datei – nach dem Hochladen einer neuen Datei mit Strg+F5 neu laden, bis hier die neue Nummer steht"></span>
@@ -1074,7 +1077,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 156;
+const BOARD_VERSION = 157;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -11520,6 +11523,31 @@ html[data-fx-theme="dark"] .ma-table tr.ma-row-erreicht td:first-child,html[data
 .vl-chart-title{font-family:'Inter',sans-serif!important;font-size:13px!important;font-weight:600!important;margin-bottom:8px;}
 .vl-chart-host{width:100%;min-width:0;}
 
+
+/* ===== Seitenleiste einklappbar (v157) ===== */
+.app-side,.wrap{transition:width .22s ease, margin-left .22s ease, padding .22s ease;}
+.side-collapse{display:flex;align-items:center;gap:11px;width:100%;background:transparent;border:0;border-radius:8px;color:var(--side-muted);padding:9px 10px;margin-top:10px;font:500 12.5px 'Inter',sans-serif;cursor:pointer;text-align:left;}
+.side-collapse:hover{background:var(--side-hover);color:#fff;}
+body.side-collapsed{--side-w:68px;}
+body.side-collapsed .app-side{padding-left:10px;padding-right:10px;overflow-x:hidden;}
+body.side-collapsed .app-side .side-link span:not(.todo-fab-badge),
+body.side-collapsed .side-collapse span,
+body.side-collapsed #fx-logo > span:not(.mark),
+body.side-collapsed .side-foot .user-label{display:none;}
+body.side-collapsed .side-label{font-size:0;padding:10px 0 6px;margin:0 6px;border-top:1px solid var(--side-border);}
+body.side-collapsed .side-label:first-child{border-top:0;}
+body.side-collapsed .app-side .side-link,body.side-collapsed .side-collapse{justify-content:center;padding:10px 0;}
+body.side-collapsed .app-side .side-link.active::before{left:-10px;}
+body.side-collapsed .app-side #fx-logo{justify-content:center;margin:0 0 14px;}
+body.side-collapsed .app-side .todo-fab-badge{position:absolute;top:3px;right:8px;margin:0;font-size:9.5px;padding:0 5px;}
+body.side-collapsed .side-collapse svg{transform:scaleX(-1);}
+body.side-collapsed .side-foot{align-items:center;padding:12px 0 0;}
+body.side-collapsed .side-foot .board-version-label{font-size:9px;text-align:center;}
+@media (max-width: 900px){
+  body.side-collapsed{--side-w:244px;}
+  .side-collapse{display:none;}
+}
+
 /* Handy / Tablet: Seitenleiste ausklappbar */
 @media (max-width: 900px){
   .app-side{transform:translateX(-100%);transition:transform .25s ease;}
@@ -11554,6 +11582,24 @@ html[data-fx-theme="dark"] .ma-table tr.ma-row-erreicht td:first-child,html[data
     var r=t.getBoundingClientRect(); tip.style.left=(r.left+r.width/2 - tip.offsetWidth/2)+'px'; tip.style.top=(r.top-tip.offsetHeight-6)+'px';
   });
   document.addEventListener('mouseout',function(e){ if(tip && e.target.closest && e.target.closest('.ma-pt')) tip.hidden=true; });
+
+  // Seitenleiste einklappen (Zustand wird im Browser gemerkt)
+  var CKEY='side-collapsed';
+  function setCollapsed(on){
+    document.body.classList.toggle('side-collapsed', on);
+    var b=document.getElementById('side-collapse');
+    if(b){ b.title = on ? 'Menü ausklappen' : 'Menü einklappen'; var t=b.querySelector('span'); if(t) t.textContent = on ? 'Menü ausklappen' : 'Menü einklappen'; }
+    try{ localStorage.setItem(CKEY, on ? '1' : '0'); }catch(e){}
+    // Inhalte (z.B. mitlaufende Kopfzeile in Tageswerte, Diagramme) an die neue Breite anpassen
+    setTimeout(function(){ window.dispatchEvent(new Event('resize')); window.dispatchEvent(new Event('scroll')); }, 260);
+  }
+  function initCollapse(){
+    document.querySelectorAll('.app-side .side-link').forEach(function(l){ if(!l.title) l.title = l.dataset.title || l.textContent.trim(); });
+    var on=false; try{ on = localStorage.getItem(CKEY)==='1'; }catch(e){}
+    if(on) setCollapsed(true);
+    var b=document.getElementById('side-collapse');
+    if(b) b.addEventListener('click', function(){ setCollapsed(!document.body.classList.contains('side-collapsed')); });
+  }
   function closeSide(){ document.body.classList.remove('side-open'); }
   function boot(){
     var side=document.getElementById('app-side');
@@ -11562,6 +11608,7 @@ html[data-fx-theme="dark"] .ma-table tr.ma-row-erreicht td:first-child,html[data
     var sc=document.getElementById('side-scrim'); if(sc) sc.addEventListener('click',closeSide);
     if(side) side.addEventListener('click',function(e){ if(e.target.closest('.side-link')) setTimeout(closeSide,60); });
     addEventListener('keydown',function(e){ if(e.key==='Escape') closeSide(); });
+    initCollapse();
     setTitle();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
