@@ -1074,7 +1074,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 154;
+const BOARD_VERSION = 155;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -6306,6 +6306,103 @@ function drawStornoTrendChart(cnv, stornoHistory, stornoCurrent, cols){
   });
 }
 
+
+// ===== Mitarbeiter-Verlauf: Diagramme als SVG (v155) – passen sich der Kastenbreite an, Werte an jedem Monat =====
+function vlRender(el, build){
+  if(!el) return;
+  const big = !!el.closest('.chart-popup');
+  const w = Math.max(260, Math.round(el.clientWidth || (el.parentElement && el.parentElement.clientWidth) || 420));
+  el.innerHTML = build(w, big ? Math.max(320, Math.round(w*0.45)) : 230);
+}
+function vlMonthLabel(m){
+  if(String(m).includes('-')){ const [y, mn] = String(m).split('-'); return { mon: mn.substring(0,3), yr: y }; }
+  return { mon: String(m).substring(0,3), yr: '' };
+}
+function vlNiceMax(dataMax, minMax){
+  const raw = Math.max(dataMax*1.12, minMax||1);
+  const m = Math.pow(10, Math.floor(Math.log10(raw/4)));
+  const f = (raw/4)/m; const step = (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*m;
+  const n = Math.max(3, Math.ceil(raw/step));
+  return { max: n*step, n };
+}
+function vlFrame(w, h, monate, pad){
+  const T = "font-family:Inter,sans-serif;";
+  const fs = w >= 600 ? 12 : 10;
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block;overflow:visible;">`;
+  return { svg, T, fs };
+}
+function vlLineSVG(w, h, o){
+  const pad = {l:38, r:16, t:30, b:34};
+  const cw = w-pad.l-pad.r, ch = h-pad.t-pad.b, n = o.monate.length;
+  const vals = o.values.map(v=>parseFloat(v)||0);
+  const dataMax = Math.max(0, ...vals);
+  const sc = o.fixedMax ? { max:o.fixedMax, n:4 } : vlNiceMax(Math.max(dataMax, (o.target||0)*1.1), o.percent ? 5 : 10);
+  const inset = 14;
+  const xPos = i => pad.l + inset + (n>1 ? i/(n-1)*(cw-2*inset) : (cw-2*inset)/2);
+  const yPos = v => pad.t + ch - (v/sc.max)*ch;
+  let { svg, T, fs } = vlFrame(w, h);
+  const gap = n>1 ? (cw-2*inset)/(n-1) : cw;
+  const vfs = gap < 30 ? fs-1.5 : fs;   // bei vielen Monaten etwas kleinere Zahlen
+  for(let i=0;i<=sc.n;i++){
+    const tv = sc.max*i/sc.n, y = pad.t + ch - (i/sc.n)*ch;
+    const lbl = (Number.isInteger(tv) ? tv : tv.toFixed(1)).toLocaleString('de-DE') + (o.percent ? '%' : '');
+    svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" style="stroke:var(--border);" ${i? 'stroke-dasharray="2 4"' : ''}/>`;
+    svg += `<text x="${pad.l-6}" y="${y+3.5}" text-anchor="end" font-size="${fs-1}" style="${T}fill:var(--muted);">${lbl}</text>`;
+  }
+  if(o.target){
+    const yZ = yPos(o.target);
+    svg += `<line x1="${pad.l}" y1="${yZ}" x2="${pad.l+cw}" y2="${yZ}" stroke="#E20074" stroke-width="1.2" stroke-dasharray="5 4" opacity=".7"/>`;
+    // Ziel-Legende oben rechts (statt direkt an der Linie, wo sie mit Punkten kollidieren kann)
+    const lx = pad.l + cw - (String(o.targetLabel||'').length * (fs-1) * 0.6) - 4;
+    svg += `<line x1="${lx-20}" y1="${pad.t-12}" x2="${lx-6}" y2="${pad.t-12}" stroke="#E20074" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+    svg += `<text x="${pad.l+cw}" y="${pad.t-8}" text-anchor="end" font-size="${fs-1}" font-weight="600" fill="#E20074" style="${T}">${o.targetLabel||''}</text>`;
+  }
+  let prevYr = null;
+  o.monate.forEach((m,i)=>{
+    const L = vlMonthLabel(m), x = xPos(i);
+    svg += `<text x="${x}" y="${h-pad.b+16}" text-anchor="middle" font-size="${fs-1}" style="${T}fill:var(--muted);">${L.mon}</text>`;
+    if(L.yr && L.yr !== prevYr){ svg += `<text x="${x}" y="${h-pad.b+28}" text-anchor="middle" font-size="${fs-2}" font-weight="600" style="${T}fill:var(--muted);opacity:.75;">${L.yr}</text>`; prevYr = L.yr; }
+  });
+  const pts = vals.map((v,i)=>({v,i,x:xPos(i),y:yPos(v)})).filter(p => !(o.skipZero && p.v === 0));
+  if(pts.length > 1) svg += `<path d="${pts.map((p,j)=>(j?'L':'M')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ')}" fill="none" stroke="${o.color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  pts.forEach((p, j)=>{
+    const ok = o.target ? p.v >= o.target : true;
+    const col = ok ? 'var(--good)' : '#E20074';
+    // Zahl über dem Punkt; liegt der Punkt sehr weit oben, darunter
+    const ty = p.y - 9 < pad.t - 2 ? p.y + vfs + 7 : p.y - 9;
+    svg += `<circle cx="${p.x}" cy="${p.y}" r="${j===pts.length-1?4.2:3.4}" style="fill:${col};stroke:var(--panel);" stroke-width="1.5"/>`;
+    svg += `<text x="${p.x}" y="${ty}" text-anchor="middle" font-size="${vfs}" font-weight="700" style="${T}fill:var(--text);font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round;">${o.fmt(p.v)}</text>`;
+  });
+  return svg + '</svg>';
+}
+function vlBarSVG(w, h, o){
+  const pad = {l:38, r:10, t:22, b:34};
+  const cw = w-pad.l-pad.r, ch = h-pad.t-pad.b, n = o.monate.length;
+  const vals = o.values.map(v=>parseFloat(v)||0);
+  const sc = vlNiceMax(Math.max(0, ...vals), 600);
+  let { svg, T, fs } = vlFrame(w, h);
+  const slot = cw/n, bw = Math.max(8, Math.min(34, slot*0.62));
+  const vfs = slot < 30 ? fs-1.5 : fs;
+  const col = v => v <= 550 ? 'var(--good)' : v <= 680 ? 'var(--warn)' : 'var(--bad)';
+  for(let i=0;i<=sc.n;i++){
+    const tv = sc.max*i/sc.n, y = pad.t + ch - (i/sc.n)*ch;
+    svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" style="stroke:var(--border);" ${i? 'stroke-dasharray="2 4"' : ''}/>`;
+    svg += `<text x="${pad.l-6}" y="${y+3.5}" text-anchor="end" font-size="${fs-1}" style="${T}fill:var(--muted);">${Math.round(tv)}</text>`;
+  }
+  let prevYr = null;
+  o.monate.forEach((m,i)=>{
+    const cx = pad.l + (i+0.5)*slot, v = vals[i], L = vlMonthLabel(m);
+    if(v > 0){
+      const bh = v/sc.max*ch, by = pad.t + ch - bh;
+      svg += `<rect x="${cx-bw/2}" y="${by}" width="${bw}" height="${bh}" rx="3" style="fill:${col(v)};"/>`;
+      svg += `<text x="${cx}" y="${by-5}" text-anchor="middle" font-size="${vfs}" font-weight="700" style="${T}fill:${col(v)};font-variant-numeric:tabular-nums;">${Math.round(v)}</text>`;
+    }
+    svg += `<text x="${cx}" y="${h-pad.b+16}" text-anchor="middle" font-size="${fs-1}" style="${T}fill:var(--muted);">${L.mon}</text>`;
+    if(L.yr && L.yr !== prevYr){ svg += `<text x="${cx}" y="${h-pad.b+28}" text-anchor="middle" font-size="${fs-2}" font-weight="600" style="${T}fill:var(--muted);opacity:.75;">${L.yr}</text>`; prevYr = L.yr; }
+  });
+  return svg + '</svg>';
+}
+
 function showChartPopup(title, drawFn){
   const overlay = document.createElement('div');
   overlay.className = 'chart-overlay';
@@ -6341,8 +6438,9 @@ function showChartPopup(title, drawFn){
 
   const viewport = document.createElement('div');
   viewport.className = 'chart-zoom-viewport';
-  const canvas = document.createElement('canvas');
-  canvas.height = 400;
+  const canvas = document.createElement('div'); // v155: SVG statt Canvas (Name der Variable bleibt für Zoom/Pan)
+  canvas.className = 'vl-chart-host vl-chart-host-big';
+  canvas.style.transformOrigin = 'center center';
   viewport.appendChild(canvas);
 
   popup.appendChild(closeBtn);
@@ -6426,15 +6524,6 @@ function showChartPopup(title, drawFn){
   viewport.addEventListener('touchend', ()=>{ dragging = false; touchStartDist = null; });
 
   setTimeout(()=>{
-    const dpr = window.devicePixelRatio || 1;
-    const dw = canvas.offsetWidth;
-    const dh = 400;
-    canvas.width = dw * dpr;
-    canvas.height = dh * dpr;
-    canvas.style.width = dw + 'px';
-    canvas.style.height = dh + 'px';
-    const ctx = canvas.getContext('2d');
-    ctx.scale(dpr, dpr);
     drawFn(canvas);
     applyTransform();
   }, 50);
@@ -6697,17 +6786,15 @@ function renderVerlauf(){
 
     // 3 Diagramme: Stückzahl, CR, NPS
     const chartsRow = document.createElement('div');
-    chartsRow.style.cssText = 'display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;';
+    chartsRow.className = 'vl-charts-row';
 
     // Diagramm 1: Gesamt Stückzahl
     const chartWrap1 = document.createElement('div');
     chartWrap1.className = 'vl-chart-wrap';
-    chartWrap1.style.flex = '1';
-    chartWrap1.style.minWidth = '280px';
     const agentDisplayName = getVerlaufDisplayName(agentData);
     chartWrap1.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — Gesamt Stückzahl</div>`;
     chartWrap1.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — Gesamt Stückzahl', c=>drawStkChart(c, monate, stkValues, stkZiel, agentData, cfg)));
-    const canvas1 = document.createElement('canvas');
+    const canvas1 = document.createElement('div'); canvas1.className = 'vl-chart-host';
     canvas1.height = 200;
     chartWrap1.appendChild(canvas1);
     chartsRow.appendChild(chartWrap1);
@@ -6715,11 +6802,9 @@ function renderVerlauf(){
     // Diagramm 2: CR
     const chartWrap = document.createElement('div');
     chartWrap.className = 'vl-chart-wrap';
-    chartWrap.style.flex = '1';
-    chartWrap.style.minWidth = '280px';
     chartWrap.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — Gesamt-CR Entwicklung</div>`;
     chartWrap.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — Gesamt-CR Entwicklung', c=>drawCRChart(c, monate, crValues, cfg, agentData)));
-    const canvas = document.createElement('canvas');
+    const canvas = document.createElement('div'); canvas.className = 'vl-chart-host';
     canvas.height = 200;
     chartWrap.appendChild(canvas);
     chartsRow.appendChild(chartWrap);
@@ -6727,11 +6812,9 @@ function renderVerlauf(){
     // Diagramm 3: NPS
     const chartWrapNPS = document.createElement('div');
     chartWrapNPS.className = 'vl-chart-wrap';
-    chartWrapNPS.style.flex = '1';
-    chartWrapNPS.style.minWidth = '280px';
     chartWrapNPS.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — NPS Entwicklung</div>`;
     chartWrapNPS.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — NPS Entwicklung', c=>drawNPSChart(c, monate, npsValues, cfg, agentData)));
-    const canvasNPS = document.createElement('canvas');
+    const canvasNPS = document.createElement('div'); canvasNPS.className = 'vl-chart-host';
     canvasNPS.height = 200;
     chartWrapNPS.appendChild(canvasNPS);
     chartsRow.appendChild(chartWrapNPS);
@@ -6742,11 +6825,9 @@ function renderVerlauf(){
     if(hasChtData){
       const chartWrapCHT = document.createElement('div');
       chartWrapCHT.className = 'vl-chart-wrap';
-      chartWrapCHT.style.flex = '1';
-      chartWrapCHT.style.minWidth = '280px';
       chartWrapCHT.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — CHT Entwicklung</div>`;
       chartWrapCHT.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — CHT Entwicklung', c=>drawCHTChart(c, monate, chtValues)));
-      const canvasCHT = document.createElement('canvas');
+      const canvasCHT = document.createElement('div'); canvasCHT.className = 'vl-chart-host';
       canvasCHT.height = 200;
       chartWrapCHT.appendChild(canvasCHT);
       chartsRow.appendChild(chartWrapCHT);
@@ -6773,223 +6854,18 @@ function renderVerlauf(){
     const agentCategoryForCharts = (matchingAgentForCharts && matchingAgentForCharts.category) || 'regular';
     const stkZiel = agentTargets({team:teamId,category:agentCategoryForCharts}).reduce((s,v)=>s+v,0);
 
-    function drawStkChart(cnv, monate, stkValues, stkZiel, agentData, cfg){
-      const ctx1 = cnv.getContext('2d');
-      const dpr1=window.devicePixelRatio||1; const w1=(cnv.offsetWidth||400); const h1=200;
-      cnv.width=w1*dpr1; cnv.height=h1*dpr1; cnv.style.width=w1+'px'; cnv.style.height=h1+'px';
-      cnv.getContext('2d').scale(dpr1,dpr1);
-      const cfg1 = cfg;
-      const maxStk = Math.max(...stkValues, stkZiel * 1.2, 1);
-      const pad1 = {l:40,r:20,t:20,b:30};
-      const cw1 = w1-pad1.l-pad1.r; const ch1 = h1-pad1.t-pad1.b;
-      ctx1.clearRect(0,0,w1,h1);
-      // Ziel-Linie
-      const yZ1 = pad1.t + ch1 - (stkZiel/maxStk)*ch1;
-      ctx1.setLineDash([6,3]); ctx1.strokeStyle='#E20074'; ctx1.lineWidth=1.5;
-      ctx1.beginPath(); ctx1.moveTo(pad1.l,yZ1); ctx1.lineTo(pad1.l+cw1,yZ1); ctx1.stroke();
-      ctx1.setLineDash([]); ctx1.fillStyle='#E20074'; ctx1.font='10px Inter';
-      ctx1.fillText('Ziel '+stkZiel, pad1.l+cw1-50, yZ1-4);
-      // Linie
-      if(monate.length>1){
-        ctx1.strokeStyle='#0E7C7B'; ctx1.lineWidth=2.5; ctx1.beginPath();
-        monate.forEach((m,i)=>{
-          const x=pad1.l+(i/(monate.length-1))*cw1;
-          const y=pad1.t+ch1-(stkValues[i]/maxStk)*ch1;
-          i===0?ctx1.moveTo(x,y):ctx1.lineTo(x,y);
-        }); ctx1.stroke();
-      }
-      monate.forEach((m,i)=>{
-        const x=pad1.l+(monate.length>1?(i/(monate.length-1))*cw1:cw1/2);
-        const y=pad1.t+ch1-(stkValues[i]/maxStk)*ch1;
-        const ok=stkValues[i]>=stkZiel;
-        ctx1.fillStyle=ok?'#4CAF50':'#E20074'; ctx1.beginPath(); ctx1.arc(x,y,5,0,Math.PI*2); ctx1.fill();
-        ctx1.fillStyle='#1C2733'; ctx1.font='bold 10px IBM Plex Mono'; ctx1.textAlign='center';
-        ctx1.fillText(Math.round(stkValues[i]),x,y-10);
-        ctx1.fillStyle='#64748B'; ctx1.font='9px Inter';
-        ctx1.fillText(m.includes('-')?m.split('-')[1].substring(0,3)+' '+m.split('-')[0].slice(2):m.substring(0,3),x,h1-5);
-      });
-      // Y-Achse
-      ctx1.strokeStyle='#E0E0E0'; ctx1.lineWidth=1;
-      ctx1.beginPath(); ctx1.moveTo(pad1.l,pad1.t); ctx1.lineTo(pad1.l,pad1.t+ch1); ctx1.stroke();
-      ctx1.fillStyle='#64748B'; ctx1.font='9px Inter'; ctx1.textAlign='right';
-      for(let i=0;i<=4;i++){
-        const val=Math.round(maxStk*i/4); const y=pad1.t+ch1-(i/4)*ch1;
-        ctx1.fillText(val,pad1.l-4,y+3);
-        ctx1.strokeStyle='#F5F5F5'; ctx1.beginPath(); ctx1.moveTo(pad1.l,y); ctx1.lineTo(pad1.l+cw1,y); ctx1.stroke();
-      }
+    function drawStkChart(el, monate, stkValues, stkZiel, agentData, cfg){
+      vlRender(el, (w,h)=>vlLineSVG(w, h, { monate, values: stkValues, target: stkZiel, targetLabel: 'Ziel '+stkZiel, color:'#0E7C7B', fmt: v=>String(Math.round(v)) }));
     }
-
-    function drawCRChart(cnv, monate, crValues, cfg, agentData){
-      const ctx = cnv.getContext('2d');
-      const dprC=window.devicePixelRatio||1; const w=(cnv.offsetWidth||400); const h=200;
-      cnv.width=w*dprC; cnv.height=h*dprC; cnv.style.width=w+'px'; cnv.style.height=h+'px';
-      cnv.getContext('2d').scale(dprC,dprC);
-      const maxCR = Math.max(...crValues, cfg.crTarget * 1.5);
-      const pad = {l:40, r:20, t:20, b:30};
-      const chartW = w - pad.l - pad.r;
-      const chartH = h - pad.t - pad.b;
-
-      ctx.clearRect(0,0,w,h);
-
-      // Ziel-Linie
-      const yZiel = pad.t + chartH - (cfg.crTarget / maxCR) * chartH;
-      ctx.setLineDash([6,3]);
-      ctx.strokeStyle = '#E20074';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(pad.l, yZiel);
-      ctx.lineTo(pad.l + chartW, yZiel);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = '#E20074';
-      ctx.font = '10px Inter';
-      ctx.fillText(`Ziel ${cfg.crTarget}%`, pad.l + chartW - 50, yZiel - 4);
-
-      // CR Linie
-      if(monate.length > 1){
-        ctx.strokeStyle = '#0E7C7B';
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        monate.forEach((m, i) => {
-          const x = pad.l + (i / (monate.length - 1)) * chartW;
-          const y = pad.t + chartH - (crValues[i] / maxCR) * chartH;
-          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-      }
-
-      // Punkte
-      monate.forEach((m, i) => {
-        const x = pad.l + (monate.length > 1 ? (i / (monate.length - 1)) * chartW : chartW/2);
-        const y = pad.t + chartH - (crValues[i] / maxCR) * chartH;
-        const ok = crValues[i] >= cfg.crTarget;
-        ctx.fillStyle = ok ? '#4CAF50' : '#E20074';
-        ctx.beginPath();
-        ctx.arc(x, y, 5, 0, Math.PI*2);
-        ctx.fill();
-        ctx.fillStyle = '#1C2733';
-        ctx.font = 'bold 10px IBM Plex Mono';
-        ctx.textAlign = 'center';
-        ctx.fillText(crValues[i].toFixed(1)+'%', x, y - 10);
-        ctx.fillStyle = '#64748B';
-        ctx.font = '9px Inter';
-        ctx.fillText(m.includes('-') ? m.split('-')[1].substring(0,3)+' '+m.split('-')[0].slice(2) : m.substring(0,3), x, h - 5);
-      });
-
-      // Y-Achse
-      ctx.strokeStyle = '#E0E0E0';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(pad.l, pad.t);
-      ctx.lineTo(pad.l, pad.t + chartH);
-      ctx.stroke();
-      ctx.fillStyle = '#64748B';
-      ctx.font = '9px Inter';
-      ctx.textAlign = 'right';
-      for(let i=0; i<=4; i++){
-        const val = (maxCR * i/4).toFixed(1);
-        const y = pad.t + chartH - (i/4) * chartH;
-        ctx.fillText(val+'%', pad.l - 4, y + 3);
-        ctx.strokeStyle = '#F5F5F5';
-        ctx.beginPath();
-        ctx.moveTo(pad.l, y);
-        ctx.lineTo(pad.l + chartW, y);
-        ctx.stroke();
-      }
+    function drawCRChart(el, monate, crValues, cfg, agentData){
+      vlRender(el, (w,h)=>vlLineSVG(w, h, { monate, values: crValues, target: cfg.crTarget, targetLabel: 'Ziel '+cfg.crTarget+'%', color:'#0E7C7B', percent:true, fmt: v=>v.toFixed(1).replace('.',',') }));
     }
-
-    function drawNPSChart(cnv, monate, npsValues, cfg, agentData){
-      const ctxN = cnv.getContext('2d');
-      const dprN=window.devicePixelRatio||1; const wN=(cnv.offsetWidth||400); const hN=200;
-      cnv.width=wN*dprN; cnv.height=hN*dprN; cnv.style.width=wN+'px'; cnv.style.height=hN+'px';
-      cnv.getContext('2d').scale(dprN,dprN);
-      const npsZiel = cfg.npsTarget || 70;
-      const maxNPS = 100;
-      const padN = {l:40,r:20,t:20,b:30};
-      const cwN = wN-padN.l-padN.r; const chN = hN-padN.t-padN.b;
-      ctxN.clearRect(0,0,wN,hN);
-      // Ziel-Linie
-      const yZN = padN.t + chN - (npsZiel/maxNPS)*chN;
-      ctxN.setLineDash([6,3]); ctxN.strokeStyle='#E20074'; ctxN.lineWidth=1.5;
-      ctxN.beginPath(); ctxN.moveTo(padN.l,yZN); ctxN.lineTo(padN.l+cwN,yZN); ctxN.stroke();
-      ctxN.setLineDash([]); ctxN.fillStyle='#E20074'; ctxN.font='10px Inter';
-      ctxN.fillText('Ziel '+npsZiel+'%', padN.l+cwN-50, yZN-4);
-      // Linie
-      const hasNPS = npsValues.some(v=>v>0);
-      if(hasNPS && monate.length>1){
-        ctxN.strokeStyle='#5B6FA6'; ctxN.lineWidth=2.5; ctxN.beginPath();
-        let first = true;
-        monate.forEach((m,i)=>{
-          if(npsValues[i]===0) return;
-          const x=padN.l+(i/(monate.length-1))*cwN;
-          const y=padN.t+chN-(npsValues[i]/maxNPS)*chN;
-          if(first){ctxN.moveTo(x,y);first=false;}else{ctxN.lineTo(x,y);}
-        }); ctxN.stroke();
-      }
-      monate.forEach((m,i)=>{
-        if(npsValues[i]===0) return;
-        const x=padN.l+(monate.length>1?(i/(monate.length-1))*cwN:cwN/2);
-        const y=padN.t+chN-(npsValues[i]/maxNPS)*chN;
-        const ok=npsValues[i]>=npsZiel;
-        ctxN.fillStyle=ok?'#4CAF50':'#E20074';
-        ctxN.beginPath(); ctxN.arc(x,y,5,0,Math.PI*2); ctxN.fill();
-        ctxN.fillStyle='#1C2733'; ctxN.font='bold 10px IBM Plex Mono'; ctxN.textAlign='center';
-        ctxN.fillText(npsValues[i].toFixed(1)+'%',x,y-10);
-        ctxN.fillStyle='#64748B'; ctxN.font='9px Inter';
-        ctxN.fillText(m.includes('-')?m.split('-')[1].substring(0,3)+' '+m.split('-')[0].slice(2):m.substring(0,3),x,hN-5);
-      });
-      // Y-Achse
-      ctxN.strokeStyle='#E0E0E0'; ctxN.lineWidth=1;
-      ctxN.beginPath(); ctxN.moveTo(padN.l,padN.t); ctxN.lineTo(padN.l,padN.t+chN); ctxN.stroke();
-      ctxN.fillStyle='#64748B'; ctxN.font='9px Inter'; ctxN.textAlign='right';
-      for(let i=0;i<=4;i++){
-        const val=Math.round(maxNPS*i/4); const y=padN.t+chN-(i/4)*chN;
-        ctxN.fillText(val+'%',padN.l-4,y+3);
-        ctxN.strokeStyle='#F5F5F5'; ctxN.beginPath(); ctxN.moveTo(padN.l,y); ctxN.lineTo(padN.l+cwN,y); ctxN.stroke();
-      }
+    function drawNPSChart(el, monate, npsValues, cfg, agentData){
+      const ziel = cfg.npsTarget || 70;
+      vlRender(el, (w,h)=>vlLineSVG(w, h, { monate, values: npsValues, target: ziel, targetLabel: 'Ziel '+ziel+'%', color:'#5B6FA6', percent:true, fixedMax:100, skipZero:true, fmt: v=>v.toFixed(1).replace('.',',') }));
     }
-
-    function drawCHTChart(cnv, monate, chtValues){
-      const ctx = cnv.getContext('2d');
-      const dpr = window.devicePixelRatio||1; const w = cnv.offsetWidth||400; const h = 200;
-      cnv.width = w*dpr; cnv.height = h*dpr; cnv.style.width = w+'px'; cnv.style.height = h+'px';
-      ctx.scale(dpr, dpr);
-      const pad = {l:44,r:12,t:18,b:32};
-      const cw = w-pad.l-pad.r; const ch = h-pad.t-pad.b;
-      const vals = chtValues.map(v => v || 0);
-      const maxV = Math.max(...vals.filter(v=>v>0), 900);
-      const n = monate.length;
-      ctx.clearRect(0,0,w,h);
-      ctx.font = `${11*dpr}px Inter,sans-serif`; ctx.textAlign='center';
-      // Farbschwellen: ≤550 grün, 551-680 orange, ≥681 rot
-      const chtColor = v => v <= 550 ? '#1D8A3E' : v <= 680 ? '#B9770E' : '#C4291C';
-      // Gitternetz
-      ctx.strokeStyle='#F5F5F5'; ctx.lineWidth=1;
-      for(let i=0;i<=4;i++){
-        const y = pad.t + ch - (i/4)*ch;
-        ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
-        ctx.fillStyle='#999'; ctx.textAlign='right'; ctx.fillText(Math.round(maxV*i/4), pad.l-4, y+3);
-      }
-      // Balken
-      const bw = Math.max(8, cw/n*0.6);
-      monate.forEach((m,i)=>{
-        const v = vals[i];
-        if(!v) return;
-        const x = pad.l + (i+0.5)*(cw/n) - bw/2;
-        const bh = (v/maxV)*ch;
-        const by = pad.t+ch-bh;
-        ctx.fillStyle = chtColor(v);
-        ctx.beginPath();
-        ctx.roundRect ? ctx.roundRect(x, by, bw, bh, [4,4,0,0]) : ctx.rect(x, by, bw, bh);
-        ctx.fill();
-        // Wert über dem Balken
-        ctx.fillStyle = chtColor(v); ctx.textAlign='center'; ctx.font=`bold ${10*dpr}px Inter,sans-serif`;
-        ctx.fillText(v, x+bw/2, by-4);
-        // Monatsname unten
-        ctx.fillStyle='#999'; ctx.font=`${10*dpr}px Inter,sans-serif`;
-        const label = m.replace('2026-','').substring(0,3);
-        ctx.fillText(label, pad.l+(i+0.5)*(cw/n), h-8);
-      });
+    function drawCHTChart(el, monate, chtValues){
+      vlRender(el, (w,h)=>vlBarSVG(w, h, { monate, values: chtValues.map(v=>v||0) }));
     }
 
     // Charts zeichnen
@@ -11636,6 +11512,13 @@ html[data-fx-theme="dark"] .cr-box{background-color:var(--panel)!important;color
 html[data-fx-theme="dark"] .ma-table tr.ma-row-plan td,html[data-fx-theme="dark"] .ma-table tr.ma-row-erreicht td,html[data-fx-theme="dark"] .ma-table tr.ma-row-cr td,html[data-fx-theme="dark"] .ma-table tr.ma-row-crziel td,html[data-fx-theme="dark"] .ma-table tr.ma-row-storno td,html[data-fx-theme="dark"] .ma-table tr:nth-child(even) td,html[data-fx-theme="dark"] .ma-nps-row td{background-color:var(--panel);}
 html[data-fx-theme="dark"] .ma-table tr.ma-row-plan td:first-child,html[data-fx-theme="dark"] .ma-table tr.ma-row-crziel td:first-child,html[data-fx-theme="dark"] .ma-table tr.ma-row-storno td:first-child{color:var(--muted)!important;}
 html[data-fx-theme="dark"] .ma-table tr.ma-row-erreicht td:first-child,html[data-fx-theme="dark"] .ma-table tr.ma-row-cr td:first-child{color:var(--text)!important;}
+
+
+.vl-charts-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:16px;}
+@media (max-width: 1000px){ .vl-charts-row{grid-template-columns:1fr;} }
+.vl-chart-wrap{min-width:0!important;margin-bottom:0!important;padding:16px 18px 12px!important;overflow:hidden;}
+.vl-chart-title{font-family:'Inter',sans-serif!important;font-size:13px!important;font-weight:600!important;margin-bottom:8px;}
+.vl-chart-host{width:100%;min-width:0;}
 
 /* Handy / Tablet: Seitenleiste ausklappbar */
 @media (max-width: 900px){
