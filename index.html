@@ -1077,7 +1077,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 158;
+const BOARD_VERSION = 159;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -4420,7 +4420,7 @@ function renderWorkshops(){
         if(realCv) realCv.eintraege = (realCv.eintraege||[]).filter(e=>e.id !== t.entryId);
       });
       scheduleSave();
-      renderWorkshops();
+      renderAll();
     });
     top.appendChild(delBtn);
     body.appendChild(top);
@@ -4631,7 +4631,7 @@ function renderCoachVerlauf(){
           }
         }
         scheduleSave();
-        renderCoachVerlauf();
+        renderAll();
       });
       top.appendChild(delBtn);
       row.appendChild(top);
@@ -5358,7 +5358,7 @@ function buildTageszielVerlauf(){
       if(!confirm(`Tages Ziel für ${z.agentName} vom ${d.toLocaleDateString('de-DE')} wirklich löschen?`)) return;
       markDeleted(z.id);
       state.tagesziele = (state.tagesziele||[]).filter(x=>x.id!==z.id);
-      scheduleSave(); renderCoachPlan();
+      scheduleSave(); renderAll(); // v159: aktuelle Ansicht sofort neu zeichnen (auch im Reiter Tages Ziele)
     });
     actBtns.appendChild(editBtn); actBtns.appendChild(delBtn);
     head.appendChild(leftInfo); head.appendChild(actBtns);
@@ -6000,7 +6000,7 @@ function buildPlanRow(p){
     markDeleted(p.id);
     state.coachingPlan = state.coachingPlan.filter(x=>x.id!==p.id);
     scheduleSave();
-    renderTermineKalender();
+    renderAll();
   });
   return row;
 }
