@@ -581,6 +581,14 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .tz-table td input::placeholder{color:var(--muted);opacity:.6;}
 .tz-crtag-st{display:inline-block;font:700 9px 'Inter',sans-serif;letter-spacing:.04em;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:0 4px;margin-bottom:2px;background:var(--panel);}
 .tz-vm-box{margin-top:8px;padding-top:7px;border-top:1px dashed var(--border);}
+.vl-auto-hint{display:flex;align-items:flex-start;gap:9px;flex:1;min-width:260px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font:500 12.5px 'Inter',sans-serif;color:var(--muted);line-height:1.45;}
+.vl-auto-hint .nav-ic{color:var(--good);margin-top:1px;}
+.vl-auto-hint b{color:var(--text);}
+
+/* Mitarbeiter Ziele: Monatswahl + Stand im Team-Kopf (v166) */
+.ov-month-switch{display:flex;gap:8px;flex-wrap:wrap;font-family:'Inter',sans-serif;}
+.ov-stand{font:600 12px 'Inter',sans-serif;color:rgba(255,255,255,.7);}
+.ov-stand-end{color:#fff;background:var(--tmg);padding:4px 10px;border-radius:999px;}
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
@@ -1117,7 +1125,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 164;
+const BOARD_VERSION = 166;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -6755,22 +6763,24 @@ function renderVerlauf(){
   // Toolbar
   const toolbar = document.createElement('div');
   toolbar.className = 'vl-toolbar';
-  const saveBtn = document.createElement('button');
-  saveBtn.className = 'vl-save-btn';
-  saveBtn.textContent = '📸 Aktuellen Monat speichern';
-  saveBtn.addEventListener('click', saveMonatSnapshot);
-  toolbar.appendChild(saveBtn);
+  // v165: Der manuelle Knopf „Aktuellen Monat speichern“ ist entfallen – der laufende Monat wird bei jedem
+  // Laden und Speichern automatisch aus Tageswerte übernommen (updateLiveVerlaufSnapshot).
+  const autoHint = document.createElement('div');
+  autoHint.className = 'vl-auto-hint';
+  autoHint.innerHTML = '<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>' +
+    '<span>Der laufende Monat wird automatisch aus <b>Tageswerte</b> übernommen (Stückzahlen, Calls, CHT, NPS, LQ). Endgültige Werte für den Vormonat trägst du in Tageswerte im Monatsreiter „Vormonat“ nach.</span>';
+  toolbar.appendChild(autoHint);
   const infoSpan = document.createElement('span');
   infoSpan.style.cssText = 'font-family:"Inter",sans-serif;font-size:12px;color:var(--muted);';
   const gespeicherteSnapshots = Object.keys(state.verlauf||{}).length;
-  infoSpan.textContent = gespeicherteSnapshots > 0 ? `${gespeicherteSnapshots} Mitarbeiter mit Verlaufsdaten` : 'Noch keine Snapshots gespeichert';
+  infoSpan.textContent = gespeicherteSnapshots > 0 ? `${gespeicherteSnapshots} Mitarbeiter mit Verlaufsdaten` : 'Noch keine Verlaufsdaten';
   toolbar.appendChild(infoSpan);
   container.appendChild(toolbar);
 
   if(!state.verlauf || Object.keys(state.verlauf).length === 0){
     const empty = document.createElement('div');
     empty.className = 'vl-no-data';
-    empty.textContent = 'Noch keine Verlaufsdaten vorhanden. Klicke auf "Aktuellen Monat speichern" um den ersten Snapshot zu erstellen.';
+    empty.textContent = 'Noch keine Verlaufsdaten vorhanden. Sobald in Tageswerte Werte eingetragen sind, erscheint der laufende Monat hier automatisch.';
     container.appendChild(empty);
     return;
   }
@@ -10345,8 +10355,41 @@ function ovFitColumns(){
   if(window.ResizeObserver){ const ro = new ResizeObserver(run); const el = document.getElementById('overview-capture'); if(el) ro.observe(el); }
 })();
 
+// v166: Mitarbeiter Ziele kann den Vormonat als Monatsendstand zeigen (gleiche Monatswahl wie in Tageswerte).
+// Die Werte kommen dann aus dem Mitarbeiter-Verlauf des Vormonats (dort landen auch die Nachträge aus Tageswerte → Vormonat).
+function ovMonthInfo(){
+  const now = new Date();
+  const prev = twMonthOffset === -1;
+  const d = new Date(now.getFullYear(), now.getMonth() + (prev ? -1 : 0), 1);
+  return { prev, d, name: VL_MONATE[d.getMonth()], jahr: d.getFullYear(), label: VL_MONATE[d.getMonth()] + ' ' + d.getFullYear() };
+}
+function ovAgentView(agent){
+  const mi = ovMonthInfo();
+  if(!mi.prev) return agent;
+  const md = agentVerlaufMonat(agent, mi.jahr, mi.name);
+  if(!md) return null;
+  const num = v => (typeof v === 'number' && v > 0) ? v : null;
+  return Object.assign({}, agent, { sales: Object.assign({}, md.sales || {}), nps: num(md.nps), lq: num(md.lq), calls: num(md.calls), cht: num(md.cht), _crFix: num(md.cr) });
+}
+function renderOvMonthSwitch(){
+  const host = document.getElementById('ov-count');
+  if(!host) return;
+  const now = new Date();
+  host.innerHTML = '';
+  host.className = 'ov-month-switch';
+  [{off:0, lbl:'Laufender Monat'}, {off:-1, lbl:'Vormonat · Endstand'}].forEach(o=>{
+    const d = new Date(now.getFullYear(), now.getMonth() + o.off, 1);
+    const b = document.createElement('button'); b.type = 'button';
+    b.className = 'tw-monthtab' + (twMonthOffset === o.off ? ' active' : '');
+    b.innerHTML = `<b>${VL_MONATE[d.getMonth()]} ${d.getFullYear()}</b><span>${o.lbl}</span>`;
+    b.addEventListener('click', ()=>{ if(twMonthOffset === o.off) return; twMonthOffset = o.off; twSelectedDay = 'total'; renderOverview(); });
+    host.appendChild(b);
+  });
+}
+
 function renderOverview(){
-  document.getElementById('ov-count').textContent = state.agents.length + ' Mitarbeiter';
+  renderOvMonthSwitch();
+  const ovMi = ovMonthInfo();
   const container = document.getElementById('overview-capture');
   container.innerHTML = '';
   const watermark = document.createElement('div');
@@ -10354,12 +10397,14 @@ function renderOverview(){
   watermark.textContent = 'STANDORT-PORTAL';
   container.appendChild(watermark);
   const title = document.createElement('div');
-  title.innerHTML = '<div class="ov-title">Team-Übersicht — Vertrieb &amp; Gesamt-CR</div><div class="ov-sub">Inbound Mobilfunk &amp; Festnetz Privatkunden · Stand aktuell</div>';
+  const standTxt = ovMi.prev ? `Monatsendstand ${ovMi.label}` : `Stand ${new Date().toLocaleDateString('de-DE')}`;
+  title.innerHTML = `<div class="ov-title">Team-Übersicht — Vertrieb &amp; Gesamt-CR</div><div class="ov-sub">Inbound Mobilfunk &amp; Festnetz Privatkunden · ${standTxt}</div>`;
   container.appendChild(title);
 
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
     const cfg = TEAM_CONFIGS[teamId];
-    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim() !== '' && a.category !== 'schulung' && a.category !== 'work');
+    const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name.trim() !== '' && a.category !== 'schulung' && a.category !== 'work')
+      .map(ovAgentView).filter(Boolean);
     if(!teamAgents.length) return;
     const teamDiv = document.createElement('div');
     teamDiv.className = 'ov-team';
@@ -10379,6 +10424,7 @@ function renderOverview(){
     teamDiv.innerHTML = `
       <div class="ov-team-head">
         <span class="name">${cfg.label} — ${cfg.project}</span>
+        <span class="ov-stand${ovMi.prev ? ' ov-stand-end' : ''}">${standTxt}</span>
       </div>
       <div style="background:#F7F9FA;padding:14px 16px;border-bottom:1px solid var(--border);text-align:center;">
         <div style="font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Ziele</div>
@@ -10438,7 +10484,7 @@ function renderOverview(){
         const npsClass = npsVal !== null && npsVal >= npsTarget ? 'good' : npsVal === null ? '' : 'zero';
         const lqVal = (agent.lq === null || agent.lq === undefined) ? null : agent.lq;
         const lqClass = lqVal !== null && lqVal >= lqTarget ? 'good' : lqVal === null ? '' : 'zero';
-        const cr = totalCr(agent);
+        const cr = agent._crFix ? agent._crFix : totalCr(agent);   // Vormonat: gespeicherte End-CR aus dem Verlauf
         const crRedThreshold = teamId === 'Trikala01' ? 4 : 7;
         const crValRounded = parseFloat(cr.toFixed(2));
         const crStatus = crValRounded < crRedThreshold ? 'zero' : (crValRounded >= cfg.crTarget ? 'good' : 'mid');
@@ -10489,6 +10535,11 @@ function renderOverview(){
   });
 
   ovFitColumns();
+  if(ovMi.prev && !container.querySelector('.ov-team')){
+    const e = document.createElement('div'); e.className = 'vl-no-data';
+    e.textContent = `Für ${ovMi.label} sind noch keine Werte im Mitarbeiter-Verlauf. Trage sie in Tageswerte → „${ovMi.label} · Vormonat“ nach.`;
+    container.appendChild(e);
+  }
   const foot = document.createElement('div');
   foot.className = 'ov-foot';
   foot.innerHTML = 'Grün = Ziel erreicht · Rot = unter Ziel &nbsp;·&nbsp; <span style="background:#E4ECF5;color:var(--sixh);padding:1px 6px;border-radius:4px;font-size:11px;">6-Stündler</span> &nbsp; <span style="background:#EFE9F7;color:var(--helpline);padding:1px 6px;border-radius:4px;font-size:11px;">Helpline</span>';
@@ -10585,8 +10636,9 @@ document.getElementById('export-png-btn').addEventListener('click', async ()=>{
     await new Promise(resolve=>{
       html2canvas(teamEl, { backgroundColor: '#EDF1F4', scale: 2 }).then(canvas=>{
         const link = document.createElement('a');
+        const mi = ovMonthInfo();
         const datum = new Date().toLocaleDateString('de-DE').replace(/\./g,'-');
-        link.download = `MA-Stand_${cfg.label}_${datum}.png`;
+        link.download = mi.prev ? `MA-Endstand_${cfg.label}_${mi.name}-${mi.jahr}.png` : `MA-Stand_${cfg.label}_${datum}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
         setTimeout(resolve, 500);
@@ -11719,6 +11771,14 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .tz-table td input::placeholder{color:var(--muted);opacity:.6;}
 .tz-crtag-st{display:inline-block;font:700 9px 'Inter',sans-serif;letter-spacing:.04em;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:0 4px;margin-bottom:2px;background:var(--panel);}
 .tz-vm-box{margin-top:8px;padding-top:7px;border-top:1px dashed var(--border);}
+.vl-auto-hint{display:flex;align-items:flex-start;gap:9px;flex:1;min-width:260px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;font:500 12.5px 'Inter',sans-serif;color:var(--muted);line-height:1.45;}
+.vl-auto-hint .nav-ic{color:var(--good);margin-top:1px;}
+.vl-auto-hint b{color:var(--text);}
+
+/* Mitarbeiter Ziele: Monatswahl + Stand im Team-Kopf (v166) */
+.ov-month-switch{display:flex;gap:8px;flex-wrap:wrap;font-family:'Inter',sans-serif;}
+.ov-stand{font:600 12px 'Inter',sans-serif;color:rgba(255,255,255,.7);}
+.ov-stand-end{color:#fff;background:var(--tmg);padding:4px 10px;border-radius:999px;}
 /* ===== Monatsabschluss ===== */
 .ma-charts-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .ma-chart-box{min-width:0!important;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);padding:16px 18px 10px!important;}
