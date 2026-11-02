@@ -580,6 +580,7 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .tz-table td input:hover{box-shadow:inset 0 0 0 1px var(--border);cursor:text;}
 .tz-table td input::placeholder{color:var(--muted);opacity:.6;}
 .tz-crtag-st{display:inline-block;font:700 9px 'Inter',sans-serif;letter-spacing:.04em;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:0 4px;margin-bottom:2px;background:var(--panel);}
+.tz-vm-box{margin-top:8px;padding-top:7px;border-top:1px dashed var(--border);}
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
@@ -1079,7 +1080,9 @@ const STORAGE_KEY = 'trikala-portal-data';
 const TEAM_CONFIGS = {"Trikala01": {"label": "Trikala01", "project": "Mobilfunk PK", "products": ["MF", "SU", "BB", "TV", "VVM+BOJ"], "targets": {"regular": [24, 3, 4, 3, 5], "6h": [19, 2, 3, 2, 3], "helpline": [12, 2, 2, 2, 2]}, "crTarget": 7, "npsTarget": 70, "lqTarget": 78}, "Trikala06": {"label": "Trikala06", "project": "Festnetz PK", "products": ["MF", "SU", "BB", "TV", "VVM+NVM"], "targets": {"regular": [2, 16, 17, 9, 20], "6h": [1, 12, 13, 6, 15], "helpline": [1, 8, 9, 5, 10]}, "crTarget": 11, "npsTarget": 68, "lqTarget": 74}};
 const SEED_AGENTS = [];
 // Ø angenommene Calls pro Arbeitstag (für „Stück heute für CR-Ziel“ in Team Ziele); Helpline zählt wie Standard
-const CALLS_PRO_TAG = { standard: 40, sechs: 30 };
+const CALLS_PRO_TAG = { standard: 40, sechs: 30 };   // nur Rückfallwert, wenn für den Vormonat noch keine Calls vorliegen
+const FREIE_TAGE_PRO_MONAT = 7.5;   // Ø freie Tage je Mitarbeiter und Monat (7-Tage-Betrieb)
+const SECHS_STD_FAKTOR = 0.75;      // 6-Stündler = ¾ eines Standard-Mitarbeiters
 const CATEGORY_LABELS = { regular: 'Standard', '6h': '6-Stündler', helpline: 'Helpline', schulung: '📚 Schulung', work: '🏗️ Work' };
 const CATEGORY_CSS = { regular: 'regular', '6h': 'sixh', helpline: 'helpline', schulung: 'schulung', work: 'work' };
 
@@ -1114,7 +1117,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 163;
+const BOARD_VERSION = 164;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -8006,21 +8009,15 @@ function renderTeamZiele(){
     t.appendChild(nochRow);
 
     // === Absätze pro Arbeitstag (berechnet, Basis: verbleibende Arbeitstage Mo-Fr, automatisch) ===
+    // v164: Der Standort arbeitet an allen 7 Tagen → verbleibende Tage = Kalendertage ab heute (inkl. heute)
     function computeRemainingWorkdaysMoFr(){
       const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth();
-      const lastDay = new Date(year, month+1, 0).getDate();
-      let count = 0;
-      for(let d = now.getDate(); d <= lastDay; d++){
-        const dow = new Date(year, month, d).getDay(); // 0=So, 6=Sa
-        if(dow !== 0 && dow !== 6) count++;
-      }
-      return count || 1;
+      const lastDay = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+      return Math.max(1, lastDay - now.getDate() + 1);
     }
     const verbleibendeAT = computeRemainingWorkdaysMoFr();
     const proTagRow = document.createElement('tr'); proTagRow.className = 'tz-row-protag';
-    proTagRow.appendChild(cell(`Absätze/Tag laut Soll (${verbleibendeAT} AT)`, 'tz-label'));
+    proTagRow.appendChild(cell(`Absätze/Tag laut Soll (${verbleibendeAT} Tage)`, 'tz-label'));
     proTagRow.appendChild(cell('')); proTagRow.appendChild(cell(''));
     cols.forEach(p => {
       const soll = tz.soll[p]||0;
@@ -8050,19 +8047,39 @@ function renderTeamZiele(){
       const pad2 = n => String(n).padStart(2,'0');
       const ymNow = now.getFullYear() + '-' + pad2(now.getMonth()+1);
       const isoHeute = ymNow + '-' + pad2(now.getDate());
-      let bisherAT = 0; // Arbeitstage Mo–Fr vom 1. bis gestern (Calls aus dem Portal = Stand Vortag)
-      for(let d = 1; d < now.getDate(); d++){ const dow = new Date(now.getFullYear(), now.getMonth(), d).getDay(); if(dow !== 0 && dow !== 6) bisherAT++; }
+      const bisherAT = now.getDate() - 1; // Tage vom 1. bis gestern (7-Tage-Betrieb; Calls aus dem Portal = Stand Vortag)
       // Calls gelten nur für den Monat, in dem sie eingetragen wurden
       const calls = tz.callsMonat === ymNow ? (parseFloat(tz.callsBisher) || 0) : 0;
 
       // Anwesenheit heute: Vorschlag = alle aktiven Mitarbeiter des Teams, überschreibbar (gilt nur für heute)
       const teamId = key === 'mf' ? 'Trikala01' : 'Trikala06';
       const teamAg = (state.agents||[]).filter(a => String(a.team) === teamId && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
-      const vorschlag = { std: teamAg.filter(a => a.category !== '6h').length, sechs: teamAg.filter(a => a.category === '6h').length };
+      const teamStd = teamAg.filter(a => a.category !== '6h').length, teamSechs = teamAg.filter(a => a.category === '6h').length;
+      const tageMonat = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+      // Vorschlag Anwesenheit: im Schnitt hat jeder MA FREIE_TAGE_PRO_MONAT freie Tage → Anteil anwesend
+      const anwQuote = Math.max(0, 1 - FREIE_TAGE_PRO_MONAT / tageMonat);
+      const vorschlag = { std: Math.round(teamStd * anwQuote), sechs: Math.round(teamSechs * anwQuote) };
       const anw = (tz.anwesend && tz.anwesend.datum === isoHeute) ? tz.anwesend : null;
       const std = anw ? (parseInt(anw.std, 10) || 0) : vorschlag.std;
       const sechs = anw ? (parseInt(anw.sechs, 10) || 0) : vorschlag.sechs;
-      const callsHeute = std * CALLS_PRO_TAG.standard + sechs * CALLS_PRO_TAG.sechs;
+
+      // Calls je MA und Arbeitstag automatisch aus dem Vormonat:
+      // Calls Vormonat ÷ (Team in Standard-MA [6-Std. = ¾] × Arbeitstage je MA [Tage − freie Tage])
+      const vmDate = new Date(now.getFullYear(), now.getMonth()-1, 1);
+      const vmYm = vmDate.getFullYear() + '-' + pad2(vmDate.getMonth()+1);
+      const vmName = MONATE_ORDER[vmDate.getMonth()];
+      const vmTage = new Date(vmDate.getFullYear(), vmDate.getMonth()+1, 0).getDate();
+      const vmAuto = teamAg.reduce((sum, a) => { const md = agentVerlaufMonat(a, vmDate.getFullYear(), vmName); return sum + (md && md.calls > 0 ? md.calls : 0); }, 0);
+      const vmManuell = (tz.callsVormonat && tz.callsVormonat.ym === vmYm) ? (parseFloat(tz.callsVormonat.calls) || 0) : 0;
+      const vmCalls = vmManuell || vmAuto;
+      const einheiten = teamStd + SECHS_STD_FAKTOR * teamSechs;
+      const atJeMa = Math.max(1, vmTage - FREIE_TAGE_PRO_MONAT);
+      const rateStd = (vmCalls > 0 && einheiten > 0) ? vmCalls / (einheiten * atJeMa) : CALLS_PRO_TAG.standard;
+      const rateSechs = (vmCalls > 0 && einheiten > 0) ? rateStd * SECHS_STD_FAKTOR : CALLS_PRO_TAG.sechs;
+      const rateQuelle = vmManuell ? 'eingetragen' : (vmAuto ? 'aus Mitarbeiter-Verlauf' : 'Standardwert');
+      const callsHeute = Math.round(std * rateStd + sechs * rateSechs);
+      const fmt1 = v => (Math.round(v*10)/10).toFixed(1).replace('.',',');
+      const fmtR = v => (Math.round(v*10)/10).toLocaleString('de-DE');
       const setAnw = (feld, v) => {
         const cur = (tz.anwesend && tz.anwesend.datum === isoHeute) ? tz.anwesend : { datum: isoHeute, std: vorschlag.std, sechs: vorschlag.sechs };
         tz.anwesend = Object.assign({}, cur, { datum: isoHeute, [feld]: Math.max(0, parseInt(v, 10) || 0) });
@@ -8082,7 +8099,7 @@ function renderTeamZiele(){
       }
       lblTd.appendChild(sw);
       const leg = document.createElement('div'); leg.className = 'tz-crtag-legend';
-      leg.textContent = `halten = Calls heute × Ziel · aufholen = Rückstand ÷ ${verbleibendeAT} AT`;
+      leg.textContent = `halten = Calls heute × Ziel · aufholen = Rückstand ÷ ${verbleibendeAT} Tage`;
       lblTd.appendChild(leg);
       crTagRow.appendChild(lblTd);
 
@@ -8103,11 +8120,20 @@ function renderTeamZiele(){
       anwRow.appendChild(mkIn('6-Std. heute', String(sechs), '', v => setAnw('sechs', v)));
       inTd.appendChild(anwRow);
       const info = document.createElement('div'); info.className = 'tz-calls-info';
-      info.innerHTML = `≈ <b>${callsHeute.toLocaleString('de-DE')}</b> Calls heute` + (anw ? '' : ' <span title="Vorschlag aus allen aktiven Mitarbeitern des Teams – bitte an die heutige Anwesenheit anpassen">(Vorschlag)</span>');
+      info.innerHTML = `≈ <b>${callsHeute.toLocaleString('de-DE')}</b> Calls heute` + (anw ? '' : ` <span title="Vorschlag: Team abzüglich Ø ${String(FREIE_TAGE_PRO_MONAT).replace('.',',')} freie Tage je MA – bitte an die heutige Anwesenheit anpassen">(Vorschlag)</span>`);
       inTd.appendChild(info);
+      const vmBox = document.createElement('div'); vmBox.className = 'tz-vm-box';
+      vmBox.appendChild(mkIn('Calls ' + vmName.substring(0,3) + '.', vmCalls ? Math.round(vmCalls).toLocaleString('de-DE') : '', 'eintragen',
+        v => { const n = parseFloat(String(v).replace(/\./g,'').replace(',','.')) || 0; tz.callsVormonat = { ym: vmYm, calls: n }; scheduleSave(); renderTeamZiele(); }, 'tz-in-wide tz-in-vm'));
+      const rate = document.createElement('div'); rate.className = 'tz-calls-info';
+      rate.innerHTML = `→ <b>${fmtR(rateStd)}</b> Calls/Tag je 8h · <b>${fmtR(rateSechs)}</b> je 6h`;
+      rate.title = vmCalls > 0
+        ? `${Math.round(vmCalls).toLocaleString('de-DE')} Calls ${vmName} (${rateQuelle}) ÷ (${teamStd} Standard + ${teamSechs} × ¾ 6-Std. = ${einheiten.toLocaleString('de-DE')}) ÷ ${atJeMa.toLocaleString('de-DE')} Arbeitstage je MA (${vmTage} Tage − ${String(FREIE_TAGE_PRO_MONAT).replace('.',',')} frei)`
+        : 'Noch keine Calls für den Vormonat – es wird mit 40 / 30 gerechnet. Calls des Vormonats eintragen.';
+      vmBox.appendChild(rate);
+      inTd.appendChild(vmBox);
       crTagRow.appendChild(inTd);
 
-      const fmt1 = v => (Math.round(v*10)/10).toFixed(1).replace('.',',');
       cols.forEach(p => {
         const td = document.createElement('td');
         // v163: Hat das Produkt die gewählte Stufe nicht, wird die höchste vorhandene darunter genommen
@@ -8126,16 +8152,17 @@ function renderTeamZiele(){
           const rueckstand = calls * ziel / 100 - ist;          // > 0 = Rückstand, < 0 = Vorsprung
           const aufholen = rueckstand / verbleibendeAT;
           const heute = Math.max(0, halten + aufholen);
-          const proStd = heute * CALLS_PRO_TAG.standard / callsHeute;
-          const proSechs = heute * CALLS_PRO_TAG.sechs / callsHeute;
+          const proStd = heute * rateStd / callsHeute;
+          const proSechs = heute * rateSechs / callsHeute;
           const crJetzt = calls ? ist / calls * 100 : 0;
           td.title = (stNutz !== stufe ? `Keine St.${stufe} für dieses Produkt → berechnet für St.${stNutz}\n` : `Berechnet für St.${stNutz}\n`) + `Halten: ${callsHeute} Calls × ${ziel.toFixed(2).replace('.',',')} % = ${fmt1(halten)}\n` +
-                     (rueckstand > 0 ? `Aufholen: Rückstand ${fmt1(rueckstand)} ÷ ${verbleibendeAT} AT = ${fmt1(aufholen)}` : `Vorsprung: ${fmt1(-rueckstand)} Stück (verteilt: −${fmt1(-aufholen)}/Tag)`) +
+                     (rueckstand > 0 ? `Aufholen: Rückstand ${fmt1(rueckstand)} ÷ ${verbleibendeAT} Tage = ${fmt1(aufholen)}` : `Vorsprung: ${fmt1(-rueckstand)} Stück (verteilt: −${fmt1(-aufholen)}/Tag)`) +
                      `\nCR bisher: ${crJetzt.toFixed(2).replace('.',',')} %`;
           const teile = `<span class="tz-crtag-sub">halten ${fmt1(halten)}</span>` + (rueckstand > 0
             ? `<span class="tz-crtag-sub"><b>+ aufholen ${fmt1(aufholen)}</b></span>`
             : `<span class="tz-crtag-sub tz-crtag-plus">Vorsprung ${fmt1(-rueckstand)}</span>`);
-          const jeMa = (std ? `8h ${fmt1(proStd)}` : '') + (std && sechs ? ' · ' : '') + (sechs ? `6h ${fmt1(proSechs)}` : '');
+          const fmtMa = v => v < 1 ? v.toFixed(2).replace('.',',') : fmt1(v);
+          const jeMa = (std ? `8h ${fmtMa(proStd)}` : '') + (std && sechs ? ' · ' : '') + (sechs ? `6h ${fmtMa(proSechs)}` : '');
           const stTag = stNutz !== stufe ? `<span class="tz-crtag-st" title="Keine St.${stufe} hinterlegt – Berechnung für St.${stNutz}">St.${stNutz}</span>` : '';
           td.innerHTML = stTag + (heute <= 0 ? `<span class="tz-crtag-ok">✓ im Ziel</span>` : `<span class="tz-crtag-val">${fmt1(heute)}</span>`) +
                          teile + (heute > 0 && jeMa ? `<span class="tz-crtag-ma">je MA<br>${jeMa.replace(' · ','<br>')}</span>` : '');
@@ -11691,6 +11718,7 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .tz-table td input:hover{box-shadow:inset 0 0 0 1px var(--border);cursor:text;}
 .tz-table td input::placeholder{color:var(--muted);opacity:.6;}
 .tz-crtag-st{display:inline-block;font:700 9px 'Inter',sans-serif;letter-spacing:.04em;color:var(--muted);border:1px solid var(--border);border-radius:4px;padding:0 4px;margin-bottom:2px;background:var(--panel);}
+.tz-vm-box{margin-top:8px;padding-top:7px;border-top:1px dashed var(--border);}
 /* ===== Monatsabschluss ===== */
 .ma-charts-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .ma-chart-box{min-width:0!important;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);padding:16px 18px 10px!important;}
