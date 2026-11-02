@@ -545,6 +545,35 @@ button.logout-btn{background:transparent;border:1px solid var(--border);color:va
 .tz-team-layout .cr-sidebar{flex:0 0 210px;min-width:0;}
 .cr-box .cr-box-val,.cr-box .cr-box-val input{text-align:left!important;}
 @media (max-width: 900px){ .tz-team-layout .cr-sidebar{flex:1 1 auto;} }
+
+/* Team Ziele: Stück pro Tag für CR-Ziel (v160) */
+.tz-table tr.tz-row-crtag td{background:var(--tmg-soft)!important;border-top:2px solid var(--border)!important;vertical-align:middle;}
+html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!important;}
+.tz-crtag-lbl{font-weight:700;color:var(--text);margin-bottom:6px;white-space:nowrap;}
+.tz-stufe-switch{display:inline-flex;border:1px solid var(--border);border-radius:7px;overflow:hidden;background:var(--panel);}
+.tz-stufe-switch button{border:0;background:transparent;padding:3px 9px;font:600 11px 'Inter',sans-serif;color:var(--muted);cursor:pointer;}
+.tz-stufe-switch button+button{border-left:1px solid var(--border);}
+.tz-stufe-switch button.active{background:var(--ink);color:#fff;}
+.tz-calls-cell{text-align:center;}
+.tz-calls-lbl{font:600 9.5px 'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+.tz-table td input.tz-calls-inp{width:110px!important;margin:3px auto 2px;display:block;border:1px solid var(--border)!important;border-radius:6px;background:var(--panel)!important;padding:4px 6px;font-size:15px!important;}
+.tz-calls-info{font:500 10px 'Inter',sans-serif;color:var(--muted);white-space:nowrap;}
+.tz-crtag-val{display:block;font-size:17px;font-weight:700;color:var(--tmg);}
+.tz-crtag-sub{display:block;font:500 10px 'Inter',sans-serif;color:var(--muted);margin-top:1px;}
+.tz-crtag-ok{color:var(--good);font-weight:700;font-family:'Inter',sans-serif;font-size:12px;}
+.tz-crtag-na{color:var(--muted);}
+
+.tz-crtag-legend{font:500 9.5px 'Inter',sans-serif;color:var(--muted);margin-top:6px;max-width:190px;white-space:normal;line-height:1.35;}
+.tz-in{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.tz-in span{font:600 9px 'Inter',sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.tz-table td .tz-in input{width:54px!important;border:1px solid var(--border)!important;border-radius:6px;background:var(--panel)!important;padding:3px 4px;font-size:13px!important;}
+.tz-table td .tz-in.tz-in-wide input{width:104px!important;font-size:15px!important;}
+.tz-anw-row{display:flex;justify-content:center;gap:8px;margin-top:6px;}
+.tz-calls-info b{color:var(--text);}
+.tz-crtag-sub{display:block;line-height:1.35;}
+.tz-crtag-sub b{color:var(--tmg);font-weight:600;}
+.tz-crtag-plus{color:var(--good)!important;}
+.tz-crtag-ma{display:block;font:600 10px 'Inter',sans-serif;color:var(--text);margin-top:3px;padding-top:3px;border-top:1px dashed var(--border);line-height:1.35;}
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
@@ -1043,6 +1072,8 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 const STORAGE_KEY = 'trikala-portal-data';
 const TEAM_CONFIGS = {"Trikala01": {"label": "Trikala01", "project": "Mobilfunk PK", "products": ["MF", "SU", "BB", "TV", "VVM+BOJ"], "targets": {"regular": [24, 3, 4, 3, 5], "6h": [19, 2, 3, 2, 3], "helpline": [12, 2, 2, 2, 2]}, "crTarget": 7, "npsTarget": 70, "lqTarget": 78}, "Trikala06": {"label": "Trikala06", "project": "Festnetz PK", "products": ["MF", "SU", "BB", "TV", "VVM+NVM"], "targets": {"regular": [2, 16, 17, 9, 20], "6h": [1, 12, 13, 6, 15], "helpline": [1, 8, 9, 5, 10]}, "crTarget": 11, "npsTarget": 68, "lqTarget": 74}};
 const SEED_AGENTS = [];
+// Ø angenommene Calls pro Arbeitstag (für „Stück heute für CR-Ziel“ in Team Ziele); Helpline zählt wie Standard
+const CALLS_PRO_TAG = { standard: 40, sechs: 30 };
 const CATEGORY_LABELS = { regular: 'Standard', '6h': '6-Stündler', helpline: 'Helpline', schulung: '📚 Schulung', work: '🏗️ Work' };
 const CATEGORY_CSS = { regular: 'regular', '6h': 'sixh', helpline: 'helpline', schulung: 'schulung', work: 'work' };
 
@@ -1077,7 +1108,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 159;
+const BOARD_VERSION = 161;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -7981,7 +8012,7 @@ function renderTeamZiele(){
     }
     const verbleibendeAT = computeRemainingWorkdaysMoFr();
     const proTagRow = document.createElement('tr'); proTagRow.className = 'tz-row-protag';
-    proTagRow.appendChild(cell(`Absätze/Tag (${verbleibendeAT} verb. AT, Mo–Fr)`, 'tz-label'));
+    proTagRow.appendChild(cell(`Absätze/Tag laut Soll (${verbleibendeAT} AT)`, 'tz-label'));
     proTagRow.appendChild(cell('')); proTagRow.appendChild(cell(''));
     cols.forEach(p => {
       const soll = tz.soll[p]||0;
@@ -7995,6 +8026,109 @@ function renderTeamZiele(){
       proTagRow.appendChild(td);
     });
     t.appendChild(proTagRow);
+
+    // === Stück HEUTE für das CR-Ziel (v161) ===
+    // CR = Netto-Stück ÷ Calls × 100 (Monat kumuliert).
+    // Stück heute = Calls heute × CR-Ziel  (CR halten)
+    //             + (Calls bisher × CR-Ziel − Ist) ÷ verbleibende AT  (Rückstand aufholen / Vorsprung)
+    // Calls heute = anwesende Standard-MA × 40 + anwesende 6-Stündler × 30 (CALLS_PRO_TAG).
+    {
+      const stufenAnz = key === 'mf' ? 3 : 2;
+      let stufe = 1;
+      try{ stufe = parseInt(localStorage.getItem('tz-cr-stufe-' + key), 10) || 1; }catch(e){}
+      if(stufe > stufenAnz) stufe = 1;
+      const zielKey = 'crZiel' + stufe;
+      const now = new Date();
+      const pad2 = n => String(n).padStart(2,'0');
+      const ymNow = now.getFullYear() + '-' + pad2(now.getMonth()+1);
+      const isoHeute = ymNow + '-' + pad2(now.getDate());
+      let bisherAT = 0; // Arbeitstage Mo–Fr vom 1. bis gestern (Calls aus dem Portal = Stand Vortag)
+      for(let d = 1; d < now.getDate(); d++){ const dow = new Date(now.getFullYear(), now.getMonth(), d).getDay(); if(dow !== 0 && dow !== 6) bisherAT++; }
+      // Calls gelten nur für den Monat, in dem sie eingetragen wurden
+      const calls = tz.callsMonat === ymNow ? (parseFloat(tz.callsBisher) || 0) : 0;
+
+      // Anwesenheit heute: Vorschlag = alle aktiven Mitarbeiter des Teams, überschreibbar (gilt nur für heute)
+      const teamId = key === 'mf' ? 'Trikala01' : 'Trikala06';
+      const teamAg = (state.agents||[]).filter(a => String(a.team) === teamId && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
+      const vorschlag = { std: teamAg.filter(a => a.category !== '6h').length, sechs: teamAg.filter(a => a.category === '6h').length };
+      const anw = (tz.anwesend && tz.anwesend.datum === isoHeute) ? tz.anwesend : null;
+      const std = anw ? (parseInt(anw.std, 10) || 0) : vorschlag.std;
+      const sechs = anw ? (parseInt(anw.sechs, 10) || 0) : vorschlag.sechs;
+      const callsHeute = std * CALLS_PRO_TAG.standard + sechs * CALLS_PRO_TAG.sechs;
+      const setAnw = (feld, v) => {
+        const cur = (tz.anwesend && tz.anwesend.datum === isoHeute) ? tz.anwesend : { datum: isoHeute, std: vorschlag.std, sechs: vorschlag.sechs };
+        tz.anwesend = Object.assign({}, cur, { datum: isoHeute, [feld]: Math.max(0, parseInt(v, 10) || 0) });
+        scheduleSave(); renderTeamZiele();
+      };
+
+      const crTagRow = document.createElement('tr'); crTagRow.className = 'tz-row-crtag';
+      const lblTd = document.createElement('td'); lblTd.className = 'tz-label';
+      lblTd.innerHTML = `<div class="tz-crtag-lbl">Stück heute für CR-Ziel</div>`;
+      const sw = document.createElement('div'); sw.className = 'tz-stufe-switch';
+      for(let st = 1; st <= stufenAnz; st++){
+        const bt = document.createElement('button'); bt.type = 'button';
+        bt.textContent = 'St.' + st; bt.className = st === stufe ? 'active' : '';
+        bt.title = 'Berechnung für CR Ziel Stufe ' + st;
+        bt.addEventListener('click', ()=>{ try{ localStorage.setItem('tz-cr-stufe-' + key, String(st)); }catch(e){} renderTeamZiele(); });
+        sw.appendChild(bt);
+      }
+      lblTd.appendChild(sw);
+      const leg = document.createElement('div'); leg.className = 'tz-crtag-legend';
+      leg.textContent = `halten = Calls heute × Ziel · aufholen = Rückstand ÷ ${verbleibendeAT} AT`;
+      lblTd.appendChild(leg);
+      crTagRow.appendChild(lblTd);
+
+      // Eingaben: Calls bisher + Anwesenheit heute
+      const inTd = document.createElement('td'); inTd.colSpan = 2; inTd.className = 'tz-calls-cell';
+      const mkIn = (label, val, ph, onCh, cls) => {
+        const w = document.createElement('label'); w.className = 'tz-in ' + (cls||'');
+        const l = document.createElement('span'); l.textContent = label;
+        const i = document.createElement('input'); i.type = 'text'; i.inputMode = 'numeric'; i.placeholder = ph || '';
+        i.value = val; i.addEventListener('focus', e => e.target.select());
+        i.addEventListener('change', e => onCh(e.target.value));
+        w.appendChild(l); w.appendChild(i); return w;
+      };
+      inTd.appendChild(mkIn('Calls Monat bisher', calls ? Math.round(calls).toLocaleString('de-DE') : '', bisherAT ? 'eintragen' : '0',
+        v => { tz.callsBisher = parseFloat(String(v).replace(/\./g,'').replace(',','.')) || 0; tz.callsMonat = ymNow; scheduleSave(); renderTeamZiele(); }, 'tz-in-wide'));
+      const anwRow = document.createElement('div'); anwRow.className = 'tz-anw-row';
+      anwRow.appendChild(mkIn('Standard heute', String(std), '', v => setAnw('std', v)));
+      anwRow.appendChild(mkIn('6-Std. heute', String(sechs), '', v => setAnw('sechs', v)));
+      inTd.appendChild(anwRow);
+      const info = document.createElement('div'); info.className = 'tz-calls-info';
+      info.innerHTML = `≈ <b>${callsHeute.toLocaleString('de-DE')}</b> Calls heute` + (anw ? '' : ' <span title="Vorschlag aus allen aktiven Mitarbeitern des Teams – bitte an die heutige Anwesenheit anpassen">(Vorschlag)</span>');
+      inTd.appendChild(info);
+      crTagRow.appendChild(inTd);
+
+      const fmt1 = v => (Math.round(v*10)/10).toFixed(1).replace('.',',');
+      cols.forEach(p => {
+        const td = document.createElement('td');
+        const ziel = (stufe === 3 && p !== 'MF') ? null : parseFloat((tz[zielKey] || {})[p]);
+        const ist = parseFloat(tz.ist[p]) || 0;
+        if(ziel === null || !(ziel > 0)){ td.textContent = '—'; td.className = 'tz-crtag-na'; }
+        else if(bisherAT > 0 && !calls){ td.textContent = '?'; td.className = 'tz-crtag-na'; td.title = 'Calls Monat bisher eintragen'; }
+        else if(!callsHeute){ td.textContent = '?'; td.className = 'tz-crtag-na'; td.title = 'Anwesende Mitarbeiter heute eintragen'; }
+        else {
+          const halten = callsHeute * ziel / 100;
+          const rueckstand = calls * ziel / 100 - ist;          // > 0 = Rückstand, < 0 = Vorsprung
+          const aufholen = rueckstand / verbleibendeAT;
+          const heute = Math.max(0, halten + aufholen);
+          const proStd = heute * CALLS_PRO_TAG.standard / callsHeute;
+          const proSechs = heute * CALLS_PRO_TAG.sechs / callsHeute;
+          const crJetzt = calls ? ist / calls * 100 : 0;
+          td.title = `Halten: ${callsHeute} Calls × ${ziel.toFixed(2).replace('.',',')} % = ${fmt1(halten)}\n` +
+                     (rueckstand > 0 ? `Aufholen: Rückstand ${fmt1(rueckstand)} ÷ ${verbleibendeAT} AT = ${fmt1(aufholen)}` : `Vorsprung: ${fmt1(-rueckstand)} Stück (verteilt: −${fmt1(-aufholen)}/Tag)`) +
+                     `\nCR bisher: ${crJetzt.toFixed(2).replace('.',',')} %`;
+          const teile = `<span class="tz-crtag-sub">halten ${fmt1(halten)}</span>` + (rueckstand > 0
+            ? `<span class="tz-crtag-sub"><b>+ aufholen ${fmt1(aufholen)}</b></span>`
+            : `<span class="tz-crtag-sub tz-crtag-plus">Vorsprung ${fmt1(-rueckstand)}</span>`);
+          const jeMa = (std ? `8h ${fmt1(proStd)}` : '') + (std && sechs ? ' · ' : '') + (sechs ? `6h ${fmt1(proSechs)}` : '');
+          td.innerHTML = (heute <= 0 ? `<span class="tz-crtag-ok">✓ im Ziel</span>` : `<span class="tz-crtag-val">${fmt1(heute)}</span>`) +
+                         teile + (heute > 0 && jeMa ? `<span class="tz-crtag-ma">je MA<br>${jeMa.replace(' · ','<br>')}</span>` : '');
+        }
+        crTagRow.appendChild(td);
+      });
+      t.appendChild(crTagRow);
+    }
 
     // === CR Zeilen (mit Produkt-CRs) ===
     // Stufen: MF hat 3, FN hat 2
@@ -11467,7 +11601,7 @@ button.primary,.cp-add-btn{border-radius:8px;}
 .tz-table tr.tz-row-header{background:var(--ink)!important;}
 .tz-table tr.tz-row-header td{color:#AEB8C4!important;font-weight:600;border-bottom:0!important;}
 .tz-table tr.tz-row-header td:first-child{color:#fff!important;}
-.tz-table td.tz-label{color:var(--muted)!important;font-weight:600;white-space:nowrap;}
+.tz-table td.tz-label{color:var(--muted)!important;font-weight:600;white-space:normal;min-width:120px;}
 .tz-table tr.tz-row-soll td:not(.tz-label),.tz-table tr.tz-row-ist td:not(.tz-label){font-size:14px;}
 .tz-table tr.tz-row-soll td.tz-label,.tz-table tr.tz-row-ist td.tz-label{color:var(--text)!important;}
 .tz-table tr.tz-row-noch td:not(.tz-label){color:var(--text);}
@@ -11501,6 +11635,35 @@ button.primary,.cp-add-btn{border-radius:8px;}
 .tz-team-layout .cr-sidebar{flex:0 0 210px;min-width:0;}
 .cr-box .cr-box-val,.cr-box .cr-box-val input{text-align:left!important;}
 @media (max-width: 900px){ .tz-team-layout .cr-sidebar{flex:1 1 auto;} }
+
+/* Team Ziele: Stück pro Tag für CR-Ziel (v160) */
+.tz-table tr.tz-row-crtag td{background:var(--tmg-soft)!important;border-top:2px solid var(--border)!important;vertical-align:middle;}
+html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!important;}
+.tz-crtag-lbl{font-weight:700;color:var(--text);margin-bottom:6px;white-space:nowrap;}
+.tz-stufe-switch{display:inline-flex;border:1px solid var(--border);border-radius:7px;overflow:hidden;background:var(--panel);}
+.tz-stufe-switch button{border:0;background:transparent;padding:3px 9px;font:600 11px 'Inter',sans-serif;color:var(--muted);cursor:pointer;}
+.tz-stufe-switch button+button{border-left:1px solid var(--border);}
+.tz-stufe-switch button.active{background:var(--ink);color:#fff;}
+.tz-calls-cell{text-align:center;}
+.tz-calls-lbl{font:600 9.5px 'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+.tz-table td input.tz-calls-inp{width:110px!important;margin:3px auto 2px;display:block;border:1px solid var(--border)!important;border-radius:6px;background:var(--panel)!important;padding:4px 6px;font-size:15px!important;}
+.tz-calls-info{font:500 10px 'Inter',sans-serif;color:var(--muted);white-space:nowrap;}
+.tz-crtag-val{display:block;font-size:17px;font-weight:700;color:var(--tmg);}
+.tz-crtag-sub{display:block;font:500 10px 'Inter',sans-serif;color:var(--muted);margin-top:1px;}
+.tz-crtag-ok{color:var(--good);font-weight:700;font-family:'Inter',sans-serif;font-size:12px;}
+.tz-crtag-na{color:var(--muted);}
+
+.tz-crtag-legend{font:500 9.5px 'Inter',sans-serif;color:var(--muted);margin-top:6px;max-width:190px;white-space:normal;line-height:1.35;}
+.tz-in{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.tz-in span{font:600 9px 'Inter',sans-serif;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+.tz-table td .tz-in input{width:54px!important;border:1px solid var(--border)!important;border-radius:6px;background:var(--panel)!important;padding:3px 4px;font-size:13px!important;}
+.tz-table td .tz-in.tz-in-wide input{width:104px!important;font-size:15px!important;}
+.tz-anw-row{display:flex;justify-content:center;gap:8px;margin-top:6px;}
+.tz-calls-info b{color:var(--text);}
+.tz-crtag-sub{display:block;line-height:1.35;}
+.tz-crtag-sub b{color:var(--tmg);font-weight:600;}
+.tz-crtag-plus{color:var(--good)!important;}
+.tz-crtag-ma{display:block;font:600 10px 'Inter',sans-serif;color:var(--text);margin-top:3px;padding-top:3px;border-top:1px dashed var(--border);line-height:1.35;}
 /* ===== Monatsabschluss ===== */
 .ma-charts-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .ma-chart-box{min-width:0!important;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);padding:16px 18px 10px!important;}
