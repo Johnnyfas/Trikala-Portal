@@ -589,6 +589,31 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .ov-month-switch{display:flex;gap:8px;flex-wrap:wrap;font-family:'Inter',sans-serif;}
 .ov-stand{font:600 12px 'Inter',sans-serif;color:rgba(255,255,255,.7);}
 .ov-stand-end{color:#fff;background:var(--tmg);padding:4px 10px;border-radius:999px;}
+
+/* Mitarbeiter-Ziele bearbeiten (v167) */
+.mz-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
+.mz-box{background:var(--panel);color:var(--text);border-radius:14px;width:min(860px,100%);padding:22px 24px;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);font-family:'Inter',sans-serif;}
+.mz-head{display:flex;justify-content:space-between;gap:16px;margin-bottom:14px;}
+.mz-title{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;}
+.mz-sub{font-size:12.5px;color:var(--muted);margin-top:3px;max-width:60ch;}
+.mz-x{background:none;border:0;font-size:24px;color:var(--muted);cursor:pointer;line-height:1;height:32px;}
+.mz-team{border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
+.mz-team-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;font-size:14px;}
+.mz-reset{background:none;border:1px solid var(--border);border-radius:7px;padding:4px 10px;font:600 11.5px 'Inter',sans-serif;color:var(--muted);cursor:pointer;}
+.mz-reset:hover{color:var(--text);border-color:var(--text);}
+.mz-scroll{overflow-x:auto;}
+.mz-table{border-collapse:collapse;width:100%;}
+.mz-table th{font:600 11px 'Inter',sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:4px 4px 8px;text-align:center;}
+.mz-table td{padding:3px 4px;text-align:center;}
+.mz-cat{text-align:left!important;font-size:13px;font-weight:600;white-space:nowrap;padding-right:12px!important;}
+.mz-box input{width:58px;padding:6px 6px;border:1px solid var(--border);border-radius:7px;background:var(--panel);color:var(--text);font:600 14px 'IBM Plex Mono',monospace;text-align:center;}
+.mz-box input:focus{outline:none;border-color:var(--tmg);box-shadow:0 0 0 3px rgba(226,0,116,.12);}
+.mz-box input.mz-changed{border-color:var(--tmg);background:var(--tmg-soft);}
+.mz-kpis{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);}
+.mz-kpis label{display:flex;flex-direction:column;gap:4px;font:600 11px 'Inter',sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.mz-kpis span{display:flex;align-items:center;gap:5px;color:var(--text);font-size:13px;text-transform:none;}
+.mz-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px;}
+.mz-hint{font-size:11.5px;color:var(--muted);max-width:46ch;}
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
@@ -1052,7 +1077,8 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
     <div id="ov-ziele-container">
       <div class="toolbar">
         <span class="count" id="ov-count"></span>
-        <button class="primary" id="export-png-btn">Als Bild speichern</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;"><button class="btn-secondary" id="ma-ziele-edit-btn" type="button" style="cursor:pointer;"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg> Ziele bearbeiten</button>
+        <button class="primary" id="export-png-btn">Als Bild speichern</button></div>
       </div>
       <div id="overview-capture" style="overflow-x:auto;"></div>
     </div>
@@ -1086,6 +1112,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 <script>
 const STORAGE_KEY = 'trikala-portal-data';
 const TEAM_CONFIGS = {"Trikala01": {"label": "Trikala01", "project": "Mobilfunk PK", "products": ["MF", "SU", "BB", "TV", "VVM+BOJ"], "targets": {"regular": [24, 3, 4, 3, 5], "6h": [19, 2, 3, 2, 3], "helpline": [12, 2, 2, 2, 2]}, "crTarget": 7, "npsTarget": 70, "lqTarget": 78}, "Trikala06": {"label": "Trikala06", "project": "Festnetz PK", "products": ["MF", "SU", "BB", "TV", "VVM+NVM"], "targets": {"regular": [2, 16, 17, 9, 20], "6h": [1, 12, 13, 6, 15], "helpline": [1, 8, 9, 5, 10]}, "crTarget": 11, "npsTarget": 68, "lqTarget": 74}};
+const TEAM_CONFIGS_DEFAULT = JSON.parse(JSON.stringify(TEAM_CONFIGS)); // v167: Vorgabewerte (eigene Ziele stehen in state.maZiele)
 const SEED_AGENTS = [];
 // Ø angenommene Calls pro Arbeitstag (für „Stück heute für CR-Ziel“ in Team Ziele); Helpline zählt wie Standard
 const CALLS_PRO_TAG = { standard: 40, sechs: 30 };   // nur Rückfallwert, wenn für den Vormonat noch keine Calls vorliegen
@@ -1125,7 +1152,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 166;
+const BOARD_VERSION = 167;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -2122,7 +2149,7 @@ function mergeAgentsFromServer(serverAgents, serverDeletedAgentIds){
 // sich ebenfalls durchsetzen. Zeitstempel liegen in state._lww[bereich][pfad].
 // ============================================================
 // LWW_START
-const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele', 'coachReviews'];
+const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele', 'coachReviews', 'maZiele'];
 // Bereiche, die als Liste gespeichert sind, werden für das Zusammenführen nach id aufgeschlüsselt
 const LWW_LIST_SECTIONS = { tagesziele: true };
 function lwwListToObj(arr){ const o = {}; (Array.isArray(arr) ? arr : []).forEach(e=>{ if(e && e.id) o[e.id] = e; }); return o; }
@@ -2142,7 +2169,7 @@ function lwwPutRoot(section, root){
   state[section] = order.map(id=>root[id]).filter(e => e && Object.keys(e).length && !del.has(e.id));
 }
 // Beim allerersten Laden einer Sitzung: Server-Stand ab dieser Tiefe übernehmen (wie bisher)
-const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1, coachReviews: 1 };
+const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1, coachReviews: 1, maZiele: 1 };
 const LWW_KEEP_MS = 120 * 24 * 3600 * 1000; // Zeitstempel älter als ~4 Monate verwerfen
 let lwwBaseline = {};          // bereich → { pfad: JSON-Wert } - Stand beim letzten Abgleich
 let lwwLastMergeChanged = false;
@@ -3124,6 +3151,7 @@ document.getElementById('tab-halloffame').addEventListener('click', ()=>switchTa
 document.getElementById('tab-kianalyse').addEventListener('click', ()=>switchTab('kianalyse'));
 
 function renderAll(){
+  try{ applyMaZiele(); }catch(e){ console.warn('Ziele', e); }
   try{ updateFokusBadge(); }catch(e){}
   if(currentTab === 'coaching'){ renderCoaching(); try{ renderStandortHero(); }catch(e){ console.warn('Standort-Karte', e); } }
   else if(currentTab === 'coachdash'){
@@ -10355,6 +10383,80 @@ function ovFitColumns(){
   if(window.ResizeObserver){ const ro = new ResizeObserver(run); const el = document.getElementById('overview-capture'); if(el) ro.observe(el); }
 })();
 
+
+// ===== Mitarbeiter-Ziele manuell bearbeiten (v167) =====
+// Eigene Werte liegen in state.maZiele[team] = { regular:{Produkt:Zahl}, '6h':{…}, helpline:{…}, crTarget, npsTarget, lqTarget }
+// und werden mit allen Führungskräften abgeglichen. Fehlt ein Wert, gilt die Vorgabe aus TEAM_CONFIGS_DEFAULT.
+const MA_ZIEL_KATS = [ ['regular','Standard (8h)'], ['6h','6-Stündler'], ['helpline','Helpline'] ];
+function applyMaZiele(){
+  const all = (state && state.maZiele) || {};
+  Object.keys(TEAM_CONFIGS).forEach(t=>{
+    const def = TEAM_CONFIGS_DEFAULT[t], cfg = TEAM_CONFIGS[t], o = all[t] || {};
+    if(!def) return;
+    MA_ZIEL_KATS.forEach(([cat])=>{
+      cfg.targets[cat] = def.products.map((p,i)=>{
+        const v = o[cat] && o[cat][p];
+        return (typeof v === 'number' && v >= 0) ? v : def.targets[cat][i];
+      });
+    });
+    ['crTarget','npsTarget','lqTarget'].forEach(k=>{ const v = o[k]; cfg[k] = (typeof v === 'number' && v > 0) ? v : def[k]; });
+  });
+}
+function openMaZieleEditor(){
+  applyMaZiele();
+  const ov = document.createElement('div'); ov.className = 'chart-overlay mz-overlay';
+  const box = document.createElement('div'); box.className = 'mz-box';
+  ov.appendChild(box);
+  ov.addEventListener('click', e=>{ if(e.target === ov) ov.remove(); });
+  const num = v => { const n = parseFloat(String(v).replace(',','.')); return isFinite(n) && n >= 0 ? n : null; };
+  let html = `<div class="mz-head"><div><div class="mz-title">Mitarbeiter-Ziele bearbeiten</div><div class="mz-sub">Monatsziele pro Mitarbeiter je Kategorie. Gilt sofort für Mitarbeiter Ziele, Tageswerte, Hochrechnung, Hall of Fame und Fokus der Woche.</div></div><button class="mz-x" type="button" aria-label="Schließen">×</button></div>`;
+  Object.keys(TEAM_CONFIGS).forEach(t=>{
+    const cfg = TEAM_CONFIGS[t], def = TEAM_CONFIGS_DEFAULT[t];
+    const prods = displayOrderProducts(cfg.products, t);
+    html += `<div class="mz-team" data-team="${t}"><div class="mz-team-h"><b>${cfg.label} — ${cfg.project}</b><button type="button" class="mz-reset" data-team="${t}">Auf Vorgabe zurücksetzen</button></div>
+      <div class="mz-scroll"><table class="mz-table"><thead><tr><th></th>${prods.map(p=>`<th>${productLabel(p,t)}</th>`).join('')}</tr></thead><tbody>`;
+    MA_ZIEL_KATS.forEach(([cat,lbl])=>{
+      html += `<tr><td class="mz-cat">${lbl}</td>` + prods.map(p=>{
+        const i = cfg.products.indexOf(p), v = cfg.targets[cat][i], d = def.targets[cat][i];
+        return `<td><input type="text" inputmode="decimal" data-cat="${cat}" data-p="${p}" value="${v}" title="Vorgabe: ${d}" class="${v !== d ? 'mz-changed' : ''}"></td>`;
+      }).join('') + '</tr>';
+    });
+    html += `</tbody></table></div><div class="mz-kpis">` +
+      [['crTarget','CR-Ziel (8h)','%'],['npsTarget','NPS-Ziel','%'],['lqTarget','LQ-Ziel','%']].map(([k,l,u])=>
+        `<label>${l}<span><input type="text" inputmode="decimal" data-k="${k}" value="${cfg[k]}" title="Vorgabe: ${def[k]}" class="${cfg[k] !== def[k] ? 'mz-changed' : ''}"> ${u}</span></label>`).join('') + `</div></div>`;
+  });
+  html += `<div class="mz-foot"><span class="mz-hint">Geänderte Felder sind markiert. Fährst du mit der Maus über ein Feld, siehst du die ursprüngliche Vorgabe.</span><div><button type="button" class="btn-secondary mz-cancel">Abbrechen</button> <button type="button" class="primary mz-save">Speichern</button></div></div>`;
+  box.innerHTML = html;
+  document.body.appendChild(ov);
+  box.querySelector('.mz-x').onclick = box.querySelector('.mz-cancel').onclick = ()=>ov.remove();
+  box.querySelectorAll('input').forEach(i=>{ i.addEventListener('focus', e=>e.target.select()); i.addEventListener('input', ()=>i.classList.add('mz-changed')); });
+  box.querySelectorAll('.mz-reset').forEach(b=> b.onclick = ()=>{
+    const t = b.dataset.team, def = TEAM_CONFIGS_DEFAULT[t], wrap = box.querySelector(`.mz-team[data-team="${t}"]`);
+    wrap.querySelectorAll('input[data-cat]').forEach(i=>{ i.value = def.targets[i.dataset.cat][def.products.indexOf(i.dataset.p)]; i.classList.remove('mz-changed'); });
+    wrap.querySelectorAll('input[data-k]').forEach(i=>{ i.value = def[i.dataset.k]; i.classList.remove('mz-changed'); });
+  });
+  box.querySelector('.mz-save').onclick = ()=>{
+    if(!state.maZiele || typeof state.maZiele !== 'object') state.maZiele = {};
+    box.querySelectorAll('.mz-team').forEach(wrap=>{
+      const t = wrap.dataset.team, def = TEAM_CONFIGS_DEFAULT[t];
+      const o = {};
+      wrap.querySelectorAll('input[data-cat]').forEach(i=>{
+        const v = num(i.value); if(v === null) return;
+        const d = def.targets[i.dataset.cat][def.products.indexOf(i.dataset.p)];
+        if(v !== d){ (o[i.dataset.cat] = o[i.dataset.cat] || {})[i.dataset.p] = v; }
+      });
+      wrap.querySelectorAll('input[data-k]').forEach(i=>{ const v = num(i.value); if(v !== null && v > 0 && v !== def[i.dataset.k]) o[i.dataset.k] = v; });
+      state.maZiele[t] = o;   // nur Abweichungen von der Vorgabe speichern
+    });
+    applyMaZiele();
+    scheduleSave();
+    ov.remove();
+    renderAll();
+    if(window.fxToast) fxToast('Mitarbeiter-Ziele gespeichert');
+  };
+}
+(function(){ const b = document.getElementById('ma-ziele-edit-btn'); if(b) b.addEventListener('click', openMaZieleEditor); })();
+
 // v166: Mitarbeiter Ziele kann den Vormonat als Monatsendstand zeigen (gleiche Monatswahl wie in Tageswerte).
 // Die Werte kommen dann aus dem Mitarbeiter-Verlauf des Vormonats (dort landen auch die Nachträge aus Tageswerte → Vormonat).
 function ovMonthInfo(){
@@ -11779,6 +11881,31 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .ov-month-switch{display:flex;gap:8px;flex-wrap:wrap;font-family:'Inter',sans-serif;}
 .ov-stand{font:600 12px 'Inter',sans-serif;color:rgba(255,255,255,.7);}
 .ov-stand-end{color:#fff;background:var(--tmg);padding:4px 10px;border-radius:999px;}
+
+/* Mitarbeiter-Ziele bearbeiten (v167) */
+.mz-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
+.mz-box{background:var(--panel);color:var(--text);border-radius:14px;width:min(860px,100%);padding:22px 24px;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);font-family:'Inter',sans-serif;}
+.mz-head{display:flex;justify-content:space-between;gap:16px;margin-bottom:14px;}
+.mz-title{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;}
+.mz-sub{font-size:12.5px;color:var(--muted);margin-top:3px;max-width:60ch;}
+.mz-x{background:none;border:0;font-size:24px;color:var(--muted);cursor:pointer;line-height:1;height:32px;}
+.mz-team{border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px;}
+.mz-team-h{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;font-size:14px;}
+.mz-reset{background:none;border:1px solid var(--border);border-radius:7px;padding:4px 10px;font:600 11.5px 'Inter',sans-serif;color:var(--muted);cursor:pointer;}
+.mz-reset:hover{color:var(--text);border-color:var(--text);}
+.mz-scroll{overflow-x:auto;}
+.mz-table{border-collapse:collapse;width:100%;}
+.mz-table th{font:600 11px 'Inter',sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:4px 4px 8px;text-align:center;}
+.mz-table td{padding:3px 4px;text-align:center;}
+.mz-cat{text-align:left!important;font-size:13px;font-weight:600;white-space:nowrap;padding-right:12px!important;}
+.mz-box input{width:58px;padding:6px 6px;border:1px solid var(--border);border-radius:7px;background:var(--panel);color:var(--text);font:600 14px 'IBM Plex Mono',monospace;text-align:center;}
+.mz-box input:focus{outline:none;border-color:var(--tmg);box-shadow:0 0 0 3px rgba(226,0,116,.12);}
+.mz-box input.mz-changed{border-color:var(--tmg);background:var(--tmg-soft);}
+.mz-kpis{display:flex;gap:18px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--border);}
+.mz-kpis label{display:flex;flex-direction:column;gap:4px;font:600 11px 'Inter',sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+.mz-kpis span{display:flex;align-items:center;gap:5px;color:var(--text);font-size:13px;text-transform:none;}
+.mz-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px;}
+.mz-hint{font-size:11.5px;color:var(--muted);max-width:46ch;}
 /* ===== Monatsabschluss ===== */
 .ma-charts-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .ma-chart-box{min-width:0!important;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);padding:16px 18px 10px!important;}
