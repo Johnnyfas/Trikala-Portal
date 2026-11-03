@@ -592,7 +592,7 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 
 /* Mitarbeiter-Ziele bearbeiten (v167) */
 .mz-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
-.mz-box{background:var(--panel);color:var(--text);border-radius:14px;width:min(860px,100%);padding:22px 24px;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);font-family:'Inter',sans-serif;}
+.mz-box{background:var(--panel);color:var(--text);border-radius:14px;width:min(1020px,100%);padding:22px 24px;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);font-family:'Inter',sans-serif;}
 .mz-head{display:flex;justify-content:space-between;gap:16px;margin-bottom:14px;}
 .mz-title{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;}
 .mz-sub{font-size:12.5px;color:var(--muted);margin-top:3px;max-width:60ch;}
@@ -614,6 +614,34 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .mz-kpis span{display:flex;align-items:center;gap:5px;color:var(--text);font-size:13px;text-transform:none;}
 .mz-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px;}
 .mz-hint{font-size:11.5px;color:var(--muted);max-width:46ch;}
+
+.mz-mini{font:500 11.5px 'Inter',sans-serif;color:var(--muted);}
+.mz-kat-list{display:flex;flex-direction:column;gap:8px;}
+.mz-kat{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.mz-box input.mz-kat-name{width:190px;text-align:left;font-family:'Inter',sans-serif;font-size:13.5px;}
+.mz-kat-f{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.mz-box .mz-kat-f input{width:52px;}
+.mz-kat-n{font:600 11.5px 'IBM Plex Mono',monospace;color:var(--muted);min-width:46px;}
+.mz-lock{font:600 10.5px 'Inter',sans-serif;color:var(--muted);border:1px dashed var(--border);border-radius:6px;padding:3px 8px;}
+.mz-del{background:none;border:1px solid var(--border);border-radius:7px;padding:4px 10px;font:600 11.5px 'Inter',sans-serif;color:var(--red);cursor:pointer;}
+.mz-del:hover{background:var(--red-soft);border-color:var(--red);}
+.mz-add{margin-top:10px;background:none;border:1px dashed var(--tmg);border-radius:8px;padding:6px 12px;font:600 12px 'Inter',sans-serif;color:var(--tmg);cursor:pointer;white-space:nowrap;}
+.mz-add:hover{background:var(--tmg-soft);}
+.mz-addcol{vertical-align:top;}
+.mz-addcol .mz-add{margin-top:0;}
+.mz-corner{text-align:left!important;vertical-align:bottom;}
+.mz-ph{vertical-align:top;min-width:88px;}
+.mz-box input.mz-pname{width:84px;font:700 12px 'Inter',sans-serif;text-transform:none;padding:5px 4px;}
+.mz-ptog{display:flex;justify-content:center;gap:6px;margin-top:5px;}
+.mz-ptog label{display:flex;align-items:center;gap:2px;font:600 10px 'Inter',sans-serif;color:var(--muted);text-transform:none;letter-spacing:0;cursor:pointer;}
+.mz-ptog input{width:auto!important;padding:0!important;margin:0;accent-color:var(--tmg);}
+.mz-pact{display:flex;justify-content:center;gap:2px;margin-top:4px;}
+.mz-pact button{background:none;border:1px solid var(--border);border-radius:5px;width:22px;height:20px;line-height:1;font-size:13px;color:var(--muted);cursor:pointer;padding:0;}
+.mz-pact button:disabled{opacity:.3;cursor:default;}
+.mz-pact .mz-pdel{color:var(--red);}
+.mz-noziel input.mz-pname{border-style:dashed;}
+.mz-na{color:var(--muted);}
+.mz-btns{display:flex;gap:8px;}
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
@@ -1152,7 +1180,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 167;
+const BOARD_VERSION = 168;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -1284,7 +1312,7 @@ function liveMonthSnapshot(agent, now){
     if(ts >= monthStart || (ts === 0 && mKey === '2026-Oktober')) snap[f] = v;
   });
   if(snap.sales && snap.calls){
-    const stk = cfg.products.filter(p => p !== 'BOJ').reduce((s,p)=> s + (snap.sales[p]||0), 0);
+    const stk = crProdukte(cfg).reduce((s,p)=> s + (snap.sales[p]||0), 0);
     snap.cr = Math.round((stk / snap.calls) * 10000) / 100;
   }
   return Object.keys(snap).length ? { key: mKey, snap } : null;
@@ -1308,7 +1336,7 @@ function verlaufRecalcCr(agent, md){
   const cfg = TEAM_CONFIGS[agent.team];
   if(!cfg || !md) return;
   if(md.sales && md.calls > 0){
-    const stk = cfg.products.filter(p => p !== 'BOJ').reduce((s,p)=> s + (md.sales[p]||0), 0);
+    const stk = crProdukte(cfg).reduce((s,p)=> s + (md.sales[p]||0), 0);
     md.cr = Math.round((stk / md.calls) * 10000) / 100;
   }
 }
@@ -2905,7 +2933,7 @@ function makeAgent(team){
 function totalStk(agent){
   const cfg = TEAM_CONFIGS[agent.team];
   // BOJ (= HV) wird aus der Gesamt-CR ausgeschlossen - genau wie in Team Ziele und Monatsabschluss
-  return cfg.products.filter(p => p !== 'BOJ').reduce((s,p)=> s + (agent.sales[p]||0), 0);
+  return crProdukte(cfg).reduce((s,p)=> s + (agent.sales[p]||0), 0);
 }
 function totalCr(agent){
   if(!agent.calls || agent.calls <= 0) return 0;
@@ -3274,7 +3302,7 @@ function renderCoaching(){
       catSelect.className = 'cat-badge ' + CATEGORY_CSS[agent.category || 'regular'];
       catSelect.style.border = 'none';
       catSelect.style.cursor = 'pointer';
-      ['regular','6h','helpline','schulung','work'].forEach(catKey=>{
+      [...maKategorien().map(c=>c.key), ...Object.keys(MA_KAT_FIX)].forEach(catKey=>{
         const opt = document.createElement('option');
         opt.value = catKey;
         opt.textContent = CATEGORY_LABELS[catKey];
@@ -3519,7 +3547,7 @@ function renderCoaching(){
     const catSelect = document.createElement('select');
     catSelect.className = 'cat-badge ' + (CATEGORY_CSS[agent.category] || 'regular');
     catSelect.style.cssText = 'cursor:pointer;border:none;';
-    ['regular','6h','helpline','schulung','work'].forEach(catKey=>{
+    [...maKategorien().map(c=>c.key), ...Object.keys(MA_KAT_FIX)].forEach(catKey=>{
       const opt = document.createElement('option');
       opt.value = catKey;
       opt.textContent = CATEGORY_LABELS[catKey];
@@ -3693,9 +3721,9 @@ function renderHallOfFame(){
   wrap.innerHTML = `
     <div class="hof-trophy">🏆</div>
     <div class="hof-title">Hall of Fame</div>
-    <div class="hof-sub">Mitarbeiter die NPS-Ziel erreicht haben UND mindestens 4 von 5 Produktzielen erfüllt haben.</div>
+    <div class="hof-sub">Mitarbeiter die NPS-Ziel erreicht haben UND alle Produktziele bis auf eines erfüllt haben.</div>
     <div class="hof-criteria">
-      <strong>Kriterien:</strong> NPS ≥ Ziel &nbsp;+&nbsp; CR ≥ Ziel (MF: 7%, FN: 11%) &nbsp;+&nbsp; mindestens 4 von 5 Produkten ≥ Ziel &nbsp;·&nbsp;
+      <strong>Kriterien:</strong> NPS ≥ Ziel &nbsp;+&nbsp; CR ≥ Ziel (MF: 7%, FN: 11%) &nbsp;+&nbsp; alle Produkte bis auf eines ≥ Ziel &nbsp;·&nbsp;
       <strong>MF Ziele:</strong> MF 24, SU 3, BB 4, TV 3, VVM+BOJ 5 &nbsp;·&nbsp;
       <strong>FN Ziele:</strong> SU 16, BB 17, TV 9, VVM+NVM 20, MF 2
     </div>
@@ -3831,13 +3859,16 @@ function renderHallOfFame(){
     // Produkt-Ziele prüfen
     const targets = agentTargets({team: agent.team, category: agent.category || 'regular'});
     const prods = cfg.products;
-    let goalsHit = 0;
+    let goalsHit = 0, goalsTotal = 0;
     prods.forEach((p, i) => {
+      if(!(targets[i] > 0)) return;            // Produkt ohne Ziel zählt nicht
+      goalsTotal++;
       const val = (md.sales && md.sales[p]) || 0;
       if(val >= targets[i]) goalsHit++;
     });
 
-    if(goalsHit < 4) return null;
+    // v168: alle Produktziele bis auf eines (bei 5 Produkten wie bisher 4 von 5)
+    if(goalsHit < Math.max(1, goalsTotal - 1)) return null;
 
     return {
       name: agent.name,
@@ -3848,7 +3879,7 @@ function renderHallOfFame(){
       lqTarget: cfg.lqTarget,
       crTarget: cfg.crTarget,
       goalsHit,
-      totalGoals: prods.length,
+      totalGoals: goalsTotal,
       cr: md.cr || 0,
     };
   }
@@ -8092,17 +8123,27 @@ function renderTeamZiele(){
       // Anwesenheit heute: Vorschlag = alle aktiven Mitarbeiter des Teams, überschreibbar (gilt nur für heute)
       const teamId = key === 'mf' ? 'Trikala01' : 'Trikala06';
       const teamAg = (state.agents||[]).filter(a => String(a.team) === teamId && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
-      const teamStd = teamAg.filter(a => a.category !== '6h').length, teamSechs = teamAg.filter(a => a.category === '6h').length;
+      // v168: Kategorien sind frei definierbar – jede mit eigenem Arbeitszeit-Faktor (Standard = 1)
+      const kats = maKategorien();
+      const katKeys = kats.map(c => c.key);
+      const teamCount = {}; kats.forEach(c => teamCount[c.key] = 0);
+      teamAg.forEach(a => { const k = katKeys.includes(a.category) ? a.category : 'regular'; teamCount[k] = (teamCount[k]||0) + 1; });
       const tageMonat = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
       // Vorschlag Anwesenheit: im Schnitt hat jeder MA FREIE_TAGE_PRO_MONAT freie Tage → Anteil anwesend
       const anwQuote = Math.max(0, 1 - FREIE_TAGE_PRO_MONAT / tageMonat);
-      const vorschlag = { std: Math.round(teamStd * anwQuote), sechs: Math.round(teamSechs * anwQuote) };
+      const vorschlag = {}; kats.forEach(c => vorschlag[c.key] = Math.round((teamCount[c.key]||0) * anwQuote));
       const anw = (tz.anwesend && tz.anwesend.datum === isoHeute) ? tz.anwesend : null;
-      const std = anw ? (parseInt(anw.std, 10) || 0) : vorschlag.std;
-      const sechs = anw ? (parseInt(anw.sechs, 10) || 0) : vorschlag.sechs;
+      const anwVal = k => {
+        if(!anw) return vorschlag[k] || 0;
+        if(anw.cats && anw.cats[k] !== undefined) return parseInt(anw.cats[k], 10) || 0;
+        if(k === 'regular' && anw.std !== undefined) return parseInt(anw.std, 10) || 0;   // Einträge aus v161–v167
+        if(k === '6h' && anw.sechs !== undefined) return parseInt(anw.sechs, 10) || 0;
+        return vorschlag[k] || 0;
+      };
+      const heuteN = {}; kats.forEach(c => heuteN[c.key] = anwVal(c.key));
 
       // Calls je MA und Arbeitstag automatisch aus dem Vormonat:
-      // Calls Vormonat ÷ (Team in Standard-MA [6-Std. = ¾] × Arbeitstage je MA [Tage − freie Tage])
+      // Calls Vormonat ÷ (Team in Standard-MA [Σ Anzahl × Faktor] × Arbeitstage je MA [Tage − freie Tage])
       const vmDate = new Date(now.getFullYear(), now.getMonth()-1, 1);
       const vmYm = vmDate.getFullYear() + '-' + pad2(vmDate.getMonth()+1);
       const vmName = MONATE_ORDER[vmDate.getMonth()];
@@ -8110,19 +8151,21 @@ function renderTeamZiele(){
       const vmAuto = teamAg.reduce((sum, a) => { const md = agentVerlaufMonat(a, vmDate.getFullYear(), vmName); return sum + (md && md.calls > 0 ? md.calls : 0); }, 0);
       const vmManuell = (tz.callsVormonat && tz.callsVormonat.ym === vmYm) ? (parseFloat(tz.callsVormonat.calls) || 0) : 0;
       const vmCalls = vmManuell || vmAuto;
-      const einheiten = teamStd + SECHS_STD_FAKTOR * teamSechs;
+      const einheiten = kats.reduce((s2, c) => s2 + (teamCount[c.key]||0) * maKatFaktor(c.key), 0);
       const atJeMa = Math.max(1, vmTage - FREIE_TAGE_PRO_MONAT);
       const rateStd = (vmCalls > 0 && einheiten > 0) ? vmCalls / (einheiten * atJeMa) : CALLS_PRO_TAG.standard;
-      const rateSechs = (vmCalls > 0 && einheiten > 0) ? rateStd * SECHS_STD_FAKTOR : CALLS_PRO_TAG.sechs;
+      const rateOf = k => rateStd * maKatFaktor(k);
       const rateQuelle = vmManuell ? 'eingetragen' : (vmAuto ? 'aus Mitarbeiter-Verlauf' : 'Standardwert');
-      const callsHeute = Math.round(std * rateStd + sechs * rateSechs);
+      const callsHeute = Math.round(kats.reduce((s2, c) => s2 + heuteN[c.key] * rateOf(c.key), 0));
       const fmt1 = v => (Math.round(v*10)/10).toFixed(1).replace('.',',');
       const fmtR = v => (Math.round(v*10)/10).toLocaleString('de-DE');
-      const setAnw = (feld, v) => {
-        const cur = (tz.anwesend && tz.anwesend.datum === isoHeute) ? tz.anwesend : { datum: isoHeute, std: vorschlag.std, sechs: vorschlag.sechs };
-        tz.anwesend = Object.assign({}, cur, { datum: isoHeute, [feld]: Math.max(0, parseInt(v, 10) || 0) });
+      const setAnw = (k, v) => {
+        const cats = {}; kats.forEach(c => cats[c.key] = heuteN[c.key]);
+        cats[k] = Math.max(0, parseInt(v, 10) || 0);
+        tz.anwesend = { datum: isoHeute, cats };
         scheduleSave(); renderTeamZiele();
       };
+      const katsSichtbar = kats.filter(c => (teamCount[c.key]||0) > 0 || heuteN[c.key] > 0);
 
       const crTagRow = document.createElement('tr'); crTagRow.className = 'tz-row-crtag';
       const lblTd = document.createElement('td'); lblTd.className = 'tz-label';
@@ -8154,8 +8197,7 @@ function renderTeamZiele(){
       inTd.appendChild(mkIn('Calls Monat bisher', calls ? Math.round(calls).toLocaleString('de-DE') : '', bisherAT ? 'eintragen' : '0',
         v => { tz.callsBisher = parseFloat(String(v).replace(/\./g,'').replace(',','.')) || 0; tz.callsMonat = ymNow; scheduleSave(); renderTeamZiele(); }, 'tz-in-wide'));
       const anwRow = document.createElement('div'); anwRow.className = 'tz-anw-row';
-      anwRow.appendChild(mkIn('Standard heute', String(std), '', v => setAnw('std', v)));
-      anwRow.appendChild(mkIn('6-Std. heute', String(sechs), '', v => setAnw('sechs', v)));
+      (katsSichtbar.length ? katsSichtbar : kats.slice(0,1)).forEach(c => anwRow.appendChild(mkIn(c.label + ' heute', String(heuteN[c.key]), '', v => setAnw(c.key, v))));
       inTd.appendChild(anwRow);
       const info = document.createElement('div'); info.className = 'tz-calls-info';
       info.innerHTML = `≈ <b>${callsHeute.toLocaleString('de-DE')}</b> Calls heute` + (anw ? '' : ` <span title="Vorschlag: Team abzüglich Ø ${String(FREIE_TAGE_PRO_MONAT).replace('.',',')} freie Tage je MA – bitte an die heutige Anwesenheit anpassen">(Vorschlag)</span>`);
@@ -8164,10 +8206,10 @@ function renderTeamZiele(){
       vmBox.appendChild(mkIn('Calls ' + vmName.substring(0,3) + '.', vmCalls ? Math.round(vmCalls).toLocaleString('de-DE') : '', 'eintragen',
         v => { const n = parseFloat(String(v).replace(/\./g,'').replace(',','.')) || 0; tz.callsVormonat = { ym: vmYm, calls: n }; scheduleSave(); renderTeamZiele(); }, 'tz-in-wide tz-in-vm'));
       const rate = document.createElement('div'); rate.className = 'tz-calls-info';
-      rate.innerHTML = `→ <b>${fmtR(rateStd)}</b> Calls/Tag je 8h · <b>${fmtR(rateSechs)}</b> je 6h`;
+      rate.innerHTML = '→ ' + (katsSichtbar.length ? katsSichtbar : kats.slice(0,1)).map(c => `<b>${fmtR(rateOf(c.key))}</b> je ${c.label}`).join(' · ') + ' Calls/Tag';
       rate.title = vmCalls > 0
-        ? `${Math.round(vmCalls).toLocaleString('de-DE')} Calls ${vmName} (${rateQuelle}) ÷ (${teamStd} Standard + ${teamSechs} × ¾ 6-Std. = ${einheiten.toLocaleString('de-DE')}) ÷ ${atJeMa.toLocaleString('de-DE')} Arbeitstage je MA (${vmTage} Tage − ${String(FREIE_TAGE_PRO_MONAT).replace('.',',')} frei)`
-        : 'Noch keine Calls für den Vormonat – es wird mit 40 / 30 gerechnet. Calls des Vormonats eintragen.';
+        ? `${Math.round(vmCalls).toLocaleString('de-DE')} Calls ${vmName} (${rateQuelle}) ÷ (${kats.filter(c=>teamCount[c.key]).map(c => `${teamCount[c.key]} ${c.label}${maKatFaktor(c.key) !== 1 ? ' × ' + String(maKatFaktor(c.key)).replace('.',',') : ''}`).join(' + ')} = ${einheiten.toLocaleString('de-DE')}) ÷ ${atJeMa.toLocaleString('de-DE')} Arbeitstage je MA (${vmTage} Tage − ${String(FREIE_TAGE_PRO_MONAT).replace('.',',')} frei)`
+        : `Noch keine Calls für den Vormonat – es wird mit ${CALLS_PRO_TAG.standard} Calls je Standard-MA gerechnet. Calls des Vormonats eintragen.`;
       vmBox.appendChild(rate);
       inTd.appendChild(vmBox);
       crTagRow.appendChild(inTd);
@@ -8190,8 +8232,7 @@ function renderTeamZiele(){
           const rueckstand = calls * ziel / 100 - ist;          // > 0 = Rückstand, < 0 = Vorsprung
           const aufholen = rueckstand / verbleibendeAT;
           const heute = Math.max(0, halten + aufholen);
-          const proStd = heute * rateStd / callsHeute;
-          const proSechs = heute * rateSechs / callsHeute;
+
           const crJetzt = calls ? ist / calls * 100 : 0;
           td.title = (stNutz !== stufe ? `Keine St.${stufe} für dieses Produkt → berechnet für St.${stNutz}\n` : `Berechnet für St.${stNutz}\n`) + `Halten: ${callsHeute} Calls × ${ziel.toFixed(2).replace('.',',')} % = ${fmt1(halten)}\n` +
                      (rueckstand > 0 ? `Aufholen: Rückstand ${fmt1(rueckstand)} ÷ ${verbleibendeAT} Tage = ${fmt1(aufholen)}` : `Vorsprung: ${fmt1(-rueckstand)} Stück (verteilt: −${fmt1(-aufholen)}/Tag)`) +
@@ -8200,10 +8241,10 @@ function renderTeamZiele(){
             ? `<span class="tz-crtag-sub"><b>+ aufholen ${fmt1(aufholen)}</b></span>`
             : `<span class="tz-crtag-sub tz-crtag-plus">Vorsprung ${fmt1(-rueckstand)}</span>`);
           const fmtMa = v => v < 1 ? v.toFixed(2).replace('.',',') : fmt1(v);
-          const jeMa = (std ? `8h ${fmtMa(proStd)}` : '') + (std && sechs ? ' · ' : '') + (sechs ? `6h ${fmtMa(proSechs)}` : '');
+          const jeMa = kats.filter(c => heuteN[c.key] > 0).map(c => `${c.label} ${fmtMa(heute * rateOf(c.key) / callsHeute)}`).join(' · ');
           const stTag = stNutz !== stufe ? `<span class="tz-crtag-st" title="Keine St.${stufe} hinterlegt – Berechnung für St.${stNutz}">St.${stNutz}</span>` : '';
           td.innerHTML = stTag + (heute <= 0 ? `<span class="tz-crtag-ok">✓ im Ziel</span>` : `<span class="tz-crtag-val">${fmt1(heute)}</span>`) +
-                         teile + (heute > 0 && jeMa ? `<span class="tz-crtag-ma">je MA<br>${jeMa.replace(' · ','<br>')}</span>` : '');
+                         teile + (heute > 0 && jeMa ? `<span class="tz-crtag-ma">je MA<br>${jeMa.split(' · ').join('<br>')}</span>` : '');
         }
         crTagRow.appendChild(td);
       });
@@ -8339,6 +8380,8 @@ let twSelectedDay = 'total'; // 'total' = Monatsstand, sonst Tag-Nummer als Stri
 // Zusatzprodukte je Team (zusätzlich zu den Zielprodukten aus TEAM_CONFIGS), z.B. für Tageswerte und
 // Mitarbeiter Ziele. MF-Team: Avia (VVM) und DA. FN-Team: keine (DA wird dort nicht erfasst).
 function teamExtraProducts(team){
+  const cfg = TEAM_CONFIGS[team];
+  if(cfg && Array.isArray(cfg.extraProducts)) return cfg.extraProducts.slice();   // v168: aus den Produkt-Einstellungen
   return String(team) === 'Trikala01' ? ['VVM', 'DA'] : [];
 }
 function twMonthKey(d){
@@ -9111,9 +9154,9 @@ function renderHochrechnung(){
         tr.appendChild(td);
       });
       const sumTd = document.createElement('td');
-      sumTd.className = 'hr-sum ' + (r.onTrack >= 4 ? 'hr-ok' : (r.onTrack >= 3 ? 'hr-warn' : 'hr-bad'));
+      sumTd.className = 'hr-sum ' + (r.onTrack >= Math.max(1, r.total - 1) ? 'hr-ok' : (r.onTrack >= Math.max(1, r.total - 2) ? 'hr-warn' : 'hr-bad'));
       sumTd.textContent = `${r.onTrack}/${r.total}`;
-      sumTd.title = 'Produkte, bei denen die Prognose das Ziel erreicht (Hall of Fame braucht mind. 4/5)';
+      sumTd.title = 'Produkte, bei denen die Prognose das Ziel erreicht (Hall of Fame braucht alle bis auf eines)';
       tr.appendChild(sumTd);
       t.appendChild(tr);
     });
@@ -9407,7 +9450,7 @@ function renderFokus(){
   rated.forEach(r=>{
     const cfg = TEAM_CONFIGS[r.agent.team];
     const nps = cfg ? fkCurVal(r.agent, 'nps', now) : null;
-    if(r.onTrack !== null && r.nT && r.onTrack >= Math.min(4, r.nT) && (nps === null || nps >= cfg.npsTarget)){
+    if(r.onTrack !== null && r.nT && r.onTrack >= Math.max(1, r.nT - 1) && (nps === null || nps >= cfg.npsTarget)){
       lob.push({ agent: r.agent, text: `Auf Kurs bei ${r.onTrack}/${r.nT} Zielen${nps !== null ? ` · NPS ${fkNum(nps)} %` : ''}`, sort: 2 + r.avgPct });
     }
   });
@@ -10108,7 +10151,7 @@ function kiAgentData(agent, now, teamInfo){
   if(info && info.hasData){
     const ist = hrAgentSums(agent, info.mk, cfg.products);
     akt.stueck_bisher = Object.fromEntries(cfg.products.map(p=>[productLabel(p, agent.team), ist[p]]));
-    const stk = cfg.products.filter(p => p !== 'BOJ').reduce((s,p)=>s + ist[p], 0);
+    const stk = crProdukte(cfg).reduce((s,p)=>s + (ist[p]||0), 0);
     if(akt.calls) akt.cr = r1(stk / akt.calls * 100);
     if(info.elapsed >= 2){
       akt.hochrechnung = { arbeitstag: info.elapsed, von: info.total, prognose_monatsende: Object.fromEntries(cfg.products.map((p,i)=>{
@@ -10387,73 +10430,231 @@ function ovFitColumns(){
 // ===== Mitarbeiter-Ziele manuell bearbeiten (v167) =====
 // Eigene Werte liegen in state.maZiele[team] = { regular:{Produkt:Zahl}, '6h':{…}, helpline:{…}, crTarget, npsTarget, lqTarget }
 // und werden mit allen Führungskräften abgeglichen. Fehlt ein Wert, gilt die Vorgabe aus TEAM_CONFIGS_DEFAULT.
-const MA_ZIEL_KATS = [ ['regular','Standard (8h)'], ['6h','6-Stündler'], ['helpline','Helpline'] ];
+// v168: Kategorien (global) und Produkte (je Team) sind frei bearbeitbar.
+//   state.maZiele._kategorien = [{key, label, faktor}]     faktor = Arbeitszeit relativ zu Standard (6-Stündler 0,75)
+//   state.maZiele[team].produkte = [{key, label, ziel, cr}] Reihenfolge = Anzeige-Reihenfolge
+//       ziel: hat Stückziele je Kategorie · cr: zählt zur Gesamt-CR
+//   state.maZiele[team][kategorie][produkt] = Zielwert (nur Abweichungen von der Vorgabe)
+// Gelöschte Produkte werden nur ausgeblendet – erfasste Zahlen bleiben in den Daten erhalten.
+const MA_KAT_DEFAULT = [ {key:'regular', label:'Standard', faktor:1}, {key:'6h', label:'6-Stündler', faktor:0.75}, {key:'helpline', label:'Helpline', faktor:1} ];
+const MA_KAT_FIX = { schulung: '📚 Schulung', work: '🏗️ Work' };   // Sonderstatus, keine Ziele
+let MA_KAT_DEFAULT_LABELS = null, MA_PROD_DEFAULTS = null;
+function maKategorien(){
+  const z = state && state.maZiele;
+  const k = z && Array.isArray(z._kategorien) && z._kategorien.length ? z._kategorien : MA_KAT_DEFAULT;
+  return k.filter(c => c && c.key);
+}
+function MA_KAT_FARBE(key, i){ return key === 'regular' ? '#8A6D00' : key === '6h' ? 'var(--sixh)' : key === 'helpline' ? 'var(--helpline)' : ['var(--teal)','#B9770E','#5B6FA6','#C4291C'][i % 4]; }
+function maKatFaktor(key){ const c = maKategorien().find(x => x.key === key); return c ? (parseFloat(c.faktor) || 1) : 1; }
+function maDefaultProdukte(t){
+  if(!MA_PROD_DEFAULTS){
+    MA_PROD_DEFAULTS = { order: JSON.parse(JSON.stringify(PRODUCT_DISPLAY_ORDER_BY_TEAM)), labels: JSON.parse(JSON.stringify(PRODUCT_LABELS_BY_TEAM)) };
+  }
+  const def = TEAM_CONFIGS_DEFAULT[t];
+  const extras = t === 'Trikala01' ? ['VVM','DA'] : [];
+  const order = MA_PROD_DEFAULTS.order[t] || PRODUCT_DISPLAY_ORDER;
+  const idx = p => { const i = order.indexOf(p); return i === -1 ? 999 : i; };
+  return [...def.products, ...extras].sort((a,b)=> idx(a) - idx(b)).map(key => ({
+    key, label: (MA_PROD_DEFAULTS.labels[t] && MA_PROD_DEFAULTS.labels[t][key]) || key,
+    ziel: def.products.includes(key), cr: def.products.includes(key) && key !== 'BOJ'
+  }));
+}
+function maProdukte(t){
+  const o = state && state.maZiele && state.maZiele[t];
+  return (o && Array.isArray(o.produkte) && o.produkte.length) ? o.produkte.filter(p => p && p.key) : maDefaultProdukte(t);
+}
+function maDefaultZiel(t, cat, p){
+  const def = TEAM_CONFIGS_DEFAULT[t];
+  const i = def.products.indexOf(p);
+  if(i === -1) return 0;
+  const arr = def.targets[cat];
+  return arr ? arr[i] : 0;
+}
 function applyMaZiele(){
+  if(!MA_KAT_DEFAULT_LABELS) MA_KAT_DEFAULT_LABELS = Object.assign({}, CATEGORY_LABELS);
+  maDefaultProdukte(Object.keys(TEAM_CONFIGS)[0]);   // Vorgaben (Reihenfolge/Namen) sichern, bevor sie unten überschrieben werden
+  const kats = maKategorien();
+  // Kategorie-Namen (für Auswahllisten, Badges, …)
+  Object.keys(CATEGORY_LABELS).forEach(k => { if(!MA_KAT_FIX[k]) delete CATEGORY_LABELS[k]; });
+  kats.forEach(c => { CATEGORY_LABELS[c.key] = c.label || c.key; if(!CATEGORY_CSS[c.key]) CATEGORY_CSS[c.key] = 'regular'; });
+  Object.assign(CATEGORY_LABELS, MA_KAT_FIX);
   const all = (state && state.maZiele) || {};
   Object.keys(TEAM_CONFIGS).forEach(t=>{
     const def = TEAM_CONFIGS_DEFAULT[t], cfg = TEAM_CONFIGS[t], o = all[t] || {};
     if(!def) return;
-    MA_ZIEL_KATS.forEach(([cat])=>{
-      cfg.targets[cat] = def.products.map((p,i)=>{
-        const v = o[cat] && o[cat][p];
-        return (typeof v === 'number' && v >= 0) ? v : def.targets[cat][i];
+    const prods = maProdukte(t);
+    cfg.products = prods.filter(p => p.ziel).map(p => p.key);
+    cfg.extraProducts = prods.filter(p => !p.ziel).map(p => p.key);
+    cfg.crProducts = prods.filter(p => p.cr).map(p => p.key);
+    cfg.kategorien = kats.map(c => c.key);
+    PRODUCT_LABELS_BY_TEAM[t] = {};
+    prods.forEach(p => { if(p.label && p.label !== p.key) PRODUCT_LABELS_BY_TEAM[t][p.key] = p.label; });
+    PRODUCT_DISPLAY_ORDER_BY_TEAM[t] = prods.map(p => p.key);
+    cfg.targets = {};
+    kats.forEach(c=>{
+      cfg.targets[c.key] = cfg.products.map(p=>{
+        const v = o[c.key] && o[c.key][p];
+        return (typeof v === 'number' && v >= 0) ? v : maDefaultZiel(t, c.key, p);
       });
     });
     ['crTarget','npsTarget','lqTarget'].forEach(k=>{ const v = o[k]; cfg[k] = (typeof v === 'number' && v > 0) ? v : def[k]; });
   });
 }
+// Stück, die zur Gesamt-CR zählen
+function crProdukte(cfg){ return cfg.crProducts || cfg.products.filter(p => p !== 'BOJ'); }
 function openMaZieleEditor(){
   applyMaZiele();
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const teams = Object.keys(TEAM_CONFIGS);
+  const draft = { kats: clone(maKategorien()), teams: {} };
+  teams.forEach(t=>{
+    const cfg = TEAM_CONFIGS[t];
+    const ziele = {};
+    draft.kats.forEach(c => { ziele[c.key] = {}; cfg.products.forEach((p,i) => ziele[c.key][p] = (cfg.targets[c.key] || [])[i] ?? 0); });
+    draft.teams[t] = { produkte: clone(maProdukte(t)), ziele, kpi: { crTarget: cfg.crTarget, npsTarget: cfg.npsTarget, lqTarget: cfg.lqTarget } };
+  });
+  const katAgentCount = k => (state.agents||[]).filter(a => (a.category||'regular') === k).length;
+  const num = v => { const n = parseFloat(String(v).replace(',','.')); return isFinite(n) && n >= 0 ? n : null; };
+  const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  const zielOf = (t, cat, p) => { const z = draft.teams[t].ziele[cat]; return (z && z[p] !== undefined) ? z[p] : maDefaultZiel(t, cat, p); };
+
   const ov = document.createElement('div'); ov.className = 'chart-overlay mz-overlay';
   const box = document.createElement('div'); box.className = 'mz-box';
-  ov.appendChild(box);
+  ov.appendChild(box); document.body.appendChild(ov);
   ov.addEventListener('click', e=>{ if(e.target === ov) ov.remove(); });
-  const num = v => { const n = parseFloat(String(v).replace(',','.')); return isFinite(n) && n >= 0 ? n : null; };
-  let html = `<div class="mz-head"><div><div class="mz-title">Mitarbeiter-Ziele bearbeiten</div><div class="mz-sub">Monatsziele pro Mitarbeiter je Kategorie. Gilt sofort für Mitarbeiter Ziele, Tageswerte, Hochrechnung, Hall of Fame und Fokus der Woche.</div></div><button class="mz-x" type="button" aria-label="Schließen">×</button></div>`;
-  Object.keys(TEAM_CONFIGS).forEach(t=>{
-    const cfg = TEAM_CONFIGS[t], def = TEAM_CONFIGS_DEFAULT[t];
-    const prods = displayOrderProducts(cfg.products, t);
-    html += `<div class="mz-team" data-team="${t}"><div class="mz-team-h"><b>${cfg.label} — ${cfg.project}</b><button type="button" class="mz-reset" data-team="${t}">Auf Vorgabe zurücksetzen</button></div>
-      <div class="mz-scroll"><table class="mz-table"><thead><tr><th></th>${prods.map(p=>`<th>${productLabel(p,t)}</th>`).join('')}</tr></thead><tbody>`;
-    MA_ZIEL_KATS.forEach(([cat,lbl])=>{
-      html += `<tr><td class="mz-cat">${lbl}</td>` + prods.map(p=>{
-        const i = cfg.products.indexOf(p), v = cfg.targets[cat][i], d = def.targets[cat][i];
-        return `<td><input type="text" inputmode="decimal" data-cat="${cat}" data-p="${p}" value="${v}" title="Vorgabe: ${d}" class="${v !== d ? 'mz-changed' : ''}"></td>`;
-      }).join('') + '</tr>';
+
+  function render(){
+    const scroll = ov.scrollTop;
+    let h = `<div class="mz-head"><div><div class="mz-title">Mitarbeiter-Ziele bearbeiten</div><div class="mz-sub">Kategorien, Produkte und Monatsziele pro Mitarbeiter. Gilt nach dem Speichern sofort im ganzen Board und für alle Führungskräfte.</div></div><button class="mz-x" type="button" aria-label="Schließen">×</button></div>`;
+    // ---- Kategorien ----
+    h += `<div class="mz-team"><div class="mz-team-h"><b>Kategorien</b><span class="mz-mini">für beide Teams</span></div>
+      <div class="mz-kat-list">` + draft.kats.map((c, i) => {
+        const n = katAgentCount(c.key);
+        return `<div class="mz-kat"><input class="mz-kat-name" data-ki="${i}" value="${esc(c.label)}" placeholder="Name">
+          <label class="mz-kat-f" title="Arbeitszeit im Verhältnis zu Standard – z. B. 0,75 für 6 Stunden. Wird für die erwarteten Calls in Team Ziele verwendet.">Arbeitszeit <input data-kf="${i}" value="${String(c.faktor ?? 1).replace('.',',')}"> × Standard</label>
+          <span class="mz-kat-n">${n} MA</span>
+          ${c.key === 'regular' ? '<span class="mz-lock" title="Standard kann umbenannt, aber nicht gelöscht werden">fest</span>' : `<button type="button" class="mz-del" data-kdel="${i}" title="Kategorie löschen${n ? ` – ${n} Mitarbeiter wechseln zu ${esc(draft.kats[0].label)}` : ''}">Löschen</button>`}
+        </div>`; }).join('') + `</div>
+      <button type="button" class="mz-add" data-kadd="1">+ Kategorie hinzufügen</button></div>`;
+    // ---- Teams ----
+    teams.forEach(t=>{
+      const cfg = TEAM_CONFIGS[t], d = draft.teams[t], prods = d.produkte;
+      h += `<div class="mz-team" data-team="${t}"><div class="mz-team-h"><b>${cfg.label} — ${cfg.project}</b><button type="button" class="mz-reset" data-reset="${t}">Auf Vorgabe zurücksetzen</button></div>
+        <div class="mz-scroll"><table class="mz-table"><thead><tr><th class="mz-corner">Produkt →</th>` +
+        prods.map((pr, pi) => `<th class="mz-ph${pr.ziel ? '' : ' mz-noziel'}">
+            <input class="mz-pname" data-t="${t}" data-pi="${pi}" value="${esc(pr.label)}" title="Anzeigename (interner Schlüssel: ${esc(pr.key)})">
+            <div class="mz-ptog">
+              <label title="Hat Stückziele je Kategorie"><input type="checkbox" data-t="${t}" data-pz="${pi}" ${pr.ziel ? 'checked' : ''}> Ziel</label>
+              <label title="Zählt zur Gesamt-CR"><input type="checkbox" data-t="${t}" data-pc="${pi}" ${pr.cr ? 'checked' : ''}> CR</label>
+            </div>
+            <div class="mz-pact">
+              <button type="button" data-t="${t}" data-pl="${pi}" title="nach links" ${pi === 0 ? 'disabled' : ''}>‹</button>
+              <button type="button" class="mz-pdel" data-t="${t}" data-pdel="${pi}" title="Produkt ausblenden (Zahlen bleiben gespeichert)">×</button>
+              <button type="button" data-t="${t}" data-pr="${pi}" title="nach rechts" ${pi === prods.length - 1 ? 'disabled' : ''}>›</button>
+            </div></th>`).join('') +
+        `<th class="mz-addcol"><button type="button" class="mz-add" data-padd="${t}" title="Produkt hinzufügen">+ Produkt</button></th></tr></thead><tbody>` +
+        draft.kats.map(c => `<tr><td class="mz-cat">${esc(c.label) || '–'}</td>` + prods.map(pr => pr.ziel
+            ? `<td><input type="text" inputmode="decimal" data-t="${t}" data-cat="${c.key}" data-p="${esc(pr.key)}" value="${String(zielOf(t, c.key, pr.key)).replace('.',',')}"></td>`
+            : `<td class="mz-na" title="Kein Stückziel – Färbung: 0 rot · 1–9 orange · ab 10 grün">–</td>`).join('') + '<td></td></tr>').join('') +
+        `</tbody></table></div><div class="mz-kpis">` +
+        [['crTarget','CR-Ziel (Standard)','%'],['npsTarget','NPS-Ziel','%'],['lqTarget','LQ-Ziel','%']].map(([k,l,u]) =>
+          `<label>${l}<span><input type="text" inputmode="decimal" data-t="${t}" data-k="${k}" value="${String(d.kpi[k]).replace('.',',')}" title="Vorgabe: ${TEAM_CONFIGS_DEFAULT[t][k]}"> ${u}</span></label>`).join('') + `</div></div>`;
     });
-    html += `</tbody></table></div><div class="mz-kpis">` +
-      [['crTarget','CR-Ziel (8h)','%'],['npsTarget','NPS-Ziel','%'],['lqTarget','LQ-Ziel','%']].map(([k,l,u])=>
-        `<label>${l}<span><input type="text" inputmode="decimal" data-k="${k}" value="${cfg[k]}" title="Vorgabe: ${def[k]}" class="${cfg[k] !== def[k] ? 'mz-changed' : ''}"> ${u}</span></label>`).join('') + `</div></div>`;
-  });
-  html += `<div class="mz-foot"><span class="mz-hint">Geänderte Felder sind markiert. Fährst du mit der Maus über ein Feld, siehst du die ursprüngliche Vorgabe.</span><div><button type="button" class="btn-secondary mz-cancel">Abbrechen</button> <button type="button" class="primary mz-save">Speichern</button></div></div>`;
-  box.innerHTML = html;
-  document.body.appendChild(ov);
-  box.querySelector('.mz-x').onclick = box.querySelector('.mz-cancel').onclick = ()=>ov.remove();
-  box.querySelectorAll('input').forEach(i=>{ i.addEventListener('focus', e=>e.target.select()); i.addEventListener('input', ()=>i.classList.add('mz-changed')); });
-  box.querySelectorAll('.mz-reset').forEach(b=> b.onclick = ()=>{
-    const t = b.dataset.team, def = TEAM_CONFIGS_DEFAULT[t], wrap = box.querySelector(`.mz-team[data-team="${t}"]`);
-    wrap.querySelectorAll('input[data-cat]').forEach(i=>{ i.value = def.targets[i.dataset.cat][def.products.indexOf(i.dataset.p)]; i.classList.remove('mz-changed'); });
-    wrap.querySelectorAll('input[data-k]').forEach(i=>{ i.value = def[i.dataset.k]; i.classList.remove('mz-changed'); });
-  });
-  box.querySelector('.mz-save').onclick = ()=>{
+    h += `<div class="mz-foot"><span class="mz-hint">„Ziel“ aus = Produkt wird angezeigt, hat aber keine Stückziele (wie DA). „CR“ = zählt zur Gesamt-CR. Ausgeblendete Produkte behalten ihre Zahlen – mit gleichem Namen wieder hinzugefügt, sind sie wieder da.</span><div class="mz-btns"><button type="button" class="btn-secondary mz-cancel">Abbrechen</button><button type="button" class="primary mz-save">Speichern</button></div></div>`;
+    box.innerHTML = h;
+    ov.scrollTop = scroll;
+    wire();
+  }
+  function wire(){
+    box.querySelector('.mz-x').onclick = box.querySelector('.mz-cancel').onclick = ()=>ov.remove();
+    box.querySelectorAll('input[type="text"],input:not([type])').forEach(i => i.addEventListener('focus', e => e.target.select()));
+    box.querySelectorAll('[data-ki]').forEach(i => i.oninput = () => { draft.kats[+i.dataset.ki].label = i.value; });
+    box.querySelectorAll('[data-kf]').forEach(i => i.oninput = () => { const v = num(i.value); if(v !== null && v > 0) draft.kats[+i.dataset.kf].faktor = v; });
+    box.querySelectorAll('[data-kdel]').forEach(b => b.onclick = () => { draft.kats.splice(+b.dataset.kdel, 1); render(); });
+    box.querySelector('[data-kadd]').onclick = () => {
+      draft.kats.push({ key: 'k' + Date.now().toString(36), label: 'Neue Kategorie', faktor: 1 });
+      render();
+      const inp = box.querySelector(`[data-ki="${draft.kats.length-1}"]`); if(inp){ inp.focus(); inp.select(); }
+    };
+    box.querySelectorAll('.mz-pname').forEach(i => i.oninput = () => { draft.teams[i.dataset.t].produkte[+i.dataset.pi].label = i.value; });
+    box.querySelectorAll('[data-pz]').forEach(c => c.onchange = () => { draft.teams[c.dataset.t].produkte[+c.dataset.pz].ziel = c.checked; render(); });
+    box.querySelectorAll('[data-pc]').forEach(c => c.onchange = () => { draft.teams[c.dataset.t].produkte[+c.dataset.pc].cr = c.checked; });
+    const move = (t, i, dir) => { const a = draft.teams[t].produkte; const j = i + dir; if(j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; render(); };
+    box.querySelectorAll('[data-pl]').forEach(b => b.onclick = () => move(b.dataset.t, +b.dataset.pl, -1));
+    box.querySelectorAll('[data-pr]').forEach(b => b.onclick = () => move(b.dataset.t, +b.dataset.pr, 1));
+    box.querySelectorAll('[data-pdel]').forEach(b => b.onclick = () => { draft.teams[b.dataset.t].produkte.splice(+b.dataset.pdel, 1); render(); });
+    box.querySelectorAll('[data-padd]').forEach(b => b.onclick = () => {
+      const t = b.dataset.padd, a = draft.teams[t].produkte;
+      a.push({ key: '_neu' + Date.now().toString(36), neu: true, label: 'Neues Produkt', ziel: true, cr: true });
+      render();
+      const inp = box.querySelector(`.mz-pname[data-t="${t}"][data-pi="${a.length-1}"]`); if(inp){ inp.focus(); inp.select(); }
+    });
+    box.querySelectorAll('[data-cat]').forEach(i => i.oninput = () => {
+      const z = draft.teams[i.dataset.t].ziele; (z[i.dataset.cat] = z[i.dataset.cat] || {});
+      const v = num(i.value); if(v !== null) z[i.dataset.cat][i.dataset.p] = v;
+      i.classList.add('mz-changed');
+    });
+    box.querySelectorAll('[data-k]').forEach(i => i.oninput = () => { const v = num(i.value); if(v !== null && v > 0) draft.teams[i.dataset.t].kpi[i.dataset.k] = v; i.classList.add('mz-changed'); });
+    box.querySelectorAll('[data-reset]').forEach(b => b.onclick = () => {
+      const t = b.dataset.reset, def = TEAM_CONFIGS_DEFAULT[t];
+      draft.teams[t] = { produkte: maDefaultProdukte(t), ziele: {}, kpi: { crTarget: def.crTarget, npsTarget: def.npsTarget, lqTarget: def.lqTarget } };
+      render();
+    });
+    box.querySelector('.mz-save').onclick = save;
+  }
+  function save(){
+    // Kategorien prüfen
+    const kats = draft.kats.map(c => ({ key: c.key, label: String(c.label || '').trim() || c.key, faktor: parseFloat(c.faktor) || 1 }));
+    if(!kats.some(c => c.key === 'regular')) kats.unshift(MA_KAT_DEFAULT[0]);
+    const katKeys = kats.map(c => c.key);
+    // Produkte: Schlüssel für neue Produkte aus dem Namen bilden (bestehende Schlüssel bleiben – so bleiben die Zahlen zugeordnet)
+    for(const t of teams){
+      const used = new Set();
+      for(const pr of draft.teams[t].produkte){
+        pr.label = String(pr.label || '').trim();
+        if(!pr.label){ alert('Bitte jedem Produkt einen Namen geben.'); return; }
+        if(pr.neu || !pr.key){
+          const tmp = pr.key;
+          let base = pr.label.toUpperCase().replace(/\s+/g,'').replace(/[^A-Z0-9+ÄÖÜ]/g,'') || 'P';
+          let k = base, n = 2;
+          const vergeben = new Set([...used, ...draft.teams[t].produkte.filter(x => x !== pr && !x.neu).map(x => x.key)]);
+          while(vergeben.has(k)) k = base + n++;
+          pr.key = k; delete pr.neu;
+          // bereits eingetragene Ziele auf den endgültigen Schlüssel umhängen
+          Object.values(draft.teams[t].ziele).forEach(z => { if(z && tmp && z[tmp] !== undefined){ z[k] = z[tmp]; delete z[tmp]; } });
+        }
+        if(used.has(pr.key)){ alert(`Das Produkt „${pr.label}“ gibt es in ${TEAM_CONFIGS[t].label} doppelt.`); return; }
+        used.add(pr.key);
+      }
+    }
+    // Mitarbeiter aus gelöschten Kategorien → Standard
+    let verschoben = 0;
+    (state.agents||[]).forEach(a => {
+      const k = a.category || 'regular';
+      if(!MA_KAT_FIX[k] && !katKeys.includes(k)){ a.category = 'regular'; verschoben++; }
+    });
     if(!state.maZiele || typeof state.maZiele !== 'object') state.maZiele = {};
-    box.querySelectorAll('.mz-team').forEach(wrap=>{
-      const t = wrap.dataset.team, def = TEAM_CONFIGS_DEFAULT[t];
+    const istDefaultKats = JSON.stringify(kats) === JSON.stringify(MA_KAT_DEFAULT);
+    if(istDefaultKats) delete state.maZiele._kategorien; else state.maZiele._kategorien = kats;
+    teams.forEach(t => {
+      const d = draft.teams[t], def = TEAM_CONFIGS_DEFAULT[t];
       const o = {};
-      wrap.querySelectorAll('input[data-cat]').forEach(i=>{
-        const v = num(i.value); if(v === null) return;
-        const d = def.targets[i.dataset.cat][def.products.indexOf(i.dataset.p)];
-        if(v !== d){ (o[i.dataset.cat] = o[i.dataset.cat] || {})[i.dataset.p] = v; }
-      });
-      wrap.querySelectorAll('input[data-k]').forEach(i=>{ const v = num(i.value); if(v !== null && v > 0 && v !== def[i.dataset.k]) o[i.dataset.k] = v; });
-      state.maZiele[t] = o;   // nur Abweichungen von der Vorgabe speichern
+      const prodsDefault = JSON.stringify(maDefaultProdukte(t));
+      if(JSON.stringify(d.produkte.map(p => ({key:p.key, label:p.label, ziel:!!p.ziel, cr:!!p.cr}))) !== prodsDefault) o.produkte = d.produkte.map(p => ({ key: p.key, label: p.label, ziel: !!p.ziel, cr: !!p.cr }));
+      kats.forEach(c => d.produkte.filter(p => p.ziel).forEach(pr => {
+        const v = (d.ziele[c.key] && d.ziele[c.key][pr.key] !== undefined) ? d.ziele[c.key][pr.key] : maDefaultZiel(t, c.key, pr.key);
+        if(v !== maDefaultZiel(t, c.key, pr.key)) (o[c.key] = o[c.key] || {})[pr.key] = v;
+      }));
+      ['crTarget','npsTarget','lqTarget'].forEach(k => { const v = d.kpi[k]; if(v > 0 && v !== def[k]) o[k] = v; });
+      state.maZiele[t] = o;
     });
     applyMaZiele();
     scheduleSave();
     ov.remove();
     renderAll();
-    if(window.fxToast) fxToast('Mitarbeiter-Ziele gespeichert');
-  };
+    if(window.fxToast) fxToast('Mitarbeiter-Ziele gespeichert' + (verschoben ? ` · ${verschoben} MA zu ${kats[0].label} verschoben` : ''));
+  }
+  render();
 }
 (function(){ const b = document.getElementById('ma-ziele-edit-btn'); if(b) b.addEventListener('click', openMaZieleEditor); })();
 
@@ -10515,13 +10716,13 @@ function renderOverview(){
     const extraProdsOv = teamExtraProducts(teamId);
     const displayedProducts = displayOrderProducts([...cfg.products, ...extraProdsOv], teamId);
     const legendLine = (catKey) => {
-      const targets = cfg.targets[catKey];
+      const targets = cfg.targets[catKey] || [];
       return displayedProducts.map(p=>{
         const origIdx = cfg.products.indexOf(p);
         const target = origIdx !== -1 ? targets[origIdx] : '';
         const lbl = productLabel(p, teamId);
-        return target !== '' ? `${lbl} ${target}` : null;
-      }).filter(Boolean).join(' · ') + (catKey==='regular' ? ` · CR ${cfg.crTarget}%` : '');
+        return (target !== '' && target > 0) ? `${lbl} ${String(target).replace('.',',')}` : null;
+      }).filter(Boolean).join(' · ') + (catKey==='regular' ? ` · CR ${String(cfg.crTarget).replace('.',',')}%` : '');
     };
     teamDiv.innerHTML = `
       <div class="ov-team-head">
@@ -10530,9 +10731,7 @@ function renderOverview(){
       </div>
       <div style="background:#F7F9FA;padding:14px 16px;border-bottom:1px solid var(--border);text-align:center;">
         <div style="font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Ziele</div>
-        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:#8A6D00;margin-bottom:4px;">8-Stündler: ${legendLine('regular')}</div>
-        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--sixh);margin-bottom:4px;">6-Stündler: ${legendLine('6h')}</div>
-        <div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:var(--helpline);">Helpline: ${legendLine('helpline')}</div>
+        ${maKategorien().filter(c => (cfg.targets[c.key]||[]).some(v => v > 0)).map((c,ci)=>`<div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:${MA_KAT_FARBE(c.key, ci)};margin-bottom:4px;">${c.label}: ${legendLine(c.key)}</div>`).join('')}
       </div>`;
 
     const totalCols = 1 + 1 + 2 + cfg.products.length + 1 + 1;
@@ -10593,6 +10792,7 @@ function renderOverview(){
 
         const catBg = agent.category === '6h' ? 'background:rgba(59,111,160,.14);color:var(--sixh);' :
                      agent.category === 'helpline' ? 'background:rgba(124,92,191,.14);color:var(--helpline);' :
+                     (agent.category && !['regular','work','schulung'].includes(agent.category)) ? 'background:rgba(14,124,123,.14);color:var(--teal);' :
                      agent.category === 'work' ? 'background:rgba(102,187,106,.18);color:#2E7D32;' :
                      'background:rgba(252,211,77,.28);color:#8A6D00;';
         let html = `<div class="ov-cell name-cell"><span class="ov-name-pill" style="${catBg}">${agent.name}</span></div>`;
@@ -11884,7 +12084,7 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 
 /* Mitarbeiter-Ziele bearbeiten (v167) */
 .mz-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
-.mz-box{background:var(--panel);color:var(--text);border-radius:14px;width:min(860px,100%);padding:22px 24px;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);font-family:'Inter',sans-serif;}
+.mz-box{background:var(--panel);color:var(--text);border-radius:14px;width:min(1020px,100%);padding:22px 24px;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);font-family:'Inter',sans-serif;}
 .mz-head{display:flex;justify-content:space-between;gap:16px;margin-bottom:14px;}
 .mz-title{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;}
 .mz-sub{font-size:12.5px;color:var(--muted);margin-top:3px;max-width:60ch;}
@@ -11906,6 +12106,34 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .mz-kpis span{display:flex;align-items:center;gap:5px;color:var(--text);font-size:13px;text-transform:none;}
 .mz-foot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px;}
 .mz-hint{font-size:11.5px;color:var(--muted);max-width:46ch;}
+
+.mz-mini{font:500 11.5px 'Inter',sans-serif;color:var(--muted);}
+.mz-kat-list{display:flex;flex-direction:column;gap:8px;}
+.mz-kat{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.mz-box input.mz-kat-name{width:190px;text-align:left;font-family:'Inter',sans-serif;font-size:13.5px;}
+.mz-kat-f{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.mz-box .mz-kat-f input{width:52px;}
+.mz-kat-n{font:600 11.5px 'IBM Plex Mono',monospace;color:var(--muted);min-width:46px;}
+.mz-lock{font:600 10.5px 'Inter',sans-serif;color:var(--muted);border:1px dashed var(--border);border-radius:6px;padding:3px 8px;}
+.mz-del{background:none;border:1px solid var(--border);border-radius:7px;padding:4px 10px;font:600 11.5px 'Inter',sans-serif;color:var(--red);cursor:pointer;}
+.mz-del:hover{background:var(--red-soft);border-color:var(--red);}
+.mz-add{margin-top:10px;background:none;border:1px dashed var(--tmg);border-radius:8px;padding:6px 12px;font:600 12px 'Inter',sans-serif;color:var(--tmg);cursor:pointer;white-space:nowrap;}
+.mz-add:hover{background:var(--tmg-soft);}
+.mz-addcol{vertical-align:top;}
+.mz-addcol .mz-add{margin-top:0;}
+.mz-corner{text-align:left!important;vertical-align:bottom;}
+.mz-ph{vertical-align:top;min-width:88px;}
+.mz-box input.mz-pname{width:84px;font:700 12px 'Inter',sans-serif;text-transform:none;padding:5px 4px;}
+.mz-ptog{display:flex;justify-content:center;gap:6px;margin-top:5px;}
+.mz-ptog label{display:flex;align-items:center;gap:2px;font:600 10px 'Inter',sans-serif;color:var(--muted);text-transform:none;letter-spacing:0;cursor:pointer;}
+.mz-ptog input{width:auto!important;padding:0!important;margin:0;accent-color:var(--tmg);}
+.mz-pact{display:flex;justify-content:center;gap:2px;margin-top:4px;}
+.mz-pact button{background:none;border:1px solid var(--border);border-radius:5px;width:22px;height:20px;line-height:1;font-size:13px;color:var(--muted);cursor:pointer;padding:0;}
+.mz-pact button:disabled{opacity:.3;cursor:default;}
+.mz-pact .mz-pdel{color:var(--red);}
+.mz-noziel input.mz-pname{border-style:dashed;}
+.mz-na{color:var(--muted);}
+.mz-btns{display:flex;gap:8px;}
 /* ===== Monatsabschluss ===== */
 .ma-charts-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .ma-chart-box{min-width:0!important;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);padding:16px 18px 10px!important;}
@@ -12116,7 +12344,7 @@ function renderStandortHero(){
   if(!host) return;
   const g = STANDORT_GEO.g, d = STANDORT_GEO.d, S = STANDORT_INFO;
   const agents = (state.agents||[]).filter(a => a.name && a.name.trim());
-  const catLabel = { regular:'8-Stündler', '6h':'6-Stündler', helpline:'Helpline', schulung:'Schulung', work:'Work' };
+  const catLabel = Object.assign({}, ...maKategorien().map(c=>({[c.key]: c.label})), { schulung:'Schulung', work:'Work' });
   const teams = Object.keys(TEAM_CONFIGS).map(id => {
     const cfg = TEAM_CONFIGS[id];
     const list = agents.filter(a => String(a.team) === String(id));
