@@ -642,6 +642,76 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .mz-noziel input.mz-pname{border-style:dashed;}
 .mz-na{color:var(--muted);}
 .mz-btns{display:flex;gap:8px;}
+
+/* ===== Coaching Dashboard v170 ===== */
+.cd-hidden-sub{display:none!important;}
+#cd-form-overlay .cd-modal{width:min(820px,100%);}
+#cd-form-overlay #coachplan-container > *{max-width:none!important;width:100%!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box;}
+.subtabs .cd-new-wrap{display:flex;gap:8px;align-items:center;}
+.cd-gear{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.cd-gear:hover,.cd-gear.active{color:var(--tmg);border-color:var(--tmg);}
+.cd-gear .nav-ic{width:18px;height:18px;}
+.cd-modal-overlay{position:fixed;inset:0;z-index:2500;display:flex;align-items:flex-start;justify-content:center;padding:36px 16px;overflow-y:auto;}
+.cd-modal{position:relative;background:var(--bg);border-radius:16px;width:min(980px,100%);padding:26px 24px 22px;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);}
+.cd-modal-x{position:absolute;top:12px;right:14px;width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--panel);color:var(--muted);font-size:20px;line-height:1;cursor:pointer;z-index:2;}
+.cd-modal-x:hover{color:var(--text);border-color:var(--text);}
+.cd-overdue{font-style:normal;font-size:11px;color:var(--red);background:var(--red-soft);padding:2px 8px;border-radius:999px;margin-left:6px;}
+.cd-vl-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.cd-cnt{font:600 10.5px 'IBM Plex Mono',monospace;opacity:.7;margin-left:2px;}
+.cd-vl-filt{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+.cd-vl-search{margin-left:auto;min-width:220px;padding:8px 12px;border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);font:500 13px 'Inter',sans-serif;}
+.cd-tl{position:relative;}
+.cd-tl-month{font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px 64px;}
+.cd-tl-row{display:grid;grid-template-columns:52px 18px minmax(0,1fr);gap:0 10px;align-items:start;}
+.cd-tl-date{font:600 12px 'IBM Plex Mono',monospace;color:var(--muted);text-align:right;padding-top:12px;}
+.cd-tl-dot{position:relative;align-self:stretch;}
+.cd-tl-dot::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border);}
+.cd-tl-dot::after{content:'';position:absolute;left:3px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--tl-c,var(--muted));box-shadow:0 0 0 3px var(--bg);}
+.cd-t-coaching{--tl-c:var(--tmg);} .cd-t-workshop{--tl-c:#5B6FA6;} .cd-t-einzel{--tl-c:var(--teal);} .cd-t-tagesziel{--tl-c:#B9770E;}
+.cd-tl-body{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:4px 0;min-width:0;}
+.cd-tl-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.cd-tl-typ{font:700 10px 'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--tl-c);}
+.cd-tl-name{background:none;border:0;padding:0;font:700 14px 'Inter',sans-serif;color:var(--text);cursor:pointer;text-align:left;}
+.cd-tl-name:hover{color:var(--tmg);text-decoration:underline;text-underline-offset:3px;}
+.cd-tl-name-plain{font:700 14px 'Inter',sans-serif;}
+.cd-tl-meta{font:500 12px 'Inter',sans-serif;color:var(--muted);}
+.cd-tl-title{font:600 13px 'Inter',sans-serif;color:var(--text);margin-top:3px;}
+.cd-tl-text{font:400 12.5px 'Inter',sans-serif;color:var(--muted);margin-top:3px;line-height:1.45;overflow-wrap:anywhere;}
+.cd-more{margin:14px 0 0 64px;}
+.cd-vl-hint{font:500 11.5px 'Inter',sans-serif;color:var(--muted);margin:16px 0 0 64px;}
+.fk-name .cd-tl-name,.cp-plan-row-name .cd-tl-name{font-size:inherit;}
+.akte{padding-top:22px;}
+.akte-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;margin:0 40px 16px 0;}
+.akte-eyebrow{font:600 10.5px 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--tmg);}
+.akte-name{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.01em;}
+.akte-sub{font:500 13px 'Inter',sans-serif;color:var(--muted);margin-top:2px;}
+.akte-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.akte-sec{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px;min-width:0;}
+.akte-sec-t{font:600 11px 'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.akte-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.akte-grid .akte-sec{margin-bottom:12px;}
+.akte-kpis{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.akte-kpi{border:1px solid var(--border);border-radius:9px;padding:6px 12px;display:flex;flex-direction:column;min-width:76px;}
+.akte-kpi span{font:600 10px 'Inter',sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.akte-kpi b{font:700 16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+.akte-kpi.ok b{color:var(--good);} .akte-kpi.bad b{color:var(--bad);}
+.akte-prods{display:flex;gap:6px;flex-wrap:wrap;}
+.akte-prod{display:flex;flex-direction:column;align-items:center;border-radius:8px;padding:5px 10px;background:var(--kpi-bg);min-width:54px;}
+.akte-prod span{font:600 10px 'Inter',sans-serif;color:var(--muted);}
+.akte-prod b{font:700 15px 'IBM Plex Mono',monospace;}
+.akte-prod small{font-size:10px;color:var(--muted);font-weight:500;}
+.akte-prod.ok b{color:var(--good);} .akte-prod.mid b{color:var(--warn);} .akte-prod.bad b{color:var(--bad);}
+.akte-tbl{width:100%;border-collapse:collapse;font:500 12.5px 'Inter',sans-serif;font-variant-numeric:tabular-nums;}
+.akte-tbl th{font-size:10.5px;color:var(--muted);text-align:right;font-weight:600;padding:4px 6px;border-bottom:1px solid var(--border);}
+.akte-tbl td{text-align:right;padding:5px 6px;border-bottom:1px solid var(--border);}
+.akte-tbl th:first-child,.akte-tbl td:first-child{text-align:left;}
+.akte-li{padding:7px 0;border-bottom:1px dashed var(--border);font:500 13px 'Inter',sans-serif;}
+.akte-li:last-child{border-bottom:0;}
+.akte-li-m{font-size:11.5px;color:var(--muted);margin-top:2px;}
+.akte-pill{display:inline-block;font:600 10px 'Inter',sans-serif;padding:1px 7px;border-radius:999px;background:var(--kpi-bg);color:var(--muted);margin-left:4px;}
+.akte-pill.ok{background:var(--good-soft);color:var(--good);} .akte-pill.mid{background:var(--warn-soft);color:var(--warn);} .akte-pill.bad{background:var(--bad-soft);color:var(--bad);}
+.akte-empty{font:500 12.5px 'Inter',sans-serif;color:var(--muted);}
+@media (max-width: 760px){ .akte-grid{grid-template-columns:1fr;} .cd-vl-search{margin-left:0;width:100%;} .cd-tl-month,.cd-more,.cd-vl-hint{margin-left:0;} }
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
@@ -1048,19 +1118,17 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   <div id="view-coachdash" style="display:none;">
     <div style="flex-direction:column;">
       <div id="coachdash-subtabs" class="subtabs">
-        <button class="tab-btn active" id="sub-fokus" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5M9 3h6l-1 6 4 4H6l4-4z"/></svg><span>Fokus der Woche</span></button>
-        <button class="tab-btn" id="sub-coachplan" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg><span>Coaching Plan</span></button>
-        <button class="tab-btn" id="sub-gespraeche" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-6.4A8 8 0 1 1 21 12z"/></svg><span>Einzelgespräche</span></button>
-        <button class="tab-btn" id="sub-tagesziele" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg><span>Tages Ziele</span></button>
-        <button class="tab-btn" id="sub-zuordnung" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span>Team-Zuordnung</span></button>
-        <button class="tab-btn" id="sub-termine" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>Termin Kalender</span></button>
-        <span class="cd-new-wrap"><button class="cp-add-btn" id="cd-new-coaching" type="button"><span class="cp-add-icon">+</span> Neues Coaching ▾</button></span>
+        <button class="tab-btn active" id="sub-fokus" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5M9 3h6l-1 6 4 4H6l4-4z"/></svg><span>Diese Woche</span></button>
+        <button class="tab-btn" id="sub-planen" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>Planen</span></button>
+        <button class="tab-btn" id="sub-verlauf" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Verlauf</span></button>
+        <button class="tab-btn" id="sub-auswertung" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><span>Auswertung</span></button>
+        <button class="tab-btn cd-hidden-sub" id="sub-zuordnung" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span>Team-Zuordnung</span></button>
+        <span class="cd-new-wrap"><button class="cd-gear" id="cd-gear" type="button" title="Team-Zuordnung: Mitarbeiter den Führungskräften zuweisen"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button><button class="cp-add-btn" id="cd-new-coaching" type="button"><span class="cp-add-icon">+</span> Neu ▾</button></span>
       </div>
       <div id="fokus-container"></div>
-      <div id="coachplan-container" style="display:none;"></div>
-      <div id="gespraeche-container" style="display:none;"></div>
-      <div id="tagesziele-verlauf-container" style="display:none;"></div>
       <div id="termine-container" style="display:none;"></div>
+      <div id="cdverlauf-container" style="display:none;"></div>
+      <div id="cdauswertung-container" style="display:none;"></div>
       <div id="zuordnung-container" style="display:none;"></div>
     </div>
   </div>
@@ -1180,7 +1248,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 169;
+const BOARD_VERSION = 170;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -3108,17 +3176,32 @@ document.getElementById('tab-coaching').addEventListener('click', ()=>switchTab(
 document.getElementById('tab-coachdash').addEventListener('click', ()=>switchTab('coachdash'));
 
 // Sub-Tab Steuerung für Coaching Dashboard (Coaching Plan / Coaching Verlauf / Termin Kalender)
+// v170: Coaching Dashboard nach Arbeitsablauf: Diese Woche · Planen · Verlauf · Auswertung (+ Team-Zuordnung hinter ⚙).
+// Formulare (Coaching, Workshop, Einzelgespräch, Tagesziel) öffnen als Fenster über der Seite.
 const COACHDASH_SUBS = {
-  fokus:        { btn: 'sub-fokus',        container: 'fokus-container',        render: ()=>renderFokus() },
-  coachplan:    { btn: 'sub-coachplan',    container: 'coachplan-container',    render: ()=>renderCoachPlan() },
-  gespraeche:   { btn: 'sub-gespraeche',   container: 'gespraeche-container',   render: ()=>renderEinzelgespraeche() },
-  tagesziele:   { btn: 'sub-tagesziele',   container: 'tagesziele-verlauf-container', render: ()=>renderTageszielTab() },
-  termine:      { btn: 'sub-termine',      container: 'termine-container',      render: ()=>renderTermineKalender() },
-  zuordnung:    { btn: 'sub-zuordnung',    container: 'zuordnung-container',    render: ()=>renderZuordnung() }
+  fokus:      { btn: 'sub-fokus',      container: 'fokus-container',        render: ()=>renderWoche() },
+  termine:    { btn: 'sub-planen',     container: 'termine-container',      render: ()=>renderTermineKalender() },
+  verlauf:    { btn: 'sub-verlauf',    container: 'cdverlauf-container',    render: ()=>renderCdVerlauf() },
+  auswertung: { btn: 'sub-auswertung', container: 'cdauswertung-container', render: ()=>renderCdAuswertung() },
+  zuordnung:  { btn: 'sub-zuordnung',  container: 'zuordnung-container',    render: ()=>renderZuordnung() }
 };
+let cdVerlaufTyp = 'alle';
+function cdActiveSub(){
+  return Object.keys(COACHDASH_SUBS).find(k => { const b = document.getElementById(COACHDASH_SUBS[k].btn); return b && b.classList.contains('active'); }) || 'fokus';
+}
 function switchCoachDashSub(sub){
-  // Coaching-Verlauf und Workshops stehen jetzt im Coaching Plan (Bereich "Verlauf")
-  if(sub === 'coachverlauf' || sub === 'workshops'){ cpHistoryView = sub; sub = 'coachplan'; }
+  // alte Reiternamen → neue Aufteilung
+  if(sub === 'coachverlauf'){ cdVerlaufTyp = 'coaching'; sub = 'verlauf'; }
+  else if(sub === 'workshops'){ cdVerlaufTyp = 'workshop'; sub = 'verlauf'; }
+  else if(sub === 'gespraeche'){ cdVerlaufTyp = 'einzel'; sub = 'verlauf'; }
+  else if(sub === 'tagesziele'){ cdVerlaufTyp = 'tagesziel'; sub = 'verlauf'; }
+  else if(sub === 'planen') sub = 'termine';
+  else if(sub === 'coachplan'){
+    // früher: Formular im Reiter „Coaching Plan“ → jetzt als Fenster; der aktuelle Reiter bleibt stehen
+    cdSyncFormModal(true);
+    sub = cdActiveSub();
+  }
+  cdSyncFormModal(false);
   if(!COACHDASH_SUBS[sub]) sub = 'fokus';
   Object.keys(COACHDASH_SUBS).forEach(key=>{
     const cfg = COACHDASH_SUBS[key];
@@ -3128,6 +3211,7 @@ function switchCoachDashSub(sub){
     btn.classList.toggle('active', key===sub);
     cont.style.display = key===sub ? '' : 'none';
   });
+  const gear = document.getElementById('cd-gear'); if(gear) gear.classList.toggle('active', sub === 'zuordnung');
   COACHDASH_SUBS[sub].render();
 }
 function initCoachDashSubTabs(){
@@ -3142,6 +3226,7 @@ function initCoachDashSubTabs(){
 document.getElementById('tab-coachdash').addEventListener('click', ()=>{
   setTimeout(initCoachDashSubTabs, 50);
 });
+document.getElementById('cd-gear').addEventListener('click', ()=>{ initCoachDashSubTabs(); switchCoachDashSub(cdActiveSub() === 'zuordnung' ? 'fokus' : 'zuordnung'); });
 
 // Sub-Tab Steuerung für Mitarbeiter Ziele (Mitarbeiter Ziele / Tageswerte)
 const OVERVIEW_SUBS = {
@@ -3180,13 +3265,14 @@ document.getElementById('tab-kianalyse').addEventListener('click', ()=>switchTab
 
 function renderAll(){
   try{ applyMaZiele(); }catch(e){ console.warn('Ziele', e); }
+  try{ cdSyncFormModal(false); }catch(e){}
   try{ updateFokusBadge(); }catch(e){}
   if(currentTab === 'coaching'){ renderCoaching(); try{ renderStandortHero(); }catch(e){ console.warn('Standort-Karte', e); } }
   else if(currentTab === 'coachdash'){
     const activeSub = Object.keys(COACHDASH_SUBS).find(key=>{
       const btn = document.getElementById(COACHDASH_SUBS[key].btn);
       return btn && btn.classList.contains('active');
-    }) || 'coachplan';
+    }) || 'fokus';
     COACHDASH_SUBS[activeSub].render();
   }
   else if(currentTab === 'teamziele') renderTeamZiele();
@@ -5826,8 +5912,6 @@ function openNewCoachingMenu(anchor){
       cpShowForm = true;
       cpPrefill = null;
       switchCoachDashSub('coachplan');
-      const c = document.getElementById('coachplan-container');
-      if(c) c.scrollIntoView({ behavior:'smooth', block:'start' });
     });
     return item;
   };
@@ -5848,76 +5932,197 @@ document.addEventListener('click', e=>{
   if(btn){ e.stopPropagation(); openNewCoachingMenu(btn); }
 }, true);
 
-function renderCoachPlan(){
-  const container = document.getElementById('coachplan-container');
-  container.innerHTML = '';
-
-  // ===== Zielerinnerung / Alarm =====
-  const alertBanner = buildAlertBanner();
-  if(alertBanner) container.appendChild(alertBanner);
-
-  // (Button "Neues Coaching" steht jetzt fest in der Reiterleiste - siehe openNewCoachingMenu)
-
-  if(cpShowForm){
-    container.appendChild(
-      cpFormType === 'workshop' ? buildWorkshopForm() :
-      cpFormType === 'einzelgespraech' ? buildEinzelgespraechForm() :
-      cpFormType === 'tagesziel' ? buildTageszielForm(cpPrefill) :
-      buildCoachingRecordForm(cpPrefill)
-    );
+// v170: Formular-Fenster. renderCoachPlan() bleibt als Name erhalten, weil viele Formulare es nach
+// Speichern/Abbrechen aufrufen: offenes Formular neu zeichnen bzw. Fenster schließen + Reiter aktualisieren.
+function cdSyncFormModal(neuZeichnen){
+  let ov = document.getElementById('cd-form-overlay');
+  if(!cpShowForm){ if(ov) ov.remove(); return; }
+  if(ov && !neuZeichnen) return;
+  if(!ov){
+    ov = document.createElement('div'); ov.id = 'cd-form-overlay'; ov.className = 'chart-overlay cd-modal-overlay';
+    const box = document.createElement('div'); box.className = 'cd-modal';
+    const x = document.createElement('button'); x.type = 'button'; x.className = 'cd-modal-x'; x.setAttribute('aria-label','Schließen'); x.textContent = '×';
+    const close = ()=>{ cpShowForm = false; cpPrefill = null; cpFormType = 'coaching'; ov.remove(); };
+    x.addEventListener('click', close);
+    ov.addEventListener('mousedown', e=>{ if(e.target === ov) close(); });
+    const host = document.createElement('div'); host.id = 'coachplan-container';
+    box.appendChild(x); box.appendChild(host); ov.appendChild(box);
+    document.body.appendChild(ov);
   }
+  const host = document.getElementById('coachplan-container');
+  host.innerHTML = '';
+  host.appendChild(
+    cpFormType === 'workshop' ? buildWorkshopForm() :
+    cpFormType === 'einzelgespraech' ? buildEinzelgespraechForm() :
+    cpFormType === 'tagesziel' ? buildTageszielForm(cpPrefill) :
+    buildCoachingRecordForm(cpPrefill)
+  );
+}
+function renderCoachPlan(){
+  cdSyncFormModal(true);
+  if(typeof currentTab !== 'undefined' && currentTab === 'coachdash'){
+    const sub = cdActiveSub();
+    if(COACHDASH_SUBS[sub]) COACHDASH_SUBS[sub].render();
+  }
+}
 
-  // (Frühere Liste "Wen zuerst coachen – Top 5" entfernt: ersetzt durch den Reiter "📌 Fokus der Woche")
+// ----- Reiter „Diese Woche“: Fokus der Woche + Termine dieser Woche -----
+function renderWoche(){
+  renderFokus();
+  const container = document.getElementById('fokus-container');
+  if(!container) return;
+  const head = container.querySelector('.fk-head');
+  const wrap = document.createElement('div');
+  const banner = buildAlertBanner(); if(banner) wrap.appendChild(banner);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const in7 = new Date(today.getTime() + 7*86400000);
+  const lf = fkGetLeaderFilter();
+  const plan = (state.coachingPlan||[]).filter(p => p && p.datum).filter(p => {
+    const ag = state.agents.find(a => a.id === p.agentId);
+    if(ag && !fkMatchesLeader(ag, lf)) return false;
+    if(fkTeamFilter !== 'alle' && String(p.team) !== fkTeamFilter) return false;
+    return new Date(p.datum) < in7;
+  }).sort((a,b) => String(a.datum).localeCompare(String(b.datum)));
+  const sec = document.createElement('div'); sec.className = 'fk-section';
+  const ueber = plan.filter(p => new Date(p.datum) < today).length;
+  sec.innerHTML = `<div class="fk-sec-title">📅 Termine diese Woche <span>${plan.length}</span>${ueber ? ` <em class="cd-overdue">${ueber} überfällig</em>` : ''}</div>`;
+  if(!plan.length){
+    sec.innerHTML += `<div class="fk-empty">Keine Coachings für die nächsten 7 Tage geplant. Planen kannst du im Reiter <b>Planen</b>.</div>`;
+  } else {
+    const list = document.createElement('div'); list.className = 'cp-plan-list';
+    plan.forEach(p => list.appendChild(buildPlanRow(p)));
+    sec.appendChild(list);
+  }
+  wrap.appendChild(sec);
+  if(head && head.nextSibling) container.insertBefore(wrap, head.nextSibling); else container.appendChild(wrap);
+}
 
-  // ===== Verlauf: Coachings / Workshops (früher eigene Reiter) =====
-  const hist = document.createElement('div');
-  hist.className = 'cp-history';
-  const histHead = document.createElement('div');
-  histHead.className = 'cp-history-head';
-  histHead.innerHTML = '<div class="fk-title" style="font-size:18px;">📜 Verlauf</div>';
-  const toggle = document.createElement('div');
-  toggle.className = 'cp-history-toggle';
-  [['coachverlauf','🗣️ Coachings'], ['workshops','👥 Workshops']].forEach(([v,l])=>{
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'fk-chip' + (cpHistoryView === v ? ' active' : '');
-    b.textContent = l;
-    b.addEventListener('click', ()=>{ if(cpHistoryView === v) return; cpHistoryView = v; renderCoachPlan(); });
-    toggle.appendChild(b);
-  });
-  histHead.appendChild(toggle);
-  hist.appendChild(histHead);
-  const histHost = document.createElement('div');
-  histHost.id = cpHistoryView === 'workshops' ? 'workshops-container' : 'coachverlauf-container';
-  hist.appendChild(histHost);
-  container.appendChild(hist);
-  if(cpHistoryView === 'workshops') renderWorkshops(); else renderCoachVerlauf();
-
-  const statsTitle = document.createElement('div');
-  statsTitle.className = 'fk-title';
-  statsTitle.style.cssText = 'font-size:18px;margin:26px 0 12px;';
-  statsTitle.textContent = '📊 Auswertung';
-  container.appendChild(statsTitle);
-
-  // ===== Diagramme =====
+// ----- Reiter „Auswertung“ -----
+function renderCdAuswertung(){
+  const container = document.getElementById('cdauswertung-container');
+  if(!container) return;
+  container.innerHTML = '';
   const { countByTeam, dauerByTeam, themen, checklistStats } = computeCoachStats();
   const teamColorsByLabel = {};
   const palette = ['#E20074','#3B6FA0','#0E7C7B','#C2792B'];
   Object.values(TEAM_CONFIGS).forEach((cfg,i)=>{ teamColorsByLabel[cfg.label] = palette[i % palette.length]; });
-
   const chartsRow = document.createElement('div');
   chartsRow.className = 'cp-charts-row';
   chartsRow.appendChild(buildBarChart('Anzahl Coachings / Team', countByTeam, teamColorsByLabel));
   chartsRow.appendChild(buildBarChart('Gesamte Coaching-Dauer / Team', dauerByTeam, teamColorsByLabel, ' Min'));
   chartsRow.appendChild(buildPieChart('Coaching-Themen', themen, COACH_THEMEN_COLORS));
   container.appendChild(chartsRow);
-
+  try{ const lf = fkGetLeaderFilter(); const fa = buildFingerTeamAnalyse('alle', ag => fkMatchesLeader(ag, lf)); if(fa) container.appendChild(fa); }catch(e){ console.warn(e); }
   container.appendChild(buildEffectivenessSection());
   container.appendChild(buildChecklistOverview(checklistStats));
-
 }
 
-// ===== Zielerinnerung/Alarm: Mitarbeiter lange ohne Coaching + fallende CR =====
+// ----- Reiter „Verlauf“: alles Dokumentierte an einer Stelle -----
+let cdVerlaufTeam = 'alle', cdVerlaufSuche = '', cdVerlaufMax = 60;
+function cdVerlaufItems(){
+  const items = [];
+  const ws = {};
+  Object.keys(state.coachverlauf || {}).forEach(key=>{
+    const cv = state.coachverlauf[key];
+    const agent = fkAgentForCv(key, cv);
+    (cv && cv.eintraege || []).forEach(e=>{
+      if(!e) return;
+      const d = fkParseDe(e.datum);
+      if(e.workshopId){
+        const w = ws[e.workshopId] = ws[e.workshopId] || { typ:'workshop', d, datum: e.datum, titel: e.workshopTitel || e.thema || 'Workshop', thema: e.thema, coach: e.coach, namen: [], teams: new Set() };
+        w.namen.push(cv.name); w.teams.add(String(cv.team));
+        return;
+      }
+      const typ = e.stil === 'Einzelgespräch' ? 'einzel' : 'coaching';
+      const txt = e.vereinbarung ? '🤝 ' + e.vereinbarung : (e.text || '');
+      items.push({ typ, d, datum: e.datum, agent, name: cv.name, team: String(cv.team), titel: e.thema || (typ === 'einzel' ? 'Einzelgespräch' : 'Coaching'), text: txt, coach: e.coach, stil: e.stil });
+    });
+  });
+  Object.values(ws).forEach(w => items.push({ typ:'workshop', d: w.d, datum: w.datum, name: w.namen.length + ' Teilnehmer', team: [...w.teams].join(','), titel: w.titel, text: w.namen.join(', '), coach: w.coach }));
+  (state.tagesziele || []).forEach(z=>{
+    if(!z) return;
+    const agent = state.agents.find(a => a.id === z.agentId) || null;
+    const d = z.datum ? new Date(z.datum) : null;
+    const prods = Object.keys(z.produkte || {}).filter(p => z.produkte[p] && z.produkte[p].aktiv);
+    const txt = prods.map(p => { const soll = z.produkte[p].anzahl || 0, ist = z.erreicht && typeof z.erreicht[p] === 'number' ? z.erreicht[p] : null; return `${productLabel(p, z.agentTeam)} ${ist === null ? '–' : ist}/${soll}`; }).join(' · ');
+    items.push({ typ:'tagesziel', d, datum: d ? d.toLocaleDateString('de-DE') : '', agent, name: z.agentName, team: String(z.agentTeam), titel: 'Tagesziel', text: txt });
+  });
+  return items.sort((a,b) => (b.d || 0) - (a.d || 0));
+}
+const CD_TYPEN = [ ['alle','Alle'], ['coaching','Coachings'], ['workshop','Workshops'], ['einzel','Einzelgespräche'], ['tagesziel','Tages Ziele'] ];
+function renderCdVerlauf(){
+  const container = document.getElementById('cdverlauf-container');
+  if(!container) return;
+  container.innerHTML = '';
+  const all = cdVerlaufItems();
+  const bar = document.createElement('div'); bar.className = 'cd-vl-bar';
+  CD_TYPEN.forEach(([k,l])=>{
+    const n = k === 'alle' ? all.length : all.filter(i => i.typ === k).length;
+    const b = document.createElement('button'); b.type = 'button';
+    b.className = 'fk-chip cd-typ-' + k + (cdVerlaufTyp === k ? ' active' : '');
+    b.innerHTML = `${l} <span class="cd-cnt">${n}</span>`;
+    b.addEventListener('click', ()=>{ cdVerlaufTyp = k; cdVerlaufMax = 60; renderCdVerlauf(); });
+    bar.appendChild(b);
+  });
+  container.appendChild(bar);
+
+  if(cdVerlaufTyp !== 'alle'){
+    // Spezialansichten mit allen Bearbeiten-/Löschen-Funktionen wie bisher
+    const host = document.createElement('div');
+    host.id = { coaching:'coachverlauf-container', workshop:'workshops-container', einzel:'gespraeche-container', tagesziel:'tagesziele-verlauf-container' }[cdVerlaufTyp];
+    container.appendChild(host);
+    if(cdVerlaufTyp === 'coaching') renderCoachVerlauf();
+    else if(cdVerlaufTyp === 'workshop') renderWorkshops();
+    else if(cdVerlaufTyp === 'einzel') renderEinzelgespraeche();
+    else renderTageszielTab();
+    return;
+  }
+
+  const filt = document.createElement('div'); filt.className = 'cd-vl-filt';
+  [['alle','Alle Teams'], ...Object.keys(TEAM_CONFIGS).map(t=>[t, TEAM_CONFIGS[t].label])].forEach(([v,l])=>{
+    const b = document.createElement('button'); b.type = 'button';
+    b.className = 'fk-chip' + (cdVerlaufTeam === v ? ' active' : '');
+    b.textContent = l;
+    b.addEventListener('click', ()=>{ cdVerlaufTeam = v; renderCdVerlauf(); });
+    filt.appendChild(b);
+  });
+  const q = document.createElement('input'); q.type = 'search'; q.className = 'cd-vl-search'; q.placeholder = 'Mitarbeiter suchen …'; q.value = cdVerlaufSuche;
+  q.addEventListener('input', ()=>{ cdVerlaufSuche = q.value; const pos = q.selectionStart; renderCdVerlauf(); const nq = document.querySelector('.cd-vl-search'); if(nq){ nq.focus(); nq.setSelectionRange(pos, pos); } });
+  filt.appendChild(q);
+  container.appendChild(filt);
+
+  const sq = cdVerlaufSuche.trim().toLowerCase();
+  const list = all.filter(i => (cdVerlaufTeam === 'alle' || String(i.team).split(',').includes(cdVerlaufTeam)) && (!sq || String(i.name).toLowerCase().includes(sq) || String(i.text).toLowerCase().includes(sq)));
+  if(!list.length){ container.appendChild(emptyStateEl('Keine Einträge', 'Neue Einträge legst du über „+ Neu“ oben rechts an.')); return; }
+  const tl = document.createElement('div'); tl.className = 'cd-tl';
+  let lastMonth = '';
+  list.slice(0, cdVerlaufMax).forEach(i=>{
+    const mon = i.d ? i.d.toLocaleDateString('de-DE', { month:'long', year:'numeric' }) : 'Ohne Datum';
+    if(mon !== lastMonth){ const h = document.createElement('div'); h.className = 'cd-tl-month'; h.textContent = mon; tl.appendChild(h); lastMonth = mon; }
+    const row = document.createElement('div'); row.className = 'cd-tl-row cd-t-' + i.typ;
+    const typLbl = { coaching:'Coaching', workshop:'Workshop', einzel:'Einzelgespräch', tagesziel:'Tagesziel' }[i.typ];
+    const teamLbl = String(i.team).split(',').map(t => TEAM_CONFIGS[t] ? TEAM_CONFIGS[t].label : t).join(' · ');
+    row.innerHTML = `<div class="cd-tl-date">${i.d ? i.d.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'}) : '–'}</div>
+      <div class="cd-tl-dot"></div>
+      <div class="cd-tl-body">
+        <div class="cd-tl-head"><span class="cd-tl-typ">${typLbl}</span>${i.agent ? `<button type="button" class="cd-tl-name" data-akte="${i.agent.id}">${kiEsc(i.agent.name)}</button>` : `<b class="cd-tl-name-plain">${kiEsc(i.name || '')}</b>`}<span class="cd-tl-meta">${teamLbl}${i.coach ? ' · ' + kiEsc(i.coach) : ''}</span></div>
+        <div class="cd-tl-title">${kiEsc(i.titel || '')}</div>
+        ${i.text ? `<div class="cd-tl-text">${kiEsc(String(i.text).slice(0, 220))}${String(i.text).length > 220 ? ' …' : ''}</div>` : ''}
+      </div>`;
+    tl.appendChild(row);
+  });
+  container.appendChild(tl);
+  if(list.length > cdVerlaufMax){
+    const more = document.createElement('button'); more.type = 'button'; more.className = 'btn-secondary cd-more';
+    more.textContent = `Weitere anzeigen (${list.length - cdVerlaufMax})`;
+    more.addEventListener('click', ()=>{ cdVerlaufMax += 60; renderCdVerlauf(); });
+    container.appendChild(more);
+  }
+  const hint = document.createElement('div'); hint.className = 'cd-vl-hint';
+  hint.textContent = 'Bearbeiten und Löschen: oben die jeweilige Art wählen (Coachings, Workshops, Einzelgespräche, Tages Ziele). Auf einen Namen klicken öffnet die Mitarbeiterakte.';
+  container.appendChild(hint);
+}
+
 function buildAlertBanner(){
   const now = new Date();
   const allAgents = state.agents.filter(a=>a.name.trim()!=='');
@@ -6092,7 +6297,7 @@ function buildPlanRow(p){
   const themeColor = COACH_THEMEN_COLORS[p.thema] || '#888';
   row.innerHTML = `
     <div class="cp-plan-row-main">
-      <div class="cp-plan-row-name">${p.name}</div>
+      <div class="cp-plan-row-name"><button type="button" class="cd-tl-name" data-akte="${p.agentId || ''}">${p.name}</button></div>
       <div class="cp-plan-row-meta">
         <span class="cat-badge regular">${teamLabel || ''}</span>
         <span class="cp-theme-badge" style="background:${themeColor}22;color:${themeColor};">${p.thema || ''}</span>
@@ -9280,8 +9485,99 @@ function fkOpenCoachingForm(agentId, extra){
   cpShowForm = true;
   cpPrefill = Object.assign({ agentId }, extra || {});
   switchCoachDashSub('coachplan');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// ===== Mitarbeiterakte (v170): alles zu einem Mitarbeiter auf einer Seite =====
+function openAgentAkte(agentId){
+  const agent = (state.agents||[]).find(a => a.id === agentId);
+  if(!agent) return;
+  document.querySelectorAll('.akte-overlay').forEach(o => o.remove());
+  const cfg = TEAM_CONFIGS[agent.team] || { products: [], label: agent.team };
+  const esc = kiEsc;
+  const now = new Date();
+  const fmt1 = v => (Math.round(v*10)/10).toLocaleString('de-DE');
+  // Einträge des Mitarbeiters
+  const eintraege = [];
+  Object.keys(state.coachverlauf || {}).forEach(key=>{
+    const cv = state.coachverlauf[key];
+    if(fkAgentForCv(key, cv) !== agent) return;
+    (cv.eintraege || []).forEach(e => { if(e) eintraege.push(e); });
+  });
+  eintraege.sort((a,b)=> (fkParseDe(b.datum)||0) - (fkParseDe(a.datum)||0));
+  const vereinb = fkVereinbarungen().filter(v => v.agent === agent);
+  const tz = (state.tagesziele||[]).filter(z => z.agentId === agent.id).slice().sort((a,b)=> String(b.datum||'').localeCompare(String(a.datum||''))).slice(0,5);
+
+  // Kennzahlen laufender Monat
+  const targets = agentTargets(agent);
+  const prods = displayOrderProducts([...cfg.products, ...teamExtraProducts(agent.team)], agent.team);
+  const kpi = (lbl, val, ok) => `<div class="akte-kpi${ok === true ? ' ok' : ok === false ? ' bad' : ''}"><span>${lbl}</span><b>${val}</b></div>`;
+  const nps = fkCurVal(agent, 'nps', now), lq = fkCurVal(agent, 'lq', now), calls = fkCurVal(agent, 'calls', now), cht = fkCurVal(agent, 'cht', now);
+  const cr = totalCr(agent);
+  let kpiHtml = kpi('NPS', nps === null ? '–' : fmt1(nps) + ' %', nps === null ? null : nps >= cfg.npsTarget) +
+    kpi('LQ', lq === null ? '–' : fmt1(lq) + ' %', lq === null ? null : lq >= cfg.lqTarget) +
+    kpi('CR', calls ? fmt1(cr) + ' %' : '–', calls ? cr >= cfg.crTarget : null) +
+    kpi('Calls', calls === null ? '–' : Math.round(calls).toLocaleString('de-DE')) +
+    kpi('CHT', cht === null ? '–' : Math.round(cht), cht === null ? null : cht <= 550);
+  const salesHtml = prods.map(p => {
+    const i = cfg.products.indexOf(p), t = i === -1 ? null : targets[i];
+    const v = (agent.sales && agent.sales[p]) || 0;
+    const cls = (t === null || !(t > 0)) ? '' : (v >= t ? 'ok' : v > 0 ? 'mid' : 'bad');
+    return `<div class="akte-prod ${cls}"><span>${esc(productLabel(p, agent.team))}</span><b>${Math.round(v)}${t > 0 ? `<small>/${t}</small>` : ''}</b></div>`;
+  }).join('');
+
+  // Verlauf letzte 6 Monate
+  const rows = [];
+  for(let k = 5; k >= 0; k--){
+    const d = new Date(now.getFullYear(), now.getMonth() - k, 1);
+    const md = agentVerlaufMonat(agent, d.getFullYear(), VL_MONATE[d.getMonth()]);
+    if(!md) continue;
+    const stk = Object.values(md.sales || {}).reduce((a,b)=>a + (typeof b === 'number' ? b : 0), 0);
+    rows.push(`<tr><td>${VL_MONATE[d.getMonth()].slice(0,3)} ${String(d.getFullYear()).slice(2)}</td><td>${md.cr ? fmt1(md.cr) + ' %' : '–'}</td><td>${md.nps ? fmt1(md.nps) + ' %' : '–'}</td><td>${md.calls ? Math.round(md.calls) : '–'}</td><td>${stk || '–'}</td></tr>`);
+  }
+
+  const ov = document.createElement('div'); ov.className = 'chart-overlay cd-modal-overlay akte-overlay';
+  const box = document.createElement('div'); box.className = 'cd-modal akte';
+  const fk = agent.fuehrungskraft ? ' · Führungskraft: ' + esc(agent.fuehrungskraft) : '';
+  box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
+    <div class="akte-head">
+      <div><div class="akte-eyebrow">Mitarbeiterakte</div><div class="akte-name">${esc(agent.name)}</div>
+      <div class="akte-sub">${esc(cfg.label)}${cfg.project ? ' — ' + esc(cfg.project) : ''} · ${esc(CATEGORY_LABELS[agent.category || 'regular'] || agent.category || '')}${fk}${agent.pylon ? ' · Pylon ' + esc(agent.pylon) : ''}</div></div>
+      <div class="akte-actions"></div>
+    </div>
+    <div class="akte-sec"><div class="akte-sec-t">Laufender Monat · ${VL_MONATE[now.getMonth()]}</div><div class="akte-kpis">${kpiHtml}</div><div class="akte-prods">${salesHtml}</div></div>
+    <div class="akte-grid">
+      <div class="akte-sec"><div class="akte-sec-t">Verlauf</div>${rows.length ? `<table class="akte-tbl"><tr><th>Monat</th><th>CR</th><th>NPS</th><th>Calls</th><th>Stück</th></tr>${rows.join('')}</table>` : '<div class="akte-empty">Noch keine Monatsdaten.</div>'}</div>
+      <div class="akte-sec akte-finger"><div class="akte-sec-t">5-Finger-Profil</div></div>
+    </div>
+    <div class="akte-sec"><div class="akte-sec-t">Vereinbarungen</div>${vereinb.length ? vereinb.slice(0,5).map(v => {
+        const st = v.review ? (v.review.status === 'ok' ? '<span class="akte-pill ok">umgesetzt</span>' : v.review.status === 'teilweise' ? '<span class="akte-pill mid">teilweise</span>' : '<span class="akte-pill bad">nicht umgesetzt</span>')
+          : (v.pruef ? `<span class="akte-pill">Prüfung ${fkFmt(v.pruef)}</span>` : '<span class="akte-pill">offen</span>');
+        return `<div class="akte-li"><div>${esc(v.entry.vereinbarung)}</div><div class="akte-li-m">${esc(v.entry.datum || '')}${v.entry.coach ? ' · ' + esc(v.entry.coach) : ''} ${st}</div></div>`;
+      }).join('') : '<div class="akte-empty">Keine Vereinbarungen.</div>'}</div>
+    <div class="akte-grid">
+      <div class="akte-sec"><div class="akte-sec-t">Letzte Coachings & Gespräche</div>${eintraege.length ? eintraege.slice(0,6).map(e => `<div class="akte-li"><div><b>${esc(e.workshopId ? 'Workshop' : e.stil === 'Einzelgespräch' ? 'Einzelgespräch' : 'Coaching')}</b> · ${esc(e.thema || e.workshopTitel || '')}</div><div class="akte-li-m">${esc(e.datum || '')}${e.coach ? ' · ' + esc(e.coach) : ''}${e.text ? ' · ' + esc(String(e.text).slice(0,90)) : ''}</div></div>`).join('') : '<div class="akte-empty">Noch keine Einträge.</div>'}</div>
+      <div class="akte-sec"><div class="akte-sec-t">Tagesziele</div>${tz.length ? tz.map(z => { const ps = Object.keys(z.produkte||{}).filter(p=>z.produkte[p] && z.produkte[p].aktiv); return `<div class="akte-li"><div>${ps.map(p => `${esc(productLabel(p, agent.team))} ${z.erreicht && typeof z.erreicht[p] === 'number' ? z.erreicht[p] : '–'}/${z.produkte[p].anzahl||0}`).join(' · ')}</div><div class="akte-li-m">${z.datum ? new Date(z.datum).toLocaleDateString('de-DE') : ''}</div></div>`; }).join('') : '<div class="akte-empty">Keine Tagesziele.</div>'}</div>
+    </div>`;
+  ov.appendChild(box); document.body.appendChild(ov);
+  const close = ()=> ov.remove();
+  box.querySelector('.cd-modal-x').addEventListener('click', close);
+  ov.addEventListener('mousedown', e=>{ if(e.target === ov) close(); });
+  const fp = buildFingerProfile(eintraege);
+  const fh = box.querySelector('.akte-finger');
+  if(fp) fh.appendChild(fp); else fh.insertAdjacentHTML('beforeend', '<div class="akte-empty">Noch kein Coaching mit Beobachtungsbogen.</div>');
+  const acts = box.querySelector('.akte-actions');
+  const nb = document.createElement('button'); nb.type = 'button'; nb.className = 'primary'; nb.textContent = '+ Coaching';
+  nb.addEventListener('click', ()=>{ close(); if(currentTab !== 'coachdash') switchTab('coachdash'); fkOpenCoachingForm(agent.id); });
+  acts.appendChild(nb);
+  try{ const kb = kiPrepButton(agent.id, 'btn-secondary'); kb.addEventListener('click', close); acts.appendChild(kb); }catch(e){}
+}
+document.addEventListener('click', e=>{
+  const el = e.target.closest && e.target.closest('[data-akte]');
+  if(!el || !el.dataset.akte) return;
+  e.preventDefault(); e.stopPropagation();
+  openAgentAkte(el.dataset.akte);
+}, true);
+
 // Anzahl fälliger Überprüfungen im Reiter-Button anzeigen
 function updateFokusBadge(){
   const btn = document.getElementById('sub-fokus');
@@ -9289,7 +9585,7 @@ function updateFokusBadge(){
   const today = fkIsoDate(new Date());
   const lf = fkGetLeaderFilter();
   const n = fkVereinbarungen().filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) <= today && v.agent && fkMatchesLeader(v.agent, lf)).length;
-  btn.innerHTML = '<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5M9 3h6l-1 6 4 4H6l4-4z"/></svg><span>Fokus der Woche</span>' + (n ? ` <span class="fk-badge">${n}</span>` : '');
+  btn.innerHTML = '<svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5M9 3h6l-1 6 4 4H6l4-4z"/></svg><span>Diese Woche</span>' + (n ? ` <span class="fk-badge">${n}</span>` : '');
 }
 
 let fkTeamFilter = 'alle';
@@ -9337,7 +9633,7 @@ function renderFokus(){
     const w = fkWirkung(v.agent, v.coachDate, v.entry.fokusProdukt || null);
     card.innerHTML = `
       <div class="fk-card-top">
-        <div><div class="fk-name">${v.agent.name}</div>
+        <div><div class="fk-name"><button type="button" class="cd-tl-name" data-akte="${v.agent.id}">${v.agent.name}</button></div>
         <div class="fk-meta">${TEAM_CONFIGS[v.agent.team]?.label || ''} · Coaching am ${fkFmt(v.coachDate)}${v.entry.coach ? ' von ' + v.entry.coach : ''} · fällig ${overdue > 0 ? 'seit ' + overdue + ' Tag' + (overdue>1?'en':'') : 'heute'}</div></div>
       </div>
       <div class="fk-vereinbarung">🤝 ${v.entry.vereinbarung}</div>
@@ -9431,7 +9727,7 @@ function renderFokus(){
     card.innerHTML = `
       <div class="fk-card-top">
         <div class="fk-rank">${idx+1}</div>
-        <div style="flex:1;min-width:0;"><div class="fk-name">${r.agent.name}${r.agent.category && r.agent.category !== 'regular' ? ` <span class="hr-cat">${CATEGORY_LABELS[r.agent.category] || r.agent.category}</span>` : ''}</div>
+        <div style="flex:1;min-width:0;"><div class="fk-name"><button type="button" class="cd-tl-name" data-akte="${r.agent.id}">${r.agent.name}</button>${r.agent.category && r.agent.category !== 'regular' ? ` <span class="hr-cat">${CATEGORY_LABELS[r.agent.category] || r.agent.category}</span>` : ''}</div>
         <div class="fk-meta">${TEAM_CONFIGS[r.agent.team]?.label || ''}${r.onTrack !== null ? ` · auf Kurs bei ${r.onTrack}/${r.nT} Zielen` : ''}${r.notes.length ? ' · ' + r.notes.join(' · ') : ''}</div></div>
       </div>
       <div class="fk-reasons">${r.reasons.map(x=>`<span class="fk-reason ${x.cls}">${x.text}</span>`).join('')}</div>`;
@@ -12183,6 +12479,76 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .mz-noziel input.mz-pname{border-style:dashed;}
 .mz-na{color:var(--muted);}
 .mz-btns{display:flex;gap:8px;}
+
+/* ===== Coaching Dashboard v170 ===== */
+.cd-hidden-sub{display:none!important;}
+#cd-form-overlay .cd-modal{width:min(820px,100%);}
+#cd-form-overlay #coachplan-container > *{max-width:none!important;width:100%!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box;}
+.subtabs .cd-new-wrap{display:flex;gap:8px;align-items:center;}
+.cd-gear{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--muted);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;}
+.cd-gear:hover,.cd-gear.active{color:var(--tmg);border-color:var(--tmg);}
+.cd-gear .nav-ic{width:18px;height:18px;}
+.cd-modal-overlay{position:fixed;inset:0;z-index:2500;display:flex;align-items:flex-start;justify-content:center;padding:36px 16px;overflow-y:auto;}
+.cd-modal{position:relative;background:var(--bg);border-radius:16px;width:min(980px,100%);padding:26px 24px 22px;box-shadow:0 30px 70px -20px rgba(0,0,0,.45);}
+.cd-modal-x{position:absolute;top:12px;right:14px;width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--panel);color:var(--muted);font-size:20px;line-height:1;cursor:pointer;z-index:2;}
+.cd-modal-x:hover{color:var(--text);border-color:var(--text);}
+.cd-overdue{font-style:normal;font-size:11px;color:var(--red);background:var(--red-soft);padding:2px 8px;border-radius:999px;margin-left:6px;}
+.cd-vl-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.cd-cnt{font:600 10.5px 'IBM Plex Mono',monospace;opacity:.7;margin-left:2px;}
+.cd-vl-filt{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+.cd-vl-search{margin-left:auto;min-width:220px;padding:8px 12px;border:1px solid var(--border);border-radius:9px;background:var(--panel);color:var(--text);font:500 13px 'Inter',sans-serif;}
+.cd-tl{position:relative;}
+.cd-tl-month{font:600 11px 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:18px 0 8px 64px;}
+.cd-tl-row{display:grid;grid-template-columns:52px 18px minmax(0,1fr);gap:0 10px;align-items:start;}
+.cd-tl-date{font:600 12px 'IBM Plex Mono',monospace;color:var(--muted);text-align:right;padding-top:12px;}
+.cd-tl-dot{position:relative;align-self:stretch;}
+.cd-tl-dot::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border);}
+.cd-tl-dot::after{content:'';position:absolute;left:3px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--tl-c,var(--muted));box-shadow:0 0 0 3px var(--bg);}
+.cd-t-coaching{--tl-c:var(--tmg);} .cd-t-workshop{--tl-c:#5B6FA6;} .cd-t-einzel{--tl-c:var(--teal);} .cd-t-tagesziel{--tl-c:#B9770E;}
+.cd-tl-body{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin:4px 0;min-width:0;}
+.cd-tl-head{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.cd-tl-typ{font:700 10px 'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--tl-c);}
+.cd-tl-name{background:none;border:0;padding:0;font:700 14px 'Inter',sans-serif;color:var(--text);cursor:pointer;text-align:left;}
+.cd-tl-name:hover{color:var(--tmg);text-decoration:underline;text-underline-offset:3px;}
+.cd-tl-name-plain{font:700 14px 'Inter',sans-serif;}
+.cd-tl-meta{font:500 12px 'Inter',sans-serif;color:var(--muted);}
+.cd-tl-title{font:600 13px 'Inter',sans-serif;color:var(--text);margin-top:3px;}
+.cd-tl-text{font:400 12.5px 'Inter',sans-serif;color:var(--muted);margin-top:3px;line-height:1.45;overflow-wrap:anywhere;}
+.cd-more{margin:14px 0 0 64px;}
+.cd-vl-hint{font:500 11.5px 'Inter',sans-serif;color:var(--muted);margin:16px 0 0 64px;}
+.fk-name .cd-tl-name,.cp-plan-row-name .cd-tl-name{font-size:inherit;}
+.akte{padding-top:22px;}
+.akte-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:flex-end;margin:0 40px 16px 0;}
+.akte-eyebrow{font:600 10.5px 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--tmg);}
+.akte-name{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.01em;}
+.akte-sub{font:500 13px 'Inter',sans-serif;color:var(--muted);margin-top:2px;}
+.akte-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.akte-sec{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:12px;min-width:0;}
+.akte-sec-t{font:600 11px 'Inter',sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.akte-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.akte-grid .akte-sec{margin-bottom:12px;}
+.akte-kpis{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.akte-kpi{border:1px solid var(--border);border-radius:9px;padding:6px 12px;display:flex;flex-direction:column;min-width:76px;}
+.akte-kpi span{font:600 10px 'Inter',sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
+.akte-kpi b{font:700 16px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+.akte-kpi.ok b{color:var(--good);} .akte-kpi.bad b{color:var(--bad);}
+.akte-prods{display:flex;gap:6px;flex-wrap:wrap;}
+.akte-prod{display:flex;flex-direction:column;align-items:center;border-radius:8px;padding:5px 10px;background:var(--kpi-bg);min-width:54px;}
+.akte-prod span{font:600 10px 'Inter',sans-serif;color:var(--muted);}
+.akte-prod b{font:700 15px 'IBM Plex Mono',monospace;}
+.akte-prod small{font-size:10px;color:var(--muted);font-weight:500;}
+.akte-prod.ok b{color:var(--good);} .akte-prod.mid b{color:var(--warn);} .akte-prod.bad b{color:var(--bad);}
+.akte-tbl{width:100%;border-collapse:collapse;font:500 12.5px 'Inter',sans-serif;font-variant-numeric:tabular-nums;}
+.akte-tbl th{font-size:10.5px;color:var(--muted);text-align:right;font-weight:600;padding:4px 6px;border-bottom:1px solid var(--border);}
+.akte-tbl td{text-align:right;padding:5px 6px;border-bottom:1px solid var(--border);}
+.akte-tbl th:first-child,.akte-tbl td:first-child{text-align:left;}
+.akte-li{padding:7px 0;border-bottom:1px dashed var(--border);font:500 13px 'Inter',sans-serif;}
+.akte-li:last-child{border-bottom:0;}
+.akte-li-m{font-size:11.5px;color:var(--muted);margin-top:2px;}
+.akte-pill{display:inline-block;font:600 10px 'Inter',sans-serif;padding:1px 7px;border-radius:999px;background:var(--kpi-bg);color:var(--muted);margin-left:4px;}
+.akte-pill.ok{background:var(--good-soft);color:var(--good);} .akte-pill.mid{background:var(--warn-soft);color:var(--warn);} .akte-pill.bad{background:var(--bad-soft);color:var(--bad);}
+.akte-empty{font:500 12.5px 'Inter',sans-serif;color:var(--muted);}
+@media (max-width: 760px){ .akte-grid{grid-template-columns:1fr;} .cd-vl-search{margin-left:0;width:100%;} .cd-tl-month,.cd-more,.cd-vl-hint{margin-left:0;} }
 /* ===== Monatsabschluss ===== */
 .ma-charts-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .ma-chart-box{min-width:0!important;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);padding:16px 18px 10px!important;}
