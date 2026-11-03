@@ -1268,7 +1268,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 171;
+const BOARD_VERSION = 172;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -7219,8 +7219,9 @@ function renderVerlauf(){
     // Tabelle mit allen Monaten
     const t = document.createElement('table');
     t.className = 'vl-table';
-    const prods = cfg.products;
-    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>CR</th><th>Calls</th><th>CHT</th><th>NPS</th><th>Trend</th></tr>`;
+    // v172: auch Produkte ohne Stückziel (z.B. DA) anzeigen, in Anzeige-Reihenfolge und mit Anzeigenamen
+    const prods = displayOrderProducts([...cfg.products, ...teamExtraProducts(teamId)], teamId);
+    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${productLabel(p, teamId)}</th>`).join('')}<th>CR</th><th>Calls</th><th>CHT</th><th>NPS</th><th>Trend</th></tr>`;
     monate.forEach(m => withMonatsZiele(maYmAusMonatKey(m), () => {
       // v169: jede Zeile mit den Zielen, die in diesem Monat galten
       const mcfg = TEAM_CONFIGS[teamId];
@@ -7231,8 +7232,10 @@ function renderVerlauf(){
       const tr = document.createElement('tr');
       let html = `<td>${m.includes('-') ? m.split('-')[1]+' '+m.split('-')[0] : m}</td>`;
       prods.forEach((p,i) => {
-        const val = (md.sales && md.sales[p]) || 0;
+        const roh = md.sales ? md.sales[p] : undefined;
         const ti = mcfg.products.indexOf(p);
+        if(ti === -1 && (roh === undefined || roh === null)){ html += `<td><span class="vl-badge" title="Für diesen Monat nicht erfasst">–</span></td>`; return; }
+        const val = roh || 0;
         const tgt = ti === -1 ? null : mTargets[ti];
         const cls = (tgt === null || !(tgt > 0)) ? (val > 0 ? 'ok' : '') : (val >= tgt ? 'ok' : val > 0 ? 'mid' : 'bad');
         html += `<td><span class="vl-badge ${cls}">${Math.round(val)}</span></td>`;
