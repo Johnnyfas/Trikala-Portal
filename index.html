@@ -1180,7 +1180,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 168;
+const BOARD_VERSION = 169;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -3800,6 +3800,12 @@ function renderHallOfFame(){
 
   // Prüfe ob ein MA die Hall of Fame Kriterien erfüllt
   function checkHOF(agent, monatKey){
+    // v169: vergangene Monate mit den damals gültigen Zielen prüfen
+    if(monatKey !== aktuellerMonatKey && !checkHOF._inMonat) {
+      checkHOF._inMonat = true;
+      try{ return withMonatsZiele(maYmAusMonatKey(monatKey), () => checkHOF(agent, monatKey)); }
+      finally{ checkHOF._inMonat = false; }
+    }
     let md;
     if(monatKey === aktuellerMonatKey){
       // Aktueller Monat: Live-Daten aus dem Monatsstand
@@ -6990,16 +6996,20 @@ function renderVerlauf(){
     t.className = 'vl-table';
     const prods = cfg.products;
     t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${p}</th>`).join('')}<th>CR</th><th>Calls</th><th>CHT</th><th>NPS</th><th>Trend</th></tr>`;
-    monate.forEach(m => {
+    monate.forEach(m => withMonatsZiele(maYmAusMonatKey(m), () => {
+      // v169: jede Zeile mit den Zielen, die in diesem Monat galten
+      const mcfg = TEAM_CONFIGS[teamId];
+      const mTargets = agentTargets({team:teamId, category:agentCategoryForCharts});
       const md = agentData.monate[m];
       const cr = md.cr || 0;
-      const crOk = cr >= cfg.crTarget;
+      const crOk = cr >= mcfg.crTarget;
       const tr = document.createElement('tr');
       let html = `<td>${m.includes('-') ? m.split('-')[1]+' '+m.split('-')[0] : m}</td>`;
       prods.forEach((p,i) => {
         const val = (md.sales && md.sales[p]) || 0;
-        const tgt = agentTargets({team:teamId, category:agentCategoryForCharts})[i];
-        const cls = val >= tgt ? 'ok' : val > 0 ? 'mid' : 'bad';
+        const ti = mcfg.products.indexOf(p);
+        const tgt = ti === -1 ? null : mTargets[ti];
+        const cls = (tgt === null || !(tgt > 0)) ? (val > 0 ? 'ok' : '') : (val >= tgt ? 'ok' : val > 0 ? 'mid' : 'bad');
         html += `<td><span class="vl-badge ${cls}">${Math.round(val)}</span></td>`;
       });
       html += `<td><span class="vl-badge ${crOk?'ok':'bad'}">${cr.toFixed(2)}%</span></td>`;
@@ -7007,7 +7017,7 @@ function renderVerlauf(){
       const chtVal = (md.cht === null || md.cht === undefined) ? null : md.cht;
       const chtCls = chtVal === null ? '' : (chtVal <= 550 ? 'ok' : chtVal <= 680 ? 'mid' : 'bad');
       html += `<td><span class="vl-badge ${chtCls}">${chtVal === null ? '–' : Math.round(chtVal)}</span></td>`;
-      html += `<td><span class="vl-badge ${(md.nps||0)>=cfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
+      html += `<td><span class="vl-badge ${(md.nps||0)>=mcfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
       // Trend: Vergleich mit Vormonat
       const prevM = monate[monate.indexOf(m)-1];
       let trendHtml = '<span class="trend-flat">—</span>';
@@ -7023,7 +7033,7 @@ function renderVerlauf(){
       html += `<td>${trendHtml}</td>`;
       tr.innerHTML = html;
       t.appendChild(tr);
-    });
+    }));
     teamBlock.appendChild(t);
     container.appendChild(teamBlock);
   });
@@ -10439,8 +10449,35 @@ function ovFitColumns(){
 const MA_KAT_DEFAULT = [ {key:'regular', label:'Standard', faktor:1}, {key:'6h', label:'6-Stündler', faktor:0.75}, {key:'helpline', label:'Helpline', faktor:1} ];
 const MA_KAT_FIX = { schulung: '📚 Schulung', work: '🏗️ Work' };   // Sonderstatus, keine Ziele
 let MA_KAT_DEFAULT_LABELS = null, MA_PROD_DEFAULTS = null;
+// v169: Ziele gelten ab dem Monat, in dem sie geändert wurden. Jede gespeicherte Änderung legt in
+// state.maZiele._hist['JJJJ-MM'] eine Kopie ab; ältere Monate werden mit der damals gültigen Fassung bewertet
+// (gibt es für einen Monat keine Fassung, gelten die ursprünglichen Vorgaben).
+let maAktivQuelle = null;   // gesetzt, solange ein Vormonat mit seinen damaligen Zielen ausgewertet wird
+function maQuelle(){ return maAktivQuelle || (state && state.maZiele) || {}; }
+function maYm(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0'); }
+function maYmAusMonatKey(key){   // '2026-Oktober' → '2026-10'
+  const [j, m] = String(key).split('-'); const i = VL_MONATE.indexOf(m);
+  return i === -1 ? null : j + '-' + String(i+1).padStart(2,'0');
+}
+function maZieleFuerMonat(ym){
+  const cur = (state && state.maZiele) || {};
+  if(!ym || ym >= maYm(new Date())) return cur;
+  const hist = cur._hist || {};
+  const keys = Object.keys(hist).filter(k => k <= ym).sort();
+  if(!keys.length) return {};                       // vor der ersten Änderung: ursprüngliche Vorgaben
+  try{ return JSON.parse(hist[keys[keys.length-1]]) || {}; }catch(e){ return {}; }
+}
+// fn mit den Zielen des Monats ym ausführen (TEAM_CONFIGS wird kurz umgestellt und danach zurückgesetzt)
+function withMonatsZiele(ym, fn){
+  if(!ym || ym >= maYm(new Date())) return fn();
+  const vorher = maAktivQuelle;
+  maAktivQuelle = maZieleFuerMonat(ym);
+  applyMaZiele();
+  try{ return fn(); }
+  finally{ maAktivQuelle = vorher; applyMaZiele(); }
+}
 function maKategorien(){
-  const z = state && state.maZiele;
+  const z = maQuelle();
   const k = z && Array.isArray(z._kategorien) && z._kategorien.length ? z._kategorien : MA_KAT_DEFAULT;
   return k.filter(c => c && c.key);
 }
@@ -10460,7 +10497,7 @@ function maDefaultProdukte(t){
   }));
 }
 function maProdukte(t){
-  const o = state && state.maZiele && state.maZiele[t];
+  const o = maQuelle()[t];
   return (o && Array.isArray(o.produkte) && o.produkte.length) ? o.produkte.filter(p => p && p.key) : maDefaultProdukte(t);
 }
 function maDefaultZiel(t, cat, p){
@@ -10478,7 +10515,12 @@ function applyMaZiele(){
   Object.keys(CATEGORY_LABELS).forEach(k => { if(!MA_KAT_FIX[k]) delete CATEGORY_LABELS[k]; });
   kats.forEach(c => { CATEGORY_LABELS[c.key] = c.label || c.key; if(!CATEGORY_CSS[c.key]) CATEGORY_CSS[c.key] = 'regular'; });
   Object.assign(CATEGORY_LABELS, MA_KAT_FIX);
-  const all = (state && state.maZiele) || {};
+  // Bestehende Ziele ohne Verlauf (gespeichert vor v169) gelten ab dem laufenden Monat
+  if(!maAktivQuelle && state && state.maZiele && !state.maZiele._hist && Object.keys(state.maZiele).some(k => k !== '_hist' && state.maZiele[k] && Object.keys(state.maZiele[k]).length)){
+    const kopie = Object.assign({}, state.maZiele); delete kopie._hist;
+    state.maZiele._hist = { [maYm(new Date())]: JSON.stringify(kopie) };
+  }
+  const all = maQuelle();
   Object.keys(TEAM_CONFIGS).forEach(t=>{
     const def = TEAM_CONFIGS_DEFAULT[t], cfg = TEAM_CONFIGS[t], o = all[t] || {};
     if(!def) return;
@@ -10525,7 +10567,7 @@ function openMaZieleEditor(){
 
   function render(){
     const scroll = ov.scrollTop;
-    let h = `<div class="mz-head"><div><div class="mz-title">Mitarbeiter-Ziele bearbeiten</div><div class="mz-sub">Kategorien, Produkte und Monatsziele pro Mitarbeiter. Gilt nach dem Speichern sofort im ganzen Board und für alle Führungskräfte.</div></div><button class="mz-x" type="button" aria-label="Schließen">×</button></div>`;
+    let h = `<div class="mz-head"><div><div class="mz-title">Mitarbeiter-Ziele bearbeiten</div><div class="mz-sub">Kategorien, Produkte und Monatsziele pro Mitarbeiter. Gilt ab dem laufenden Monat (${VL_MONATE[new Date().getMonth()]} ${new Date().getFullYear()}) im ganzen Board und für alle Führungskräfte – Vormonate behalten ihre damaligen Ziele.</div></div><button class="mz-x" type="button" aria-label="Schließen">×</button></div>`;
     // ---- Kategorien ----
     h += `<div class="mz-team"><div class="mz-team-h"><b>Kategorien</b><span class="mz-mini">für beide Teams</span></div>
       <div class="mz-kat-list">` + draft.kats.map((c, i) => {
@@ -10648,11 +10690,14 @@ function openMaZieleEditor(){
       ['crTarget','npsTarget','lqTarget'].forEach(k => { const v = d.kpi[k]; if(v > 0 && v !== def[k]) o[k] = v; });
       state.maZiele[t] = o;
     });
+    // Fassung für den laufenden Monat ablegen – Vormonate behalten ihre damaligen Ziele
+    const kopie = Object.assign({}, state.maZiele); delete kopie._hist;
+    state.maZiele._hist = Object.assign({}, state.maZiele._hist || {}, { [maYm(new Date())]: JSON.stringify(kopie) });
     applyMaZiele();
     scheduleSave();
     ov.remove();
     renderAll();
-    if(window.fxToast) fxToast('Mitarbeiter-Ziele gespeichert' + (verschoben ? ` · ${verschoben} MA zu ${kats[0].label} verschoben` : ''));
+    if(window.fxToast) fxToast('Mitarbeiter-Ziele gespeichert (gilt ab ' + VL_MONATE[new Date().getMonth()] + ')' + (verschoben ? ` · ${verschoben} MA zu ${kats[0].label} verschoben` : ''));
   }
   render();
 }
@@ -10691,6 +10736,10 @@ function renderOvMonthSwitch(){
 }
 
 function renderOverview(){
+  const _mi = ovMonthInfo();
+  return withMonatsZiele(_mi.prev ? maYm(_mi.d) : null, renderOverviewInner);
+}
+function renderOverviewInner(){
   renderOvMonthSwitch();
   const ovMi = ovMonthInfo();
   const container = document.getElementById('overview-capture');
