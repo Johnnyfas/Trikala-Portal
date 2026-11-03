@@ -588,7 +588,7 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 /* Mitarbeiter Ziele: Monatswahl + Stand im Team-Kopf (v166) */
 .ov-month-switch{display:flex;gap:8px;flex-wrap:wrap;font-family:'Inter',sans-serif;}
 .ov-stand{font:600 12px 'Inter',sans-serif;color:rgba(255,255,255,.7);}
-.ov-stand-end{color:#fff;background:var(--tmg);padding:4px 10px;border-radius:999px;}
+.ov-stand-end{color:#fff;background:#B9770E;padding:4px 10px;border-radius:999px;}
 
 /* Mitarbeiter-Ziele bearbeiten (v167) */
 .mz-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
@@ -712,6 +712,26 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .akte-pill.ok{background:var(--good-soft);color:var(--good);} .akte-pill.mid{background:var(--warn-soft);color:var(--warn);} .akte-pill.bad{background:var(--bad-soft);color:var(--bad);}
 .akte-empty{font:500 12.5px 'Inter',sans-serif;color:var(--muted);}
 @media (max-width: 760px){ .akte-grid{grid-template-columns:1fr;} .cd-vl-search{margin-left:0;width:100%;} .cd-tl-month,.cd-more,.cd-vl-hint{margin-left:0;} }
+
+/* Monatsauswahl v171: Vormonat klein & klar abgesetzt, Vormonat-Ansicht orange markiert */
+.tw-monthtabs{align-items:center;}
+.tw-monthtab.tw-mt-prev{flex-direction:row;align-items:center;gap:6px;padding:5px 11px;border-style:dashed;background:transparent!important;border-radius:999px;color:var(--muted);}
+.tw-monthtab.tw-mt-prev b{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--muted);}
+.tw-monthtab.tw-mt-prev span{font-size:11.5px;}
+.tw-mt-ico{font-size:13px!important;line-height:1;}
+.tw-monthtab.tw-mt-prev:hover{border-color:#B9770E;color:#8A5A00;}
+.tw-monthtab.tw-mt-prev.active{border-style:solid;border-color:#B9770E;background:#FCF1DF!important;box-shadow:0 0 0 2px rgba(185,119,14,.18);}
+.tw-monthtab.tw-mt-prev.active b,.tw-monthtab.tw-mt-prev.active span{color:#8A5A00!important;}
+.tw-monthtab.tw-mt-cur:not(.active){opacity:.75;}
+.tw-prev-banner{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#FCF1DF!important;border:1px solid #E8B964!important;border-left:5px solid #B9770E!important;color:#6B4708!important;}
+.tw-prev-txt{flex:1;min-width:240px;}
+.tw-prev-back{background:#B9770E;color:#fff;border:0;border-radius:8px;padding:7px 12px;font:600 12.5px 'Inter',sans-serif;cursor:pointer;white-space:nowrap;}
+.tw-prev-back:hover{background:#8A5A00;}
+#overview-capture.is-prev-month{border-top-color:#B9770E!important;}
+#tageswerte-capture.is-prev-month .tw-team-head{background:#6B4708!important;}
+html[data-fx-theme="dark"] .tw-prev-banner{background:#33270F!important;color:#F3D3A8!important;border-color:#5A4321!important;border-left-color:#E5A54B!important;}
+html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active{background:#33270F!important;}
+html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active b,html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active span{color:#F3D3A8!important;}
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
@@ -1248,7 +1268,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 170;
+const BOARD_VERSION = 171;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -8872,17 +8892,8 @@ function renderTageswerte(){
   const viewMonatName = viewDate.toLocaleString('de-DE', {month:'long', year:'numeric'});
 
   // === Monats-Auswahl: Vormonat (Nachträge) / laufender Monat ===
-  const monthTabs = document.createElement('div');
-  monthTabs.className = 'tw-monthtabs';
-  [[-1, 'Vormonat · Nachträge'], [0, 'laufender Monat']].forEach(([off, lbl])=>{
-    const d = new Date(now.getFullYear(), now.getMonth() + off, 1);
-    const b = document.createElement('button');
-    b.className = 'tw-monthtab' + (twMonthOffset === off ? ' active' : '');
-    b.innerHTML = `<b>${d.toLocaleString('de-DE', {month:'long', year:'numeric'})}</b><span>${lbl}</span>`;
-    b.addEventListener('click', ()=>{ if(twMonthOffset === off) return; twMonthOffset = off; twSelectedDay = 'total'; renderTageswerte(); });
-    monthTabs.appendChild(b);
-  });
-  container.appendChild(monthTabs);
+  container.appendChild(buildMonthSwitch(()=>renderTageswerte(), 'Vormonat · Nachträge'));
+  container.classList.toggle('is-prev-month', isPrev);
   const resetBtn = document.getElementById('tw-reset-btn');
   if(resetBtn){
     resetBtn.disabled = isPrev;
@@ -8890,9 +8901,7 @@ function renderTageswerte(){
     resetBtn.title = isPrev ? 'Im Vormonat nicht möglich' : '';
   }
   if(isPrev){
-    const pv = document.createElement('div');
-    pv.className = 'tw-prev-banner';
-    pv.innerHTML = `<b>Du bearbeitest den abgeschlossenen Monat ${viewMonatName}.</b> Hier kannst du fehlende Tage nachtragen und im Monatsstand die endgültigen Werte (Calls, CHT, NPS, LQ) eintragen oder per „📥 Datei importieren“ übernehmen. Alles wird im Mitarbeiter-Verlauf von ${viewMonatName} gespeichert und erscheint in Hall of Fame, Mitarbeiter Verlauf und Monatsabschluss-Diagrammen. Der laufende Monat bleibt unberührt.`;
+    const pv = buildPrevBanner(`<b>Achtung: Vormonat ${viewMonatName} – nicht der laufende Monat.</b> Hier kannst du fehlende Tage nachtragen und im Monatsstand die endgültigen Werte (Calls, CHT, NPS, LQ) eintragen oder per „📥 Datei importieren“ übernehmen. Alles wird im Mitarbeiter-Verlauf von ${viewMonatName} gespeichert und erscheint in Hall of Fame, Mitarbeiter Verlauf und Monatsabschluss-Diagrammen. Der laufende Monat bleibt unberührt.`, ()=>renderTageswerte());
     container.appendChild(pv);
   }
 
@@ -11015,20 +11024,41 @@ function ovAgentView(agent){
   const num = v => (typeof v === 'number' && v > 0) ? v : null;
   return Object.assign({}, agent, { sales: Object.assign({}, md.sales || {}), nps: num(md.nps), lq: num(md.lq), calls: num(md.calls), cht: num(md.cht), _crFix: num(md.cr) });
 }
+// v171: Monatsauswahl – laufender Monat groß, Vormonat als kleiner Nebenknopf (nicht verwechselbar)
+function buildMonthSwitch(onSelect, prevLbl){
+  const now = new Date();
+  const wrap = document.createElement('div');
+  wrap.className = 'tw-monthtabs';
+  [[0, 'Laufender Monat'], [-1, prevLbl]].forEach(([off, lbl])=>{
+    const d = new Date(now.getFullYear(), now.getMonth() + off, 1);
+    const b = document.createElement('button'); b.type = 'button';
+    b.className = 'tw-monthtab ' + (off === 0 ? 'tw-mt-cur' : 'tw-mt-prev') + (twMonthOffset === off ? ' active' : '');
+    b.innerHTML = off === 0
+      ? `<b>${VL_MONATE[d.getMonth()]} ${d.getFullYear()}</b><span>${lbl}</span>`
+      : `<span class="tw-mt-ico">↩</span><span><b>${VL_MONATE[d.getMonth()]} ${d.getFullYear()}</b> · ${lbl}</span>`;
+    b.title = off === 0 ? 'Aktueller Monat' : 'Abgeschlossener Vormonat anzeigen';
+    b.addEventListener('click', ()=>{ if(twMonthOffset === off) return; twMonthOffset = off; twSelectedDay = 'total'; onSelect(); });
+    wrap.appendChild(b);
+  });
+  return wrap;
+}
+function buildPrevBanner(text, onBack){
+  const pv = document.createElement('div');
+  pv.className = 'tw-prev-banner';
+  const now = new Date();
+  pv.innerHTML = `<div class="tw-prev-txt">${text}</div>`;
+  const back = document.createElement('button'); back.type = 'button'; back.className = 'tw-prev-back';
+  back.textContent = '← Zurück zu ' + VL_MONATE[now.getMonth()] + ' ' + now.getFullYear();
+  back.addEventListener('click', ()=>{ twMonthOffset = 0; twSelectedDay = 'total'; onBack(); });
+  pv.appendChild(back);
+  return pv;
+}
 function renderOvMonthSwitch(){
   const host = document.getElementById('ov-count');
   if(!host) return;
-  const now = new Date();
   host.innerHTML = '';
   host.className = 'ov-month-switch';
-  [{off:0, lbl:'Laufender Monat'}, {off:-1, lbl:'Vormonat · Endstand'}].forEach(o=>{
-    const d = new Date(now.getFullYear(), now.getMonth() + o.off, 1);
-    const b = document.createElement('button'); b.type = 'button';
-    b.className = 'tw-monthtab' + (twMonthOffset === o.off ? ' active' : '');
-    b.innerHTML = `<b>${VL_MONATE[d.getMonth()]} ${d.getFullYear()}</b><span>${o.lbl}</span>`;
-    b.addEventListener('click', ()=>{ if(twMonthOffset === o.off) return; twMonthOffset = o.off; twSelectedDay = 'total'; renderOverview(); });
-    host.appendChild(b);
-  });
+  host.appendChild(buildMonthSwitch(()=>renderOverview(), 'Vormonat · Endstand'));
 }
 
 function renderOverview(){
@@ -11046,6 +11076,12 @@ function renderOverviewInner(){
   container.appendChild(watermark);
   const title = document.createElement('div');
   const standTxt = ovMi.prev ? `Monatsendstand ${ovMi.label}` : `Stand ${new Date().toLocaleDateString('de-DE')}`;
+  container.classList.toggle('is-prev-month', ovMi.prev);
+  const ovOuter = document.getElementById('ov-ziele-container');
+  const oldB = ovOuter && ovOuter.querySelector(':scope > .tw-prev-banner'); if(oldB) oldB.remove();
+  if(ovMi.prev && ovOuter){
+    ovOuter.insertBefore(buildPrevBanner(`<b>Achtung: Vormonat ${ovMi.label} – Monatsendstand, nicht der laufende Monat.</b> Bewertet mit den Zielen, die im ${ovMi.name} galten.`, ()=>renderOverview()), container);
+  }
   title.innerHTML = `<div class="ov-title">Team-Übersicht — Vertrieb &amp; Gesamt-CR</div><div class="ov-sub">Inbound Mobilfunk &amp; Festnetz Privatkunden · ${standTxt}</div>`;
   container.appendChild(title);
 
@@ -12425,7 +12461,7 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 /* Mitarbeiter Ziele: Monatswahl + Stand im Team-Kopf (v166) */
 .ov-month-switch{display:flex;gap:8px;flex-wrap:wrap;font-family:'Inter',sans-serif;}
 .ov-stand{font:600 12px 'Inter',sans-serif;color:rgba(255,255,255,.7);}
-.ov-stand-end{color:#fff;background:var(--tmg);padding:4px 10px;border-radius:999px;}
+.ov-stand-end{color:#fff;background:#B9770E;padding:4px 10px;border-radius:999px;}
 
 /* Mitarbeiter-Ziele bearbeiten (v167) */
 .mz-overlay{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;}
@@ -12549,6 +12585,26 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 .akte-pill.ok{background:var(--good-soft);color:var(--good);} .akte-pill.mid{background:var(--warn-soft);color:var(--warn);} .akte-pill.bad{background:var(--bad-soft);color:var(--bad);}
 .akte-empty{font:500 12.5px 'Inter',sans-serif;color:var(--muted);}
 @media (max-width: 760px){ .akte-grid{grid-template-columns:1fr;} .cd-vl-search{margin-left:0;width:100%;} .cd-tl-month,.cd-more,.cd-vl-hint{margin-left:0;} }
+
+/* Monatsauswahl v171: Vormonat klein & klar abgesetzt, Vormonat-Ansicht orange markiert */
+.tw-monthtabs{align-items:center;}
+.tw-monthtab.tw-mt-prev{flex-direction:row;align-items:center;gap:6px;padding:5px 11px;border-style:dashed;background:transparent!important;border-radius:999px;color:var(--muted);}
+.tw-monthtab.tw-mt-prev b{font-family:'Inter',sans-serif;font-size:12px;font-weight:600;color:var(--muted);}
+.tw-monthtab.tw-mt-prev span{font-size:11.5px;}
+.tw-mt-ico{font-size:13px!important;line-height:1;}
+.tw-monthtab.tw-mt-prev:hover{border-color:#B9770E;color:#8A5A00;}
+.tw-monthtab.tw-mt-prev.active{border-style:solid;border-color:#B9770E;background:#FCF1DF!important;box-shadow:0 0 0 2px rgba(185,119,14,.18);}
+.tw-monthtab.tw-mt-prev.active b,.tw-monthtab.tw-mt-prev.active span{color:#8A5A00!important;}
+.tw-monthtab.tw-mt-cur:not(.active){opacity:.75;}
+.tw-prev-banner{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#FCF1DF!important;border:1px solid #E8B964!important;border-left:5px solid #B9770E!important;color:#6B4708!important;}
+.tw-prev-txt{flex:1;min-width:240px;}
+.tw-prev-back{background:#B9770E;color:#fff;border:0;border-radius:8px;padding:7px 12px;font:600 12.5px 'Inter',sans-serif;cursor:pointer;white-space:nowrap;}
+.tw-prev-back:hover{background:#8A5A00;}
+#overview-capture.is-prev-month{border-top-color:#B9770E!important;}
+#tageswerte-capture.is-prev-month .tw-team-head{background:#6B4708!important;}
+html[data-fx-theme="dark"] .tw-prev-banner{background:#33270F!important;color:#F3D3A8!important;border-color:#5A4321!important;border-left-color:#E5A54B!important;}
+html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active{background:#33270F!important;}
+html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active b,html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active span{color:#F3D3A8!important;}
 /* ===== Monatsabschluss ===== */
 .ma-charts-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .ma-chart-box{min-width:0!important;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);padding:16px 18px 10px!important;}
