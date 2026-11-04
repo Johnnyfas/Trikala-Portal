@@ -732,6 +732,13 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 html[data-fx-theme="dark"] .tw-prev-banner{background:#33270F!important;color:#F3D3A8!important;border-color:#5A4321!important;border-left-color:#E5A54B!important;}
 html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active{background:#33270F!important;}
 html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active b,html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active span{color:#F3D3A8!important;}
+
+/* Sicherheitsfrage mit Auge (v175) */
+.sf-wrap{display:inline-flex;align-items:center;position:relative;}
+.sf-wrap .sf-input{width:150px;padding-right:30px;text-align:left;letter-spacing:.02em;}
+.sf-eye{position:absolute;right:3px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:0;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:5px;padding:0;}
+.sf-eye svg{width:15px;height:15px;}
+.sf-eye:hover,.sf-eye.on{color:var(--tmg);background:var(--tmg-soft);}
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
@@ -1268,7 +1275,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 174;
+const BOARD_VERSION = 175;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -2989,6 +2996,40 @@ window.addEventListener('beforeunload', (e)=>{
   }
 });
 
+// v175: Feld „Sicherheitsfrage“ je Mitarbeiter – standardmäßig verdeckt, per Auge-Knopf sichtbar
+const EYE_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_CLOSED = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6C3.9 8.3 2 12 2 12s3.5 7 10 7c1.6 0 3-.4 4.3-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+function buildSicherheitsfrageField(agent){
+  const wrap = document.createElement('span');
+  wrap.className = 'sf-wrap';
+  const inp = document.createElement('input');
+  inp.className = 'akennung-input sf-input';
+  inp.type = 'password';
+  inp.autocomplete = 'off';
+  inp.setAttribute('data-lpignore', 'true');
+  inp.placeholder = 'Sicherheitsfrage';
+  inp.title = 'Sicherheitsfrage (verdeckt – mit dem Auge anzeigen)';
+  inp.value = agent.sicherheitsfrage || '';
+  inp.addEventListener('input', e=>{ agent.sicherheitsfrage = e.target.value; scheduleSave(); });
+  const eye = document.createElement('button');
+  eye.type = 'button';
+  eye.className = 'sf-eye';
+  eye.title = 'Anzeigen';
+  eye.setAttribute('aria-label', 'Sicherheitsfrage anzeigen');
+  eye.innerHTML = EYE_OPEN;
+  eye.addEventListener('click', ()=>{
+    const zeigen = inp.type === 'password';
+    inp.type = zeigen ? 'text' : 'password';
+    eye.innerHTML = zeigen ? EYE_CLOSED : EYE_OPEN;
+    eye.title = zeigen ? 'Verbergen' : 'Anzeigen';
+    eye.setAttribute('aria-label', zeigen ? 'Sicherheitsfrage verbergen' : 'Sicherheitsfrage anzeigen');
+    eye.classList.toggle('on', zeigen);
+  });
+  // beim Verlassen der Karte wieder verdecken
+  inp.addEventListener('blur', ()=>{ setTimeout(()=>{ if(document.activeElement !== eye && inp.type === 'text'){ inp.type = 'password'; eye.innerHTML = EYE_OPEN; eye.title = 'Anzeigen'; eye.classList.remove('on'); } }, 150); });
+  wrap.appendChild(inp); wrap.appendChild(eye);
+  return wrap;
+}
 function trafficStatus(val, target){
   if(val >= target) return 'good';
   if(!val || val <= 0) return 'zero';
@@ -3441,6 +3482,7 @@ function renderCoaching(){
       aKennungInput.value = agent.aKennung || '';
       aKennungInput.addEventListener('input', e=>{ agent.aKennung = e.target.value.trim(); scheduleSave(); });
       topLeft.appendChild(aKennungInput);
+      topLeft.appendChild(buildSicherheitsfrageField(agent));
 
       // Büro / Homeoffice Auswahl
       const ortSelect = document.createElement('select');
@@ -3681,6 +3723,7 @@ function renderCoaching(){
     aKennungInp.value = agent.aKennung || '';
     aKennungInp.addEventListener('input', e=>{ agent.aKennung = e.target.value.trim(); scheduleSave(); });
     topLeft.appendChild(aKennungInp);
+    topLeft.appendChild(buildSicherheitsfrageField(agent));
 
     const ortSelect = document.createElement('select');
     ortSelect.className = 'pylon-input'; ortSelect.title = 'Arbeitsort';
@@ -12608,6 +12651,13 @@ html[data-fx-theme="dark"] .tz-table tr.tz-row-crtag td{background:#2A1622!impor
 html[data-fx-theme="dark"] .tw-prev-banner{background:#33270F!important;color:#F3D3A8!important;border-color:#5A4321!important;border-left-color:#E5A54B!important;}
 html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active{background:#33270F!important;}
 html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active b,html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active span{color:#F3D3A8!important;}
+
+/* Sicherheitsfrage mit Auge (v175) */
+.sf-wrap{display:inline-flex;align-items:center;position:relative;}
+.sf-wrap .sf-input{width:150px;padding-right:30px;text-align:left;letter-spacing:.02em;}
+.sf-eye{position:absolute;right:3px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:0;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:5px;padding:0;}
+.sf-eye svg{width:15px;height:15px;}
+.sf-eye:hover,.sf-eye.on{color:var(--tmg);background:var(--tmg-soft);}
 /* ===== Monatsabschluss ===== */
 .ma-charts-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .ma-chart-box{min-width:0!important;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);padding:16px 18px 10px!important;}
