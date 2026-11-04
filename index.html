@@ -739,6 +739,24 @@ html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active b,html[data-fx-theme="
 .sf-eye{position:absolute;right:3px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:0;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:5px;padding:0;}
 .sf-eye svg{width:15px;height:15px;}
 .sf-eye:hover,.sf-eye.on{color:var(--tmg);background:var(--tmg-soft);}
+
+/* Reihenfolge der Mitarbeiter (v176) */
+.ao-box{width:min(860px,100%);}
+.ao-teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.ao-team{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 14px;min-width:0;}
+.ao-team-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;font:600 13.5px 'Inter',sans-serif;}
+.ao-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:60vh;overflow-y:auto;}
+.ao-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--panel);font:500 13px 'Inter',sans-serif;cursor:grab;user-select:none;}
+.ao-item.dragging{opacity:.4;}
+.ao-item.over{border-color:var(--tmg);box-shadow:0 -2px 0 var(--tmg) inset;}
+.ao-grip{color:var(--muted);letter-spacing:-2px;font-size:12px;}
+.ao-nr{font:600 11px 'IBM Plex Mono',monospace;color:var(--muted);min-width:20px;text-align:right;}
+.ao-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;}
+.ao-cat{font-size:11px;color:var(--muted);white-space:nowrap;}
+.ao-item button{width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--muted);cursor:pointer;padding:0;line-height:1;}
+.ao-item button:hover:not(:disabled){color:var(--tmg);border-color:var(--tmg);}
+.ao-item button:disabled{opacity:.3;cursor:default;}
+@media (max-width: 760px){ .ao-teams{grid-template-columns:1fr;} }
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
@@ -1164,7 +1182,8 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
     <div id="standort-hero"></div>
     <div class="toolbar">
       <span class="count" id="agent-count">0 Mitarbeiter</span>
-      <button class="primary" id="add-agent-btn">+ Mitarbeiter hinzufügen</button>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;"><button class="btn-secondary" id="agent-order-btn" type="button" style="cursor:pointer;"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4v16M4 8l4-4 4 4M16 20V4M12 16l4 4 4-4"/></svg> Reihenfolge</button>
+      <button class="primary" id="add-agent-btn">+ Mitarbeiter hinzufügen</button></div>
     </div>
     <div id="coaching-teams"></div>
   </div>
@@ -1275,7 +1294,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 175;
+const BOARD_VERSION = 176;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -2996,6 +3015,66 @@ window.addEventListener('beforeunload', (e)=>{
   }
 });
 
+
+// ===== Reihenfolge der Mitarbeiter (v176) =====
+// agent.sortIndex legt die Reihenfolge fest – gilt in allen Reitern, weil state.agents vor jedem Zeichnen danach sortiert wird.
+// Wird wie alle Mitarbeiterfelder mit den anderen Führungskräften abgeglichen. Ohne sortIndex: ans Ende, bisherige Reihenfolge.
+function sortAgentsByOrder(){
+  if(!Array.isArray(state.agents) || !state.agents.some(a => a && typeof a.sortIndex === 'number')) return;
+  const pos = new Map(state.agents.map((a,i)=>[a,i]));
+  state.agents.sort((a,b)=>{
+    const sa = (a && typeof a.sortIndex === 'number') ? a.sortIndex : 1e9, sb = (b && typeof b.sortIndex === 'number') ? b.sortIndex : 1e9;
+    return sa - sb || pos.get(a) - pos.get(b);
+  });
+}
+function openAgentOrderEditor(){
+  sortAgentsByOrder();
+  const teams = Object.keys(TEAM_CONFIGS);
+  const draft = {};
+  teams.forEach(t => draft[t] = state.agents.filter(a => a && String(a.team) === t && a.name && a.name.trim()));
+  const ov = document.createElement('div'); ov.className = 'chart-overlay cd-modal-overlay';
+  const box = document.createElement('div'); box.className = 'cd-modal ao-box';
+  ov.appendChild(box); document.body.appendChild(ov);
+  ov.addEventListener('mousedown', e=>{ if(e.target === ov) ov.remove(); });
+  let drag = null;
+  function render(){
+    box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
+      <div class="mz-title">Reihenfolge der Mitarbeiter</div>
+      <div class="mz-sub" style="margin-bottom:14px;">Ziehen oder mit ↑ ↓ verschieben. Die Reihenfolge gilt nach dem Speichern in allen Reitern und für alle Führungskräfte. Ranglisten (z. B. Hochrechnung, Fokus der Woche, Hall of Fame) bleiben nach Leistung sortiert.</div>
+      <div class="ao-teams">` + teams.map(t => `<div class="ao-team"><div class="ao-team-h"><b>${TEAM_CONFIGS[t].label} — ${TEAM_CONFIGS[t].project}</b><button type="button" class="mz-reset" data-az="${t}">A–Z sortieren</button></div>
+        <ol class="ao-list" data-team="${t}">` + draft[t].map((a,i) => `<li class="ao-item" draggable="true" data-t="${t}" data-i="${i}">
+          <span class="ao-grip" aria-hidden="true">⋮⋮</span><span class="ao-nr">${i+1}</span><span class="ao-name">${kiEsc(a.name)}</span>
+          <span class="ao-cat">${kiEsc(CATEGORY_LABELS[a.category || 'regular'] || '')}</span>
+          <button type="button" data-up="${i}" data-t="${t}" ${i===0?'disabled':''} title="nach oben">↑</button><button type="button" data-down="${i}" data-t="${t}" ${i===draft[t].length-1?'disabled':''} title="nach unten">↓</button></li>`).join('') + `</ol></div>`).join('') +
+      `</div><div class="mz-foot"><span class="mz-hint">Neue Mitarbeiter erscheinen automatisch am Ende ihres Teams.</span><div class="mz-btns"><button type="button" class="btn-secondary ao-cancel">Abbrechen</button><button type="button" class="primary ao-save">Speichern</button></div></div>`;
+    box.querySelector('.cd-modal-x').onclick = box.querySelector('.ao-cancel').onclick = ()=>ov.remove();
+    const move = (t, i, j) => { const a = draft[t]; if(j < 0 || j >= a.length) return; const [x] = a.splice(i,1); a.splice(j,0,x); render(); };
+    box.querySelectorAll('[data-up]').forEach(b => b.onclick = ()=> move(b.dataset.t, +b.dataset.up, +b.dataset.up - 1));
+    box.querySelectorAll('[data-down]').forEach(b => b.onclick = ()=> move(b.dataset.t, +b.dataset.down, +b.dataset.down + 1));
+    box.querySelectorAll('[data-az]').forEach(b => b.onclick = ()=>{ draft[b.dataset.az].sort((x,y)=> x.name.localeCompare(y.name, 'de')); render(); });
+    box.querySelectorAll('.ao-item').forEach(li=>{
+      li.addEventListener('dragstart', e=>{ drag = { t: li.dataset.t, i: +li.dataset.i }; li.classList.add('dragging'); try{ e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', li.dataset.i); }catch(_){} });
+      li.addEventListener('dragend', ()=>{ li.classList.remove('dragging'); drag = null; });
+      li.addEventListener('dragover', e=>{ if(drag && drag.t === li.dataset.t){ e.preventDefault(); li.classList.add('over'); } });
+      li.addEventListener('dragleave', ()=> li.classList.remove('over'));
+      li.addEventListener('drop', e=>{ e.preventDefault(); li.classList.remove('over'); if(drag && drag.t === li.dataset.t) move(drag.t, drag.i, +li.dataset.i); });
+    });
+    box.querySelector('.ao-save').onclick = ()=>{
+      let n = 0;
+      teams.forEach(t => draft[t].forEach(a => { a.sortIndex = ++n; }));
+      // Mitarbeiter ohne Namen o.ä. ans Ende
+      state.agents.forEach(a => { if(a && typeof a.sortIndex !== 'number') a.sortIndex = ++n; });
+      sortAgentsByOrder();
+      scheduleSave();
+      ov.remove();
+      renderAll();
+      if(window.fxToast) fxToast('Reihenfolge gespeichert');
+    };
+  }
+  render();
+}
+(function(){ const b = document.getElementById('agent-order-btn'); if(b) b.addEventListener('click', openAgentOrderEditor); })();
+
 // v175: Feld „Sicherheitsfrage“ je Mitarbeiter – standardmäßig verdeckt, per Auge-Knopf sichtbar
 const EYE_OPEN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
 const EYE_CLOSED = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6C3.9 8.3 2 12 2 12s3.5 7 10 7c1.6 0 3-.4 4.3-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
@@ -3325,6 +3404,7 @@ document.getElementById('tab-halloffame').addEventListener('click', ()=>switchTa
 document.getElementById('tab-kianalyse').addEventListener('click', ()=>switchTab('kianalyse'));
 
 function renderAll(){
+  try{ sortAgentsByOrder(); }catch(e){}
   try{ applyMaZiele(); }catch(e){ console.warn('Ziele', e); }
   try{ cdSyncFormModal(false); }catch(e){}
   try{ updateFokusBadge(); }catch(e){}
@@ -7121,7 +7201,8 @@ function renderVerlauf(){
   // Teams
   Object.keys(TEAM_CONFIGS).forEach(teamId => {
     const cfg = TEAM_CONFIGS[teamId];
-    const teamAgents = Object.values(state.verlauf).filter(v => v.team === teamId);
+    const vlPos = v => { const i = state.agents.findIndex(a => (v.agentId && a.id === v.agentId) || (a.team === v.team && a.name === v.name)); return i === -1 ? 1e9 : i; };
+    const teamAgents = Object.values(state.verlauf).filter(v => v.team === teamId).sort((a,b)=> vlPos(a) - vlPos(b));   // v176: gleiche Reihenfolge wie überall
     if(!teamAgents.length) return;
 
     const teamBlock = document.createElement('div');
@@ -10352,7 +10433,7 @@ function renderZuordnung(){
     if(zoLeaderFilter === '__ohne') list = list.filter(a => !known(a));
     else if(zoLeaderFilter !== 'alle') list = list.filter(a => fkNorm(a.fuehrungskraft) === fkNorm(zoLeaderFilter));
     if(!list.length) return;
-    list.sort((a,b)=>a.name.localeCompare(b.name));
+    // v176: eigene Reihenfolge der Mitarbeiter (statt alphabetisch)
     const block = document.createElement('div');
     block.className = 'hr-team';
     const allSel = list.every(a => zoSelected.has(a.id));
@@ -12658,6 +12739,24 @@ html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active b,html[data-fx-theme="
 .sf-eye{position:absolute;right:3px;top:50%;transform:translateY(-50%);width:24px;height:24px;border:0;background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;border-radius:5px;padding:0;}
 .sf-eye svg{width:15px;height:15px;}
 .sf-eye:hover,.sf-eye.on{color:var(--tmg);background:var(--tmg-soft);}
+
+/* Reihenfolge der Mitarbeiter (v176) */
+.ao-box{width:min(860px,100%);}
+.ao-teams{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;}
+.ao-team{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:12px 14px;min-width:0;}
+.ao-team-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;font:600 13.5px 'Inter',sans-serif;}
+.ao-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:60vh;overflow-y:auto;}
+.ao-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--panel);font:500 13px 'Inter',sans-serif;cursor:grab;user-select:none;}
+.ao-item.dragging{opacity:.4;}
+.ao-item.over{border-color:var(--tmg);box-shadow:0 -2px 0 var(--tmg) inset;}
+.ao-grip{color:var(--muted);letter-spacing:-2px;font-size:12px;}
+.ao-nr{font:600 11px 'IBM Plex Mono',monospace;color:var(--muted);min-width:20px;text-align:right;}
+.ao-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;}
+.ao-cat{font-size:11px;color:var(--muted);white-space:nowrap;}
+.ao-item button{width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--muted);cursor:pointer;padding:0;line-height:1;}
+.ao-item button:hover:not(:disabled){color:var(--tmg);border-color:var(--tmg);}
+.ao-item button:disabled{opacity:.3;cursor:default;}
+@media (max-width: 760px){ .ao-teams{grid-template-columns:1fr;} }
 /* ===== Monatsabschluss ===== */
 .ma-charts-wrap{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
 .ma-chart-box{min-width:0!important;border-radius:12px!important;box-shadow:none!important;border:1px solid var(--border);padding:16px 18px 10px!important;}
