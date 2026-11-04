@@ -1257,6 +1257,9 @@ const TEAM_CONFIGS = {"Trikala01": {"label": "Trikala01", "project": "Mobilfunk 
 const TEAM_CONFIGS_DEFAULT = JSON.parse(JSON.stringify(TEAM_CONFIGS)); // v167: Vorgabewerte (eigene Ziele stehen in state.maZiele)
 const SEED_AGENTS = [];
 // Ø angenommene Calls pro Arbeitstag (für „Stück heute für CR-Ziel“ in Team Ziele); Helpline zählt wie Standard
+// v177: WHT (neben CHT) – nur für diese Teams erfasst und angezeigt
+const WHT_TEAMS = ['Trikala01'];
+function hasWHT(team){ return WHT_TEAMS.includes(String(team)); }
 const CALLS_PRO_TAG = { standard: 40, sechs: 30 };   // nur Rückfallwert, wenn für den Vormonat noch keine Calls vorliegen
 const FREIE_TAGE_PRO_MONAT = 7.5;   // Ø freie Tage je Mitarbeiter und Monat (7-Tage-Betrieb)
 const SECHS_STD_FAKTOR = 0.75;      // 6-Stündler = ¾ eines Standard-Mitarbeiters
@@ -1294,7 +1297,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 176;
+const BOARD_VERSION = 177;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -1418,7 +1421,7 @@ function liveMonthSnapshot(agent, now){
     });
     if(any) snap.sales = sum;
   }
-  ['calls','nps','lq','cht'].forEach(f=>{
+  ['calls','nps','lq','cht','wht'].forEach(f=>{
     const v = agent[f];
     if(typeof v !== 'number' || !(v > 0)) return;
     const ts = (typeof agGetTs === 'function') ? agGetTs(agent, 'f|' + f) : 0;
@@ -3617,14 +3620,14 @@ function renderCoaching(){
           const vals = mon.map(m=>(m.sales && m.sales[p])||0);
           prodAvg[p] = vals.length ? vals.reduce((s,v)=>s+v,0)/vals.length : 0;
         });
-        return { cr: avg('cr'), nps: avg('nps'), lq: avg('lq'), cht: avg('cht'), sales: prodAvg };
+        return { cr: avg('cr'), nps: avg('nps'), lq: avg('lq'), cht: avg('cht'), wht: avg('wht'), sales: prodAvg };
       }
 
       // Fallback: Live-Daten direkt aus agent-Objekt
       function liveDataFor(a){
         const prodVals = {};
         cfg.products.forEach(p=>{ prodVals[p] = (a.sales && a.sales[p]) || 0; });
-        return { cr: totalCr(a)||0, nps: a.nps||0, lq: a.lq||0, cht: a.cht||0, sales: prodVals };
+        return { cr: totalCr(a)||0, nps: a.nps||0, lq: a.lq||0, cht: a.cht||0, wht: a.wht||0, sales: prodVals };
       }
 
       const useArchiv = monatsListe.length > 0;
@@ -3680,6 +3683,16 @@ function renderCoaching(){
               <span class="panel-avg-team">Ø${Math.round(chtTeam)}</span>
             </div>`;
           avgSection.appendChild(chtRow);
+        }
+        if(hasWHT(agent.team) && myCum && myCum.wht > 0){
+          // WHT: wie CHT – niedriger ist besser
+          const whtTeam = teamAvg('wht');
+          const diffW = myCum.wht - whtTeam;
+          const wRow = document.createElement('div');
+          wRow.className = 'panel-avg-row';
+          const clsW = diffW < -5 ? 'up' : diffW > 5 ? 'down' : 'eq';
+          wRow.innerHTML = `<span class="panel-avg-label">WHT</span><div class="panel-avg-vals"><span class="panel-avg-agent">${Math.round(myCum.wht)}</span><span class="panel-avg-arrow ${clsW}">${diffW < -5 ? '▼' : diffW > 5 ? '▲' : '—'}</span><span class="panel-avg-team">Ø${Math.round(whtTeam)}</span></div>`;
+          avgSection.appendChild(wRow);
         }
         cfg.products.forEach(p=>{
           const av = myCum ? myCum.sales[p]||0 : 0;
@@ -6847,7 +6860,7 @@ function vlBarSVG(w, h, o){
   let { svg, T, fs } = vlFrame(w, h);
   const slot = cw/n, bw = Math.max(8, Math.min(34, slot*0.62));
   const vfs = slot < 30 ? fs-1.5 : fs;
-  const col = v => v <= 550 ? 'var(--good)' : v <= 680 ? 'var(--warn)' : 'var(--bad)';
+  const col = o.neutral ? (()=> '#5B6FA6') : (v => v <= 550 ? 'var(--good)' : v <= 680 ? 'var(--warn)' : 'var(--bad)');
   for(let i=0;i<=sc.n;i++){
     const tv = sc.max*i/sc.n, y = pad.t + ch - (i/sc.n)*ch;
     svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" style="stroke:var(--border);" ${i? 'stroke-dasharray="2 4"' : ''}/>`;
@@ -7300,6 +7313,18 @@ function renderVerlauf(){
       chartsRow.appendChild(chartWrapCHT);
       setTimeout(()=>{ drawCHTChart(canvasCHT, monate, chtValues); }, 50);
     }
+    // Diagramm 5: WHT (v177, nur Teams mit WHT)
+    const whtValues = monate.map(m => agentData.monate[m].wht || null);
+    if(hasWHT(teamId) && whtValues.some(v => v > 0)){
+      const chartWrapWHT = document.createElement('div');
+      chartWrapWHT.className = 'vl-chart-wrap';
+      chartWrapWHT.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — WHT Entwicklung</div>`;
+      chartWrapWHT.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — WHT Entwicklung', c=>drawWHTChart(c, monate, whtValues)));
+      const hostWHT = document.createElement('div'); hostWHT.className = 'vl-chart-host';
+      chartWrapWHT.appendChild(hostWHT);
+      chartsRow.appendChild(chartWrapWHT);
+      setTimeout(()=>{ drawWHTChart(hostWHT, monate, whtValues); }, 50);
+    }
 
     teamBlock.appendChild(chartsRow);
 
@@ -7334,6 +7359,9 @@ function renderVerlauf(){
     function drawCHTChart(el, monate, chtValues){
       vlRender(el, (w,h)=>vlBarSVG(w, h, { monate, values: chtValues.map(v=>v||0) }));
     }
+    function drawWHTChart(el, monate, whtValues){
+      vlRender(el, (w,h)=>vlBarSVG(w, h, { monate, values: whtValues.map(v=>v||0), neutral: true }));
+    }
 
     // Charts zeichnen
     setTimeout(()=>{ drawStkChart(canvas1, monate, stkValues, stkZiel, agentData, cfg); }, 50);
@@ -7345,7 +7373,7 @@ function renderVerlauf(){
     t.className = 'vl-table';
     // v172: auch Produkte ohne Stückziel (z.B. DA) anzeigen, in Anzeige-Reihenfolge und mit Anzeigenamen
     const prods = displayOrderProducts([...cfg.products, ...teamExtraProducts(teamId)], teamId);
-    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${productLabel(p, teamId)}</th>`).join('')}<th>CR</th><th>Calls</th><th>CHT</th><th>NPS</th><th>Trend</th></tr>`;
+    t.innerHTML = `<tr><th>Monat</th>${prods.map(p=>`<th>${productLabel(p, teamId)}</th>`).join('')}<th>CR</th><th>Calls</th><th>CHT</th>${hasWHT(teamId) ? '<th>WHT</th>' : ''}<th>NPS</th><th>Trend</th></tr>`;
     monate.forEach(m => withMonatsZiele(maYmAusMonatKey(m), () => {
       // v169: jede Zeile mit den Zielen, die in diesem Monat galten
       const mcfg = TEAM_CONFIGS[teamId];
@@ -7369,6 +7397,7 @@ function renderVerlauf(){
       const chtVal = (md.cht === null || md.cht === undefined) ? null : md.cht;
       const chtCls = chtVal === null ? '' : (chtVal <= 550 ? 'ok' : chtVal <= 680 ? 'mid' : 'bad');
       html += `<td><span class="vl-badge ${chtCls}">${chtVal === null ? '–' : Math.round(chtVal)}</span></td>`;
+      if(hasWHT(teamId)) html += `<td><span class="vl-badge">${md.wht > 0 ? Math.round(md.wht) : '–'}</span></td>`;
       html += `<td><span class="vl-badge ${(md.nps||0)>=mcfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
       // Trend: Vergleich mit Vormonat
       const prevM = monate[monate.indexOf(m)-1];
@@ -7672,6 +7701,22 @@ function renderMonatsabschluss(){
     { label:'MF', color:'#E20074', labels:chtMonate, values:chtTeamAvg('Trikala01') },
     { label:'FN', color:'#0E7C7B', labels:chtMonate, values:chtTeamAvg('Trikala06') }
   ], false);
+
+  // v177: WHT-Monatsverlauf (Ø pro Team, nur Teams mit WHT) – Quelle: Mitarbeiter-Verlauf bzw. laufender Monatsstand
+  const whtTeams = Object.keys(TEAM_CONFIGS).filter(hasWHT);
+  if(whtTeams.length){
+    const whtAvg = teamId => chtMonate.map((monat, idx)=>{
+      if(chtJetzt.getFullYear() === 2026 && idx > chtJetzt.getMonth()) return 0;
+      const istAktuell = chtJetzt.getFullYear() === 2026 && idx === chtJetzt.getMonth();
+      const vals = state.agents.filter(a=>a.team===teamId && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work').map(a=>{
+        if(istAktuell && a.wht > 0) return a.wht;
+        const vm = agentVerlaufMonat(a, 2026, monat); return vm && vm.wht > 0 ? vm.wht : 0;
+      }).filter(v=>v>0);
+      return vals.length ? Math.round(vals.reduce((s2,v)=>s2+v,0)/vals.length) : 0;
+    });
+    const palW = ['#E20074','#0E7C7B'];
+    mkBox('WHT — Monatsverlauf (Ø pro Team)', ()=> whtTeams.map((t,i)=>({ label: TEAM_CONFIGS[t].label === 'Trikala01' ? 'MF' : TEAM_CONFIGS[t].label, color: palW[i % 2], labels: chtMonate, values: whtAvg(t) })), false);
+  }
 
   container.appendChild(chartsWrap);
 
@@ -8166,6 +8211,7 @@ function renderMonatsabschluss(){
     if(!md.cht) md.cht = 0;
     if(!md.calls) md.calls = 0;
     chtCalls.appendChild(mkSimpleBox('CHT', md.cht, v=>{ md.cht=v; }, chtColor));
+    if(teamKey === 'mf'){ if(!md.wht) md.wht = 0; chtCalls.appendChild(mkSimpleBox('WHT', md.wht, v=>{ md.wht=v; }, ()=>'var(--kpi-bg)')); }
     chtCalls.appendChild(mkSimpleBox('Calls', md.calls, v=>{ md.calls=v; }, ()=>'var(--kpi-bg)'));
 
     // DA-Blase: nur für MF-Team, nur ab Oktober
@@ -8811,6 +8857,7 @@ function parseHelpsenseSheet(rows){
   const perfPylonCol  = header.findIndex(h => h === 'pylon');
   const qualPylonCol  = header.findIndex(h => h === 'user_pylon');
   const chtCol        = header.findIndex(h => h.includes('cht'));
+  const whtCol        = header.findIndex(h => h.includes('wht'));
   const callsCol      = header.findIndex(h => h.includes('call'));
   const npsCol        = header.findIndex(h => h === 'nps');
   const lqCol         = header.findIndex(h => h === 'lq') !== -1
@@ -8824,6 +8871,7 @@ function parseHelpsenseSheet(rows){
       if(!isNaN(pylon)){
         if(!result[pylon]) result[pylon] = {};
         if(chtCol   !== -1 && row[chtCol]   !== '' && row[chtCol]   !== null && row[chtCol]   !== undefined) result[pylon].cht   = toNum(row[chtCol]);
+        if(whtCol   !== -1 && row[whtCol]   !== '' && row[whtCol]   !== null && row[whtCol]   !== undefined) result[pylon].wht   = toNum(row[whtCol]);
         if(callsCol !== -1 && row[callsCol] !== '' && row[callsCol] !== null && row[callsCol] !== undefined) result[pylon].calls = toNum(row[callsCol]);
         // NPS/LQ auch über perfPylonCol lesen (Datei mit nur einer Pylon-Spalte die alle Felder enthält)
         if(qualPylonCol === -1){
@@ -8905,6 +8953,7 @@ async function applyHelpsenseData(mergedData){
     // Vormonat → in den Mitarbeiter-Verlauf dieses Monats; laufender Monat → Monatsstand
     const target = isPrev ? verlaufMonatForEdit(agent, prevDate) : agent;
     if(data.cht   !== undefined && !isNaN(data.cht))   target.cht   = data.cht;
+    if(data.wht   !== undefined && !isNaN(data.wht) && hasWHT(agent.team)) target.wht = data.wht;
     if(data.calls !== undefined && !isNaN(data.calls)) target.calls = data.calls;
     if(data.nps   !== undefined && !isNaN(data.nps))   target.nps   = data.nps;
     if(data.lq    !== undefined && !isNaN(data.lq))    target.lq    = data.lq;
@@ -9053,7 +9102,7 @@ function renderTageswerte(){
   if(isTotal){
     const hint = document.createElement('div');
     hint.className = 'tw-hint';
-    hint.textContent = 'Die Produkt-Spalten werden automatisch aus allen Tages-Seiten dieses Monats summiert (nicht bearbeitbar). Calls, CHT, NPS und LQ trägst du hier direkt manuell ein.' + (isPrev ? ' Gibt es für den Vormonat keine Tageswerte, werden die Stückzahlen aus dem Verlauf angezeigt.' : '');
+    hint.textContent = 'Die Produkt-Spalten werden automatisch aus allen Tages-Seiten dieses Monats summiert (nicht bearbeitbar). Calls, CHT, WHT (MF-Team), NPS und LQ trägst du hier direkt manuell ein.' + (isPrev ? ' Gibt es für den Vormonat keine Tageswerte, werden die Stückzahlen aus dem Verlauf angezeigt.' : '');
     container.appendChild(hint);
   }
 
@@ -9093,7 +9142,7 @@ function renderTageswerte(){
     const orderedProducts = displayOrderProducts([...cfg.products, ...extraProds], teamId);
     const productHeaders = orderedProducts.map(p=>productLabel(p, teamId));
     const headers = isTotal
-      ? ['Mitarbeiter', 'Calls', 'CHT', ...productHeaders, 'NPS %', 'LQ %']
+      ? ['Mitarbeiter', 'Calls', 'CHT', ...(hasWHT(teamId) ? ['WHT'] : []), ...productHeaders, 'NPS %', 'LQ %']
       : ['Mitarbeiter', ...productHeaders];
 
     // Klon-Spalten-Header mit gleichen Labels befüllen
@@ -9200,12 +9249,14 @@ function renderTageswerte(){
           const twSums = (agent.tageswerte && agent.tageswerte[monthKey]) ? hrAgentSums(agent, monthKey, orderedProducts) : null;
           row.appendChild(mkTwInput(getF('calls'), setF('calls'), false, rowIdx, col++));
           row.appendChild(mkTwInput(getF('cht'), setF('cht'), false, rowIdx, col++));
+          if(hasWHT(teamId)) row.appendChild(mkTwInput(getF('wht'), setF('wht'), false, rowIdx, col++));
           orderedProducts.forEach(p=> row.appendChild(mkTwInput(()=> twSums ? twSums[p] : ((vmRead().sales||{})[p] ?? null), ()=>{}, true)));
           row.appendChild(mkTwInput(getF('nps'), setF('nps'), false, rowIdx, col++));
           row.appendChild(mkTwInput(getF('lq'), setF('lq'), false, rowIdx, col++));
         } else {
         row.appendChild(mkTwInput(()=>agent.calls, v=>{ agent.calls=v; }, false, rowIdx, col++));
         row.appendChild(mkTwInput(()=>agent.cht, v=>{ agent.cht=v; }, false, rowIdx, col++));
+        if(hasWHT(teamId)) row.appendChild(mkTwInput(()=>agent.wht, v=>{ agent.wht=v; }, false, rowIdx, col++));
         orderedProducts.forEach(p=> row.appendChild(mkTwInput(()=>agent.sales[p], ()=>{}, true)));
         row.appendChild(mkTwInput(()=>agent.nps, v=>{ agent.nps=v; }, false, rowIdx, col++));
         row.appendChild(mkTwInput(()=>agent.lq, v=>{ agent.lq=v; }, false, rowIdx, col++));
@@ -9653,7 +9704,8 @@ function openAgentAkte(agentId){
     kpi('LQ', lq === null ? '–' : fmt1(lq) + ' %', lq === null ? null : lq >= cfg.lqTarget) +
     kpi('CR', calls ? fmt1(cr) + ' %' : '–', calls ? cr >= cfg.crTarget : null) +
     kpi('Calls', calls === null ? '–' : Math.round(calls).toLocaleString('de-DE')) +
-    kpi('CHT', cht === null ? '–' : Math.round(cht), cht === null ? null : cht <= 550);
+    kpi('CHT', cht === null ? '–' : Math.round(cht), cht === null ? null : cht <= 550) +
+    (hasWHT(agent.team) ? (()=>{ const w = fkCurVal(agent, 'wht', now); return kpi('WHT', w === null ? '–' : Math.round(w)); })() : '');
   const salesHtml = prods.map(p => {
     const i = cfg.products.indexOf(p), t = i === -1 ? null : targets[i];
     const v = (agent.sales && agent.sales[p]) || 0;
@@ -10548,7 +10600,7 @@ function kiAgentMonths(agent){
     const md = months[k] || {};
     const sales = md.sales || {};
     const r = { monat: k };
-    ['cr','nps','lq','calls','cht'].forEach(f=>{ if(typeof md[f] === 'number' && md[f] > 0) r[f] = Math.round(md[f]*100)/100; });
+    ['cr','nps','lq','calls','cht','wht'].forEach(f=>{ if(typeof md[f] === 'number' && md[f] > 0) r[f] = Math.round(md[f]*100)/100; });
     const stk = Object.values(sales).reduce((s,v)=>s + (typeof v === 'number' ? v : 0), 0);
     if(stk) { r.stueck_gesamt = stk; r.stueck = sales; }
     return r;
@@ -10588,7 +10640,7 @@ function kiAgentData(agent, now, teamInfo){
   };
   // laufender Monat (NPS/LQ/Calls/CHT nur, wenn in diesem Monat eingetragen)
   const akt = { monat: now.toLocaleString('de-DE', {month:'long', year:'numeric'}) };
-  ['calls','nps','lq','cht'].forEach(f=>{ const v = fkCurVal(agent, f, now); if(v !== null) akt[f] = v; });
+  ['calls','nps','lq','cht','wht'].forEach(f=>{ const v = fkCurVal(agent, f, now); if(v !== null) akt[f] = v; });
   const info = teamInfo[agent.team];
   if(info && info.hasData){
     const ist = hrAgentSums(agent, info.mk, cfg.products);
@@ -11149,7 +11201,7 @@ function ovAgentView(agent){
   const md = agentVerlaufMonat(agent, mi.jahr, mi.name);
   if(!md) return null;
   const num = v => (typeof v === 'number' && v > 0) ? v : null;
-  return Object.assign({}, agent, { sales: Object.assign({}, md.sales || {}), nps: num(md.nps), lq: num(md.lq), calls: num(md.calls), cht: num(md.cht), _crFix: num(md.cr) });
+  return Object.assign({}, agent, { sales: Object.assign({}, md.sales || {}), nps: num(md.nps), lq: num(md.lq), calls: num(md.calls), cht: num(md.cht), wht: num(md.wht), _crFix: num(md.cr) });
 }
 // v171: Monatsauswahl – laufender Monat groß, Vormonat als kleiner Nebenknopf (nicht verwechselbar)
 function buildMonthSwitch(onSelect, prevLbl){
@@ -11254,7 +11306,7 @@ function renderOverviewInner(){
     const nameColWidth = Math.ceil(longestNameWidth + 20 /* Zell-Padding links */ + 18 /* Pill-Padding */ + 4 /* Zell-Padding rechts */ + 6 /* Puffer */) + 'px';
     // +2 = NPS + LQ, +1 = CR, +2 = Calls + CHT
     // v152: Mindestbreiten je Spaltenart, damit Produkt- und CR-Spalten nie zusammengedrückt werden
-    const gridCols = `${nameColWidth} repeat(2, minmax(78px,1fr)) repeat(${displayedProducts.length}, minmax(46px,1fr)) minmax(70px,1fr) repeat(2, minmax(78px,1fr))`;
+    const gridCols = `${nameColWidth} repeat(2, minmax(78px,1fr)) repeat(${displayedProducts.length}, minmax(46px,1fr)) minmax(70px,1fr) repeat(${hasWHT(teamId) ? 3 : 2}, minmax(78px,1fr))`;
 
     function buildGrid(agentsSubset){
       const grid = document.createElement('div');
@@ -11278,7 +11330,9 @@ function renderOverviewInner(){
         }).join('') +
         `<div class="ov-cell cr-cell head">★ CR<span style="font-size:9px;font-weight:400;">Ziel ${cfg.crTarget}%</span></div>` +
         `<div class="ov-cell qual-cell head cht-group-start cht-group-first">Calls</div>` +
-        `<div class="ov-cell qual-cell head cht-group-end cht-group-first">CHT</div>`;
+        (hasWHT(teamId)
+          ? `<div class="ov-cell qual-cell head cht-group-first">CHT</div><div class="ov-cell qual-cell head cht-group-end cht-group-first">WHT</div>`
+          : `<div class="ov-cell qual-cell head cht-group-end cht-group-first">CHT</div>`);
       grid.appendChild(headerRow);
 
       agentsSubset.forEach((agent, agentIdx)=>{
@@ -11319,7 +11373,13 @@ function renderOverviewInner(){
         html += `<div class="ov-cell qual-cell cht-group-start${isLastRow?' cht-group-last':''}"><span class="ov-badge ${agent.calls===null||agent.calls===undefined?'':'good'}">${(agent.calls===null||agent.calls===undefined) ? '–' : Math.round(agent.calls)}</span></div>`;
         const chtVal = (agent.cht === null || agent.cht === undefined) ? null : agent.cht;
         const chtStatus = chtVal === null ? '' : (chtVal <= 550 ? 'good' : chtVal <= 680 ? 'mid' : 'zero');
-        html += `<div class="ov-cell qual-cell cht-group-end${isLastRow?' cht-group-last':''}"><span class="ov-badge ${chtStatus}">${chtVal === null ? '–' : Math.round(chtVal)}</span></div>`;
+        if(hasWHT(teamId)){
+          const whtVal = (agent.wht === null || agent.wht === undefined || !(agent.wht > 0)) ? null : agent.wht;
+          html += `<div class="ov-cell qual-cell${isLastRow?' cht-group-last':''}"><span class="ov-badge ${chtStatus}">${chtVal === null ? '–' : Math.round(chtVal)}</span></div>`;
+          html += `<div class="ov-cell qual-cell cht-group-end${isLastRow?' cht-group-last':''}"><span class="ov-badge">${whtVal === null ? '–' : Math.round(whtVal)}</span></div>`;
+        } else {
+          html += `<div class="ov-cell qual-cell cht-group-end${isLastRow?' cht-group-last':''}"><span class="ov-badge ${chtStatus}">${chtVal === null ? '–' : Math.round(chtVal)}</span></div>`;
+        }
         row.innerHTML = html;
         grid.appendChild(row);
       });
