@@ -1297,7 +1297,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 177;
+const BOARD_VERSION = 178;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -1423,7 +1423,8 @@ function liveMonthSnapshot(agent, now){
   }
   ['calls','nps','lq','cht','wht'].forEach(f=>{
     const v = agent[f];
-    if(typeof v !== 'number' || !(v > 0)) return;
+    // NPS kann negativ sein (−100 … 100) – nur 0/leer zählt als „nicht eingetragen“
+    if(typeof v !== 'number' || (f === 'nps' ? v === 0 : !(v > 0))) return;
     const ts = (typeof agGetTs === 'function') ? agGetTs(agent, 'f|' + f) : 0;
     // ts 0 = Wert stammt aus der Zeit vor den Zeitstempeln (Oktober 2026) → nur für diesen Monat übernehmen
     if(ts >= monthStart || (ts === 0 && mKey === '2026-Oktober')) snap[f] = v;
@@ -3406,7 +3407,18 @@ document.getElementById('tab-overview').addEventListener('click', ()=>switchTab(
 document.getElementById('tab-halloffame').addEventListener('click', ()=>switchTab('halloffame'));
 document.getElementById('tab-kianalyse').addEventListener('click', ()=>switchTab('kianalyse'));
 
+
+// v178: Prozentwerte (NPS, LQ), die beim Import um Faktor 100 zu groß gespeichert wurden (z.B. −2000 statt −20), einmalig korrigieren
+function fixPctWerte(){
+  let changed = false;
+  const fix = (o, f) => { const v = o && o[f]; if(typeof v === 'number' && Math.abs(v) > 100){ let n = v; while(Math.abs(n) > 100) n = n / 100; o[f] = Math.round(n * 100) / 100; changed = true; } };
+  (state.agents || []).forEach(a => { fix(a, 'nps'); fix(a, 'lq'); });
+  Object.values(state.verlauf || {}).forEach(vl => Object.values((vl && vl.monate) || {}).forEach(md => { fix(md, 'nps'); fix(md, 'lq'); }));
+  return changed;
+}
+
 function renderAll(){
+  try{ if(fixPctWerte() && typeof scheduleSave === 'function') setTimeout(scheduleSave, 0); }catch(e){}
   try{ sortAgentsByOrder(); }catch(e){}
   try{ applyMaZiele(); }catch(e){ console.warn('Ziele', e); }
   try{ cdSyncFormModal(false); }catch(e){}
@@ -6814,14 +6826,18 @@ function vlLineSVG(w, h, o){
   const vals = o.values.map(v=>parseFloat(v)||0);
   const dataMax = Math.max(0, ...vals);
   const sc = o.fixedMax ? { max:o.fixedMax, n:4 } : vlNiceMax(Math.max(dataMax, (o.target||0)*1.1), o.percent ? 5 : 10);
+  // v178: negative Werte (z.B. NPS −20 %) – Achse reicht dann unter 0
+  const dataMin = Math.min(0, ...vals.filter(v => !(o.skipZero && v === 0)));
+  const lo = dataMin < 0 ? -Math.ceil(-dataMin / (sc.max / sc.n)) * (sc.max / sc.n) : 0;
+  const nLo = lo < 0 ? Math.round(-lo / (sc.max / sc.n)) : 0;
   const inset = 14;
   const xPos = i => pad.l + inset + (n>1 ? i/(n-1)*(cw-2*inset) : (cw-2*inset)/2);
-  const yPos = v => pad.t + ch - (v/sc.max)*ch;
+  const yPos = v => pad.t + ch - ((v - lo)/(sc.max - lo))*ch;
   let { svg, T, fs } = vlFrame(w, h);
   const gap = n>1 ? (cw-2*inset)/(n-1) : cw;
   const vfs = gap < 30 ? fs-1.5 : fs;   // bei vielen Monaten etwas kleinere Zahlen
-  for(let i=0;i<=sc.n;i++){
-    const tv = sc.max*i/sc.n, y = pad.t + ch - (i/sc.n)*ch;
+  for(let i=-nLo;i<=sc.n;i++){
+    const tv = sc.max*i/sc.n, y = yPos(tv);
     const lbl = (Number.isInteger(tv) ? tv : tv.toFixed(1)).toLocaleString('de-DE') + (o.percent ? '%' : '');
     svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" style="stroke:var(--border);" ${i? 'stroke-dasharray="2 4"' : ''}/>`;
     svg += `<text x="${pad.l-6}" y="${y+3.5}" text-anchor="end" font-size="${fs-1}" style="${T}fill:var(--muted);">${lbl}</text>`;
@@ -8849,9 +8865,10 @@ function parseHelpsenseSheet(rows){
     // Zahl hat Komma → Dezimaltrennzeichen: "77,78" → 77.78
     if(s.includes(',')) return parseFloat(s.replace(/\./g,'').replace(',','.'));
     const n = parseFloat(s);
-    // Wenn SheetJS die Zahl bereits als Integer geliefert hat (z.B. 7778 statt 77.78),
-    // wurde das Komma als Tausender gelesen → durch 100 teilen
-    if(!isNaN(n) && n > 100) return n / 100;
+    // Wenn SheetJS die Zahl bereits als Integer geliefert hat (z.B. 7778 statt 77.78 oder
+    // -2000 statt -20,00), wurde das Komma als Tausender gelesen → durch 100 teilen.
+    // v178: gilt jetzt auch für negative Werte (NPS kann negativ sein, Bereich −100 … 100)
+    if(!isNaN(n) && Math.abs(n) > 100) return n / 100;
     return n;
   };
   const perfPylonCol  = header.findIndex(h => h === 'pylon');
@@ -9616,7 +9633,7 @@ function fkVereinbarungen(){
 // Wert eines Monatsfelds (NPS, LQ, ...) nur, wenn er im laufenden Monat eingetragen wurde
 function fkCurVal(agent, f, now){
   const v = agent[f];
-  if(typeof v !== 'number' || !(v > 0)) return null;
+  if(typeof v !== 'number' || (f === 'nps' ? v === 0 : !(v > 0))) return null;
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
   const ts = agGetTs(agent, 'f|' + f);
   const isOkt26 = now.getFullYear() === 2026 && now.getMonth() === 9;
@@ -11201,7 +11218,7 @@ function ovAgentView(agent){
   const md = agentVerlaufMonat(agent, mi.jahr, mi.name);
   if(!md) return null;
   const num = v => (typeof v === 'number' && v > 0) ? v : null;
-  return Object.assign({}, agent, { sales: Object.assign({}, md.sales || {}), nps: num(md.nps), lq: num(md.lq), calls: num(md.calls), cht: num(md.cht), wht: num(md.wht), _crFix: num(md.cr) });
+  return Object.assign({}, agent, { sales: Object.assign({}, md.sales || {}), nps: (typeof md.nps === 'number' && md.nps !== 0) ? md.nps : null, lq: num(md.lq), calls: num(md.calls), cht: num(md.cht), wht: num(md.wht), _crFix: num(md.cr) });
 }
 // v171: Monatsauswahl – laufender Monat groß, Vormonat als kleiner Nebenknopf (nicht verwechselbar)
 function buildMonthSwitch(onSelect, prevLbl){
