@@ -1260,6 +1260,9 @@ const SEED_AGENTS = [];
 // v177: WHT (neben CHT) – nur für diese Teams erfasst und angezeigt
 const WHT_TEAMS = ['Trikala01'];
 function hasWHT(team){ return WHT_TEAMS.includes(String(team)); }
+// v179: WHT-Farben – bis 300 rot, 301–750 grün, ab 751 rot (0/leer = neutral)
+const WHT_MIN = 300, WHT_MAX = 750;
+function whtOk(v){ v = parseFloat(v); if(!(v > 0)) return null; return v > WHT_MIN && v <= WHT_MAX; }
 const CALLS_PRO_TAG = { standard: 40, sechs: 30 };   // nur Rückfallwert, wenn für den Vormonat noch keine Calls vorliegen
 const FREIE_TAGE_PRO_MONAT = 7.5;   // Ø freie Tage je Mitarbeiter und Monat (7-Tage-Betrieb)
 const SECHS_STD_FAKTOR = 0.75;      // 6-Stündler = ¾ eines Standard-Mitarbeiters
@@ -1297,7 +1300,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 178;
+const BOARD_VERSION = 179;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -3702,8 +3705,8 @@ function renderCoaching(){
           const diffW = myCum.wht - whtTeam;
           const wRow = document.createElement('div');
           wRow.className = 'panel-avg-row';
-          const clsW = diffW < -5 ? 'up' : diffW > 5 ? 'down' : 'eq';
-          wRow.innerHTML = `<span class="panel-avg-label">WHT</span><div class="panel-avg-vals"><span class="panel-avg-agent">${Math.round(myCum.wht)}</span><span class="panel-avg-arrow ${clsW}">${diffW < -5 ? '▼' : diffW > 5 ? '▲' : '—'}</span><span class="panel-avg-team">Ø${Math.round(whtTeam)}</span></div>`;
+          const okW = whtOk(myCum.wht); const clsW = okW === null ? 'eq' : okW ? 'up' : 'down';
+          wRow.innerHTML = `<span class="panel-avg-label">WHT</span><div class="panel-avg-vals"><span class="panel-avg-agent" style="color:${okW ? 'var(--good)' : 'var(--bad)'};font-weight:700;">${Math.round(myCum.wht)}</span><span class="panel-avg-arrow ${clsW}">${diffW < -5 ? '▼' : diffW > 5 ? '▲' : '—'}</span><span class="panel-avg-team">Ø${Math.round(whtTeam)}</span></div>`;
           avgSection.appendChild(wRow);
         }
         cfg.products.forEach(p=>{
@@ -6876,7 +6879,7 @@ function vlBarSVG(w, h, o){
   let { svg, T, fs } = vlFrame(w, h);
   const slot = cw/n, bw = Math.max(8, Math.min(34, slot*0.62));
   const vfs = slot < 30 ? fs-1.5 : fs;
-  const col = o.neutral ? (()=> '#5B6FA6') : (v => v <= 550 ? 'var(--good)' : v <= 680 ? 'var(--warn)' : 'var(--bad)');
+  const col = o.colorFn ? o.colorFn : o.neutral ? (()=> '#5B6FA6') : (v => v <= 550 ? 'var(--good)' : v <= 680 ? 'var(--warn)' : 'var(--bad)');
   for(let i=0;i<=sc.n;i++){
     const tv = sc.max*i/sc.n, y = pad.t + ch - (i/sc.n)*ch;
     svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" style="stroke:var(--border);" ${i? 'stroke-dasharray="2 4"' : ''}/>`;
@@ -7376,7 +7379,7 @@ function renderVerlauf(){
       vlRender(el, (w,h)=>vlBarSVG(w, h, { monate, values: chtValues.map(v=>v||0) }));
     }
     function drawWHTChart(el, monate, whtValues){
-      vlRender(el, (w,h)=>vlBarSVG(w, h, { monate, values: whtValues.map(v=>v||0), neutral: true }));
+      vlRender(el, (w,h)=>vlBarSVG(w, h, { monate, values: whtValues.map(v=>v||0), colorFn: v => whtOk(v) ? 'var(--good)' : 'var(--bad)' }));
     }
 
     // Charts zeichnen
@@ -7413,7 +7416,7 @@ function renderVerlauf(){
       const chtVal = (md.cht === null || md.cht === undefined) ? null : md.cht;
       const chtCls = chtVal === null ? '' : (chtVal <= 550 ? 'ok' : chtVal <= 680 ? 'mid' : 'bad');
       html += `<td><span class="vl-badge ${chtCls}">${chtVal === null ? '–' : Math.round(chtVal)}</span></td>`;
-      if(hasWHT(teamId)) html += `<td><span class="vl-badge">${md.wht > 0 ? Math.round(md.wht) : '–'}</span></td>`;
+      if(hasWHT(teamId)) html += `<td><span class="vl-badge ${whtOk(md.wht) === null ? '' : whtOk(md.wht) ? 'ok' : 'bad'}">${md.wht > 0 ? Math.round(md.wht) : '–'}</span></td>`;
       html += `<td><span class="vl-badge ${(md.nps||0)>=mcfg.npsTarget?'ok':'bad'}">${(md.nps||0).toFixed(1)}%</span></td>`;
       // Trend: Vergleich mit Vormonat
       const prevM = monate[monate.indexOf(m)-1];
@@ -8227,7 +8230,7 @@ function renderMonatsabschluss(){
     if(!md.cht) md.cht = 0;
     if(!md.calls) md.calls = 0;
     chtCalls.appendChild(mkSimpleBox('CHT', md.cht, v=>{ md.cht=v; }, chtColor));
-    if(teamKey === 'mf'){ if(!md.wht) md.wht = 0; chtCalls.appendChild(mkSimpleBox('WHT', md.wht, v=>{ md.wht=v; }, ()=>'var(--kpi-bg)')); }
+    if(teamKey === 'mf'){ if(!md.wht) md.wht = 0; chtCalls.appendChild(mkSimpleBox('WHT', md.wht, v=>{ md.wht=v; }, v => whtOk(v) === null ? 'var(--kpi-bg)' : whtOk(v) ? 'var(--good-soft)' : 'var(--bad-soft)')); }
     chtCalls.appendChild(mkSimpleBox('Calls', md.calls, v=>{ md.calls=v; }, ()=>'var(--kpi-bg)'));
 
     // DA-Blase: nur für MF-Team, nur ab Oktober
@@ -9722,7 +9725,7 @@ function openAgentAkte(agentId){
     kpi('CR', calls ? fmt1(cr) + ' %' : '–', calls ? cr >= cfg.crTarget : null) +
     kpi('Calls', calls === null ? '–' : Math.round(calls).toLocaleString('de-DE')) +
     kpi('CHT', cht === null ? '–' : Math.round(cht), cht === null ? null : cht <= 550) +
-    (hasWHT(agent.team) ? (()=>{ const w = fkCurVal(agent, 'wht', now); return kpi('WHT', w === null ? '–' : Math.round(w)); })() : '');
+    (hasWHT(agent.team) ? (()=>{ const w = fkCurVal(agent, 'wht', now); return kpi('WHT', w === null ? '–' : Math.round(w), w === null ? null : whtOk(w)); })() : '');
   const salesHtml = prods.map(p => {
     const i = cfg.products.indexOf(p), t = i === -1 ? null : targets[i];
     const v = (agent.sales && agent.sales[p]) || 0;
@@ -11393,7 +11396,7 @@ function renderOverviewInner(){
         if(hasWHT(teamId)){
           const whtVal = (agent.wht === null || agent.wht === undefined || !(agent.wht > 0)) ? null : agent.wht;
           html += `<div class="ov-cell qual-cell${isLastRow?' cht-group-last':''}"><span class="ov-badge ${chtStatus}">${chtVal === null ? '–' : Math.round(chtVal)}</span></div>`;
-          html += `<div class="ov-cell qual-cell cht-group-end${isLastRow?' cht-group-last':''}"><span class="ov-badge">${whtVal === null ? '–' : Math.round(whtVal)}</span></div>`;
+          html += `<div class="ov-cell qual-cell cht-group-end${isLastRow?' cht-group-last':''}"><span class="ov-badge ${whtVal === null ? '' : whtOk(whtVal) ? 'good' : 'zero'}">${whtVal === null ? '–' : Math.round(whtVal)}</span></div>`;
         } else {
           html += `<div class="ov-cell qual-cell cht-group-end${isLastRow?' cht-group-last':''}"><span class="ov-badge ${chtStatus}">${chtVal === null ? '–' : Math.round(chtVal)}</span></div>`;
         }
