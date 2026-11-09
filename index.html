@@ -1300,7 +1300,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 179;
+const BOARD_VERSION = 180;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -8656,14 +8656,17 @@ function renderTeamZiele(){
         else if(!callsHeute){ td.textContent = '?'; td.className = 'tz-crtag-na'; td.title = 'Anwesende Mitarbeiter heute eintragen'; }
         else {
           const halten = callsHeute * ziel / 100;
-          const rueckstand = calls * ziel / 100 - ist;          // > 0 = Rückstand, < 0 = Vorsprung
+          // v180: Grundlage ist die eingetragene CR (Zeile „CR“) – nur wenn dort nichts steht, Ist ÷ Calls
+          const crEing = parseFloat(String((tz.crAktuell || {})[p] ?? '').replace(',', '.'));
+          const crRech = calls ? ist / calls * 100 : 0;
+          const crBasis = crEing > 0 ? crEing : crRech;
+          const rueckstand = calls * (ziel - crBasis) / 100;    // > 0 = Rückstand, < 0 = Vorsprung
           const aufholen = rueckstand / verbleibendeAT;
           const heute = Math.max(0, halten + aufholen);
 
-          const crJetzt = calls ? ist / calls * 100 : 0;
           td.title = (stNutz !== stufe ? `Keine St.${stufe} für dieses Produkt → berechnet für St.${stNutz}\n` : `Berechnet für St.${stNutz}\n`) + `Halten: ${callsHeute} Calls × ${ziel.toFixed(2).replace('.',',')} % = ${fmt1(halten)}\n` +
                      (rueckstand > 0 ? `Aufholen: Rückstand ${fmt1(rueckstand)} ÷ ${verbleibendeAT} Tage = ${fmt1(aufholen)}` : `Vorsprung: ${fmt1(-rueckstand)} Stück (verteilt: −${fmt1(-aufholen)}/Tag)`) +
-                     `\nCR bisher: ${crJetzt.toFixed(2).replace('.',',')} %`;
+                     `\nCR bisher: ${crBasis.toFixed(2).replace('.',',')} %` + (crEing > 0 ? ` (eingetragen; Ist ÷ Calls ergibt ${crRech.toFixed(2).replace('.',',')} %)` : ' (Ist ÷ Calls)');
           const teile = `<span class="tz-crtag-sub">halten ${fmt1(halten)}</span>` + (rueckstand > 0
             ? `<span class="tz-crtag-sub"><b>+ aufholen ${fmt1(aufholen)}</b></span>`
             : `<span class="tz-crtag-sub tz-crtag-plus">Vorsprung ${fmt1(-rueckstand)}</span>`);
