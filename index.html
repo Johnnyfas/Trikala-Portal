@@ -10,6 +10,130 @@
 <meta name="theme-color" content="#E20074">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Standort-Portal">
+<!-- ===== Sperrbildschirm (v181): Ohne gültiges Zugangs-Passwort ist vom Board nichts zu sehen ===== -->
+<style id="gate-style">
+html:not(.gate-ok) body > :not(#gate){visibility:hidden!important;}
+html:not(.gate-ok) body{overflow:hidden!important;}
+html.gate-ok #gate{display:none!important;}
+#gate{
+  --g-bg:#F4F1F3; --g-card:#FFFFFF; --g-ink:#1B1F24; --g-muted:#6B7280; --g-line:#E3DDE1; --g-acc:#E20074; --g-acc-ink:#FFFFFF; --g-err:#B42318; --g-field:#FAF8F9;
+  position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:24px 16px;
+  background:radial-gradient(1200px 600px at 50% -10%, rgba(226,0,116,.10), transparent 60%), var(--g-bg);
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--g-ink);
+}
+html[data-fx-theme="dark"] #gate{--g-bg:#10151B;--g-card:#18202A;--g-ink:#E8EDF3;--g-muted:#93A1B3;--g-line:#2A3542;--g-field:#121921;--g-err:#F7A39B;
+  background:radial-gradient(1200px 600px at 50% -10%, rgba(226,0,116,.18), transparent 60%), var(--g-bg);}
+#gate .g-card{width:100%;max-width:360px;background:var(--g-card);border:1px solid var(--g-line);border-radius:18px;padding:30px 26px 24px;box-shadow:0 18px 50px -20px rgba(30,10,25,.35);display:flex;flex-direction:column;gap:18px;}
+#gate .g-brand{display:flex;align-items:center;gap:12px;}
+#gate .g-mark{position:relative;width:38px;height:38px;flex-shrink:0;}
+#gate .g-mark i{position:absolute;inset:0;border:3px solid var(--g-acc);border-radius:50%;}
+#gate .g-mark b{position:absolute;width:10px;height:10px;border-radius:50%;background:var(--g-acc);top:-3px;left:50%;margin-left:-5px;box-shadow:0 0 10px var(--g-acc);}
+#gate .g-orb{position:absolute;inset:0;animation:gOrbit 6s linear infinite;}
+@keyframes gOrbit{to{transform:rotate(360deg);}}
+@media (prefers-reduced-motion: reduce){#gate .g-orb{animation:none;}}
+#gate .g-word{font-weight:800;font-size:19px;letter-spacing:-.01em;line-height:1.15;}
+#gate .g-sub{font-size:12px;color:var(--g-muted);letter-spacing:.04em;}
+#gate h1{font-size:15px;font-weight:700;margin:0;}
+#gate p{margin:0;font-size:13px;line-height:1.5;color:var(--g-muted);}
+#gate form{display:flex;flex-direction:column;gap:10px;}
+#gate label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--g-muted);}
+#gate .g-field{display:flex;align-items:center;border:1px solid var(--g-line);border-radius:10px;background:var(--g-field);}
+#gate .g-field:focus-within{border-color:var(--g-acc);box-shadow:0 0 0 3px rgba(226,0,116,.15);}
+#gate input{flex:1;min-width:0;border:0;background:transparent;padding:11px 12px;font-size:15px;color:var(--g-ink);outline:none;font-family:inherit;}
+#gate .g-eye{border:0;background:transparent;color:var(--g-muted);padding:0 12px;cursor:pointer;height:42px;display:flex;align-items:center;}
+#gate .g-eye svg{width:18px;height:18px;}
+#gate .g-btn{border:0;border-radius:10px;background:var(--g-acc);color:var(--g-acc-ink);font-weight:700;font-size:14px;padding:12px;cursor:pointer;font-family:inherit;}
+#gate .g-btn:disabled{opacity:.6;cursor:wait;}
+#gate .g-err{min-height:18px;font-size:13px;color:var(--g-err);font-weight:600;}
+#gate .g-wait{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--g-muted);}
+#gate .g-spin{width:16px;height:16px;border:2px solid var(--g-line);border-top-color:var(--g-acc);border-radius:50%;animation:gOrbit .8s linear infinite;}
+#gate .g-foot{font-size:11.5px;color:var(--g-muted);border-top:1px solid var(--g-line);padding-top:12px;}
+#gate input, #gate input:focus{background:transparent!important;border:0!important;box-shadow:none!important;color:var(--g-ink)!important;}
+#gate .g-eye, #gate .g-eye:hover{background:transparent!important;border:0!important;box-shadow:none!important;}
+#gate[data-mode="wait"] form, #gate[data-mode="form"] .g-wait{display:none;}
+</style>
+<script>
+(function(){
+  var WORKER = 'https://coaching-proxy.g-fasoulas1989.workers.dev';
+  var TKEY = 'ki_app_token';
+  try{ if(localStorage.getItem('fx-theme')==='dark') document.documentElement.setAttribute('data-fx-theme','dark'); }catch(e){}
+  var resolveFn;
+  function neuesVersprechen(){ window.gateReady = new Promise(function(r){ resolveFn = r; }); }
+  neuesVersprechen();
+  window.__gateOpen = false;
+  window.__gateLoadWaiting = false;
+  function getTok(){ try{ return localStorage.getItem(TKEY) || ''; }catch(e){ return ''; } }
+  function setTok(t){ try{ if(t) localStorage.setItem(TKEY, t); else localStorage.removeItem(TKEY); }catch(e){} }
+  // Prüft das Passwort beim Worker, ohne Daten zu laden: „ping“ ist keine gültige Aktion –
+  // der Worker antwortet 400, wenn das Passwort stimmt, und 401, wenn nicht.
+  function pruefen(tok){
+    return fetch(WORKER + '/data', { method:'POST', headers:{ 'Content-Type':'application/json', 'x-app-token': tok }, body: JSON.stringify({ action:'ping' }) })
+      .then(function(r){ return r.status === 401 || r.status === 403 ? 'falsch' : 'ok'; })
+      .catch(function(){ return 'offline'; });
+  }
+  function el(id){ return document.getElementById(id); }
+  function modus(m, fehler){
+    var g = el('gate'); if(!g) return;
+    g.setAttribute('data-mode', m);
+    var e = el('gate-err'); if(e) e.textContent = fehler || '';
+    if(m === 'form'){ var i = el('gate-pw'); if(i){ i.value = ''; setTimeout(function(){ try{ i.focus(); }catch(x){} }, 30); } }
+  }
+  function oeffnen(nachLogin){
+    var warteteSchon = window.__gateLoadWaiting;
+    window.__gateOpen = true;
+    document.documentElement.classList.add('gate-ok');
+    resolveFn();
+    // Diagramme/Spalten an die nun sichtbare Fläche anpassen
+    setTimeout(function(){ try{ window.dispatchEvent(new Event('resize')); }catch(e){} }, 60);
+    // Frisch angemeldet und das Board hat noch nicht versucht zu laden → jetzt laden
+    if(nachLogin && !warteteSchon) setTimeout(function(){ try{ if(typeof loadFromSharePoint === 'function') loadFromSharePoint(); }catch(e){} }, 0);
+  }
+  // Wird vom Board aufgerufen, wenn der Worker das Passwort später ablehnt (z.B. Passwort geändert)
+  window.gateLock = function(meldung){
+    setTok('');
+    window.__gateOpen = false;
+    window.__gateLoadWaiting = false;
+    neuesVersprechen();
+    document.documentElement.classList.remove('gate-ok');
+    modus('form', meldung || '');
+  };
+  window.gateLogout = function(){
+    setTok('');
+    try{ location.reload(); }catch(e){}
+  };
+  function start(){
+    var g = el('gate'); if(!g) return;
+    var f = el('gate-form'), i = el('gate-pw'), b = el('gate-btn'), eye = el('gate-eye');
+    if(eye) eye.addEventListener('click', function(){
+      var zeigen = i.type === 'password'; i.type = zeigen ? 'text' : 'password';
+      eye.setAttribute('aria-label', zeigen ? 'Passwort verbergen' : 'Passwort anzeigen');
+      eye.innerHTML = zeigen ? EYE_ZU : EYE_AUF; i.focus();
+    });
+    f.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var t = (i.value || '').trim();
+      if(!t){ el('gate-err').textContent = 'Bitte das Passwort eingeben.'; return; }
+      b.disabled = true; b.textContent = 'Wird geprüft …'; el('gate-err').textContent = '';
+      pruefen(t).then(function(r){
+        b.disabled = false; b.textContent = 'Anmelden';
+        if(r === 'ok'){ setTok(t); oeffnen(true); }
+        else if(r === 'falsch'){ el('gate-err').textContent = 'Das Passwort ist falsch.'; i.select(); }
+        else { el('gate-err').textContent = 'Keine Verbindung. Bitte Internet prüfen und erneut versuchen.'; }
+      });
+    });
+    var tok = getTok();
+    if(!tok){ modus('form'); return; }
+    modus('wait');
+    pruefen(tok).then(function(r){
+      if(r === 'falsch'){ setTok(''); modus('form', 'Das gespeicherte Passwort gilt nicht mehr. Bitte neu anmelden.'); }
+      else oeffnen(false);   // ok – oder offline mit früher bestätigtem Passwort
+    });
+  }
+  var EYE_AUF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var EYE_ZU = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.1 6.1C3.5 7.8 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 4.9-1.3"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -1122,6 +1246,27 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 </style>
 </head>
 <body>
+<div id="gate" data-mode="wait" role="dialog" aria-modal="true" aria-labelledby="gate-title">
+  <div class="g-card">
+    <div class="g-brand">
+      <span class="g-mark"><i></i><span class="g-orb"><b></b></span></span>
+      <span><span class="g-word">Standort-Portal</span><br><span class="g-sub">Trikala · Inbound PK</span></span>
+    </div>
+    <div class="g-wait"><span class="g-spin"></span>Zugang wird geprüft …</div>
+    <form id="gate-form" autocomplete="on">
+      <h1 id="gate-title">Anmelden</h1>
+      <p>Bitte das Zugangs-Passwort eingeben.</p>
+      <label for="gate-pw">Passwort</label>
+      <div class="g-field">
+        <input id="gate-pw" type="password" autocomplete="current-password" required>
+        <button type="button" class="g-eye" id="gate-eye" aria-label="Passwort anzeigen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="g-err" id="gate-err" aria-live="polite"></div>
+      <button type="submit" class="g-btn" id="gate-btn">Anmelden</button>
+    </form>
+    <div class="g-foot">Zugang nur für Führungskräfte des Standorts. Nach der Anmeldung bleibt dieses Gerät angemeldet.</div>
+  </div>
+</div>
 <aside class="app-side" id="app-side" aria-label="Navigation">
   <div id="fx-logo"><span class="mark"><span class="ring"></span><span class="orb"><b></b></span></span><span><span class="word">Standort-Portal</span><br><span class="sub">Trikala · Inbound PK</span></span></div>
   <nav class="side-nav">
@@ -1143,6 +1288,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
   </button>
   <div class="side-foot">
     <span id="user-label" class="user-label"></span>
+    <button type="button" id="gate-logout" class="gate-logout" onclick="if(confirm('Auf diesem Gerät abmelden? Danach ist das Passwort erneut nötig.')) gateLogout();">Abmelden</button>
     <span id="board-version-label" class="board-version-label" title="Version dieser Board-Datei – nach dem Hochladen einer neuen Datei mit Strg+F5 neu laden, bis hier die neue Nummer steht"></span>
   </div>
 </aside>
@@ -1300,7 +1446,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 180;
+const BOARD_VERSION = 181;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -2446,6 +2592,8 @@ function lwwMergeAll(serverData){
 // LWW_END
 
 async function loadFromSharePoint(){
+  // v181: erst laden, wenn der Sperrbildschirm das Passwort bestätigt hat
+  if(window.gateReady && !window.__gateOpen){ window.__gateLoadWaiting = true; await window.gateReady; }
   setSyncStatus('syncing');
   const epochAtStart = saveEpoch;
   try {
@@ -2633,7 +2781,9 @@ async function loadFromSharePoint(){
       // wiederholt frisch gespeicherte Werte (z.B. Planmenge) still und heimlich wieder
       // zurückgesetzt. Jetzt lieber eine ehrliche Fehlermeldung statt einer stillen, riskanten
       // Überschreibung mit womöglich alten Daten.
-      showSyncDebug(`❌ Zugang abgelaufen (HTTP ${resp.status}). Der hinterlegte Microsoft-Zugang von Ioannis ist nicht mehr gültig - bitte Ioannis bitten, im Portal auf "🔒 Einloggen" zu klicken. Danach diese Seite neu laden.`, true);
+      setSyncStatus('error');
+      if(window.gateLock){ window.gateLock('Das Passwort gilt nicht mehr. Bitte mit dem neuen Passwort anmelden.'); return; }
+      showSyncDebug(`❌ Zugangs-Passwort ungültig (HTTP ${resp.status}). Bitte die Seite neu laden und das aktuelle Passwort eingeben.`, true);
     } else {
       showSyncDebug(`❌ Fehler beim Laden: HTTP ${resp.status} ${resp.statusText}${errDetail}. Nichts wurde überschrieben - bitte im Team melden.`, true);
     }
@@ -12412,6 +12562,9 @@ html[data-fx-theme="dark"] .cr-box{box-shadow:none;}
 
 /* 21 – Logo-Lockup im Header */
 #fx-logo{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.side-foot .gate-logout{align-self:flex-start;background:none;border:1px solid var(--side-line, rgba(127,127,127,.3));color:var(--side-muted, var(--muted));border-radius:999px;font-size:11px;padding:3px 10px;cursor:pointer;font-family:inherit;}
+.side-foot .gate-logout:hover{color:var(--tmg);border-color:var(--tmg);}
+body.side-collapsed .side-foot .gate-logout{font-size:9px;padding:2px 4px;}
 #fx-logo .mark{position:relative;width:34px;height:34px;flex-shrink:0;}
 #fx-logo .mark .ring{position:absolute;inset:0;border:3px solid var(--tmg);border-radius:50%;display:block;}
 #fx-logo .mark .orb{position:absolute;inset:0;display:block;animation:fxOrbit 6s linear infinite;}
