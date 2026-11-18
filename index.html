@@ -421,6 +421,87 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .hr-bad{background:var(--red-soft);} .hr-bad .hr-prog,.hr-bad .hr-need{color:var(--red);}
 .hr-sum{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:14px;}
 .hr-sum.hr-ok{color:var(--teal);} .hr-sum.hr-warn{color:var(--amber);} .hr-sum.hr-bad{color:var(--red);}
+/* ===== Hochrechnung v182 ===== */
+.hr2-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;}
+.hr2-toolbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:-6px 0 16px;}
+.hr2-seg{display:inline-flex;align-items:center;gap:4px;font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);}
+.hr2-seg span{margin-right:4px;}
+.hr2-seg button{border:1px solid var(--border);background:var(--panel);color:var(--ink,#1D1D1F);border-radius:999px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;}
+.hr2-seg button.on{background:var(--tmg);border-color:var(--tmg);color:#fff;font-weight:600;}
+.hr2-head{align-items:flex-end;}
+.hr2-h1{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#F6A9CF;margin-bottom:2px;font-family:'Inter',sans-serif;}
+.hr2-h2{font-size:17px;}
+.hr2-headr{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.hr2-exp{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.hr2-exp:hover{background:var(--tmg);border-color:var(--tmg);}
+.hr2-legend{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;padding:10px 20px;font-family:'Inter',sans-serif;font-size:11.5px;color:var(--muted);border-bottom:1px solid var(--border);}
+.hr2-legend b{color:inherit;font-weight:700;}
+.hr2-lg{display:inline-flex;align-items:center;gap:5px;}
+.hr2-legend i, .hrk-legend i{display:inline-block;width:12px;height:8px;border-radius:3px;}
+.hr2-legend i.lg-ist{background:#6B7280;} .hr2-legend i.lg-prog{background:#6B7280;opacity:.35;}
+i.lg.ok{background:var(--teal);} i.lg.warn{background:var(--amber);} i.lg.bad{background:var(--red);}
+.hr2-early{padding:8px 20px;font-family:'Inter',sans-serif;font-size:12px;color:var(--amber);background:var(--amber-soft);}
+.hr2-table td.hr2-c{min-width:92px;padding:9px 10px;vertical-align:top;text-align:left;}
+.hr2-top{display:flex;align-items:baseline;gap:4px;font-variant-numeric:tabular-nums;}
+.hr2-top b{font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;}
+.hr2-top span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
+.hr2-bar{position:relative;height:6px;border-radius:999px;background:var(--border);margin:5px 0 4px;overflow:hidden;}
+.hr2-bar i, .hrk-bar i{position:absolute;left:0;top:0;bottom:0;border-radius:999px;}
+.hr2-bot{display:flex;justify-content:space-between;gap:6px;font-family:'Inter',sans-serif;font-size:10.5px;color:var(--muted);white-space:nowrap;}
+.hr2-need{font-weight:700;}
+.hr2-ok{font-weight:700;color:var(--teal);}
+.hr2-c.st-ok{background:var(--teal-soft);} .hr2-c.st-ok b{color:var(--teal);} .hr2-c.st-ok .b-prog{background:var(--teal);opacity:.4;} .hr2-c.st-ok .b-ist{background:var(--teal);}
+.hr2-c.st-warn{background:var(--amber-soft);} .hr2-c.st-warn b,.hr2-c.st-warn .hr2-need{color:var(--amber);} .hr2-c.st-warn .b-prog{background:var(--amber);opacity:.4;} .hr2-c.st-warn .b-ist{background:var(--amber);}
+.hr2-c.st-bad{background:var(--red-soft);} .hr2-c.st-bad b,.hr2-c.st-bad .hr2-need{color:var(--red);} .hr2-c.st-bad .b-prog{background:var(--red);opacity:.35;} .hr2-c.st-bad .b-ist{background:var(--red);}
+.hr2-name{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;text-align:left;display:inline-flex;align-items:center;gap:2px;}
+.hr2-name > span:first-child{border-bottom:1px dashed transparent;}
+.hr2-name:hover > span:first-child{color:var(--tmg);border-bottom-color:var(--tmg);}
+.hr2-sumc{text-align:center;}
+.hr2-pill{display:inline-block;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px;border-radius:999px;padding:4px 10px;}
+.hr2-pill.st-ok{background:var(--teal-soft);color:var(--teal);} .hr2-pill.st-warn{background:var(--amber-soft);color:var(--amber);} .hr2-pill.st-bad{background:var(--red-soft);color:var(--red);}
+.hr2-capturing{width:max-content!important;min-width:100%;}
+.hr2-capturing .hr-table-wrap{overflow:visible!important;}
+/* Einzelkarte */
+.hrk-box{position:relative;background:var(--panel);border-radius:18px;padding:16px;max-width:480px;width:100%;max-height:92vh;overflow:auto;display:flex;flex-direction:column;gap:12px;}
+.hrk-nav{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);padding-right:34px;}
+.hrk-nav button{border:1px solid var(--border);background:var(--panel);color:var(--ink,#1D1D1F);border-radius:999px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;}
+.hrk-nav button:disabled{opacity:.4;cursor:default;}
+.hrk{background:#FFFFFF;color:#1B1F24;border-radius:16px;overflow:hidden;border:1px solid #EEE7EB;font-family:'Inter',sans-serif;}
+.hrk-head{background:linear-gradient(135deg,#E20074 0%,#A1005A 100%);color:#fff;padding:18px 20px 16px;}
+.hrk-eyebrow{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.85;}
+.hrk-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;margin:4px 0 2px;line-height:1.2;}
+.hrk-meta{font-size:12px;opacity:.9;}
+.hrk-sum{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid #F1ECEF;}
+.hrk-ring{position:relative;width:76px;height:76px;flex-shrink:0;}
+.hrk-ring svg{display:block;}
+.hrk-ring span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;color:#1B1F24;}
+.hrk-sum1{font-size:15px;font-weight:600;}
+.hrk-sum2{font-size:12.5px;color:#5B6470;margin-top:3px;line-height:1.45;}
+.hrk-list{display:flex;flex-direction:column;}
+.hrk-row{display:grid;grid-template-columns:52px 1fr auto;align-items:center;gap:12px;padding:10px 20px;border-bottom:1px solid #F4F0F2;}
+.hrk-p{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;}
+.hrk-mid{min-width:0;}
+.hrk-bar{position:relative;height:9px;border-radius:999px;background:#EFEAEE;overflow:hidden;margin-bottom:5px;}
+.hrk-nums{font-size:11.5px;color:#5B6470;font-variant-numeric:tabular-nums;}
+.hrk-nums b{color:#1B1F24;font-weight:700;}
+.hrk-tag{font-size:11.5px;font-weight:700;text-align:right;min-width:76px;color:#5B6470;}
+.hrk-tag b{display:block;font-family:'IBM Plex Mono',monospace;font-size:16px;line-height:1.1;}
+.hrk-tag span{font-weight:600;font-size:10.5px;}
+.hrk-tag.t-ok{color:#0E7C7B;font-size:12.5px;}
+.hrk-tag.t-warn{color:#B36A1E;} .hrk-tag.t-bad{color:#B4423A;}
+.hrk-row.st-ok .b-ist{background:#0E7C7B;} .hrk-row.st-ok .b-prog{background:#0E7C7B;opacity:.35;}
+.hrk-row.st-warn .b-ist{background:#C2792B;} .hrk-row.st-warn .b-prog{background:#C2792B;opacity:.35;}
+.hrk-row.st-bad .b-ist{background:#B4423A;} .hrk-row.st-bad .b-prog{background:#B4423A;opacity:.3;}
+.hrk-row.st-bad{background:#FDF5F4;}
+.hrk-legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 20px 0;font-size:11px;color:#5B6470;}
+.hrk-legend span{display:inline-flex;align-items:center;gap:5px;}
+.hrk-legend i.lg-ist{background:#5B6470;} .hrk-legend i.lg-prog{background:#5B6470;opacity:.35;}
+.hrk-legend i.lg.ok{background:#0E7C7B;} .hrk-legend i.lg.warn{background:#C2792B;} .hrk-legend i.lg.bad{background:#B4423A;}
+.hrk-foot{padding:10px 20px 16px;font-size:11px;color:#5B6470;line-height:1.5;}
+.hrk-foot b{color:#1B1F24;}
+.hrk-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;}
+@media (max-width:480px){ .hrk-row{grid-template-columns:44px 1fr auto;gap:8px;padding:9px 14px;} .hrk-head,.hrk-sum,.hrk-legend,.hrk-foot{padding-left:14px;padding-right:14px;} }
+
 .tw-team-wrap{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.04);margin-bottom:24px;}
 /* tw-team-sticky: schwarzer Balken + Spalten-Header-Klon; wird per JS fixed geschaltet */
 .tw-team-sticky{background:#fff;border-radius:16px 16px 0 0;z-index:20;}
@@ -1446,7 +1527,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 181;
+const BOARD_VERSION = 182;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -9629,26 +9710,98 @@ function hrAgentSums(agent, mk, products){
   });
   return sum;
 }
+// v182: Hochrechnung neu gestaltet – verständlich für Mitarbeiter, als Bild exportierbar
+function hrAnteilArbeitstage(info, now){
+  // Im 7-Tage-Betrieb arbeitet jeder Mitarbeiter nicht an allen Kalendertagen (ca. 7–8 freie Tage
+  // im Monat). „pro Tag“ bezieht sich deshalb auf die eigenen restlichen Arbeitstage.
+  if(!(info.saturday && info.sunday)) return 1;
+  const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const frei = (typeof FREIE_TAGE_PRO_MONAT === 'number') ? FREIE_TAGE_PRO_MONAT : 7.5;
+  return Math.max(0.5, 1 - frei / dim);
+}
+function hrStatus(pct){ return pct === null ? 'none' : pct >= 1 ? 'ok' : pct >= 0.85 ? 'warn' : 'bad'; }
+function hrBerechne(agent, cfg, info, anteil){
+  const targets = agentTargets(agent);
+  const ist = hrAgentSums(agent, info.mk, cfg.products);
+  const restMA = info.remaining * anteil;
+  let onTrack = 0, pctSum = 0, n = 0;
+  const cells = {};
+  cfg.products.forEach((p, i)=>{
+    const ziel = targets[i] || 0;
+    const prog = ist[p] + (ist[p] / info.elapsed) * info.remaining;
+    const pct = ziel > 0 ? prog / ziel : null;
+    const perDay = (ziel > 0 && restMA > 0) ? Math.max(0, (ziel - ist[p]) / restMA) : 0;
+    if(pct !== null){ n++; pctSum += Math.min(pct, 1.5); if(pct >= 1) onTrack++; }
+    cells[p] = { ist: ist[p], ziel, prog, pct, perDay, st: hrStatus(pct) };
+  });
+  return { agent, cells, onTrack, total: n, avgPct: n ? pctSum / n : 1, restMA };
+}
+function hrFmt(n){ return (Math.round(n*10)/10).toLocaleString('de-DE', {maximumFractionDigits:1}); }
+function hrSumStatus(r){ return r.onTrack >= Math.max(1, r.total - 1) ? 'ok' : (r.onTrack >= Math.max(1, r.total - 2) ? 'warn' : 'bad'); }
+function hrBarHtml(c, cls){
+  if(!(c.ziel > 0)) return `<div class="${cls}"><i class="b-prog" style="width:0"></i></div>`;
+  const wIst = Math.min(100, c.ist / c.ziel * 100);
+  const wProg = Math.min(100, c.prog / c.ziel * 100);
+  return `<div class="${cls}" role="img" aria-label="${Math.round(c.pct*100)} % vom Ziel"><i class="b-prog" style="width:${wProg}%"></i><i class="b-ist" style="width:${wIst}%"></i></div>`;
+}
+function hrLegendeHtml(){
+  return `<div class="hr2-legend">
+    <span><b>Prognose</b> = so landest du am Monatsende, wenn du im bisherigen Tempo weitermachst</span>
+    <span class="hr2-lg"><i class="lg-ist"></i>kräftig = bisher</span><span class="hr2-lg"><i class="lg-prog"></i>hell = Prognose</span>
+    <span class="hr2-lg"><i class="lg ok"></i>Ziel erreicht</span><span class="hr2-lg"><i class="lg warn"></i>knapp (ab 85 %)</span><span class="hr2-lg"><i class="lg bad"></i>Ziel in Gefahr</span>
+    <span><b>„/Tag“</b> = so viele brauchst du ab heute an jedem Arbeitstag</span>
+  </div>`;
+}
+function hrExport(el, dateiname, alsKopie, breit){
+  if(typeof html2canvas !== 'function'){ if(window.fxToast) fxToast('Bild-Export nicht verfügbar'); return Promise.resolve(); }
+  if(breit) el.classList.add('hr2-capturing');
+  const bg = getComputedStyle(el).backgroundColor;
+  return html2canvas(el, { backgroundColor: (bg && bg !== 'rgba(0, 0, 0, 0)') ? bg : '#FFFFFF', scale: 2,
+    ignoreElements: x => x.classList && x.classList.contains('hr2-noexp') }).then(canvas=>{
+    el.classList.remove('hr2-capturing');
+    if(alsKopie && navigator.clipboard && window.ClipboardItem){
+      return new Promise(res => canvas.toBlob(b=>{
+        navigator.clipboard.write([new ClipboardItem({'image/png': b})])
+          .then(()=>{ if(window.fxToast) fxToast('Bild kopiert – jetzt im Chat einfügen (Strg+V)'); res(); })
+          .catch(()=>{ hrDownload(canvas, dateiname); if(window.fxToast) fxToast('Kopieren nicht erlaubt – Bild wurde gespeichert'); res(); });
+      }, 'image/png'));
+    }
+    hrDownload(canvas, dateiname);
+  }).catch(()=>{ el.classList.remove('hr2-capturing'); if(window.fxToast) fxToast('Bild konnte nicht erstellt werden'); });
+}
+function hrDownload(canvas, dateiname){
+  const a = document.createElement('a');
+  a.download = dateiname; a.href = canvas.toDataURL('image/png');
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function hrDateiTeil(s){ return String(s || '').trim().replace(/\s+/g, '-').replace(/[^\wÄÖÜäöüß-]/g, ''); }
+
 function renderHochrechnung(){
   const container = document.getElementById('hochrechnung-capture');
   if(!container) return;
   container.innerHTML = '';
   const now = new Date();
   const monatName = now.toLocaleString('de-DE', {month:'long', year:'numeric'});
-  const fmt = n => (Math.round(n*10)/10).toLocaleString('de-DE', {maximumFractionDigits:1});
+  const standTxt = now.toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit', year:'numeric'});
+  let sortMode = 'rueckstand';
+  try{ sortMode = localStorage.getItem('hr-sort') || 'rueckstand'; }catch(e){}
 
   const intro = document.createElement('div');
-  intro.className = 'hr-intro';
-  intro.innerHTML = `<div class="hr-title">Hochrechnung ${monatName}</div>
-    <div class="hr-sub">Prognose = bisheriges Tempo aus den Tageswerten × verbleibende Arbeitstage. Grün = Ziel wird erreicht,
-    Gelb = knapp darunter (ab 85 %), Rot = deutlich darunter. „/Tag“ = so viele Abschlüsse pro verbleibendem Arbeitstag fehlen noch zum Ziel.
-    Mitarbeiter mit dem größten Rückstand stehen oben. Feiertage und Urlaub werden nicht berücksichtigt.</div>`;
+  intro.className = 'hr-intro hr2-intro';
+  intro.innerHTML = `<div><div class="hr-title">Hochrechnung ${monatName}</div>
+    <div class="hr-sub">Wo landet jeder Mitarbeiter am Monatsende, wenn er so weitermacht wie bisher? Auf einen Namen klicken für eine Einzelkarte zum Verschicken.</div></div>`;
   container.appendChild(intro);
+
   const hrLeader = fkGetLeaderFilter();
-  const hrBar = document.createElement('div');
-  hrBar.style.cssText = 'margin:-6px 0 16px;';
-  hrBar.appendChild(buildLeaderFilter(()=>renderHochrechnung()));
-  container.appendChild(hrBar);
+  const bar = document.createElement('div');
+  bar.className = 'hr2-toolbar';
+  bar.appendChild(buildLeaderFilter(()=>renderHochrechnung()));
+  const sortBox = document.createElement('div');
+  sortBox.className = 'hr2-seg';
+  sortBox.innerHTML = `<span>Sortierung</span><button type="button" data-s="rueckstand" class="${sortMode==='rueckstand'?'on':''}">Rückstand zuerst</button><button type="button" data-s="reihenfolge" class="${sortMode==='reihenfolge'?'on':''}">Feste Reihenfolge</button>`;
+  sortBox.querySelectorAll('button').forEach(b => b.onclick = ()=>{ try{ localStorage.setItem('hr-sort', b.dataset.s); }catch(e){} renderHochrechnung(); });
+  bar.appendChild(sortBox);
+  container.appendChild(bar);
 
   let anyTeam = false;
   Object.keys(TEAM_CONFIGS).forEach(teamId=>{
@@ -9656,18 +9809,19 @@ function renderHochrechnung(){
     const teamAgents = state.agents.filter(a => String(a.team) === String(teamId) && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
     if(!teamAgents.length) return;
     anyTeam = true;
-    const info = hrWorkdayInfo(teamAgents, now); // Arbeitstage immer aus dem ganzen Team
+    const info = hrWorkdayInfo(teamAgents, now);
+    const anteil = hrAnteilArbeitstage(info, now);
     const prods = displayOrderProducts(cfg.products.slice(), teamId);
     const shownAgents = teamAgents.filter(a => fkMatchesLeader(a, hrLeader));
     if(!shownAgents.length) return;
 
     const block = document.createElement('div');
-    block.className = 'hr-team';
+    block.className = 'hr-team hr2-team';
     const head = document.createElement('div');
-    head.className = 'hr-team-head';
-    const wdText = 'Mo–Fr' + (info.saturday ? ' + Sa' : '') + (info.sunday ? ' + So' : '');
-    head.innerHTML = `<span>${cfg.label} — ${cfg.project}</span>
-      ${info.hasData ? `<span class="hr-days">Arbeitstag <b>${info.elapsed}</b> von <b>${info.total}</b> · noch ${info.remaining} (${wdText})</span>` : ''}`;
+    head.className = 'hr-team-head hr2-head';
+    const restTxt = info.hasData ? `Stand ${standTxt} · Tag ${info.elapsed} von ${info.total} · noch ${info.remaining} ${info.remaining === 1 ? 'Tag' : 'Tage'}` : `Stand ${standTxt}`;
+    head.innerHTML = `<div><div class="hr2-h1">Hochrechnung ${monatName}</div><div class="hr2-h2">${kiEsc(cfg.label)} — ${kiEsc(cfg.project)}</div></div>
+      <div class="hr2-headr"><span class="hr-days">${restTxt}</span><button type="button" class="hr2-exp hr2-noexp">Als Bild speichern</button></div>`;
     block.appendChild(head);
 
     if(!info.hasData || info.elapsed === 0){
@@ -9678,68 +9832,121 @@ function renderHochrechnung(){
       container.appendChild(block);
       return;
     }
+    const legend = document.createElement('div');
+    legend.innerHTML = hrLegendeHtml();
+    block.appendChild(legend.firstElementChild);
+    if(info.elapsed < 3){
+      const w = document.createElement('div');
+      w.className = 'hr2-early';
+      w.textContent = 'Noch wenige Tage erfasst – die Prognose wird ab etwa dem 3. Tag aussagekräftiger.';
+      block.appendChild(w);
+    }
 
-    // Werte je Mitarbeiter berechnen
-    const rows = shownAgents.map(agent=>{
-      const targets = agentTargets(agent);
-      const ist = hrAgentSums(agent, info.mk, cfg.products);
-      let onTrack = 0, pctSum = 0, n = 0;
-      const cells = {};
-      cfg.products.forEach((p, i)=>{
-        const ziel = targets[i] || 0;
-        const prog = ist[p] + (ist[p] / info.elapsed) * info.remaining;
-        const pct = ziel > 0 ? prog / ziel : null;
-        const perDay = (ziel > 0 && info.remaining > 0) ? Math.max(0, (ziel - ist[p]) / info.remaining) : 0;
-        if(pct !== null){ n++; pctSum += Math.min(pct, 1.5); if(pct >= 1) onTrack++; }
-        cells[p] = { ist: ist[p], ziel, prog, pct, perDay };
-      });
-      return { agent, cells, onTrack, total: n, avgPct: n ? pctSum / n : 1 };
-    }).sort((a,b)=> (a.onTrack - b.onTrack) || (a.avgPct - b.avgPct));
+    let rows = shownAgents.map(a => hrBerechne(a, cfg, info, anteil));
+    if(sortMode !== 'reihenfolge') rows.sort((a,b)=> (a.onTrack - b.onTrack) || (a.avgPct - b.avgPct));
 
     const wrap = document.createElement('div');
     wrap.className = 'hr-table-wrap';
     const t = document.createElement('table');
-    t.className = 'hr-table';
+    t.className = 'hr-table hr2-table';
     const thead = document.createElement('tr');
-    thead.innerHTML = `<th class="hr-name-col">Mitarbeiter</th>` + prods.map(p=>`<th>${productLabel(p, teamId)}</th>`).join('') + `<th>Auf Kurs</th>`;
+    thead.innerHTML = `<th class="hr-name-col">Mitarbeiter</th>` + prods.map(p=>`<th>${kiEsc(productLabel(p, teamId))}</th>`).join('') + `<th>Auf Kurs</th>`;
     t.appendChild(thead);
-    rows.forEach(r=>{
+    rows.forEach((r, idx)=>{
       const tr = document.createElement('tr');
       const nameTd = document.createElement('td');
       nameTd.className = 'hr-name-col';
-      nameTd.textContent = r.agent.name;
-      if(r.agent.category && r.agent.category !== 'regular'){
-        const tag = document.createElement('span');
-        tag.className = 'hr-cat';
-        tag.textContent = CATEGORY_LABELS[r.agent.category] || r.agent.category;
-        nameTd.appendChild(tag);
-      }
+      const nb = document.createElement('button');
+      nb.type = 'button'; nb.className = 'hr2-name'; nb.title = 'Einzelkarte öffnen (zum Verschicken an den Mitarbeiter)';
+      nb.innerHTML = `<span>${kiEsc(r.agent.name)}</span>` + (r.agent.category && r.agent.category !== 'regular' ? `<span class="hr-cat">${kiEsc(CATEGORY_LABELS[r.agent.category] || r.agent.category)}</span>` : '');
+      nb.onclick = ()=> openHrKarte(rows, idx, { cfg, teamId, prods, info, monatName, standTxt });
+      nameTd.appendChild(nb);
       tr.appendChild(nameTd);
       prods.forEach(p=>{
         const c = r.cells[p];
         const td = document.createElement('td');
+        td.className = 'hr2-c st-' + c.st;
         if(c.pct === null){
-          td.innerHTML = `<div class="hr-prog">${fmt(c.prog)}</div><div class="hr-meta">Ist ${fmt(c.ist)} · ohne Ziel</div>`;
+          td.innerHTML = `<div class="hr2-top"><b>${hrFmt(c.prog)}</b></div><div class="hr2-bot"><span>bisher ${hrFmt(c.ist)}</span><span>ohne Ziel</span></div>`;
         } else {
-          td.className = c.pct >= 1 ? 'hr-ok' : (c.pct >= 0.85 ? 'hr-warn' : 'hr-bad');
-          const need = c.pct >= 1 || info.remaining === 0 ? '' : `<div class="hr-need">${fmt(c.perDay)}/Tag</div>`;
-          td.innerHTML = `<div class="hr-prog">${fmt(c.prog)} <span class="hr-of">/ ${fmt(c.ziel)}</span></div><div class="hr-meta">Ist ${fmt(c.ist)}</div>${need}`;
-          td.title = `${productLabel(p, teamId)}: Ist ${fmt(c.ist)}, Prognose ${fmt(c.prog)}, Ziel ${fmt(c.ziel)} (${Math.round(c.pct*100)} %)`;
+          const rechts = c.st === 'ok' ? '<span class="hr2-ok">✓ Ziel</span>' : (info.remaining > 0 ? `<span class="hr2-need">${hrFmt(c.perDay)}/Tag</span>` : '');
+          td.innerHTML = `<div class="hr2-top"><b>${hrFmt(c.prog)}</b><span>/ ${hrFmt(c.ziel)}</span></div>${hrBarHtml(c, 'hr2-bar')}<div class="hr2-bot"><span>bisher ${hrFmt(c.ist)}</span>${rechts}</div>`;
+          td.title = `${productLabel(p, teamId)}: bisher ${hrFmt(c.ist)} · Prognose ${hrFmt(c.prog)} · Ziel ${hrFmt(c.ziel)} (${Math.round(c.pct*100)} %)` + (c.st !== 'ok' && info.remaining > 0 ? ` · nötig: ${hrFmt(c.perDay)} pro Arbeitstag` : '');
         }
         tr.appendChild(td);
       });
       const sumTd = document.createElement('td');
-      sumTd.className = 'hr-sum ' + (r.onTrack >= Math.max(1, r.total - 1) ? 'hr-ok' : (r.onTrack >= Math.max(1, r.total - 2) ? 'hr-warn' : 'hr-bad'));
-      sumTd.textContent = `${r.onTrack}/${r.total}`;
+      sumTd.className = 'hr2-sumc';
+      sumTd.innerHTML = `<span class="hr2-pill st-${hrSumStatus(r)}">${r.onTrack}/${r.total}</span>`;
       sumTd.title = 'Produkte, bei denen die Prognose das Ziel erreicht (Hall of Fame braucht alle bis auf eines)';
       tr.appendChild(sumTd);
       t.appendChild(tr);
     });
     wrap.appendChild(t);
     block.appendChild(wrap);
+    head.querySelector('.hr2-exp').onclick = ()=> hrExport(block, `Hochrechnung_${hrDateiTeil(cfg.label)}_${standTxt.replace(/\./g,'-')}.png`, false, true);
     container.appendChild(block);
   });
   if(!anyTeam) container.appendChild(emptyStateEl('Noch keine Mitarbeiter angelegt', 'Lege zuerst Mitarbeiter an.'));
+}
+
+// Einzelkarte je Mitarbeiter – bewusst feste, helle Farben, damit das Bild immer gleich aussieht
+function openHrKarte(rows, startIdx, ctx){
+  let idx = startIdx;
+  const ov = document.createElement('div'); ov.className = 'chart-overlay cd-modal-overlay hrk-ov';
+  const box = document.createElement('div'); box.className = 'hrk-box';
+  ov.appendChild(box); document.body.appendChild(ov);
+  const close = ()=>{ ov.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = e=>{ if(e.key === 'Escape') close(); else if(e.key === 'ArrowLeft' && idx > 0){ idx--; render(); } else if(e.key === 'ArrowRight' && idx < rows.length-1){ idx++; render(); } };
+  document.addEventListener('keydown', onKey);
+  ov.addEventListener('mousedown', e=>{ if(e.target === ov) close(); });
+  function render(){
+    const r = rows[idx];
+    const { info, prods, teamId, monatName, standTxt } = ctx;
+    const tageMA = Math.max(0, Math.round(r.restMA));
+    const msg = r.total === 0 ? 'Für diesen Monat sind keine Produktziele hinterlegt.'
+      : r.onTrack === r.total ? 'Stark! Wenn du so weitermachst, schaffst du alle deine Ziele.'
+      : r.onTrack === r.total - 1 ? 'Fast geschafft – nur noch ein Produkt fehlt zum vollen Erfolg.'
+      : r.onTrack >= Math.ceil(r.total / 2) ? 'Gute Basis! Mit etwas mehr Tempo bei den markierten Produkten ist noch viel drin.'
+      : 'Jetzt ist der richtige Moment, Gas zu geben – jeder Abschluss zählt.';
+    const ring = (()=>{
+      const R = 30, U = 2 * Math.PI * R, f = r.total ? r.onTrack / r.total : 0;
+      const col = { ok:'#0E7C7B', warn:'#C2792B', bad:'#B4423A' }[hrSumStatus(r)];
+      return `<svg viewBox="0 0 76 76" width="76" height="76" aria-hidden="true"><circle cx="38" cy="38" r="${R}" fill="none" stroke="#EEE7EB" stroke-width="8"/>
+        <circle cx="38" cy="38" r="${R}" fill="none" stroke="${col}" stroke-width="8" stroke-linecap="round" stroke-dasharray="${(U*f).toFixed(1)} ${U.toFixed(1)}" transform="rotate(-90 38 38)"/>
+</svg>`;
+    })();
+    const zeilen = prods.map(p=>{
+      const c = r.cells[p];
+      const label = kiEsc(productLabel(p, teamId));
+      if(c.pct === null) return `<div class="hrk-row st-none"><div class="hrk-p">${label}</div><div class="hrk-mid"><div class="hrk-nums">bisher <b>${hrFmt(c.ist)}</b> · Prognose <b>${hrFmt(c.prog)}</b></div></div><div class="hrk-tag">kein Ziel</div></div>`;
+      const tag = c.st === 'ok' ? '<div class="hrk-tag t-ok">✓ im Ziel</div>'
+        : info.remaining > 0 ? `<div class="hrk-tag t-${c.st}"><b>${hrFmt(c.perDay)}</b><span>pro Tag nötig</span></div>` : '<div class="hrk-tag t-bad">nicht erreicht</div>';
+      return `<div class="hrk-row st-${c.st}"><div class="hrk-p">${label}</div>
+        <div class="hrk-mid">${hrBarHtml(c, 'hrk-bar')}<div class="hrk-nums">bisher <b>${hrFmt(c.ist)}</b> · Prognose <b>${hrFmt(c.prog)}</b> · Ziel <b>${hrFmt(c.ziel)}</b></div></div>${tag}</div>`;
+    }).join('');
+    box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
+      <div class="hrk-nav"><button type="button" class="hrk-prev" ${idx===0?'disabled':''}>‹ Vorheriger</button><span>${idx+1} von ${rows.length}</span><button type="button" class="hrk-next" ${idx===rows.length-1?'disabled':''}>Nächster ›</button></div>
+      <div class="hrk" id="hrk-capture">
+        <div class="hrk-head"><div class="hrk-eyebrow">Deine Hochrechnung · ${kiEsc(monatName)}</div>
+          <div class="hrk-name">${kiEsc(r.agent.name)}</div>
+          <div class="hrk-meta">Stand ${standTxt} · noch ${info.remaining} ${info.remaining === 1 ? 'Tag' : 'Tage'} im Monat${tageMA && tageMA !== info.remaining ? ` (ca. ${tageMA} Arbeitstage für dich)` : ''}</div></div>
+        <div class="hrk-sum"><div class="hrk-ring">${ring}<span>${r.onTrack}/${r.total}</span></div><div><div class="hrk-sum1">Du bist bei <b>${r.onTrack} von ${r.total}</b> Produkten auf Kurs.</div><div class="hrk-sum2">${msg}</div></div></div>
+        <div class="hrk-list">${zeilen}</div>
+        <div class="hrk-legend"><span><i class="lg-ist"></i>kräftig = bisher</span><span><i class="lg-prog"></i>hell = Prognose</span><span><i class="lg ok"></i>Ziel erreicht</span><span><i class="lg warn"></i>knapp</span><span><i class="lg bad"></i>in Gefahr</span></div>
+        <div class="hrk-foot"><b>Prognose</b> = so landest du am Monatsende, wenn du im bisherigen Tempo weitermachst. <b>„pro Tag nötig“</b> = so viele Abschlüsse brauchst du ab heute an jedem deiner Arbeitstage, um das Ziel zu erreichen.</div>
+      </div>
+      <div class="hrk-actions"><button type="button" class="btn-secondary hrk-copy">Bild kopieren</button><button type="button" class="primary hrk-save">Als Bild speichern</button></div>`;
+    box.querySelector('.cd-modal-x').onclick = close;
+    const pv = box.querySelector('.hrk-prev'), nx = box.querySelector('.hrk-next');
+    pv.onclick = ()=>{ if(idx > 0){ idx--; render(); } };
+    nx.onclick = ()=>{ if(idx < rows.length-1){ idx++; render(); } };
+    const fname = `Hochrechnung_${hrDateiTeil(r.agent.name)}_${standTxt.replace(/\./g,'-')}.png`;
+    const cap = box.querySelector('#hrk-capture');
+    box.querySelector('.hrk-save').onclick = ()=> hrExport(cap, fname, false);
+    box.querySelector('.hrk-copy').onclick = ()=> hrExport(cap, fname, true);
+  }
+  render();
 }
 
 // ============================================================
