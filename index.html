@@ -964,6 +964,10 @@ html[data-fx-theme="dark"] .tw-monthtab.tw-mt-prev.active b,html[data-fx-theme="
 @media (max-width: 760px){ .ao-teams{grid-template-columns:1fr;} }
 /* ===== Monatsabschluss ===== */
 .ma-section{margin-bottom:32px;}
+.ma-title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.ma-xlsx-btn{display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:600;padding:7px 14px;border-radius:999px;border:1px solid #1D7044;background:#1D7044;color:#fff;cursor:pointer;}
+.ma-xlsx-btn:hover{background:#155C37;}
+.ma-xlsx-btn:disabled{opacity:.6;cursor:wait;}
 .ma-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin:0 0 12px;color:var(--text);}
 .ma-month-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
 .ma-month-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:#fff;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);}
@@ -1527,7 +1531,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 182;
+const BOARD_VERSION = 183;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -7708,6 +7712,200 @@ const MA_TO_TZ_PRODUCT = {
   fn: { 'NG (BB)': 'BB', 'BB': 'BB', 'SU': 'SU', 'TV': 'TV', 'MF': 'MF', 'BOJ': 'BOJ', 'VVM': 'VVM' }
 };
 
+// ===== v183: Monatsabschluss als Excel-Datei (für die Geschäftsführung) =====
+function maLadeExcelJS(){
+  if(window.ExcelJS) return Promise.resolve(window.ExcelJS);
+  const urls = ['https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js', 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js'];
+  return urls.reduce((p, u) => p.catch(() => new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = u;
+    s.onload = () => window.ExcelJS ? res(window.ExcelJS) : rej(new Error('ExcelJS fehlt'));
+    s.onerror = () => { s.remove(); rej(new Error('Laden fehlgeschlagen')); };
+    document.head.appendChild(s);
+  })), Promise.reject(new Error('start')));
+}
+async function exportMonatsabschlussExcel(teamKey, btn){
+  const alt = btn ? btn.textContent : '';
+  if(btn){ btn.disabled = true; btn.textContent = 'Wird erstellt …'; }
+  try{
+    const ExcelJS = await maLadeExcelJS();
+    const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    const jetzt = new Date(), jahr = jetzt.getFullYear();
+    const data = (state.monatsabschluss && state.monatsabschluss[teamKey]) || {};
+    const num = v => { const n = parseFloat(String(v ?? '').replace(',', '.')); return isNaN(n) ? 0 : n; };
+    const sum = o => Object.entries(o || {}).filter(([k]) => k !== 'NA').reduce((s, [, v]) => s + num(v), 0);
+    const hatDaten = md => md && (sum(md.erreicht) > 0 || sum(md.plan) > 0 || num(md.nps_ist) > 0 || sum(md.cr) > 0);
+    const monate = MONATE.filter((m, i) => i <= jetzt.getMonth() && hatDaten(data[m]));
+    if(!monate.length){ if(window.fxToast) fxToast('Keine Monatsabschluss-Daten vorhanden'); return; }
+
+    const teamName = teamKey === 'mf' ? 'Mobilfunk PK' : 'Festnetz PK';
+    const teamId = teamKey === 'mf' ? 'Trikala01' : 'Trikala06';
+    const PROD_ORDER = teamKey === 'mf' ? ['MF NG','BB','SU','BOJ','VVM','TV','MF'] : ['NG (BB)','SU','BOJ','VVM','TV','MF'];
+    const LBL = teamKey === 'mf' ? { BOJ:'HV', VVM:'Avia' } : {};
+    const pl = p => LBL[p] || p;
+    // Produkte: Reihenfolge wie im Board (letzter Monat), dann Standard-Reihenfolge; nur Produkte mit Werten
+    const alle = [];
+    const letzte = data[monate[monate.length-1]] || {};
+    (letzte._prodOrder || []).forEach(p => { if(!alle.includes(p)) alle.push(p); });
+    monate.forEach(m => { const md = data[m]; Object.keys(Object.assign({}, md.plan, md.erreicht)).forEach(p => { if(p !== 'NA' && !alle.includes(p)) alle.push(p); }); });
+    const inLetzter = p => (letzte._prodOrder || []).includes(p);
+    alle.sort((a, b) => {
+      if(inLetzter(a) && inLetzter(b)) return letzte._prodOrder.indexOf(a) - letzte._prodOrder.indexOf(b);
+      if(inLetzter(a) !== inLetzter(b)) return inLetzter(a) ? -1 : 1;
+      const ia = PROD_ORDER.indexOf(a), ib = PROD_ORDER.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    const produkte = alle.filter(p => monate.some(m => { const md = data[m]; return num((md.plan||{})[p]) > 0 || num((md.erreicht||{})[p]) > 0 || num((md.cr||{})[p]) > 0; }));
+    const crZielVon = (md, p) => {
+      const z = num((md.crZiel || {})[p]); if(z > 0) return z;
+      const t = String((md.crZielText || {})[p] || '').match(/[\d]+(?:[.,]\d+)?/); return t ? num(t[0]) : 0;
+    };
+    const crGesamt = md => num(md.crGesamtErreicht) || Object.entries(md.cr || {}).filter(([k]) => k !== 'BOJ').reduce((s, [, v]) => s + num(v), 0);
+    const erreichtGesamt = md => teamKey === 'mf' ? sum(md.erreicht) : Object.entries(md.erreicht || {}).filter(([k]) => k !== 'BOJ' && k !== 'NA').reduce((s, [, v]) => s + num(v), 0);
+    const planGesamt = md => teamKey === 'mf' ? sum(md.plan) : Object.entries(md.plan || {}).filter(([k]) => k !== 'BOJ' && k !== 'NA').reduce((s, [, v]) => s + num(v), 0);
+    const leer = v => (v > 0 ? v : null);
+    const mitWHT = teamKey === 'mf';
+    const laufend = m => MONATE.indexOf(m) === jetzt.getMonth();
+
+    const MAG = 'FFE20074', INK = 'FF1B1F24', GRAU = 'FF6B7280', LINIE = 'FFE3DDE1', GUT = 'FFE3F1F0', GUTF = 'FF0A6B5E', SCHLECHT = 'FFFBE9E7', SCHLF = 'FFB4423A', SUMBG = 'FFF4F1F3';
+    const wb = new ExcelJS.Workbook();
+    wb.creator = 'Standort-Portal Trikala'; wb.created = jetzt;
+    const datumTxt = jetzt.toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const rand = { top:{style:'thin',color:{argb:LINIE}}, bottom:{style:'thin',color:{argb:LINIE}}, left:{style:'thin',color:{argb:LINIE}}, right:{style:'thin',color:{argb:LINIE}} };
+    const kopf = (ws, row, texte) => {
+      const r = ws.getRow(row); r.values = texte; r.height = 30;
+      r.eachCell(c => { c.font = { bold:true, color:{argb:'FFFFFFFF'}, name:'Calibri', size:11 }; c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:MAG} }; c.alignment = { vertical:'middle', horizontal:'center', wrapText:true }; c.border = rand; });
+    };
+    const titel = (ws, t1, t2, breite) => {
+      ws.mergeCells(1, 1, 1, breite); ws.mergeCells(2, 1, 2, breite);
+      const a = ws.getCell(1, 1); a.value = t1; a.font = { bold:true, size:16, color:{argb:INK} };
+      const b = ws.getCell(2, 1); b.value = t2; b.font = { size:10, color:{argb:GRAU} };
+      ws.getRow(1).height = 26;
+    };
+    const fuss = (ws, row, breite, text) => { ws.mergeCells(row, 1, row, breite); const c = ws.getCell(row, 1); c.value = text; c.font = { italic:true, size:9, color:{argb:GRAU} }; c.alignment = { wrapText:true, vertical:'top' }; ws.getRow(row).height = 30; };
+    const ampel = (c, ok) => { if(ok === null) return; c.fill = { type:'pattern', pattern:'solid', fgColor:{argb: ok ? GUT : SCHLECHT} }; c.font = Object.assign({}, c.font || {}, { bold:true, color:{argb: ok ? GUTF : SCHLF} }); };
+    const jede = (row, n, fn) => { for(let col = 1; col <= n; col++) fn(row.getCell(col), col); };
+    const L = n => { let s = ''; n++; while(n > 0){ const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };   // 0 → A
+
+    // ---------- Blatt 1: Übersicht ----------
+    const ws1 = wb.addWorksheet('Übersicht', { views:[{ state:'frozen', ySplit:4, showGridLines:false }] });
+    const h1 = ['Monat', 'Planmenge gesamt', 'Erreicht gesamt', 'Erfüllung', 'CR gesamt', 'NPS Ziel', 'NPS Ist', 'CHT (Sek.)'].concat(mitWHT ? ['WHT (Sek.)'] : []).concat(['Calls']);
+    titel(ws1, `Monatsabschluss ${teamName} (${teamId}) · ${jahr}`, `Standort Trikala · Stand ${datumTxt} · ${monate.length} ${monate.length === 1 ? 'Monat' : 'Monate'}`, h1.length);
+    kopf(ws1, 4, h1);
+    const C = {}; h1.forEach((h, i) => C[h] = i);
+    let r = 5;
+    monate.forEach(m => {
+      const md = data[m];
+      const row = ws1.getRow(r);
+      const plan = planGesamt(md), err = erreichtGesamt(md);
+      const vals = [laufend(m) ? `${m} (laufend)` : m, leer(plan), leer(err), null, leer(crGesamt(md)) !== null ? crGesamt(md) / 100 : null, leer(num(md.nps_plan)), (num(md.nps_ist) !== 0 ? num(md.nps_ist) : null), leer(num(md.cht))];
+      if(mitWHT) vals.push(leer(num(md.wht)));
+      vals.push(leer(num(md.calls)));
+      row.values = vals;
+      const cP = L(C['Planmenge gesamt']) + r, cE = L(C['Erreicht gesamt']) + r;
+      row.getCell(C['Erfüllung'] + 1).value = plan > 0 ? { formula: `IF(${cP}>0,${cE}/${cP},"")`, result: err / plan } : null;
+      jede(row, h1.length, (c, col) => { { c.border = rand; c.alignment = { vertical:'middle', horizontal: col === 1 ? 'left' : 'right' }; } });
+      row.getCell(1).font = { bold:true };
+      [C['Planmenge gesamt'], C['Erreicht gesamt'], C['CHT (Sek.)'], C['Calls']].concat(mitWHT ? [C['WHT (Sek.)']] : []).forEach(i => row.getCell(i + 1).numFmt = '#,##0');
+      [C['NPS Ziel'], C['NPS Ist']].forEach(i => row.getCell(i + 1).numFmt = '0.0');
+      row.getCell(C['Erfüllung'] + 1).numFmt = '0%';
+      row.getCell(C['CR gesamt'] + 1).numFmt = '0.00%';
+      if(plan > 0 && err > 0) ampel(row.getCell(C['Erfüllung'] + 1), err >= plan);
+      if(num(md.nps_plan) > 0 && num(md.nps_ist) !== 0) ampel(row.getCell(C['NPS Ist'] + 1), num(md.nps_ist) >= num(md.nps_plan));
+      if(mitWHT && num(md.wht) > 0 && typeof whtOk === 'function') ampel(row.getCell(C['WHT (Sek.)'] + 1), whtOk(num(md.wht)));
+      row.height = 20;
+      r++;
+    });
+    const ersteR = 5, letzteR = r - 1;
+    const sr = ws1.getRow(r);
+    sr.getCell(1).value = 'Gesamt / Ø';
+    const spalte = i => `${L(i)}${ersteR}:${L(i)}${letzteR}`;
+    [C['Planmenge gesamt'], C['Erreicht gesamt'], C['Calls']].forEach(i => { sr.getCell(i + 1).value = { formula: `SUM(${spalte(i)})` }; sr.getCell(i + 1).numFmt = '#,##0'; });
+    sr.getCell(C['Erfüllung'] + 1).value = { formula: `IF(${L(C['Planmenge gesamt'])}${r}>0,${L(C['Erreicht gesamt'])}${r}/${L(C['Planmenge gesamt'])}${r},"")` };
+    sr.getCell(C['Erfüllung'] + 1).numFmt = '0%';
+    [['CR gesamt','0.00%'], ['NPS Ziel','0.0'], ['NPS Ist','0.0'], ['CHT (Sek.)','#,##0']].concat(mitWHT ? [['WHT (Sek.)','#,##0']] : []).forEach(([h, f]) => {
+      const i = C[h]; sr.getCell(i + 1).value = { formula: `IFERROR(AVERAGE(${spalte(i)}),"")` }; sr.getCell(i + 1).numFmt = f;
+    });
+    jede(sr, h1.length, (c, col) => { { c.font = { bold:true }; c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:SUMBG} }; c.border = Object.assign({}, rand, { top:{style:'medium',color:{argb:INK}} }); c.alignment = { horizontal: col === 1 ? 'left' : 'right', vertical:'middle' }; } });
+    sr.height = 22;
+    fuss(ws1, r + 2, h1.length, 'Erfüllung = Erreicht ÷ Planmenge. CR = Netto-Abschlüsse ÷ Calls. Ø-Zeile: Durchschnitt der Monate mit Werten. Grün = Ziel erreicht, Rot = Ziel verfehlt.' + (mitWHT ? ' WHT grün = 301–750 Sek.' : ''));
+    ws1.columns.forEach((col, i) => col.width = i === 0 ? 20 : 14);
+
+    // ---------- Blatt 2: Erreicht je Produkt (Matrix) ----------
+    const ws2 = wb.addWorksheet('Stückzahlen je Produkt', { views:[{ state:'frozen', xSplit:1, ySplit:4, showGridLines:false }] });
+    const h2 = ['Produkt'].concat(monate.map(m => laufend(m) ? `${m.slice(0,3)}. (lfd.)` : m)).concat(['Gesamt', 'Planmenge gesamt', 'Erfüllung']);
+    titel(ws2, `Erreichte Stückzahlen je Produkt · ${teamName} ${jahr}`, `Stand ${datumTxt} · Zellen grün/rot: Monatswert über/unter Planmenge`, h2.length);
+    kopf(ws2, 4, h2);
+    r = 5;
+    produkte.forEach(p => {
+      const row = ws2.getRow(r);
+      row.getCell(1).value = pl(p); row.getCell(1).font = { bold:true };
+      let planSum = 0;
+      monate.forEach((m, j) => {
+        const md = data[m]; const v = num((md.erreicht||{})[p]), pv = num((md.plan||{})[p]); planSum += pv;
+        const c = row.getCell(j + 2); c.value = (v > 0 || pv > 0) ? v : null; c.numFmt = '#,##0';
+        if(pv > 0 && v > 0) ampel(c, v >= pv);
+      });
+      const gi = monate.length + 2;
+      row.getCell(gi).value = { formula: `SUM(B${r}:${L(monate.length)}${r})` }; row.getCell(gi).numFmt = '#,##0'; row.getCell(gi).font = { bold:true };
+      row.getCell(gi + 1).value = planSum > 0 ? planSum : null; row.getCell(gi + 1).numFmt = '#,##0';
+      row.getCell(gi + 2).value = planSum > 0 ? { formula: `IF(${L(gi)}${r}>0,${L(gi-1)}${r}/${L(gi)}${r},"")` } : null; row.getCell(gi + 2).numFmt = '0%';
+      jede(row, h2.length, (c, col) => { { c.border = rand; c.alignment = { horizontal: col === 1 ? 'left' : 'right', vertical:'middle' }; } });
+      row.height = 20; r++;
+    });
+    const sr2 = ws2.getRow(r);
+    sr2.getCell(1).value = 'Summe';
+    for(let col = 2; col <= monate.length + 3; col++){ sr2.getCell(col).value = { formula: `SUM(${L(col-1)}5:${L(col-1)}${r-1})` }; sr2.getCell(col).numFmt = '#,##0'; }
+    sr2.getCell(monate.length + 4).value = { formula: `IF(${L(monate.length+2)}${r}>0,${L(monate.length+1)}${r}/${L(monate.length+2)}${r},"")` }; sr2.getCell(monate.length + 4).numFmt = '0%';
+    jede(sr2, h2.length, (c, col) => { { c.font = { bold:true }; c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:SUMBG} }; c.border = Object.assign({}, rand, { top:{style:'medium',color:{argb:INK}} }); c.alignment = { horizontal: col === 1 ? 'left' : 'right' }; } });
+    ws2.columns.forEach((col, i) => col.width = i === 0 ? 14 : 12);
+
+    // ---------- Blatt 3: Details je Monat und Produkt ----------
+    const ws3 = wb.addWorksheet('Details', { views:[{ state:'frozen', ySplit:4, showGridLines:false }] });
+    const h3 = ['Monat', 'Produkt', 'Planmenge', 'Erreicht', 'Erfüllung', 'CR', 'CR-Ziel', 'Storno'];
+    titel(ws3, `Details je Monat und Produkt · ${teamName} ${jahr}`, `Stand ${datumTxt} · mit Filter in der Kopfzeile`, h3.length);
+    kopf(ws3, 4, h3);
+    r = 5;
+    monate.forEach((m, mi) => {
+      const md = data[m];
+      produkte.forEach(p => {
+        const pv = num((md.plan||{})[p]), ev = num((md.erreicht||{})[p]), cr = num((md.cr||{})[p]), cz = crZielVon(md, p), st = num((md.storno||{})[p]);
+        if(!(pv || ev || cr || st)) return;
+        const row = ws3.getRow(r);
+        row.values = [laufend(m) ? `${m} (laufend)` : m, pl(p), leer(pv), ev, null, cr > 0 ? cr / 100 : null, cz > 0 ? cz / 100 : null, st > 0 ? st / 100 : null];
+        row.getCell(5).value = pv > 0 ? { formula: `IF(C${r}>0,D${r}/C${r},"")`, result: ev / pv } : null;
+        row.getCell(3).numFmt = '#,##0'; row.getCell(4).numFmt = '#,##0'; row.getCell(5).numFmt = '0%';
+        [6, 7, 8].forEach(i => row.getCell(i).numFmt = '0.00%');
+        if(pv > 0 && ev > 0) ampel(row.getCell(5), ev >= pv);
+        if(cz > 0 && cr > 0) ampel(row.getCell(6), cr >= cz);
+        jede(row, h3.length, (c, col) => { { c.border = rand; c.alignment = { horizontal: col <= 2 ? 'left' : 'right', vertical:'middle' }; if(mi % 2 === 1 && !c.fill) c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:'FFFAF8F9'} }; } });
+        r++;
+      });
+    });
+    ws3.autoFilter = { from:'A4', to:`H${r-1}` };
+    ws3.columns.forEach((col, i) => col.width = [18, 12, 13, 12, 12, 11, 11, 11][i]);
+    fuss(ws3, r + 1, h3.length, 'CR-Ziel = 1. Stufe aus dem Monatsabschluss. CR grün = CR-Ziel erreicht. Storno = Stornoquote des Monats.');
+
+    [ws1, ws2, ws3].forEach(ws => { ws.pageSetup = { orientation:'landscape', fitToPage:true, fitToWidth:1, fitToHeight:0, paperSize:9, margins:{ left:0.4, right:0.4, top:0.5, bottom:0.5, header:0.3, footer:0.3 } }; ws.headerFooter.oddFooter = '&L&8Standort-Portal Trikala&R&8Seite &P von &N'; });
+
+    // Einheitliche Schrift (Calibri) für alle Zellen, auch wo nur „fett“ gesetzt wurde
+    [ws1, ws2, ws3].forEach(ws => { ws.pageSetup.printTitlesRow = '4:4'; ws.eachRow({ includeEmpty:false }, row => row.eachCell({ includeEmpty:true }, c => { c.font = Object.assign({ name:'Calibri', size:11 }, c.font || {}, { name:'Calibri' }); })); });
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Monatsabschluss_${teamName.replace(/\s+/g, '-')}_${jahr}.xlsx`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    if(window.fxToast) fxToast('Excel-Datei erstellt');
+  } catch(e){
+    console.error(e);
+    if(window.fxToast) fxToast('Excel-Datei konnte nicht erstellt werden – bitte Internetverbindung prüfen');
+    else alert('Excel-Datei konnte nicht erstellt werden.');
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = alt; }
+  }
+}
+
 function renderMonatsabschluss(){
   const container = document.getElementById('monatsabschluss-container');
   container.innerHTML = '';
@@ -7974,7 +8172,8 @@ function renderMonatsabschluss(){
     const data = state.monatsabschluss[teamKey];
     const section = document.createElement('div');
     section.className = 'ma-section';
-    section.innerHTML = `<div class="ma-title">${label}</div>`;
+    section.innerHTML = `<div class="ma-title ma-title-row"><span>${label}</span><button type="button" class="ma-xlsx-btn" title="Alle Monate bis heute als Excel-Datei herunterladen"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M9 13l4 5M13 13l-4 5"/></svg>Excel exportieren</button></div>`;
+    section.querySelector('.ma-xlsx-btn').onclick = e => exportMonatsabschlussExcel(teamKey, e.currentTarget);
 
     // Monats-Tabs
     const tabsDiv = document.createElement('div');
