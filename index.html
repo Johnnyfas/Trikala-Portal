@@ -351,6 +351,82 @@ button.secondary:hover{border-color:var(--teal);color:var(--teal);}
 .fg-team-gaps{flex:1;min-width:240px;font-family:'Inter',sans-serif;}
 .fg-gap{display:flex;gap:10px;align-items:baseline;padding:5px 0;border-bottom:1px solid #F0F0F2;font-size:13px;}
 .fg-gap b{font-family:'IBM Plex Mono',monospace;color:var(--red);min-width:44px;} .fg-gap span{flex:1;} .fg-gap em{font-size:11px;color:var(--muted);font-style:normal;white-space:nowrap;}
+/* v184 Gesprächsablauf */
+.gp-call{background:var(--panel,#fff);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;flex-direction:column;gap:8px;margin-bottom:6px;}
+.gp-call-row{display:flex;gap:10px;align-items:flex-start;}
+.gp-call-l{flex:0 0 72px;font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:6px;}
+.gp-pills{display:flex;flex-wrap:wrap;gap:6px;flex:1;min-width:0;}
+.gp-pill{border:1px solid var(--border);background:var(--panel,#fff);color:inherit;border-radius:999px;padding:5px 12px;font-family:'Inter',sans-serif;font-size:12.5px;cursor:pointer;}
+.gp-pill.on{background:var(--tmg);border-color:var(--tmg);color:#fff;font-weight:600;}
+.gp-pill.gp-pill-ja.on{background:var(--teal);border-color:var(--teal);}
+.gp-pill.gp-pill-nein.on{background:var(--red);border-color:var(--red);}
+.gp-title-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.gp-edit-btn{border:1px solid var(--border);background:var(--panel,#fff);color:var(--muted);border-radius:999px;padding:4px 12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;text-transform:none;letter-spacing:0;}
+.gp-edit-btn:hover{color:var(--tmg);border-color:var(--tmg);}
+.gp-selbst{background:var(--panel,#fff);border:1px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:6px;display:flex;flex-direction:column;gap:8px;font-family:'Inter',sans-serif;font-size:12.5px;}
+.gp-selbst-q i{color:var(--muted);}
+.gp-selbst-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.gp-selbst-b{width:36px;height:34px;border-radius:9px;border:1px solid var(--border);background:var(--panel,#fff);color:inherit;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;cursor:pointer;}
+.gp-selbst-b.on{background:var(--tmg);border-color:var(--tmg);color:#fff;}
+.gp-selbst-leg{font-size:11px;color:var(--muted);margin-left:6px;}
+.gp-selbst-v{border-left:3px solid var(--tmg);padding:4px 0 4px 10px;line-height:1.5;}
+.cf-note-auto{font-weight:500;color:var(--muted);text-transform:none;letter-spacing:0;}
+.cf-note-reset{border:0;background:none;color:var(--tmg);font:inherit;font-weight:600;cursor:pointer;padding:0;}
+.fg-anl{flex:1;min-width:260px;font-family:'Inter',sans-serif;}
+.fg-anl-wrap{overflow-x:auto;}
+.fg-anl-t{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:6px;}
+.fg-anl-t th{text-align:left;font-size:11px;color:var(--muted);font-weight:600;padding:4px 8px 4px 0;border-bottom:1px solid var(--border);}
+.fg-anl-t td{padding:6px 8px 6px 0;border-bottom:1px solid var(--border);white-space:nowrap;} .fg-anl-t td em{font-style:normal;font-size:11px;color:var(--muted);}
+.be-modal{max-width:760px;}
+.be-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;margin-bottom:4px;}
+.be-hint{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);line-height:1.5;margin-bottom:12px;}
+.be-phase{border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:6px;background:var(--panel,#fff);}
+.be-phead{display:flex;align-items:center;gap:6px;}
+.be-name{flex:1;min-width:0;font-weight:700;}
+.be-sub{font-size:12.5px;}
+.be-lbl{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:6px;}
+.be-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.be-chip{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--border);border-radius:999px;padding:2px 3px 2px 10px;background:var(--panel,#fff);}
+.be-chip input{border:0;background:transparent;color:inherit;font-family:'Inter',sans-serif;font-size:12.5px;outline:none;min-width:0;}
+.be-pt{display:flex;align-items:center;gap:6px;}
+.be-pt .cp-form-input{flex:1;min-width:0;}
+.be-f{flex:0 0 150px;width:150px;}
+.be-btn{border:1px solid var(--border);background:var(--panel,#fff);color:inherit;border-radius:8px;min-width:30px;height:30px;padding:0 8px;cursor:pointer;font-family:'Inter',sans-serif;font-size:12.5px;flex-shrink:0;}
+.be-chip .be-btn{border:0;min-width:22px;height:22px;border-radius:999px;font-size:11px;}
+.be-btn.be-del:hover{color:var(--red);border-color:var(--red);}
+.be-btn.be-add{border-style:dashed;color:var(--tmg);align-self:flex-start;}
+.be-btn.be-wide{width:100%;height:36px;margin-bottom:10px;}
+.be-foot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;bottom:-1px;background:var(--panel,#fff);padding:10px 0 2px;border-top:1px solid var(--border);}
+.be-btn.be-save{background:var(--tmg);border-color:var(--tmg);color:#fff;font-weight:700;padding:0 18px;height:36px;}
+.be-btn.be-cancel,.be-btn.be-reset{height:36px;}
+@media (max-width:560px){ .gp-call-row{flex-direction:column;gap:4px;} .gp-call-l{padding-top:0;flex:0 0 auto;} .be-pt{flex-wrap:wrap;} .be-f{flex:1 1 100%;width:100%;} }
+
+.gp-list{display:flex;flex-direction:column;gap:8px;margin-bottom:6px;counter-reset:gp;}
+.gp-phase{position:relative;gap:7px;}
+.gp-head{display:flex;align-items:center;gap:10px;}
+.gp-num{flex:0 0 26px;height:26px;border-radius:50%;background:var(--tmg);color:#fff;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;}
+.gp-titel{display:flex;flex-direction:column;flex:1;min-width:0;}
+.gp-titel b{font-family:'Space Grotesk',sans-serif;font-size:14px;}
+.gp-titel span{font-family:'Inter',sans-serif;font-size:11.5px;color:var(--muted);}
+.gp-neu{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tmg);border:1px solid var(--tmg);border-radius:999px;padding:2px 8px;}
+.gp-pflicht{display:flex;flex-wrap:wrap;gap:6px;padding-left:36px;}
+.gp-chip{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border);border-radius:999px;padding:3px 4px 3px 11px;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;background:var(--panel,#fff);}
+.gp-chip span{margin-right:4px;}
+.gp-chip.is-ok{border-color:var(--teal);background:var(--teal-soft);}
+.gp-chip.is-nok{border-color:var(--red);background:var(--red-soft);}
+.gp-cbtn{width:26px;height:24px;border-radius:999px;font-size:12px;}
+.gp-phase .fg-row{padding-left:36px;}
+.gp-phase .fg-note{margin-left:36px;width:calc(100% - 36px);}
+.gp-f{display:inline-block;min-width:18px;margin-right:6px;color:var(--tmg);font-weight:700;}
+.gp-auswertung{background:var(--panel,#fff);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;flex-direction:column;gap:10px;}
+.gp-aw-fingers{display:flex;flex-direction:column;gap:6px;}
+.gp-aw-f{display:grid;grid-template-columns:22px minmax(0,190px) 1fr 48px;align-items:center;gap:10px;font-family:'Inter',sans-serif;}
+.gp-aw-i{color:var(--tmg);font-weight:700;font-size:16px;}
+.gp-aw-n{display:flex;flex-direction:column;min-width:0;} .gp-aw-n b{font-size:12.5px;} .gp-aw-n span{font-size:11px;color:var(--muted);}
+.gp-aw-bar{height:8px;border-radius:999px;background:var(--border);overflow:hidden;} .gp-aw-bar i{display:block;height:100%;border-radius:999px;}
+.gp-aw-v{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:12.5px;text-align:right;white-space:nowrap;}
+.gp-aw-lf{font-family:'Inter',sans-serif;font-size:12.5px;border-top:1px solid var(--border);padding-top:8px;} .gp-aw-lf span{color:var(--muted);}
+@media (max-width:560px){ .gp-pflicht,.gp-phase .fg-row{padding-left:0;} .gp-phase .fg-note{margin-left:0;width:100%;} .gp-aw-f{grid-template-columns:22px 1fr auto;row-gap:5px;} .gp-aw-bar{grid-column:1 / -1;order:4;} .gp-phase .fg-row{flex-wrap:wrap;} }
 .fk-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
 .fk-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;margin-bottom:4px;}
 .fk-sub{font-family:'Inter',sans-serif;font-size:12.5px;color:var(--muted);max-width:720px;line-height:1.5;}
@@ -1531,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 183;
+const BOARD_VERSION = 185;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -2529,7 +2605,7 @@ function mergeAgentsFromServer(serverAgents, serverDeletedAgentIds){
 // sich ebenfalls durchsetzen. Zeitstempel liegen in state._lww[bereich][pfad].
 // ============================================================
 // LWW_START
-const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele', 'coachReviews', 'maZiele'];
+const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele', 'coachReviews', 'maZiele', 'coachBogen'];
 // Bereiche, die als Liste gespeichert sind, werden für das Zusammenführen nach id aufgeschlüsselt
 const LWW_LIST_SECTIONS = { tagesziele: true };
 function lwwListToObj(arr){ const o = {}; (Array.isArray(arr) ? arr : []).forEach(e=>{ if(e && e.id) o[e.id] = e; }); return o; }
@@ -2549,7 +2625,7 @@ function lwwPutRoot(section, root){
   state[section] = order.map(id=>root[id]).filter(e => e && Object.keys(e).length && !del.has(e.id));
 }
 // Beim allerersten Laden einer Sitzung: Server-Stand ab dieser Tiefe übernehmen (wie bisher)
-const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1, coachReviews: 1, maZiele: 1 };
+const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1, coachReviews: 1, maZiele: 1, coachBogen: 1 };
 const LWW_KEEP_MS = 120 * 24 * 3600 * 1000; // Zeitstempel älter als ~4 Monate verwerfen
 let lwwBaseline = {};          // bereich → { pfad: JSON-Wert } - Stand beim letzten Abgleich
 let lwwLastMergeChanged = false;
@@ -3659,6 +3735,7 @@ function renderAll(){
   try{ if(fixPctWerte() && typeof scheduleSave === 'function') setTimeout(scheduleSave, 0); }catch(e){}
   try{ sortAgentsByOrder(); }catch(e){}
   try{ applyMaZiele(); }catch(e){ console.warn('Ziele', e); }
+  try{ applyCoachBogen(); }catch(e){ console.warn('Coaching-Bogen', e); }
   try{ cdSyncFormModal(false); }catch(e){}
   try{ updateFokusBadge(); }catch(e){}
   if(currentTab === 'coaching'){ renderCoaching(); try{ renderStandortHero(); }catch(e){ console.warn('Standort-Karte', e); } }
@@ -5190,6 +5267,19 @@ function renderCoachVerlauf(){
           if(b.innerHTML) meta.appendChild(b);
         }
       }
+      if(entry.callAnliegen || entry.callAbschluss){
+        const b = document.createElement('span');
+        b.className = 'cv-meta-badge';
+        b.style.cssText = 'background:#EEF1F4;color:var(--text);white-space:normal;';
+        b.textContent = '📞 ' + [entry.callAnliegen, entry.callAbschluss === 'ja' ? 'Abschluss' + ((entry.callProdukte||[]).length ? ': ' + entry.callProdukte.join(', ') : '') : entry.callAbschluss === 'nein' ? 'kein Abschluss' : ''].filter(Boolean).join(' · ');
+        meta.appendChild(b);
+      }
+      if(entry.selbst){
+        const b = document.createElement('span');
+        b.className = 'cv-meta-badge';
+        b.textContent = '🙋 Selbst ' + entry.selbst + '/5';
+        meta.appendChild(b);
+      }
       if(entry.vereinbarung){
         const rv = (state.coachReviews||{})[entry.id];
         const stTxt = { umgesetzt: '✓ umgesetzt', teilweise: '½ teilweise', nicht: '✗ nicht umgesetzt' };
@@ -5454,7 +5544,7 @@ function labeledField(label, el){
 }
 
 const COACH_STYLES = ['Side-by-Side', 'TCAP'];
-const CHECKLIST_ITEMS = ['Begrüßung','Positive Einstellung','Anliegen wiederholt','Legitimierung','PKA','Ansprache App','KEK','Bestandscheck','Angebot','Anliegen gelöst Frage','Zusammenfassung','KZB'];
+let CHECKLIST_ITEMS = ['Begrüßung','Positive Einstellung','Anliegen wiederholt','Legitimierung','Anker','PKA','Ansprache App','KEK','Bestandscheck','Angebot','Anliegen gelöst Frage','Zusammenfassung','KZB'];
 let cpPrefill = null;
 
 function buildChecklistRow(label, checklistState){
@@ -6130,25 +6220,21 @@ function buildCoachingRecordForm(prefill){
   // Geführtes Coaching: Beobachtungsbogen nach 5-Finger-Pitch + Gesprächsleitfaden
   const fingerBew = Object.assign({}, prefill.fingerBewertung || {});
   const fingerNotes = {};
-  wrap.appendChild(buildFingerSection({ bew: fingerBew, notes: fingerNotes }, v=>{
+  const checklistState = {};
+  const callInfo = { anliegen:'', abschluss:'', produkte:[] };
+  const selbstInfo = { v:0 };
+  let noteManuell = false, noteAuto = null, onNoteFn = null;
+  const fingerSec = buildFingerSection({ bew: fingerBew, notes: fingerNotes, check: checklistState, call: callInfo, selbst: selbstInfo,
+    getTeam: ()=>{ const a = state.agents.find(x => x.id === agentSel.value); return a ? a.team : null; },
+    onNote: n => { noteAuto = n; if(onNoteFn) onNoteFn(); } }, v=>{
     verInput.value = v;
     verInput.scrollIntoView({ behavior:'smooth', block:'center' });
     verInput.focus();
-  }));
+  });
+  wrap.appendChild(fingerSec);
+  agentSel.addEventListener('change', ()=>{ if(fingerSec._refreshCall) fingerSec._refreshCall(); });
 
-  // Leitfaden-Checkliste (Gesprächsablauf) - einklappbar
-  const checkDetails = document.createElement('details');
-  checkDetails.className = 'cf-details';
-  const checkSummary = document.createElement('summary');
-  checkSummary.className = 'cf-section-title';
-  checkSummary.textContent = '✅ Leitfaden-Checkliste (Gesprächsablauf, optional)';
-  checkDetails.appendChild(checkSummary);
-  const checklistState = {};
-  const checkBox = document.createElement('div');
-  checkBox.className = 'cf-checklist';
-  CHECKLIST_ITEMS.forEach(item=>{ checkBox.appendChild(buildChecklistRow(item, checklistState)); });
-  checkDetails.appendChild(checkBox);
-  wrap.appendChild(checkDetails);
+  // v184: Die Leitfaden-Checkliste ist jetzt Teil des Beobachtungsbogens (je Gesprächsphase)
 
   const evalTitle = document.createElement('div');
   evalTitle.className = 'cf-section-title';
@@ -6161,7 +6247,8 @@ function buildCoachingRecordForm(prefill){
   sliderWrap.className = 'cp-form-field';
   sliderWrap.style.flex = '2';
   const sliderLabel = document.createElement('label');
-  sliderLabel.textContent = 'Performance-Note';
+  sliderLabel.className = 'cf-note-lbl';
+  sliderLabel.innerHTML = 'Performance-Note <span class="cf-note-auto"></span>';
   const sliderRow = document.createElement('div');
   sliderRow.style.cssText = 'display:flex;align-items:center;gap:10px;';
   const slider = document.createElement('input');
@@ -6170,9 +6257,21 @@ function buildCoachingRecordForm(prefill){
   const sliderVal = document.createElement('span');
   sliderVal.className = 'cf-slider-val';
   sliderVal.textContent = '5 / 10';
-  slider.addEventListener('input', ()=>{ sliderVal.textContent = slider.value + ' / 10'; });
+  slider.addEventListener('input', ()=>{ sliderVal.textContent = slider.value + ' / 10'; noteManuell = true; onNoteFn(); });
+  // v185: Note wird automatisch aus dem Bogen berechnet; manuell verschieben überschreibt sie
+  onNoteFn = ()=>{
+    const info = sliderLabel.querySelector('.cf-note-auto');
+    if(!noteManuell && noteAuto !== null){ slider.value = noteAuto; sliderVal.textContent = noteAuto + ' / 10'; }
+    if(noteAuto === null){ info.textContent = noteManuell ? '· manuell' : '· wird aus dem Bogen berechnet'; return; }
+    if(!noteManuell){ info.textContent = '· automatisch aus dem Bogen'; return; }
+    info.innerHTML = `· manuell (Bogen: ${noteAuto}) `;
+    const r = document.createElement('button'); r.type = 'button'; r.className = 'cf-note-reset'; r.textContent = '↺ automatisch';
+    r.onclick = ()=>{ noteManuell = false; onNoteFn(); };
+    info.appendChild(r);
+  };
   sliderRow.appendChild(slider); sliderRow.appendChild(sliderVal);
   sliderWrap.appendChild(sliderLabel); sliderWrap.appendChild(sliderRow);
+  onNoteFn();
 
   const dauerInput = document.createElement('input');
   dauerInput.type = 'number'; dauerInput.className = 'cp-form-input'; dauerInput.value = 30; dauerInput.min = 0;
@@ -6271,6 +6370,11 @@ function buildCoachingRecordForm(prefill){
       tcapId: stilSel.value === 'TCAP' ? tcapInput.value.trim() : '',
       checkliste: Object.assign({}, checklistState),
       performance: parseInt(slider.value),
+      performanceAuto: !noteManuell && noteAuto !== null,
+      callAnliegen: callInfo.anliegen || '',
+      callAbschluss: callInfo.abschluss || '',
+      callProdukte: callInfo.abschluss === 'ja' ? callInfo.produkte.slice() : [],
+      selbst: selbstInfo.v || null,
       coach: getCoachName(),
       fingerBewertung: Object.fromEntries(Object.entries(fingerBew).filter(([k,v]) => v in FINGER_VAL)),
       fingerNotizen: Object.fromEntries(Object.entries(fingerNotes).map(([k,v]) => [k, String(v||'').trim()]).filter(([k,v]) => v)),
@@ -10586,12 +10690,13 @@ function renderFokus(){
 const FINGER_MODEL = [
   { key:'daumen', icon:'①', name:'Daumen', thema:'Einstellung & Mut',
     anchors:[
-      { id:'d1', text:'Leitet nach dem gelösten Anliegen aktiv mit einem Brückensatz zur Ansprache über' },
-      { id:'d2', text:'Wirkt sicher und überzeugt (Stimme, Tempo, eigene Begeisterung)' },
+      { id:'d1', text:'Leitet aktiv zum Angebot über – greift den Anker wieder auf oder nutzt einen Brückensatz', vereinbarung:'Nach dem gelösten Anliegen den Anker wieder aufgreifen und aktiv zum Angebot überleiten' },
+      { id:'d2', text:'Wirkt von Beginn an freundlich, sicher und motiviert (Stimme, Tempo)' },
+      { id:'an1', text:'Setzt nach der Legitimierung einen Anker – kündigt an, am Ende noch etwas Passendes für den Kunden zu prüfen', vereinbarung:'Direkt nach der Legitimierung einen Anker setzen, z.B. „Ich schaue am Ende gern noch, ob ich etwas Gutes für Sie habe.“' },
       { id:'d3', text:'Bleibt nach dem ersten „Nein“ souverän und freundlich' } ],
     staerke:'Spricht Verkaufschancen mutig und überzeugt an',
     frage:'Was hält dich manchmal davon ab, das Angebot anzusprechen?',
-    uebung:'Brückensatz-Training (2 Min.): Du nennst 5 typische Service-Anliegen, der Mitarbeiter formuliert zu jedem einen Brückensatz – z.B. „Jetzt, wo das erledigt ist, habe ich noch einen Tipp für Sie …“. Danach den besten Satz gemeinsam auswählen.',
+    uebung:'Anker & Brücke (3 Min.): Zuerst gemeinsam einen eigenen Ankersatz für direkt nach der Legitimierung formulieren – z.B. „Bevor wir starten: Ich schaue am Ende gern, ob ich für Sie noch etwas Gutes finde.“ Danach nennst du 5 typische Anliegen, der Mitarbeiter formuliert jeweils den Brückensatz, der den Anker wieder aufgreift – z.B. „Wie versprochen habe ich noch geschaut …“.',
     vereinbarung:'Nach jedem gelösten Anliegen mit einem Brückensatz zur Ansprache überleiten' },
   { key:'zeige', icon:'②', name:'Zeigefinger', thema:'Produktwissen',
     anchors:[
@@ -10604,6 +10709,7 @@ const FINGER_MODEL = [
     vereinbarung:'Die drei wichtigsten Vorteile des Fokus-Produkts sicher und in eigenen Worten erklären' },
   { key:'mittel', icon:'③', name:'Mittelfinger', thema:'Bedarf & Umfeld',
     anchors:[
+      { id:'a1', text:'Hört aktiv zu und gibt das Anliegen in eigenen Worten wieder' },
       { id:'m1', text:'Stellt mindestens zwei offene Fragen zu Nutzung oder Umfeld (Haushalt, Geräte, Verträge)' },
       { id:'m2', text:'Nutzt Bestandscheck/KEK, um Chancen zu erkennen' },
       { id:'m3', text:'Fasst den Bedarf des Kunden kurz zusammen' } ],
@@ -10624,7 +10730,8 @@ const FINGER_MODEL = [
     anchors:[
       { id:'k1', text:'Stellt eine klare Abschlussfrage' },
       { id:'k2', text:'Nimmt Einwände auf und behandelt sie, statt sie zu übergehen' },
-      { id:'k3', text:'Schließt ab oder vereinbart einen konkreten nächsten Schritt' } ],
+      { id:'k3', text:'Schließt ab oder vereinbart einen konkreten nächsten Schritt' },
+      { id:'g1', text:'Fasst das Ergebnis transparent zusammen – bei Abschluss Preis, Laufzeit und nächste Schritte (beugt Storno vor)', vereinbarung:'Jeden Abschluss mit Preis, Laufzeit und nächsten Schritten zusammenfassen' } ],
     staerke:'Führt sicher zum Abschluss',
     frage:'Wie reagierst du, wenn der Kunde sagt „Ich muss mir das noch überlegen“?',
     uebung:'Einwand-Training: Du bringst drei typische Einwände („zu teuer“, „muss ich überlegen“, „brauche ich nicht“). Der Mitarbeiter antwortet jeweils mit Verständnis → Rückfrage → Nutzen und endet mit einer Abschlussfrage.',
@@ -10663,45 +10770,354 @@ function fingerBarsHtml(sc, small){
   }).join('') + `</div>`;
 }
 
+// ---- v184: Gesprächsablauf laut Leitfaden. Jede Phase enthält die Leitfaden-Schritte (erfüllt ja/nein)
+// und die Beobachtungspunkte; jeder Punkt gehört zu einem Finger, damit Stärke/Hebel, Profil und
+// Team-Analyse weiter nach dem 5-Finger-Pitch funktionieren.
+let GESPRAECH_PHASEN = [
+  { key:'einstieg',   name:'Begrüßung & Einstieg',          pflicht:['Begrüßung','Positive Einstellung'], ids:['d2'] },
+  { key:'anliegen',   name:'Anliegen aufnehmen',            pflicht:['Anliegen wiederholt'], ids:['a1'] },
+  { key:'legi',       name:'Legitimierung',                 pflicht:['Legitimierung'], ids:[] },
+  { key:'anker',      name:'Anker setzen', neu:true, hint:'nach der Legitimierung, bevor das Anliegen bearbeitet wird', pflicht:['Anker'], ids:['an1'] },
+  { key:'bearbeiten', name:'Anliegen bearbeiten · PKA · App', pflicht:['PKA','Ansprache App'], ids:['z2'] },
+  { key:'bedarf',     name:'Bedarf & Bestand',              pflicht:['KEK','Bestandscheck'], ids:['m1','m2','m3'] },
+  { key:'angebot',    name:'Überleitung & Angebot',         pflicht:['Angebot'], ids:['d1','z3','z1','r2','r1','r3'] },
+  { key:'abschluss',  name:'Abschluss & Einwände',          pflicht:[], ids:['k1','k2','d3','k3'] },
+  { key:'ende',       name:'Gesprächsende',                 pflicht:['Anliegen gelöst Frage','Zusammenfassung','KZB'], ids:['g1'] }
+];
+function fingerVonAnker(id){ return FINGER_MODEL.find(f => f.anchors.some(a => a.id === id)); }
+function ankerVonId(id){ for(const f of FINGER_MODEL){ const a = f.anchors.find(x => x.id === id); if(a) return a; } return null; }
+function phaseName(key){ const p = GESPRAECH_PHASEN.find(x => x.key === key); if(p) return p.name; const f = FINGER_MODEL.find(x => x.key === key); return f ? f.name : key; }
+
+// ---- v185: Bogen anpassbar (Phasen, Leitfaden-Schritte, Punkte, Anliegen-Arten) ----
+// Gespeichert in state.coachBogen.cfg (JSON). Gelöschte Punkte wandern ins Archiv, damit alte
+// Coachings weiter richtig ausgewertet werden.
+const CALL_ANLIEGEN_DEFAULT = ['Rechnung','Technik / Störung','Vertrag / Tarif','Umzug','Kündigung','Gerät / Hardware','Sonstiges'];
+let CALL_ANLIEGEN = CALL_ANLIEGEN_DEFAULT.slice();
+const FINGER_DEFAULT_ANCHORS = {}; FINGER_MODEL.forEach(f => { FINGER_DEFAULT_ANCHORS[f.key] = f.anchors.map(a => Object.assign({}, a)); });
+const BOGEN_DEFAULT_JSON = JSON.stringify({
+  phasen: GESPRAECH_PHASEN.map(p => ({ key:p.key, name:p.name, hint:p.hint || '', neu:!!p.neu, pflicht:p.pflicht.slice(),
+    punkte: p.ids.map(id => { const f = fingerVonAnker(id), a = ankerVonId(id); return { id, text:a.text, finger:f.key, vereinbarung:a.vereinbarung || '' }; }) })),
+  archiv: [], anliegen: CALL_ANLIEGEN_DEFAULT.slice()
+});
+function coachBogenCfg(){
+  try{
+    const raw = state && state.coachBogen && state.coachBogen.cfg;
+    if(raw){ const c = JSON.parse(raw); if(c && Array.isArray(c.phasen) && c.phasen.length) return c; }
+  }catch(e){}
+  return JSON.parse(BOGEN_DEFAULT_JSON);
+}
+function applyCoachBogen(){
+  const cfg = coachBogenCfg();
+  GESPRAECH_PHASEN = cfg.phasen.map(p => ({ key:p.key, name:p.name, hint:p.hint || '', neu:!!p.neu,
+    pflicht:(p.pflicht || []).map(x => String(x).trim()).filter(Boolean), ids:(p.punkte || []).filter(x => x && x.text).map(x => x.id) }));
+  FINGER_MODEL.forEach(f=>{
+    const aktiv = [];
+    cfg.phasen.forEach(p => (p.punkte || []).forEach(x => { if(x && x.text && x.finger === f.key) aktiv.push({ id:x.id, text:x.text, vereinbarung:x.vereinbarung || '' }); }));
+    const hat = id => aktiv.some(a => a.id === id);
+    const arch = (cfg.archiv || []).filter(x => x.finger === f.key && !hat(x.id)).map(x => ({ id:x.id, text:x.text, archiv:true }));
+    const extra = FINGER_DEFAULT_ANCHORS[f.key].filter(d => !hat(d.id) && !arch.some(a => a.id === d.id)).map(d => Object.assign({}, d, { archiv:true }));
+    f.anchors = aktiv.concat(arch, extra);
+  });
+  const items = [];
+  GESPRAECH_PHASEN.forEach(p => p.pflicht.forEach(l => { if(!items.includes(l)) items.push(l); }));
+  CHECKLIST_ITEMS = items;
+  CALL_ANLIEGEN = (cfg.anliegen && cfg.anliegen.length) ? cfg.anliegen.slice() : CALL_ANLIEGEN_DEFAULT.slice();
+}
+// Performance-Note aus dem Bogen: 70 % Beobachtung (Ø der Finger), 30 % Leitfaden-Quote
+function bogenNote(bew, check){
+  const sc = fingerScores(bew);
+  const vals = FINGER_MODEL.map(f => sc[f.key]).filter(v => v !== null);
+  const f = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length / 2 : null;
+  const ls = CHECKLIST_ITEMS.map(l => (check || {})[l]);
+  const ok = ls.filter(v => v === 'ok').length, nok = ls.filter(v => v === 'nok').length;
+  const q = ok + nok ? ok / (ok + nok) : null;
+  if(f === null && q === null) return null;
+  return Math.round((f === null ? q : q === null ? f : 0.7 * f + 0.3 * q) * 10);
+}
+
+function openBogenEditor(nachSpeichern){
+  const draft = coachBogenCfg();
+  draft.archiv = draft.archiv || [];
+  draft.anliegen = draft.anliegen || CALL_ANLIEGEN_DEFAULT.slice();
+  const neueIds = new Set();
+  const rid = p => p + Math.random().toString(36).slice(2, 8);
+  const ov = document.createElement('div'); ov.className = 'chart-overlay cd-modal-overlay';
+  const box = document.createElement('div'); box.className = 'cd-modal be-modal';
+  ov.appendChild(box); document.body.appendChild(ov);
+  const close = ()=> ov.remove();
+  ov.addEventListener('mousedown', e => { if(e.target === ov) close(); });
+  const archivieren = x => { if(!neueIds.has(x.id) && !draft.archiv.some(a => a.id === x.id)) draft.archiv.push({ id:x.id, text:x.text, finger:x.finger }); };
+  const fingerOpts = sel => FINGER_MODEL.map(f => `<option value="${f.key}" ${f.key === sel ? 'selected' : ''}>${f.icon} ${f.name}</option>`).join('');
+  const btn = (txt, cls, tip, fn) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'be-btn ' + (cls || ''); b.textContent = txt; if(tip){ b.title = tip; b.setAttribute('aria-label', tip); } b.onclick = fn; return b; };
+  const move = (arr, i, d) => { const j = i + d; if(j < 0 || j >= arr.length) return; const t = arr[i]; arr[i] = arr[j]; arr[j] = t; render(); };
+
+  function render(){
+    const scrollTop = box.scrollTop;
+    box.innerHTML = '';
+    const x = document.createElement('button'); x.type = 'button'; x.className = 'cd-modal-x'; x.textContent = '×'; x.setAttribute('aria-label', 'Schließen'); x.onclick = close;
+    box.appendChild(x);
+    const h = document.createElement('div');
+    h.innerHTML = `<div class="be-title">Coaching-Bogen bearbeiten</div><div class="be-hint">Reihenfolge der Phasen = Reihenfolge im Gespräch. Jeder Beobachtungspunkt gehört zu einem Finger (①–⑤). Gelöschte Punkte bleiben für alte Coachings erhalten, erscheinen aber nicht mehr im Bogen. Umbenannte Leitfaden-Schritte starten in der Auswertung neu.</div>`;
+    box.appendChild(h);
+
+    draft.phasen.forEach((ph, pi)=>{
+      const card = document.createElement('div'); card.className = 'be-phase';
+      const head = document.createElement('div'); head.className = 'be-phead';
+      const num = document.createElement('span'); num.className = 'gp-num'; num.textContent = pi + 1;
+      const name = document.createElement('input'); name.className = 'cp-form-input be-name'; name.value = ph.name; name.placeholder = 'Name der Phase';
+      name.oninput = () => { ph.name = name.value; };
+      head.appendChild(num); head.appendChild(name);
+      head.appendChild(btn('↑', '', 'Phase nach oben', () => move(draft.phasen, pi, -1)));
+      head.appendChild(btn('↓', '', 'Phase nach unten', () => move(draft.phasen, pi, 1)));
+      head.appendChild(btn('✕', 'be-del', 'Phase löschen', () => {
+        if(!confirm(`Phase „${ph.name}“ mit allen Punkten löschen?`)) return;
+        (ph.punkte || []).forEach(archivieren); draft.phasen.splice(pi, 1); render();
+      }));
+      card.appendChild(head);
+      const hint = document.createElement('input'); hint.className = 'cp-form-input be-sub'; hint.value = ph.hint || ''; hint.placeholder = 'Hinweis (optional), z.B. „nach der Legitimierung“';
+      hint.oninput = () => { ph.hint = hint.value; };
+      card.appendChild(hint);
+
+      const lfT = document.createElement('div'); lfT.className = 'be-lbl'; lfT.textContent = 'Leitfaden-Schritte (gemacht ja/nein)';
+      card.appendChild(lfT);
+      const lf = document.createElement('div'); lf.className = 'be-chips';
+      (ph.pflicht = ph.pflicht || []).forEach((l, li)=>{
+        const c = document.createElement('span'); c.className = 'be-chip';
+        const inp = document.createElement('input'); inp.value = l; inp.size = Math.max(6, l.length + 1);
+        inp.oninput = () => { ph.pflicht[li] = inp.value; inp.size = Math.max(6, inp.value.length + 1); };
+        c.appendChild(inp);
+        c.appendChild(btn('✕', 'be-del', 'Schritt entfernen', () => { ph.pflicht.splice(li, 1); render(); }));
+        lf.appendChild(c);
+      });
+      lf.appendChild(btn('+ Schritt', 'be-add', '', () => { ph.pflicht.push('Neuer Schritt'); render(); }));
+      card.appendChild(lf);
+
+      const pT = document.createElement('div'); pT.className = 'be-lbl'; pT.textContent = 'Beobachtungspunkte (✓ / ½ / ✗)';
+      card.appendChild(pT);
+      (ph.punkte = ph.punkte || []).forEach((pt, ti)=>{
+        const r = document.createElement('div'); r.className = 'be-pt';
+        const sel = document.createElement('select'); sel.className = 'cp-form-select be-f'; sel.innerHTML = fingerOpts(pt.finger); sel.title = 'Finger';
+        sel.onchange = () => { pt.finger = sel.value; };
+        const t = document.createElement('input'); t.className = 'cp-form-input'; t.value = pt.text; t.placeholder = 'Was genau soll der Mitarbeiter zeigen?';
+        t.oninput = () => { pt.text = t.value; };
+        r.appendChild(sel); r.appendChild(t);
+        r.appendChild(btn('↑', '', 'Punkt nach oben', () => move(ph.punkte, ti, -1)));
+        r.appendChild(btn('↓', '', 'Punkt nach unten', () => move(ph.punkte, ti, 1)));
+        r.appendChild(btn('✕', 'be-del', 'Punkt löschen', () => { archivieren(pt); ph.punkte.splice(ti, 1); render(); }));
+        card.appendChild(r);
+      });
+      card.appendChild(btn('+ Punkt', 'be-add', '', () => { const id = rid('p'); neueIds.add(id); ph.punkte.push({ id, text:'', finger:'daumen', vereinbarung:'' }); render(); }));
+      box.appendChild(card);
+    });
+    box.appendChild(btn('+ Phase hinzufügen', 'be-add be-wide', '', () => { draft.phasen.push({ key:rid('ph_'), name:'Neue Phase', hint:'', pflicht:[], punkte:[] }); render(); }));
+
+    const an = document.createElement('div'); an.className = 'be-phase';
+    an.innerHTML = `<div class="be-lbl" style="margin-top:0">Arten von Anliegen (Angaben zum Call)</div>`;
+    const ac = document.createElement('div'); ac.className = 'be-chips';
+    draft.anliegen.forEach((l, li)=>{
+      const c = document.createElement('span'); c.className = 'be-chip';
+      const inp = document.createElement('input'); inp.value = l; inp.size = Math.max(6, l.length + 1);
+      inp.oninput = () => { draft.anliegen[li] = inp.value; inp.size = Math.max(6, inp.value.length + 1); };
+      c.appendChild(inp); c.appendChild(btn('✕', 'be-del', 'Anliegen entfernen', () => { draft.anliegen.splice(li, 1); render(); }));
+      ac.appendChild(c);
+    });
+    ac.appendChild(btn('+ Anliegen', 'be-add', '', () => { draft.anliegen.push('Neues Anliegen'); render(); }));
+    an.appendChild(ac);
+    box.appendChild(an);
+
+    const foot = document.createElement('div'); foot.className = 'be-foot';
+    foot.appendChild(btn('Standard wiederherstellen', 'be-reset', '', () => {
+      if(!confirm('Bogen auf den Standard zurücksetzen? Eigene Punkte werden archiviert.')) return;
+      draft.phasen.forEach(p => (p.punkte || []).forEach(archivieren));
+      const d = JSON.parse(BOGEN_DEFAULT_JSON); draft.phasen = d.phasen; draft.anliegen = d.anliegen; render();
+    }));
+    const sp = document.createElement('span'); sp.style.flex = '1'; foot.appendChild(sp);
+    foot.appendChild(btn('Abbrechen', 'be-cancel', '', close));
+    foot.appendChild(btn('Speichern', 'be-save', '', speichern));
+    box.appendChild(foot);
+    box.scrollTop = scrollTop;
+  }
+  function speichern(){
+    draft.phasen = draft.phasen.filter(p => String(p.name || '').trim());
+    if(!draft.phasen.length){ alert('Mindestens eine Phase ist nötig.'); return; }
+    draft.phasen.forEach(p=>{
+      p.name = p.name.trim(); p.hint = String(p.hint || '').trim();
+      p.pflicht = (p.pflicht || []).map(x => String(x).trim()).filter((x, i, a) => x && a.indexOf(x) === i);
+      (p.punkte || []).filter(x => !String(x.text || '').trim()).forEach(archivieren);
+      p.punkte = (p.punkte || []).filter(x => String(x.text || '').trim()).map(x => Object.assign(x, { text:x.text.trim() }));
+    });
+    const aktiv = new Set(draft.phasen.flatMap(p => p.punkte.map(x => x.id)));
+    draft.archiv = draft.archiv.filter(a => !aktiv.has(a.id) && String(a.text || '').trim());
+    draft.anliegen = draft.anliegen.map(x => String(x).trim()).filter((x, i, a) => x && a.indexOf(x) === i);
+    const istStandard = JSON.stringify({ phasen:draft.phasen, archiv:[], anliegen:draft.anliegen }) === BOGEN_DEFAULT_JSON && !draft.archiv.length;
+    state.coachBogen = istStandard ? {} : { cfg: JSON.stringify(draft) };
+    applyCoachBogen();
+    scheduleSave();
+    close();
+    if(window.fxToast) fxToast('Coaching-Bogen gespeichert');
+    if(nachSpeichern) nachSpeichern();
+  }
+  render();
+}
+
 // ---- Formular-Abschnitt: Beobachtungsbogen + Live-Gesprächsleitfaden ----
 function buildFingerSection(state0, onSuggestVereinbarung){
-  const bew = state0.bew, notes = state0.notes;
+  const bew = state0.bew, notes = state0.notes, check = state0.check || {};
   const wrap = document.createElement('div');
+  const cTitle = document.createElement('div');
+  cTitle.className = 'cf-section-title';
+  cTitle.textContent = '📞 Angaben zum Call';
+  wrap.appendChild(cTitle);
+  // ---- v185: Angaben zum Call ----
+  const call = state0.call || {};
+  call.produkte = call.produkte || [];
+  const callBox = document.createElement('div');
+  callBox.className = 'gp-call';
+  const renderCall = ()=>{
+    callBox.innerHTML = '';
+    const r1 = document.createElement('div'); r1.className = 'gp-call-row';
+    r1.innerHTML = '<span class="gp-call-l">Anliegen</span>';
+    const w1 = document.createElement('div'); w1.className = 'gp-pills';
+    CALL_ANLIEGEN.forEach(a=>{
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'gp-pill' + (call.anliegen === a ? ' on' : ''); b.textContent = a;
+      b.onclick = () => { call.anliegen = call.anliegen === a ? '' : a; renderCall(); };
+      w1.appendChild(b);
+    });
+    r1.appendChild(w1); callBox.appendChild(r1);
+    const r2 = document.createElement('div'); r2.className = 'gp-call-row';
+    r2.innerHTML = '<span class="gp-call-l">Ergebnis</span>';
+    const w2 = document.createElement('div'); w2.className = 'gp-pills';
+    [['ja','Abschluss'],['nein','Kein Abschluss']].forEach(([v, t])=>{
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'gp-pill gp-pill-' + v + (call.abschluss === v ? ' on' : ''); b.textContent = t;
+      b.onclick = () => { call.abschluss = call.abschluss === v ? '' : v; renderCall(); };
+      w2.appendChild(b);
+    });
+    r2.appendChild(w2); callBox.appendChild(r2);
+    if(call.abschluss === 'ja'){
+      const team = state0.getTeam ? state0.getTeam() : null;
+      const cfg = team && TEAM_CONFIGS[team];
+      if(cfg){
+        const r3 = document.createElement('div'); r3.className = 'gp-call-row';
+        r3.innerHTML = '<span class="gp-call-l">Produkt</span>';
+        const w3 = document.createElement('div'); w3.className = 'gp-pills';
+        displayOrderProducts(cfg.products.slice(), team).forEach(p=>{
+          const lbl = productLabel(p, team);
+          const on = call.produkte.includes(lbl);
+          const b = document.createElement('button'); b.type = 'button'; b.className = 'gp-pill' + (on ? ' on' : ''); b.textContent = lbl;
+          b.onclick = () => { if(on) call.produkte = call.produkte.filter(x => x !== lbl); else call.produkte.push(lbl); renderCall(); };
+          w3.appendChild(b);
+        });
+        r3.appendChild(w3); callBox.appendChild(r3);
+      }
+    }
+  };
+  renderCall();
+  wrap._refreshCall = ()=>{ call.produkte = []; renderCall(); };
+  wrap.appendChild(callBox);
+
   const title = document.createElement('div');
-  title.className = 'cf-section-title';
-  title.textContent = '🖐️ Beobachtung nach dem 5-Finger-Pitch';
+  title.className = 'cf-section-title gp-title-row';
+  title.innerHTML = '<span>🖐️ Beobachtung im Gesprächsablauf (5-Finger-Pitch)</span>';
+  const edBtn = document.createElement('button');
+  edBtn.type = 'button'; edBtn.className = 'gp-edit-btn'; edBtn.textContent = '⚙ Bogen bearbeiten';
+  edBtn.title = 'Phasen, Leitfaden-Schritte, Beobachtungspunkte und Anliegen-Arten anpassen';
+  edBtn.onclick = () => openBogenEditor(() => { if(typeof cdSyncFormModal === 'function') cdSyncFormModal(true); });
+  title.appendChild(edBtn);
   wrap.appendChild(title);
   const hint = document.createElement('div');
   hint.className = 'cf-ver-hint';
-  hint.textContent = 'Beim Mithören je Punkt bewerten: ✓ gezeigt · ½ teilweise · ✗ nicht gezeigt. Nicht Beobachtetes einfach leer lassen. Daraus entsteht unten automatisch dein Leitfaden für das Feedback-Gespräch.';
+  hint.innerHTML = 'Von oben nach unten so, wie der Mitarbeiter das Gespräch führt. <b>Leitfaden-Schritt:</b> gemacht ✓ oder nicht ✕. <b>Beobachtung:</b> ✓ gezeigt · ½ teilweise · ✗ nicht gezeigt. Die Ziffer ①–⑤ zeigt, zu welchem Finger der Punkt zählt. Nicht Beobachtetes einfach leer lassen.';
   wrap.appendChild(hint);
 
-  const grid = document.createElement('div');
-  grid.className = 'fg-grid';
+  const list = document.createElement('div');
+  list.className = 'gp-list';
   const guide = document.createElement('div');
   guide.className = 'fg-guide';
+  const auswertung = document.createElement('div');
+  auswertung.className = 'gp-auswertung';
 
-  const refreshGuide = ()=>{ guide.innerHTML = ''; guide.appendChild(buildFeedbackGuide(bew, notes, onSuggestVereinbarung)); };
+  const refreshAuswertung = ()=>{
+    const sc = fingerScores(bew);
+    const alle = GESPRAECH_PHASEN.flatMap(p => p.pflicht);
+    const bewertet = alle.filter(l => check[l] === 'ok' || check[l] === 'nok');
+    const erfuellt = alle.filter(l => check[l] === 'ok');
+    auswertung.innerHTML = `<div class="gp-aw-fingers">` + FINGER_MODEL.map(f=>{
+        const v = sc[f.key];
+        return `<div class="gp-aw-f" title="${f.thema}"><span class="gp-aw-i">${f.icon}</span><div class="gp-aw-n"><b>${f.name}</b><span>${f.thema}</span></div><div class="gp-aw-bar"><i style="width:${v === null ? 0 : Math.round(v/2*100)}%;background:${fingerColor(v)}"></i></div><span class="gp-aw-v" style="color:${fingerColor(v)}">${v === null ? '–' : Math.round(v/2*100) + ' %'}</span></div>`;
+      }).join('') + `</div>
+      <div class="gp-aw-lf">Leitfaden-Schritte: <b>${erfuellt.length} von ${bewertet.length || 0}</b> bewerteten erfüllt${bewertet.length < alle.length ? ` <span>(${alle.length - bewertet.length} noch offen)</span>` : ''}</div>`;
+  };
+  // ---- v185: Selbsteinschätzung des Mitarbeiters ----
+  const selbst = state0.selbst || {};
+  const selbstBox = document.createElement('div');
+  selbstBox.className = 'gp-selbst';
+  const renderSelbst = ()=>{
+    const note = bogenNote(bew, check);
+    const coach5 = note === null ? null : Math.max(1, Math.min(5, Math.round(1 + 4 * note / 10)));
+    let vergleich = '';
+    if(selbst.v && coach5){
+      const d = selbst.v - coach5;
+      vergleich = d >= 1 ? `<b>Schätzt sich besser ein als du</b> (Mitarbeiter ${selbst.v} · Bogen ${coach5}). Frag nach, woran er das festmacht, und zeig ihm den konkreten Punkt aus dem Call.`
+        : d <= -1 ? `<b>Schätzt sich strenger ein als du</b> (Mitarbeiter ${selbst.v} · Bogen ${coach5}). Betone zuerst die Stärken – er ist besser, als er denkt.`
+        : `<b>Einschätzungen passen zusammen</b> (Mitarbeiter ${selbst.v} · Bogen ${coach5}). Gute Basis – ihr seht den Call gleich.`;
+    } else if(selbst.v){ vergleich = 'Bewerte den Bogen oben, dann erscheint hier der Vergleich.'; }
+    selbstBox.innerHTML = `<div class="gp-selbst-q">Frag zuerst: <i>„Wie würdest du den Call auf einer Skala von 1 bis 5 bewerten?“</i></div>`;
+    const row = document.createElement('div'); row.className = 'gp-selbst-row';
+    [1,2,3,4,5].forEach(n=>{
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'gp-selbst-b' + (selbst.v === n ? ' on' : ''); b.textContent = n;
+      b.title = ['', 'sehr schwach', 'schwach', 'okay', 'gut', 'sehr gut'][n];
+      b.onclick = () => { selbst.v = selbst.v === n ? 0 : n; renderSelbst(); };
+      row.appendChild(b);
+    });
+    const leg = document.createElement('span'); leg.className = 'gp-selbst-leg'; leg.textContent = '1 = sehr schwach · 5 = sehr gut';
+    row.appendChild(leg);
+    selbstBox.appendChild(row);
+    if(vergleich){ const v = document.createElement('div'); v.className = 'gp-selbst-v'; v.innerHTML = vergleich; selbstBox.appendChild(v); }
+  };
+  const meldeNote = ()=>{ if(state0.onNote) state0.onNote(bogenNote(bew, check)); renderSelbst(); };
+  const refreshGuide = ()=>{ guide.innerHTML = ''; guide.appendChild(buildFeedbackGuide(bew, notes, onSuggestVereinbarung)); refreshAuswertung(); meldeNote(); };
 
-  FINGER_MODEL.forEach(f=>{
+  GESPRAECH_PHASEN.forEach((ph, pi)=>{
     const box = document.createElement('div');
-    box.className = 'fg-box';
+    box.className = 'fg-box gp-phase';
     const h = document.createElement('div');
-    h.className = 'fg-box-head';
-    h.innerHTML = `<span class="fg-icon">${f.icon}</span><div><b>${f.name}</b><span>${f.thema}</span></div><div class="fg-score"></div>`;
+    h.className = 'gp-head';
+    h.innerHTML = `<span class="gp-num">${pi+1}</span><div class="gp-titel"><b>${ph.name}</b>${ph.hint ? `<span>${ph.hint}</span>` : ''}</div>${ph.neu ? '<span class="gp-neu">neu</span>' : ''}`;
     box.appendChild(h);
-    const scoreEl = h.querySelector('.fg-score');
-    const updScore = ()=>{
-      const v = fingerScores(bew)[f.key];
-      scoreEl.textContent = v === null ? '' : Math.round(v/2*100) + ' %';
-      scoreEl.style.color = fingerColor(v);
-    };
-    f.anchors.forEach(a=>{
+    // Leitfaden-Schritte (Pflicht) dieser Phase
+    if(ph.pflicht.length){
+      const pf = document.createElement('div');
+      pf.className = 'gp-pflicht';
+      ph.pflicht.forEach(label=>{
+        const chip = document.createElement('div');
+        chip.className = 'gp-chip';
+        const sp = document.createElement('span'); sp.textContent = label;
+        chip.appendChild(sp);
+        const mk = (v, t, tip)=>{
+          const b = document.createElement('button');
+          b.type = 'button'; b.className = 'fg-btn gp-cbtn fg-' + (v === 'ok' ? 'ok' : 'nok'); b.textContent = t; b.title = tip;
+          b.setAttribute('aria-label', label + ': ' + tip);
+          b.addEventListener('click', ()=>{ check[label] = check[label] === v ? null : v; upd(); refreshAuswertung(); meldeNote(); });
+          return b;
+        };
+        const bOk = mk('ok', '✓', 'gemacht'), bNok = mk('nok', '✕', 'nicht gemacht');
+        const upd = ()=>{ bOk.classList.toggle('active', check[label] === 'ok'); bNok.classList.toggle('active', check[label] === 'nok'); chip.classList.toggle('is-ok', check[label] === 'ok'); chip.classList.toggle('is-nok', check[label] === 'nok'); };
+        chip.appendChild(bOk); chip.appendChild(bNok);
+        upd();
+        pf.appendChild(chip);
+      });
+      box.appendChild(pf);
+    }
+    // Beobachtungspunkte
+    ph.ids.forEach(id=>{
+      const a = ankerVonId(id), f = fingerVonAnker(id);
+      if(!a || !f) return;
       const row = document.createElement('div');
       row.className = 'fg-row';
       const lbl = document.createElement('span');
       lbl.className = 'fg-row-text';
-      lbl.textContent = a.text;
+      lbl.innerHTML = `<span class="gp-f" title="${f.name} – ${f.thema}">${f.icon}</span>`;
+      lbl.appendChild(document.createTextNode(a.text));
       const btns = document.createElement('div');
       btns.className = 'fg-btns';
       [['ok','✓'],['half','½'],['nok','✗']].forEach(([v,t])=>{
@@ -10715,24 +11131,37 @@ function buildFingerSection(state0, onSuggestVereinbarung){
           if(bew[a.id] === undefined) delete bew[a.id];
           [...btns.children].forEach(x=>x.classList.remove('active'));
           if(bew[a.id]) b.classList.add('active');
-          updScore(); refreshGuide();
+          refreshGuide();
         });
         btns.appendChild(b);
       });
       row.appendChild(lbl); row.appendChild(btns);
       box.appendChild(row);
     });
-    const note = document.createElement('input');
-    note.type = 'text';
-    note.className = 'fg-note';
-    note.placeholder = 'Beispiel aus dem Call (optional) – z.B. was genau gesagt wurde';
-    note.value = notes[f.key] || '';
-    note.addEventListener('input', ()=>{ notes[f.key] = note.value; refreshGuide(); });
-    box.appendChild(note);
-    updScore();
-    grid.appendChild(box);
+    if(ph.ids.length){
+      const note = document.createElement('input');
+      note.type = 'text';
+      note.className = 'fg-note';
+      note.placeholder = 'Beispiel aus dem Call (optional) – was genau gesagt wurde';
+      note.value = notes[ph.key] || '';
+      note.addEventListener('input', ()=>{ notes[ph.key] = note.value; refreshGuide(); });
+      box.appendChild(note);
+    }
+    list.appendChild(box);
   });
-  wrap.appendChild(grid);
+  wrap.appendChild(list);
+
+  const aTitle = document.createElement('div');
+  aTitle.className = 'cf-section-title';
+  aTitle.textContent = '📊 Auswertung nach dem 5-Finger-Pitch';
+  wrap.appendChild(aTitle);
+  wrap.appendChild(auswertung);
+
+  const sTitle = document.createElement('div');
+  sTitle.className = 'cf-section-title';
+  sTitle.textContent = '🙋 Selbsteinschätzung des Mitarbeiters';
+  wrap.appendChild(sTitle);
+  wrap.appendChild(selbstBox);
 
   const gTitle = document.createElement('div');
   gTitle.className = 'cf-section-title';
@@ -10749,21 +11178,31 @@ function buildFeedbackGuide(bew, notes, onSuggestVereinbarung){
     el.innerHTML = `<div class="fg-guide-empty">Bewerte oben beim Mithören die Punkte – dann erscheint hier Schritt für Schritt, worüber du sprichst: welche Stärke du lobst, an welchem einen Punkt ihr arbeitet und mit welcher Übung.</div>`;
     return el;
   }
+  // Beispiele aus dem Call: früher je Finger, jetzt je Gesprächsphase
+  const noteFor = f => {
+    if(notes[f.key]) return notes[f.key];
+    const ids = f.anchors.filter(a => bew[a.id]).map(a => a.id);
+    return GESPRAECH_PHASEN.filter(p => notes[p.key] && p.ids.some(id => ids.includes(id))).map(p => notes[p.key]).join(' / ');
+  };
   const gezeigt = f => f.anchors.filter(a => bew[a.id] === 'ok').map(a => a.text);
-  const fehlt = f => f.anchors.filter(a => bew[a.id] === 'nok' || bew[a.id] === 'half').map(a => (bew[a.id] === 'half' ? '½ ' : '✗ ') + a.text);
+  const ablaufIdx = id => GESPRAECH_PHASEN.flatMap(p => p.ids).indexOf(id);
+  const fehlt = f => f.anchors.filter(a => bew[a.id] === 'nok' || bew[a.id] === 'half').sort((x, y) => ablaufIdx(x.id) - ablaufIdx(y.id)).map(a => (bew[a.id] === 'half' ? '½ ' : '✗ ') + a.text);
   const steps = [];
   steps.push({ t:'Selbsteinschätzung zuerst', b:'Frag: <i>„Wie lief der Call aus deiner Sicht? Was lief gut, was würdest du beim nächsten Mal anders machen?“</i> Erst zuhören – wer sich selbst einschätzt, nimmt Feedback viel besser an.' });
   if(an.staerke){
-    const ex = notes[an.staerke.key] ? ` Beispiel aus dem Call: <i>„${notes[an.staerke.key]}“</i>` : '';
+    const ex = noteFor(an.staerke) ? ` Beispiel aus dem Call: <i>„${kiEsc(noteFor(an.staerke))}“</i>` : '';
     steps.push({ t:`Stärke anerkennen: ${an.staerke.icon} ${an.staerke.name}`, b:`<b>${an.staerke.staerke}.</b> Konkret benennen, was gut war:<ul>${gezeigt(an.staerke).map(x=>`<li>${x}</li>`).join('')}</ul>${ex}` });
   } else {
     steps.push({ t:'Stärke anerkennen', b:'Noch kein Finger klar stark bewertet – such trotzdem <b>eine</b> Sache aus dem Call, die gut war, und benenne sie konkret. Lob vor Kritik baut Unsicherheit ab.' });
   }
   if(an.hebel){
-    const ex = notes[an.hebel.key] ? ` Beispiel aus dem Call: <i>„${notes[an.hebel.key]}“</i>` : '';
+    const ex = noteFor(an.hebel) ? ` Beispiel aus dem Call: <i>„${kiEsc(noteFor(an.hebel))}“</i>` : '';
     steps.push({ t:`Genau EIN Hebel: ${an.hebel.icon} ${an.hebel.name} – ${an.hebel.thema}`, b:`Nur diesen Punkt ansprechen, nicht alles auf einmal:<ul>${fehlt(an.hebel).map(x=>`<li>${x}</li>`).join('')}</ul>${ex} Frag nach: <i>„${an.hebel.frage}“</i>` });
     steps.push({ t:'Kurz üben (2–3 Minuten)', b: an.hebel.uebung });
-    const vorschlag = an.hebel.vereinbarung;
+    const ablauf = GESPRAECH_PHASEN.flatMap(p => p.ids);
+    const nachAblauf = arr => arr.slice().sort((x, y) => ablauf.indexOf(x.id) - ablauf.indexOf(y.id));
+    const luecken = nachAblauf(an.hebel.anchors.filter(a => bew[a.id] === 'nok')).concat(nachAblauf(an.hebel.anchors.filter(a => bew[a.id] === 'half')));
+    const vorschlag = (luecken.find(a => a.vereinbarung) || {}).vereinbarung || an.hebel.vereinbarung;
     const s5 = { t:'Vereinbarung festhalten', b:`Gemeinsam ein konkretes Verhalten vereinbaren – am besten in den Worten des Mitarbeiters. Vorschlag: <b>„${vorschlag}“</b>`, btn: vorschlag };
     steps.push(s5);
   } else {
@@ -10854,11 +11293,38 @@ function buildFingerTeamAnalyse(teamFilter, agentFilter){
       FINGER_MODEL.forEach(f=>{ if(sc[f.key] !== null){ fingerSum[f.key].s += sc[f.key]; fingerSum[f.key].n++; } });
     });
   });
+  // v185: Angebots- und Abschlussquote je Art des Anliegens
+  const anl = {};
+  Object.keys(state.coachverlauf || {}).forEach(key=>{
+    const cv = state.coachverlauf[key];
+    const agent = fkAgentForCv(key, cv);
+    const team = agent ? agent.team : cv.team;
+    if(teamFilter !== 'alle' && String(team) !== teamFilter) return;
+    if(agentFilter && (!agent || !agentFilter(agent))) return;
+    (cv.eintraege||[]).forEach(e=>{
+      if(!e.callAnliegen) return;
+      const d = fkParseDe(e.datum); if(d && d < since) return;
+      const o = anl[e.callAnliegen] || (anl[e.callAnliegen] = { n:0, angJa:0, angBew:0, abJa:0, abBew:0 });
+      o.n++;
+      const ang = (e.checkliste || {})['Angebot'];
+      if(ang === 'ok' || ang === 'nok'){ o.angBew++; if(ang === 'ok') o.angJa++; }
+      if(e.callAbschluss){ o.abBew++; if(e.callAbschluss === 'ja') o.abJa++; }
+    });
+  });
+  const anlBox = ()=>{
+    const keys = Object.keys(anl).sort((x, y) => anl[y].n - anl[x].n);
+    if(!keys.length) return '';
+    const q = (a, b) => b ? `<b style="color:${a/b >= 0.5 ? 'var(--teal)' : a/b >= 0.25 ? 'var(--amber)' : 'var(--red)'}">${Math.round(a/b*100)} %</b> <em>${a}/${b}</em>` : '<em>–</em>';
+    return `<div class="fg-anl"><div class="fg-profile-title">Nach Art des Anliegens</div><div class="fg-anl-wrap"><table class="fg-anl-t"><tr><th>Anliegen</th><th>Calls</th><th>Angebot gemacht</th><th>Abschluss</th></tr>` +
+      keys.map(k => `<tr><td>${kiEsc(k)}</td><td>${anl[k].n}</td><td>${q(anl[k].angJa, anl[k].angBew)}</td><td>${q(anl[k].abJa, anl[k].abBew)}</td></tr>`).join('') +
+      `</table></div><div class="fk-hint">Zeigt, bei welchen Anliegen das Team selten anbietet oder abschließt.</div></div>`;
+  };
   const sec = document.createElement('div');
   sec.className = 'fk-section';
   sec.innerHTML = `<div class="fk-sec-title">🖐️ Team-Analyse 5-Finger-Pitch <span>${nCoachings} Coaching${nCoachings===1?'':'s'} · 60 Tage</span></div>`;
   if(!nCoachings){
     sec.innerHTML += `<div class="fk-empty">Sobald Coachings mit dem Beobachtungsbogen erfasst werden, zeigt das Board hier, wo das Team insgesamt am meisten Unterstützung braucht – ideal für die Wahl des nächsten Workshop-Themas.</div>`;
+    if(anlBox()){ const x = document.createElement('div'); x.className = 'fg-team'; x.innerHTML = anlBox(); sec.appendChild(x); }
     return sec;
   }
   const avg = {}; FINGER_MODEL.forEach(f=>{ avg[f.key] = fingerSum[f.key].n ? fingerSum[f.key].s / fingerSum[f.key].n : null; });
@@ -10874,6 +11340,7 @@ function buildFingerTeamAnalyse(teamFilter, agentFilter){
     ${gaps.length ? `<div class="fk-hint" style="margin-top:8px;">💡 Workshop-Idee: ${anchorById[gaps[0].id].f.name} – ${anchorById[gaps[0].id].f.thema}. Übung: ${anchorById[gaps[0].id].f.uebung}</div>` : ''}
   </div>`;
   sec.appendChild(box);
+  if(anlBox()){ const x = document.createElement('div'); x.className = 'fg-team'; x.style.marginTop = '10px'; x.innerHTML = anlBox(); sec.appendChild(x); }
   return sec;
 }
 
@@ -11247,6 +11714,9 @@ function kiAgentData(agent, now, teamInfo){
     if(e.workshopTitel) c.workshop = e.workshopTitel;
     if(e.text && e.text !== '(Coaching ohne Notiz)') c.notiz = e.text.length > 500 ? e.text.slice(0, 500) + '…' : e.text;
     if(typeof e.performance === 'number') c.performance_note = e.performance + '/10';
+    if(e.callAnliegen) c.anliegen_im_call = e.callAnliegen;
+    if(e.callAbschluss) c.ergebnis_call = e.callAbschluss === 'ja' ? 'Abschluss' + ((e.callProdukte||[]).length ? ' (' + e.callProdukte.join(', ') + ')' : '') : 'kein Abschluss';
+    if(e.selbst) c.selbsteinschaetzung = e.selbst + '/5';
     const nok = Object.entries(e.checkliste || {}).filter(([k,v]) => v === 'nok').map(([k]) => k);
     if(nok.length) c.leitfaden_nicht_erfuellt = nok;
     if(e.fingerBewertung && Object.keys(e.fingerBewertung).length){
@@ -11259,7 +11729,7 @@ function kiAgentData(agent, now, teamInfo){
         nicht_gezeigt: Object.entries(e.fingerBewertung).filter(([k,v]) => v === 'nok').map(([k]) => anchors[k]).filter(Boolean),
         teilweise: Object.entries(e.fingerBewertung).filter(([k,v]) => v === 'half').map(([k]) => anchors[k]).filter(Boolean)
       };
-      if(e.fingerNotizen && Object.keys(e.fingerNotizen).length) c.fuenf_finger.beispiele = e.fingerNotizen;
+      if(e.fingerNotizen && Object.keys(e.fingerNotizen).length) c.fuenf_finger.beispiele = Object.fromEntries(Object.entries(e.fingerNotizen).map(([k,v]) => [phaseName(k), v]));
     }
     if(e.vereinbarung){
       const rv = reviews[e.id];
@@ -11347,7 +11817,7 @@ ${zielText}
 - ziele.produkte = Stückzahl-Ziele je Produkt für diesen Mitarbeiter (abhängig von Kategorie Standard/6-Stündler/Helpline)
 - aktueller_monat: NPS/LQ/Calls/CHT nur, wenn in diesem Monat schon eingetragen; stueck_bisher aus den Tageswerten; hochrechnung = Prognose zum Monatsende im bisherigen Tempo
 - monatsverlauf = abgeschlossene/archivierte Monate (für Trends)
-- coachings (neueste zuerst): fuenf_finger = Beobachtung nach dem 5-Finger-Pitch des Salescoaches (Daumen = Einstellung/Mut inkl. Brückensatz, Zeigefinger = Produktwissen, Mittelfinger = Bedarfsanalyse, Ringfinger = Kundennutzen, Kleiner Finger = Abschluss/Einwände); hebel = schwächster Finger; vereinbarung.ergebnis = umgesetzt/teilweise/nicht/noch offen; vereinbarung.wirkung = Vorher/Nachher aus den Tageswerten
+- coachings (neueste zuerst): fuenf_finger = Beobachtung nach dem 5-Finger-Pitch des Salescoaches (Daumen = Einstellung/Mut inkl. Anker nach der Legitimierung und Brückensatz, Zeigefinger = Produktwissen, Mittelfinger = Bedarfsanalyse, Ringfinger = Kundennutzen, Kleiner Finger = Abschluss/Einwände); hebel = schwächster Finger; vereinbarung.ergebnis = umgesetzt/teilweise/nicht/noch offen; vereinbarung.wirkung = Vorher/Nachher aus den Tageswerten
 - leitfaden_nicht_erfuellt = Schritte des Gesprächsleitfadens, die beim Coaching nicht erfüllt waren
 - haeufigste_5_finger_luecken = Team-Muster der letzten Coachings
 
