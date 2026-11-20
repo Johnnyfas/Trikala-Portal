@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 185;
+const BOARD_VERSION = 186;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -6399,6 +6399,75 @@ function buildCoachingRecordForm(prefill){
   btnRow.appendChild(cancelBtn);
   wrap.appendChild(btnRow);
 
+  // ---- v186: großes Layout – Bogen links, Live-Auswertung rechts, Abschluss unten ----
+  (function neuesLayout(){
+    const stream = [];
+    [...wrap.children].forEach(el => { if(el === fingerSec) [...fingerSec.children].forEach(c => stream.push(c)); else stream.push(el); });
+    const groups = []; let cur = { title:null, els:[] };
+    stream.forEach(el=>{
+      if(el === btnRow) return;
+      if(el.classList.contains('cf-section-title')){ groups.push(cur); cur = { title:el, els:[] }; }
+      else cur.els.push(el);
+    });
+    groups.push(cur);
+    const card = (titleEl, els, cls)=>{
+      const c = document.createElement('section'); c.className = 'cf2-card' + (cls ? ' ' + cls : '');
+      if(titleEl){ titleEl.classList.add('cf2-card-h'); c.appendChild(titleEl); }
+      els.forEach(e => c.appendChild(e));
+      return c;
+    };
+    const main = document.createElement('div'); main.className = 'cf2-main';
+    const side = document.createElement('aside'); side.className = 'cf2-side';
+    const unten = document.createElement('div'); unten.className = 'cf2-unten';
+    let oben = null;
+    groups.forEach(g=>{
+      if(!g.title){
+        if(!g.els.length) return;
+        const t = document.createElement('div'); t.className = 'cf-section-title'; t.textContent = '👤 Mitarbeiter & Vorbereitung';
+        oben = card(t, g.els, 'cf2-oben'); return;
+      }
+      const txt = g.title.textContent;
+      if(/Angaben zum Call|Beobachtung/.test(txt)) main.appendChild(card(g.title, g.els));
+      else if(/Auswertung|Selbsteinsch|Feedback/.test(txt)) side.appendChild(card(g.title, g.els, 'cf2-sidecard'));
+      else unten.appendChild(card(g.title, g.els));
+    });
+    const head = document.createElement('div');
+    head.className = 'cf2-head';
+    head.innerHTML = `<div class="cf2-head-t"><div class="cf2-eyebrow">Coaching · einzeln</div><div class="cf2-title">Einzelcoaching <span class="cf2-who"></span></div></div>
+      <div class="cf2-stats"><div class="cf2-stat"><b data-k="bew">0/0</b><span>Punkte bewertet</span></div><div class="cf2-stat"><b data-k="lf">–</b><span>Leitfaden</span></div><div class="cf2-stat cf2-stat-note"><b data-k="note">–</b><span>Note</span></div></div>`;
+    const grid = document.createElement('div'); grid.className = 'cf2-grid';
+    grid.appendChild(main); grid.appendChild(side);
+    const foot = document.createElement('div'); foot.className = 'cf2-foot';
+    const footInfo = document.createElement('span'); footInfo.className = 'cf2-foot-info';
+    foot.appendChild(footInfo); foot.appendChild(btnRow);
+    wrap.innerHTML = '';
+    wrap.classList.add('cf-v2');
+    wrap.appendChild(head);
+    if(oben) wrap.appendChild(oben);
+    wrap.appendChild(grid);
+    if(unten.children.length) wrap.appendChild(unten);
+    wrap.appendChild(foot);
+    const updStats = ()=>{
+      const ids = GESPRAECH_PHASEN.flatMap(p => p.ids);
+      const bewN = ids.filter(id => fingerBew[id]).length;
+      const lfOk = CHECKLIST_ITEMS.filter(l => checklistState[l] === 'ok').length;
+      const lfBew = CHECKLIST_ITEMS.filter(l => checklistState[l] === 'ok' || checklistState[l] === 'nok').length;
+      head.querySelector('[data-k="bew"]').textContent = `${bewN}/${ids.length}`;
+      head.querySelector('[data-k="lf"]').textContent = lfBew ? `${lfOk}/${lfBew}` : '–';
+      const n = parseInt(slider.value);
+      const nb = head.querySelector('[data-k="note"]');
+      nb.textContent = (bewN || lfBew || noteManuell) ? `${n}/10` : '–';
+      nb.parentElement.dataset.st = !(bewN || lfBew || noteManuell) ? '' : n >= 8 ? 'ok' : n >= 5 ? 'warn' : 'bad';
+      const a = state.agents.find(x => x.id === agentSel.value);
+      head.querySelector('.cf2-who').textContent = a ? '· ' + a.name : '';
+      footInfo.textContent = a ? `${a.name} · ${bewN} von ${ids.length} Punkten bewertet` : '';
+    };
+    const vorher = onNoteFn;
+    onNoteFn = ()=>{ vorher(); updStats(); };
+    agentSel.addEventListener('change', updStats);
+    updStats();
+  })();
+
   return wrap;
 }
 
@@ -6459,6 +6528,7 @@ function cdSyncFormModal(neuZeichnen){
     box.appendChild(x); box.appendChild(host); ov.appendChild(box);
     document.body.appendChild(ov);
   }
+  ov.classList.toggle('cf-big', !['workshop','einzelgespraech','tagesziel'].includes(cpFormType));
   const host = document.getElementById('coachplan-container');
   host.innerHTML = '';
   host.appendChild(
@@ -14069,6 +14139,92 @@ html[data-fx-theme="dark"]{--globe-sea:#123E6B;--globe-sea-hi:#2D78B5;--globe-la
 @media (max-width: 1100px){ .sh-card{grid-template-columns:auto minmax(0,1fr);} .sh-map-wrap{display:none;} }
 @media (max-width: 600px){ .sh-card{grid-template-columns:1fr;justify-items:center;text-align:center;padding:18px;} .sh-globe-wrap,.sh-globe{width:170px;height:170px;} .sh-eyebrow,.sh-meta,.sh-teams{justify-content:center;} .sh-team{text-align:left;} .sh-name{font-size:28px;} }
 @media (prefers-reduced-motion: reduce){ .sh-globe,.sh-greece,.sh-ring,.sh-live{animation:none!important;} }
+/* ===== v186: großes Coaching-Fenster ===== */
+#cd-form-overlay.cf-big{padding:24px 20px;}
+#cd-form-overlay.cf-big .cd-modal{width:min(1320px,100%);padding:0;background:var(--bg);overflow:visible;}
+#cd-form-overlay.cf-big .cd-modal-x{top:18px;right:18px;z-index:7;}
+.cp-form.cf-v2{max-width:none;background:transparent;border:0;border-radius:0;padding:0;margin:0;gap:16px;}
+.cf2-head{position:sticky;top:-24px;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px 66px 16px 26px;background:var(--panel);border-bottom:1px solid var(--border);border-radius:16px 16px 0 0;}
+.cf2-eyebrow{font-family:'Inter',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--tmg);}
+.cf2-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:23px;line-height:1.2;}
+.cf2-who{color:var(--muted);font-weight:600;}
+.cf2-stats{display:flex;gap:10px;flex-wrap:wrap;}
+.cf2-stat{display:flex;flex-direction:column;align-items:center;min-width:92px;padding:7px 12px;border:1px solid var(--border);border-radius:12px;background:var(--bg);}
+.cf2-stat b{font-family:'IBM Plex Mono',monospace;font-size:17px;font-weight:700;line-height:1.2;}
+.cf2-stat span{font-family:'Inter',sans-serif;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.cf2-stat[data-st="ok"]{border-color:var(--teal);background:var(--teal-soft);} .cf2-stat[data-st="ok"] b{color:var(--teal);}
+.cf2-stat[data-st="warn"]{border-color:var(--amber);background:var(--amber-soft);} .cf2-stat[data-st="warn"] b{color:var(--amber);}
+.cf2-stat[data-st="bad"]{border-color:var(--red);background:var(--red-soft);} .cf2-stat[data-st="bad"] b{color:var(--red);}
+.cf-v2 > .cf2-oben, .cf-v2 > .cf2-grid, .cf-v2 > .cf2-unten{margin:0 26px;}
+.cf2-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0;}
+.cf-v2 .cf-section-title.cf2-card-h{font-size:17px;margin:0;display:flex;align-items:center;gap:8px;}
+.cf-v2 .gp-title-row.cf2-card-h{justify-content:space-between;}
+.cf2-grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:18px;align-items:start;}
+.cf2-main{display:flex;flex-direction:column;gap:16px;min-width:0;}
+.cf2-side{display:flex;flex-direction:column;gap:14px;position:sticky;top:96px;max-height:calc(100vh - 120px);overflow-y:auto;padding-bottom:4px;min-width:0;}
+.cf2-sidecard{padding:16px;}
+.cf2-unten{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;}
+.cf2-foot{position:sticky;bottom:-24px;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 26px;background:var(--panel);border-top:1px solid var(--border);border-radius:0 0 16px 16px;}
+.cf2-foot-info{font-family:'Inter',sans-serif;font-size:13px;color:var(--muted);}
+.cf2-foot .cf-btn-row{margin:0;}
+.cf2-foot .cf-btn-row button{font-size:14px;padding:11px 20px;border-radius:10px;}
+/* größere, klarere Bedienelemente */
+.cf-v2 .cp-form-field label{font-size:11px;}
+.cf-v2 .cp-form-select,.cf-v2 .cp-form-input{font-size:14px;padding:10px 12px;border-radius:10px;}
+.cf-v2 .cp-form-textarea{font-size:14px;padding:12px;border-radius:10px;min-height:110px;}
+.cf-v2 .cf-ver-hint{font-size:13px;line-height:1.5;margin:0;}
+.cf-v2 .cf-prep-row{margin:0;padding:12px 14px;}
+.cf-v2 .gp-call{border:0;padding:0;background:transparent;margin:0;gap:10px;}
+.cf-v2 .gp-call-l{flex-basis:84px;font-size:11.5px;padding-top:8px;}
+.cf-v2 .gp-pill{font-size:14px;padding:7px 15px;}
+.cf-v2 .gp-list{gap:12px;}
+.cf-v2 .gp-phase{padding:14px 16px;gap:10px;border-radius:14px;}
+.cf-v2 .gp-num{flex-basis:32px;height:32px;font-size:15px;}
+.cf-v2 .gp-titel b{font-size:16.5px;}
+.cf-v2 .gp-titel span{font-size:12.5px;}
+.cf-v2 .gp-pflicht,.cf-v2 .gp-phase .fg-row{padding-left:42px;}
+.cf-v2 .gp-phase .fg-note{margin-left:42px;width:calc(100% - 42px);font-size:13px;padding:8px 11px;}
+.cf-v2 .gp-chip{font-size:13.5px;padding:4px 5px 4px 13px;}
+.cf-v2 .fg-btn.gp-cbtn{width:30px;height:28px;font-size:13px;border-radius:999px;}
+.cf-v2 .fg-row{gap:12px;}
+.cf-v2 .fg-row-text{font-size:14.5px;line-height:1.45;}
+.cf-v2 .gp-f{font-size:15px;}
+.cf-v2 .fg-btn{width:40px;height:36px;font-size:15px;border-radius:9px;}
+.cf-v2 .gp-auswertung,.cf-v2 .gp-selbst{border:0;padding:0;background:transparent;margin:0;}
+.cf2-side .gp-aw-f{grid-template-columns:24px 1fr auto;row-gap:5px;}
+.cf2-side .gp-aw-bar{grid-column:1 / -1;order:4;}
+.cf-v2 .gp-aw-n b{font-size:13.5px;}
+.cf-v2 .gp-aw-v{font-size:14px;}
+.cf-v2 .gp-selbst{font-size:13.5px;}
+.cf-v2 .gp-selbst-b{width:42px;height:40px;font-size:17px;}
+.cf-v2 .fg-guide{margin:0;border:0;border-left:4px solid var(--tmg);border-radius:0 10px 10px 0;padding:4px 0 4px 14px;background:transparent;}
+.cf-v2 .fg-step-t{font-size:14.5px;}
+.cf-v2 .fg-step-b{font-size:13.5px;}
+.cf-v2 .cf-next-btn{margin:0;font-size:14px;}
+@media (max-width:1100px){
+  .cf2-grid{grid-template-columns:minmax(0,1fr);}
+  .cf2-side{position:static;max-height:none;overflow:visible;}
+}
+@media (max-width:640px){
+  #cd-form-overlay.cf-big{padding:0;}
+  #cd-form-overlay.cf-big .cd-modal{border-radius:0;min-height:100%;}
+  .cf2-head{top:0;border-radius:0;padding:14px 56px 12px 16px;}
+  .cf2-title{font-size:19px;}
+  .cf2-stat{min-width:0;flex:1;padding:6px 8px;}
+  .cf-v2 > .cf2-oben, .cf-v2 > .cf2-grid, .cf-v2 > .cf2-unten{margin:0 12px;}
+  .cf2-card{padding:14px;}
+  .cf2-unten{grid-template-columns:minmax(0,1fr);}
+  .cf2-foot{bottom:0;border-radius:0;padding:12px 16px;}
+  .cf2-foot-info{display:none;}
+  .cf-v2 .gp-pflicht,.cf-v2 .gp-phase .fg-row{padding-left:0;}
+  .cf-v2 .gp-phase .fg-note{margin-left:0;width:100%;}
+  .cf-v2 .gp-phase .fg-row{flex-wrap:wrap;}
+  .cf-v2 .fg-btns{margin-left:auto;}
+  .cf-v2 .gp-call-row{flex-direction:column;gap:6px;}
+  .cf-v2 .gp-call-l{flex-basis:auto;padding-top:0;}
+  .cf-v2 .gp-phase .fg-row-text{flex:1 1 100%;}
+  .cf-v2 .gp-phase .fg-row{gap:6px;}
+}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
