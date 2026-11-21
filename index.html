@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 187;
+const BOARD_VERSION = 189;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -14465,6 +14465,60 @@ button.cd-kpi{cursor:pointer;} button.cd-kpi:hover{box-shadow:var(--cd-shadow-h)
   #view-coachdash .cal-cell{min-height:64px;padding:4px;border-radius:10px;}
   #view-coachdash .cal-chip{font-size:10.5px;padding:2px 4px;}
 }
+
+/* ===== v188: Standort-Kopf vereinfacht ===== */
+.sh2{grid-template-columns:300px minmax(0,1fr);gap:0 32px;padding:20px 26px 20px 20px;border-radius:18px;border-color:var(--cd-line,var(--border));box-shadow:0 1px 2px rgba(16,24,40,.04),0 8px 24px -14px rgba(16,24,40,.16);}
+.sh2::after{background:radial-gradient(380px 240px at 14% 50%,rgba(226,0,116,.08),transparent 70%);}
+.sh2-visual{position:relative;width:300px;height:230px;border-radius:14px;overflow:hidden;background:var(--map-sea);}
+.sh2-visual .sh-map{width:300px;height:230px;}
+.sh2-globe{position:absolute;left:10px;bottom:10px;width:86px;height:86px;border-radius:50%;background:var(--panel);padding:3px;box-shadow:0 6px 18px -6px rgba(16,40,80,.45);}
+.sh2-globe .sh-globe{width:80px;height:80px;animation:none;filter:none;}
+.sh2-info{gap:16px;}
+.sh2-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px 24px;flex-wrap:wrap;}
+.sh2-eyebrow{font:700 11px 'Inter',sans-serif!important;letter-spacing:.14em;}
+.sh2 .sh-name{font-size:38px;margin-top:4px;}
+.sh2 .sh-sub{font-size:14px;margin-top:4px;}
+.sh2-meta{display:flex;flex-wrap:wrap;gap:8px;}
+.sh2-meta span{display:inline-flex;align-items:center;gap:7px;font:500 13px 'Inter',sans-serif;color:var(--muted);background:var(--kpi-bg);border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-variant-numeric:tabular-nums;}
+.sh2-meta svg{width:15px;height:15px;color:var(--tmg);flex-shrink:0;}
+.sh2-meta b{color:var(--text);font-weight:700;}
+.sh2-teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;}
+.sh2-team{position:relative;border:1px solid var(--border);border-radius:14px;padding:14px 16px 14px 20px;background:var(--panel);overflow:hidden;display:flex;flex-direction:column;gap:10px;}
+.sh2-team::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--tc);}
+.sh2-team-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.sh2-team-t{display:flex;flex-direction:column;}
+.sh2-team-t b{font-family:'Space Grotesk',sans-serif;font-size:17px;}
+.sh2-team-t span{font:500 12px 'Inter',sans-serif;color:var(--muted);}
+.sh2-team-z{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:32px;line-height:1;color:var(--tc);text-align:right;display:flex;flex-direction:column;align-items:flex-end;}
+.sh2-team-z small{font:500 11px 'Inter',sans-serif;color:var(--muted);margin-top:3px;}
+.sh2-bar{display:flex;gap:3px;height:10px;border-radius:999px;overflow:hidden;}
+.sh2-bar i{display:block;min-width:6px;border-radius:2px;}
+.sh2-leg{display:flex;flex-wrap:wrap;gap:4px 14px;font:500 12.5px 'Inter',sans-serif;color:var(--muted);}
+.sh2-leg span{display:inline-flex;align-items:center;gap:6px;}
+.sh2-leg i{display:inline-block;width:9px;height:9px;border-radius:3px;}
+.sh2-leg b{color:var(--text);font-weight:700;}
+@media (max-width:1100px){ .sh2{grid-template-columns:220px minmax(0,1fr);} .sh2 .sh-map-wrap{display:block;} .sh2-visual,.sh2-visual .sh-map{width:220px;height:200px;} }
+@media (max-width:700px){ .sh2{grid-template-columns:1fr;justify-items:stretch;text-align:left;padding:16px;gap:16px;} .sh2-visual,.sh2-visual .sh-map{width:100%;height:200px;} .sh2 .sh-name{font-size:30px;} .sh2 .sh2-eyebrow,.sh2 .sh2-meta{justify-content:flex-start;} }
+
+/* ===== v189: schönere Griechenland-Karte, ohne Globus ===== */
+:root{--m3-sea1:#E3F0FA;--m3-sea2:#BFD9EE;--m3-land:#EEE9E0;--m3-land-edge:#D8D0C2;--m3-gr1:#FF5AAE;--m3-gr2:#C8006E;--m3-label:#3C4855;--m3-sea-l:#5F8DB5;--m3-grat:rgba(255,255,255,.55);}
+html[data-fx-theme="dark"]{--m3-sea1:#18293D;--m3-sea2:#0E1B2B;--m3-land:#243140;--m3-land-edge:#33414F;--m3-gr1:#F0379A;--m3-gr2:#9E0058;--m3-label:#D5DEE9;--m3-sea-l:#6F93B8;--m3-grat:rgba(255,255,255,.05);}
+.sh2{grid-template-columns:272px minmax(0,1fr);}
+.sh2-visual{width:272px;height:251px;border-radius:16px;background:var(--m3-sea2);box-shadow:inset 0 0 0 1px rgba(16,40,80,.06);}
+.sh2-visual .sh-map{width:272px;height:251px;}
+.sh3-grat{fill:none;stroke:var(--m3-grat);stroke-width:.5;}
+.sh3-land{fill:var(--m3-land);stroke:var(--m3-land-edge);stroke-width:.5;stroke-linejoin:round;}
+.sh3-gr{fill:url(#sh3Gr);stroke:rgba(255,255,255,.85);stroke-width:.6;stroke-linejoin:round;}
+.sh3-sea-l{font:italic 500 8.5px 'Inter',sans-serif;letter-spacing:.14em;fill:var(--m3-sea-l);text-transform:uppercase;}
+.sh3-city{fill:#fff;stroke:var(--m3-gr2);stroke-width:1.1;}
+.sh3-city-l{font:600 8.5px 'Inter',sans-serif;fill:var(--m3-label);paint-order:stroke;stroke:var(--m3-sea1);stroke-width:2.6px;stroke-linejoin:round;}
+.sh3-map .sh-dot{fill:#fff;stroke:var(--tmg);stroke-width:2;}
+.sh3-map .sh-ring{stroke:#fff;stroke-width:1.6;}
+.sh3-tag rect{fill:#fff;}
+.sh3-tag text{font:700 10px 'Inter',sans-serif;fill:#1C2733;}
+html[data-fx-theme="dark"] .sh3-tag rect{fill:#1C2733;} html[data-fx-theme="dark"] .sh3-tag text{fill:#fff;}
+@media (max-width:1100px){ .sh2{grid-template-columns:220px minmax(0,1fr);} .sh2-visual,.sh2-visual .sh-map{width:220px;height:203px;} }
+@media (max-width:700px){ .sh2{grid-template-columns:1fr;} .sh2-visual{width:100%;height:auto;aspect-ratio:260/240;max-width:100%;} .sh2-visual .sh-map{width:100%;height:100%;} }
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
@@ -14481,8 +14535,15 @@ function renderStandortHero(){
     const list = agents.filter(a => String(a.team) === String(id));
     const counts = {};
     list.forEach(a => { const c = a.category || 'regular'; counts[c] = (counts[c]||0) + 1; });
-    const chips = Object.keys(catLabel).filter(c => counts[c]).map(c => `<span class="sh-chip">${counts[c]} ${catLabel[c]}</span>`).join('');
-    return `<div class="sh-team"><div class="sh-team-h"><span>${cfg.project}</span><b>${list.length}</b></div><div class="sh-team-s">${cfg.label} · Mitarbeiter</div>${chips ? `<div class="sh-chips">${chips}</div>` : ''}</div>`;
+    const farbe = ['#E20074','#3B6FA0','#0E7C7B','#C2792B'][Object.keys(TEAM_CONFIGS).indexOf(id) % 4];
+    const stufen = [1, .55, .32, .18, .1];
+    const kats = Object.keys(catLabel).filter(c => counts[c]);
+    const bar = kats.map((c, i) => `<i style="flex:${counts[c]};background:${farbe};opacity:${stufen[Math.min(i, stufen.length-1)]}" title="${counts[c]} ${catLabel[c]}"></i>`).join('');
+    const leg = kats.map((c, i) => `<span><i style="background:${farbe};opacity:${stufen[Math.min(i, stufen.length-1)]}"></i><b>${counts[c]}</b> ${catLabel[c]}</span>`).join('');
+    return `<div class="sh2-team" style="--tc:${farbe}">
+      <div class="sh2-team-h"><div class="sh2-team-t"><b>${cfg.project}</b><span>${cfg.label}</span></div><div class="sh2-team-z">${list.length}<small>Mitarbeiter</small></div></div>
+      ${list.length ? `<div class="sh2-bar">${bar}</div><div class="sh2-leg">${leg}</div>` : '<div class="sh2-leg"><span>Noch keine Mitarbeiter</span></div>'}
+    </div>`;
   }).join('');
   let zeit = '';
   try{ zeit = new Date().toLocaleTimeString('de-DE', { timeZone:S.tz, hour:'2-digit', minute:'2-digit' }); }catch(e){}
@@ -14490,55 +14551,43 @@ function renderStandortHero(){
   const pin = (x, y, r) => `<circle class="sh-ring" cx="${x}" cy="${y}" r="${r}"/><circle class="sh-ring r2" cx="${x}" cy="${y}" r="${r}"/><circle class="sh-dot" cx="${x}" cy="${y}" r="${r}"/>`;
   const [bx0, by0, bx1, by1] = g.gbox;
   host.innerHTML = `
-    <div class="sh-card">
-      <div class="sh-globe-wrap" title="${S.name}, ${S.land}">
-        <svg class="sh-globe" viewBox="0 0 ${g.S} ${g.S}" aria-hidden="true">
+    <div class="sh-card sh2">
+      <div class="sh2-visual">
+        <svg class="sh-map sh3-map" viewBox="0 0 ${d.W} ${d.H}" aria-label="Karte ${S.land} mit Standort ${S.name}" role="img">
           <defs>
-            <radialGradient id="shSea" cx="36%" cy="30%" r="78%"><stop offset="0" style="stop-color:var(--globe-sea-hi)"/><stop offset="1" style="stop-color:var(--globe-sea)"/></radialGradient>
-            <radialGradient id="shShade" cx="40%" cy="35%" r="70%"><stop offset=".72" style="stop-color:rgba(0,0,0,0)"/><stop offset="1" style="stop-color:var(--globe-rim)"/></radialGradient>
+            <linearGradient id="sh3Sea" x1="0" y1="0" x2=".4" y2="1"><stop offset="0" style="stop-color:var(--m3-sea1)"/><stop offset="1" style="stop-color:var(--m3-sea2)"/></linearGradient>
+            <linearGradient id="sh3Gr" x1="0" y1="0" x2=".5" y2="1"><stop offset="0" style="stop-color:var(--m3-gr1)"/><stop offset="1" style="stop-color:var(--m3-gr2)"/></linearGradient>
+            <radialGradient id="sh3Halo"><stop offset="0" style="stop-color:#fff;stop-opacity:.55"/><stop offset="1" style="stop-color:#fff;stop-opacity:0"/></radialGradient>
+            <filter id="sh3Shadow" x="-10%" y="-10%" width="120%" height="125%"><feDropShadow dx="0" dy="1.6" stdDeviation="1.8" flood-color="#5A0030" flood-opacity=".35"/></filter>
+            <filter id="sh3Soft" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy=".8" stdDeviation="1" flood-color="#1B2A3A" flood-opacity=".18"/></filter>
           </defs>
-          <path d="${g.sphere}" fill="url(#shSea)"/>
-          <path class="sh-grat" d="${g.grat}"/>
-          <path class="sh-l-sand" d="${g.landc.sand}"/>
-          <path class="sh-l-olive" d="${g.landc.olive}"/>
-          <path class="sh-l-green" d="${g.landc.green}"/>
-          <path class="sh-l-dark" d="${g.landc.dark}"/>
-          <path class="sh-borders" d="${g.borders}"/>
-          <path class="sh-greece" d="${g.greece}"/>
-          <path d="${g.sphere}" fill="url(#shShade)"/>
-          <rect class="sh-zoom" x="${bx0-5}" y="${by0-5}" width="${bx1-bx0+10}" height="${by1-by0+10}" rx="3"/>
-          ${pin(g.trikala[0], g.trikala[1], 2.2)}
+          <rect width="${d.W}" height="${d.H}" fill="url(#sh3Sea)"/>
+          <path class="sh3-grat" d="${Array.from({length:Math.ceil(d.W/26)}, (_, i) => `M${(i+1)*26},0V${d.H}`).join('')}${Array.from({length:Math.ceil(d.H/26)}, (_, i) => `M0,${(i+1)*26}H${d.W}`).join('')}"/>
+          <path class="sh3-land" d="${d.land}" filter="url(#sh3Soft)"/>
+          <path class="sh3-gr" d="${d.greece}" filter="url(#sh3Shadow)"/>
+          <text class="sh3-sea-l" x="150" y="90">Ägäis</text>
+          <text class="sh3-sea-l" x="12" y="${d.athen[1]+26}">Ionisches</text><text class="sh3-sea-l" x="12" y="${d.athen[1]+36}">Meer</text>
+          <circle cx="${d.trikala[0]}" cy="${d.trikala[1]}" r="17" fill="url(#sh3Halo)"/>
+          <circle class="sh3-city" cx="${d.athen[0]}" cy="${d.athen[1]}" r="2.3"/><text class="sh3-city-l" x="${d.athen[0]+5}" y="${d.athen[1]+3}">Athen</text>
+          <circle class="sh3-city" cx="${d.thess[0]}" cy="${d.thess[1]}" r="2.3"/><text class="sh3-city-l" x="${d.thess[0]+5}" y="${d.thess[1]-4}">Thessaloniki</text>
+          ${pin(d.trikala[0], d.trikala[1], 4.2)}
+          <g class="sh3-tag" filter="url(#sh3Soft)"><rect x="${d.trikala[0]-60}" y="${d.trikala[1]-9}" width="49" height="18" rx="9"/><text x="${d.trikala[0]-35.5}" y="${d.trikala[1]+3.6}" text-anchor="middle">${S.name}</text></g>
         </svg>
       </div>
-      <div class="sh-map-wrap">
-        <svg class="sh-map" viewBox="0 0 ${d.W} ${d.H}" aria-label="Karte ${S.land} mit Standort ${S.name}" role="img">
-          <defs>
-            <radialGradient id="shFade" cx="50%" cy="50%" r="60%"><stop offset=".55" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>
-            <mask id="shMask"><rect width="${d.W}" height="${d.H}" fill="url(#shFade)"/></mask>
-          </defs>
-          <rect class="sh-sea" width="${d.W}" height="${d.H}" mask="url(#shMask)"/>
-          <path class="sh-land-n" d="${d.land}" mask="url(#shMask)"/>
-          <path class="sh-gr" d="${d.greece}"/>
-          <circle class="sh-city" cx="${d.athen[0]}" cy="${d.athen[1]}" r="2"/><text class="sh-city-l" x="${d.athen[0]+5}" y="${d.athen[1]+3}">Athen</text>
-          <circle class="sh-city" cx="${d.thess[0]}" cy="${d.thess[1]}" r="2"/><text class="sh-city-l" x="${d.thess[0]+5}" y="${d.thess[1]-3}">Thessaloniki</text>
-          ${pin(d.trikala[0], d.trikala[1], 4)}
-          <text class="sh-pin-l" x="${d.trikala[0]-9}" y="${d.trikala[1]+4}" text-anchor="end">${S.name}</text>
-        </svg>
-        <div class="sh-map-cap">${S.land}</div>
-      </div>
-      <div class="sh-info">
-        <div>
-          <div class="sh-eyebrow"><span class="sh-live"></span>Standort</div>
-          <h2 class="sh-name">${S.name}</h2>
-          <div class="sh-sub">${S.region} · ${S.land} · Inbound Privatkunden</div>
+      <div class="sh-info sh2-info">
+        <div class="sh2-top">
+          <div>
+            <div class="sh-eyebrow sh2-eyebrow"><span class="sh-live"></span>Standort</div>
+            <h2 class="sh-name">${S.name}</h2>
+            <div class="sh-sub">${S.region} · ${S.land} · Inbound Privatkunden</div>
+          </div>
+          <div class="sh2-meta">
+            <span>${cdIconSvg('users')}<b>${agents.length}</b> Mitarbeiter</span>
+            ${zeit ? `<span>${cdIconSvg('clock')}Ortszeit <b>${zeit}</b></span>` : ''}
+            <span>${cdIconSvg('pin')}${fmtCoord(S.lat,'N','S')} · ${fmtCoord(S.lon,'O','W')}</span>
+          </div>
         </div>
-        <div class="sh-meta">
-          <span><b>${agents.length}</b> Mitarbeiter</span>
-          <span><b>${Object.keys(TEAM_CONFIGS).length}</b> Teams</span>
-          ${zeit ? `<span>Ortszeit <b>${zeit}</b></span>` : ''}
-          <span>${fmtCoord(S.lat,'N','S')} · ${fmtCoord(S.lon,'O','W')}</span>
-        </div>
-        <div class="sh-teams">${teams}</div>
+        <div class="sh2-teams">${teams}</div>
       </div>
     </div>`;
 }
