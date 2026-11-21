@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 194;
+const BOARD_VERSION = 195;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -10443,25 +10443,25 @@ const HR_SPRUECHE = {
     'Die letzten Meter sind die schönsten. Sagt jeder, der schon mal ins Ziel gelaufen ist.'
   ],
   fast: [
-    'Fast perfekt! Nur {P} ziert sich noch wie eine Katze vor der Badewanne.',
-    '{P} schmollt in der Ecke, weil du alle anderen lieber hast.',
-    'Alles läuft – nur {P} steht noch im Stau.',
-    'So nah dran! {P} ist das letzte Puzzleteil, das immer unter dem Sofa liegt.',
-    '{P} ist wie die Socke, die nach dem Waschen fehlt – aber sie ist da, versprochen.',
-    'Alle Produkte tanzen, nur {P} steht noch am Rand der Tanzfläche.',
-    'Fast komplett – {P} wartet nur noch auf eine persönliche Einladung.',
-    'Fast-Jackpot: Nur {P} fehlt noch auf deinem Lottoschein.',
-    '{P} spielt noch schwer zu kriegen. Zeig ihm, wer hier der Chef ist.',
-    'Ein Produkt fehlt – {P} hat wohl den Wecker nicht gehört.',
-    'Fast alles im Kasten. {P} ist nur noch kurz Kaffee holen.',
-    '{P} hat gerade angerufen: Es will auch mit ins Ziel.',
-    'Nur {P} trödelt noch wie ein Kollege vor dem Montagsmeeting.',
-    'Perfektion ist zum Greifen nah – {P} muss nur noch kurz unterschreiben.',
-    '{P} ist der letzte Gast, der noch nicht auf deiner Party angekommen ist.'
+    'Fast perfekt! Nur ein Produkt ziert sich noch wie eine Katze vor der Badewanne.',
+    'Ein Produkt schmollt in der Ecke, weil du alle anderen lieber hast.',
+    'Alles läuft – nur ein Produkt steht noch im Stau.',
+    'So nah dran! Es fehlt nur das eine Puzzleteil, das immer unter dem Sofa liegt.',
+    'Ein Produkt fehlt wie die Socke nach dem Waschen – aber es ist da, versprochen.',
+    'Alle Produkte tanzen, nur eins steht noch am Rand der Tanzfläche.',
+    'Fast komplett – das letzte Produkt wartet nur noch auf eine persönliche Einladung.',
+    'Fast-Jackpot: Nur eine Zahl fehlt noch auf deinem Lottoschein.',
+    'Ein Produkt spielt noch schwer zu kriegen. Zeig ihm, wer hier der Chef ist.',
+    'Ein Produkt hat wohl den Wecker nicht gehört.',
+    'Fast alles im Kasten. Das letzte Produkt ist nur noch kurz Kaffee holen.',
+    'Das letzte Produkt hat gerade angerufen: Es will auch mit ins Ziel.',
+    'Nur ein Produkt trödelt noch wie ein Kollege vor dem Montagsmeeting.',
+    'Perfektion ist zum Greifen nah – fehlt nur noch eine Unterschrift.',
+    'Ein Gast ist noch nicht auf deiner Party angekommen – die Musik läuft schon.'
   ],
   start: [
     'Der Monat ist noch jung – frischer als der Kaffee um 8 Uhr.',
-    'Warmlaufen erlaubt, aber nicht zu lange: {P} wartet schon mit gepackten Koffern.',
+    'Warmlaufen erlaubt, aber nicht zu lange – die Ziele warten schon mit gepackten Koffern.',
     'Neuer Monat, neues Glück. Headset auf, Show an!',
     'Der Monat ist wie ein leeres Notizbuch – schreib was Schönes rein.',
     'Frischer Start! Noch hat niemand Vorsprung – außer dir, wenn du jetzt loslegst.',
@@ -10473,32 +10473,32 @@ const HR_SPRUECHE = {
   ],
   haelfte: [
     'Halbzeit-Stimmung: Die Hälfte läuft wie geschmiert, der Rest wartet auf deinen Endspurt.',
-    '{P} braucht etwas Liebe – wie eine Zimmerpflanze, die seit Wochen auf Wasser hofft.',
-    '{P} hat angerufen und fragt, ob du es vergessen hast.',
+    'Ein paar Produkte brauchen etwas Liebe – wie eine Zimmerpflanze, die seit Wochen auf Wasser hofft.',
+    'Ein paar Produkte haben angerufen und fragen, ob du sie vergessen hast.',
     'Die Hälfte sitzt – wie ein Puzzle, bei dem nur noch der Himmel fehlt.',
-    'Halb voll, nicht halb leer! Und {P} füllt das Glas gleich weiter.',
-    'Akku bei 60 % – reicht für den Tag, aber {P} lädt dich auf 100.',
-    '{P} sitzt noch auf der Ersatzbank und wartet auf die Einwechslung.',
+    'Halb voll, nicht halb leer! Und das Glas wird gerade weiter aufgefüllt.',
+    'Akku bei 60 % – reicht für den Tag, aber 100 % fühlen sich einfach besser an.',
+    'Ein paar Produkte sitzen noch auf der Ersatzbank und warten auf die Einwechslung.',
     'Die Hälfte läuft – die andere Hälfte macht noch Mittagspause.',
-    '{P} hat sich versteckt. Zeit für Verstecken spielen – und gewinnen.',
-    'Solider Mittelfeldspieler – jetzt noch ein paar Tore schießen, am besten bei {P}.',
-    'Dein Monat ist wie eine Pizza: halb belegt. {P} ist die fehlende Salami.',
-    'Die Richtung stimmt. {P} wartet nur noch auf den Turbo.',
-    '{P} ist wie das Ladekabel, das alle suchen – Zeit, es zu finden.',
-    'Halbzeitpfiff! In der Kabine gibt es heute nur ein Thema: {P}.',
+    'Ein paar Ziele haben sich versteckt. Zeit für Verstecken spielen – und gewinnen.',
+    'Solider Mittelfeldspieler – jetzt noch ein paar Tore schießen.',
+    'Dein Monat ist wie eine Pizza: halb belegt. Die Salami kommt noch.',
+    'Die Richtung stimmt. Jetzt fehlt nur noch der Turbo.',
+    'Die restlichen Ziele sind wie das Ladekabel, das alle suchen – Zeit, sie zu finden.',
+    'Halbzeitpfiff! In der Kabine gibt es heute nur ein Thema: die zweite Hälfte.',
     'Läuft halbwegs – und „halbwegs“ ist nur ein Zwischenstopp.'
   ],
   wenig: [
     'Die Saison ist noch nicht vorbei – echte Champions kommen in der zweiten Halbzeit. Mit Snacks.',
-    'Kleiner Tipp: {P} beißt nicht.',
+    'Kleiner Tipp: Die Ziele beißen nicht.',
     'Jeder große Comeback-Film fängt genau hier an. Popcorn bereit?',
     'Rom wurde auch nicht an einem Tag erbaut – aber Rom hatte auch kein Headset.',
-    '{P} hat Lampenfieber. Gib ihm einen kleinen Schubs.',
+    'Deine Ziele haben Lampenfieber. Gib ihnen einen kleinen Schubs.',
     'Der Motor läuft – jetzt nur noch den zweiten Gang einlegen.',
     'Das ist die Stelle im Film, wo die Musik dramatisch wird. Und dann wird es gut.',
     'Noch viel Luft nach oben – und Luft ist bekanntlich kostenlos.',
     'Erst langsam, dann plötzlich – so laufen die besten Aufholjagden.',
-    '{P} wartet wie ein Paket bei der Nachbarin – du musst es nur abholen.',
+    'Die Abschlüsse warten wie ein Paket bei der Nachbarin – du musst sie nur abholen.',
     'Unterschätzt werden ist die beste Ausgangslage für eine Überraschung.',
     'Tief durchatmen, Headset richten – jetzt kommt die zweite Luft.'
   ],
@@ -10518,50 +10518,80 @@ const HR_SPRUECHE = {
   ]
 };
 const HR_SCHLUSS = {
-  tipp: [
-    'Mission heute: {T} × {P}.',
-    'Dein Zauberwort: {T} {P} pro Tag.',
-    'Tagesziel: {T} {P} – weniger als ein Kaffee pro Schicht.',
-    '{T} {P} am Tag, und alles wird gut.',
-    'Rezept für heute: {T} Portion {P}, gut umrühren.',
-    'Mit {T} {P} pro Tag kriegst du das locker hin.',
-    'Schon {T} {P} am Tag reichen – versprochen.',
-    'Heute auf dem Speiseplan: {T} {P}.',
-    'Der Plan ist simpel: {T} {P} pro Tag.',
-    '{T} {P} täglich – klingt machbar, ist machbar.',
-    'Kleiner Schritt, große Wirkung: {T} {P} pro Tag.',
-    'Spickzettel für heute: {T} × {P}.',
-    'Nur {T} {P} am Tag trennen dich vom Applaus.'
+  gut: [
+    'Und CR und NPS? Beide im grünen Bereich – Qualität mit Stil.',
+    'Bonuspunkte: CR und NPS sitzen wie ein maßgeschneiderter Anzug.',
+    'Deine Kunden mögen dich, und die CR mag dich auch. Win-win!',
+    'CR und NPS singen im Duett – ohne einen einzigen schiefen Ton.',
+    'Selbst die Kundenbefragung schreibt dir Liebesbriefe.',
+    'Mit dieser CR und diesem NPS könntest du glatt Kurse geben.',
+    'Kunden zufrieden, CR im Ziel – so sieht ein Lehrbuch aus.',
+    'Dein NPS sagt: Die Kunden würden dich weiterempfehlen. Wir auch.',
+    'CR top, NPS top – Qualität zum Anfassen.',
+    'Doppelt stark: Zahlen und Zufriedenheit passen perfekt zusammen.',
+    'Deine CR und dein NPS haben sich verabredet – zum Feiern.',
+    'So geht Verkaufen mit Herz – CR und NPS bestätigen es.',
+    'Qualität check, Conversion check – du bist ein wandelndes Häkchen.'
   ],
-  alle: [
-    'Jetzt einfach weiter so – und den Kollegen ein paar Tipps geben.',
-    'Ab jetzt macht jeder Abschluss doppelt so viel Spaß.',
-    'Gönn dir heute einen Extra-Keks. Verdient ist verdient.',
-    'Der Rest des Monats ist Kür – zeig deine schönsten Pirouetten.',
-    'Bitte Autogrammkarten bereithalten.',
-    'Weiter so – Rekorde sind zum Brechen da.',
-    'Bleib so – das Team braucht seine Legenden.',
-    'Jetzt noch ein paar Extras – für die Legende.',
-    'Heute darfst du mit Sonnenbrille telefonieren.',
-    'Das Konto für Bonus-Abschlüsse ist ab sofort geöffnet.',
-    'Kleiner Tipp: Einfach genau so weitermachen.',
-    'Schreib dir diesen Monat ins Poesiealbum.',
-    'Applaus, Applaus – und jetzt die Zugabe!'
+  cr_gut: [
+    'Deine CR glänzt – jetzt noch ein Lächeln mehr ins Headset, dann zieht der NPS nach.',
+    'Verkaufen kannst du! Jetzt die Kunden noch etwas mehr verzaubern – der NPS dankt.',
+    'CR im Ziel – der NPS wartet nur noch auf deinen Charme-Turbo.',
+    'Die Abschlüsse sitzen. Beim NPS darf es gern noch eine Prise Herzlichkeit sein.',
+    'Conversion top! Jetzt noch jedes Gespräch mit einem kleinen Wow beenden.',
+    'Deine CR ist schon Profi, dein NPS ist noch in der Ausbildung.',
+    'Starke CR! Ein ehrliches „Kann ich sonst noch helfen?“ schubst den NPS nach oben.',
+    'Abschlussstark wie immer – jetzt die Kunden noch mit einem Lächeln verabschieden.',
+    'CR? Läuft. NPS? Mit etwas mehr Wohlfühl-Faktor bald auch.',
+    'Die CR jubelt, der NPS möchte mitjubeln – gib ihm einen Grund.',
+    'Verkaufen: Note 1. Begeistern: fast da.',
+    'CR im grünen Bereich – jetzt noch jedem Kunden das Gefühl geben, die Nummer eins zu sein.',
+    'Starke Zahlen! Ein bisschen mehr Zeit fürs Zuhören, und der NPS zieht nach.'
   ],
-  kurs: [
-    'Einfach genau so weitermachen.',
-    'Pace halten, dann klappt es mit allen Zielen.',
-    'Bleib dran – das Ziel wartet schon mit Konfetti.',
-    'Nur nicht nachlassen, dann ist der Monat im Kasten.',
-    'Weiter so, dann klingelt am Monatsende die Hall of Fame.',
-    'Dranbleiben – die Ziellinie ist schon geschmückt.',
-    'Jetzt nicht abheben – auch wenn es sich so anfühlt.',
-    'Tempo halten, Spaß behalten.',
-    'Ziele einsammeln wie Treuepunkte – einfach weiter so.',
-    'Jeder Tag so wie bisher – und du bist durch.',
-    'Gas geben musst du nicht, Gas halten reicht.',
-    'Weiter so, dann wird es ein Monat zum Einrahmen.',
-    'Bleib im Flow – der Rest erledigt sich fast von allein.'
+  nps_gut: [
+    'Die Kunden lieben dich – jetzt diese Liebe noch in Abschlüsse verwandeln.',
+    'Dein NPS ist top! Wer so gut ankommt, darf ruhig öfter etwas anbieten.',
+    'Kunden happy – jetzt noch mutig zum Angebot überleiten, dann lacht auch die CR.',
+    'Sympathie-Weltmeister! Die CR wartet nur auf deine Frage nach dem Abschluss.',
+    'Deine Kunden würden dich weiterempfehlen – empfiehl ihnen ruhig auch etwas.',
+    'Beim NPS bist du ganz vorn. Die CR möchte gern mit aufs Siegerfoto.',
+    'Kundenliebling! Ein Anker nach der Legitimierung, und die CR kommt hinterher.',
+    'Herz hast du – jetzt noch den Mut zum Angebot, dann passt auch die CR.',
+    'NPS top! Wer so gut berät, darf auch öfter fragen: „Darf ich Ihnen etwas zeigen?“',
+    'Deine Gespräche sind Wellness für Kunden – jetzt noch das passende Produkt dazu.',
+    'Kunden begeistert, CR noch schüchtern. Trau dich – die Kunden mögen dich ja!',
+    'Der NPS feiert dich. Die CR schaut noch von der Tribüne zu.',
+    'Freundlichkeit: Champions League. Abschlüsse: Aufstieg in Sicht.'
+  ],
+  schwach: [
+    'CR und NPS haben noch Luft nach oben – und Luft ist bekanntlich gratis.',
+    'Bei CR und NPS ist noch Platz für ein Comeback. Die Bühne gehört dir.',
+    'Zuhören, Bedarf finden, mutig anbieten – und CR und NPS ziehen gemeinsam an.',
+    'CR und NPS warten auf dein Upgrade. Kostenlos und sofort verfügbar.',
+    'Ein Lächeln mehr, eine Frage mehr – und CR und NPS kommen in Fahrt.',
+    'CR und NPS wollen sich auch verbessern – und sie wissen schon, mit wem.',
+    'Jedes gute Gespräch zählt doppelt: für die CR und für den NPS.',
+    'Qualität ist ein Muskel – und deiner ist gerade im Aufbautraining.',
+    'CR und NPS brauchen einen Trainer. Zum Glück bist du der Beste dafür.',
+    'Kleiner Hebel, große Wirkung: Ein starker Einstieg hilft CR und NPS gleichzeitig.',
+    'CR und NPS sind wie Pflanzen – ein bisschen Pflege, und sie blühen auf.',
+    'Die gute Nachricht: Bei CR und NPS kann es nur nach oben gehen.',
+    'Mehr Begeisterung im Gespräch – und CR und NPS feiern mit.'
+  ],
+  neutral: [
+    'CR und NPS kommen bald – mach sie zu einer schönen Überraschung.',
+    'Noch keine CR- und NPS-Werte? Perfekt – dann schreib sie gleich richtig gut.',
+    'Die Qualitätszahlen sind noch unterwegs. Gib ihnen einen guten Grund zu strahlen.',
+    'CR und NPS sind noch ein unbeschriebenes Blatt – und du hast den Stift.',
+    'Bald kommen die Qualitätswerte – zeig ihnen, wo der Hammer hängt.',
+    'CR und NPS hängen noch in der Warteschleife. Du hast also Zeit, sie zu beeindrucken.',
+    'Noch keine CR und kein NPS – das Spiel ist offen, und du hast den Ball.',
+    'Die Qualitätszahlen schlafen noch. Weck sie mit guten Gesprächen auf.',
+    'Die Werte folgen – und du bestimmst, wie sie aussehen.',
+    'Noch nichts gemessen – also ist noch alles möglich.',
+    'CR und NPS kommen erst noch. Am besten mit Applaus.',
+    'Die Statistik wartet auf dich. Gib ihr was zum Staunen.',
+    'Leeres Blatt bei CR und NPS – mal es schön bunt an.'
   ]
 };
 function hrStufe(r, prods, info){
@@ -10602,8 +10632,15 @@ function hrSpruch(r, prods, teamId, info, standTxt, rows){
   const jetzt = new Date();
   const d = Math.floor((jetzt - new Date(jetzt.getFullYear(), 0, 0)) / 86400000);
   const O = HR_SPRUECHE[stufe] || HR_SPRUECHE.wenig;
-  const C = HR_SCHLUSS[stufe === 'alle' ? 'alle' : stufe === 'kurs' ? 'kurs' : 'tipp'];
-  const fuell = t => t.replace(/\{P\}/g, P).replace(/\{T\}/g, T).replace(/\{TAGE\}/g, tage);
+  // Schlusssatz nach CR und NPS des laufenden Monats
+  const cfgT = TEAM_CONFIGS[r.agent.team] || {};
+  const crS = r.agent.calls > 0 ? (totalCr(r.agent) >= (cfgT.crTarget || 0) ? 'gut' : 'schwach') : null;
+  let npsV = null; try{ const sn = liveMonthSnapshot(r.agent, new Date()); const sv = sn && (sn.snap || sn); if(sv && typeof sv.nps === 'number') npsV = sv.nps; }catch(e){}
+  const npsS = npsV === null ? null : (npsV >= (cfgT.npsTarget || 0) ? 'gut' : 'schwach');
+  const gruppe = (crS === 'gut' && npsS === 'schwach') ? 'cr_gut' : (crS === 'schwach' && npsS === 'gut') ? 'nps_gut'
+    : (crS === 'schwach' || npsS === 'schwach') ? 'schwach' : (crS === 'gut' || npsS === 'gut') ? 'gut' : 'neutral';
+  const C = HR_SCHLUSS[gruppe];
+  const fuell = t => t.replace(/\{TAGE\}/g, tage);
   const text = fuell(O[(k + d) % O.length]) + ' ' + fuell(C[(d + 5 * k + Math.floor(k / O.length)) % C.length]);
   return { titel, text };
 }
