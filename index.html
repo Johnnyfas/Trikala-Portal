@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 192;
+const BOARD_VERSION = 193;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -10392,10 +10392,197 @@ function renderHochrechnung(){
 }
 
 
-// v191: Kopfzeile + Spruch der Einzelkarte – passend zum Stand des Mitarbeiters, mit Augenzwinkern
-function hrSpruch(r, prods, teamId, info, standTxt){
+// v193: Sprüche – große Auswahl; innerhalb eines Teams bekommt am selben Tag niemand denselben Spruch
+const HR_SPRUECHE = {
+  alle: [
+    'Alle Ziele erreicht. Die Zielvorgabe hat sich krankgemeldet – sie verkraftet dich nicht.',
+    'Du hast mehr Ziele geknackt, als der Kaffeeautomat Becher ausgibt.',
+    'Offiziell: Du bist das WLAN des Teams – alle wollen sich mit dir verbinden.',
+    'Die Hall of Fame hat angerufen und fragt, welches Foto sie von dir nehmen soll.',
+    'Wenn Abschlüsse Kalorien wären, müsstest du jetzt dringend zum Sport.',
+    'Deine Zahlen sind so gut, dass Excel kurz nachgefragt hat, ob das ein Tippfehler ist.',
+    'Ziele erledigt – du bist der Akku, der nach zwei Jahren noch 100 % hat.',
+    'Glückwunsch! Selbst die Warteschleifenmusik spielt jetzt deinen Song.',
+    'Du bist so on fire, dass der Feuermelder nervös wird.',
+    'Monatsziel geknackt – schneller, als jemand „Können Sie mich hören?“ fragen kann.',
+    'Deine Performance hat mehr Sterne als jedes Hotel auf Kreta.',
+    'Ziel erreicht! Wenn du so weitermachst, müssen wir die Skala nach oben verlängern.',
+    'Du hast den Monat durchgespielt. Jetzt kommt das geheime Bonuslevel.',
+    'Alle Häkchen gesetzt – deine To-do-Liste ist offiziell arbeitslos.',
+    'Du hast die Ziele nicht erreicht – du hast sie überrundet.'
+  ],
+  kurs: [
+    'Du bist auf Kurs wie ein ICE … nur pünktlicher. Und ohne Stellwerksstörung.',
+    'Alles im grünen Bereich – grüner als der Smoothie, den du dir eigentlich vornehmen wolltest.',
+    'Läuft bei dir! Die Hall of Fame bestellt schon mal einen größeren Rahmen.',
+    'Autopilot an, Kurs stimmt. Bitte trotzdem nicht einschlafen – das Headset merkt das.',
+    'Deine Kurve zeigt nach oben wie die Laune am Freitag um 16 Uhr.',
+    'So viel auf Kurs – sogar das Navi ist neidisch.',
+    'Du läufst runder als die Kaffeemaschine nach dem Entkalken.',
+    'Wenn du so weitermachst, schreibt dir die Hochrechnung bald Fanpost.',
+    'Kurs gehalten wie ein Kapitän bei Windstärke null.',
+    'Alles im Plan – du bist das Schweizer Taschenmesser des Teams.',
+    'Die Prognose sagt: Sonne satt, null Regenwahrscheinlichkeit.',
+    'Deine Zahlen sind so stabil wie das WLAN, das wir alle gern hätten.',
+    'Du bist so gut unterwegs, dass die Ziele schon nervös auf die Uhr schauen.',
+    'Auf Kurs! Wie beim Marathon – nur mit Bürostuhl.',
+    'Läuft wie geschnitten Brot. Mit Butter. Und Honig.'
+  ],
+  ende: [
+    'Endspurt! Wer jetzt bremst, verliert – wer abschließt, feiert.',
+    'Letzte Runde! Stell dir vor, jeder Call ist der letzte Keks in der Dose.',
+    'Das ist wie Elfmeterschießen – nur mit Headset.',
+    'Finale! Jetzt wird nicht mehr gezögert, jetzt wird abgeschlossen.',
+    'Countdown läuft – das ist dein Moment für die große Schlussszene.',
+    'Nachspielzeit! Genau jetzt werden die Spiele entschieden.',
+    'Jetzt zählt jeder Call – wie die letzten Sekunden bei einer Online-Auktion.',
+    'Endspurt-Modus aktiviert. Bitte anschnallen.',
+    'Die Uhr tickt, aber du tickst schneller.',
+    'Schlussglocke in Sicht – jetzt nochmal alles raushauen!',
+    'Last Call! Und zwar im allerbesten Sinne.',
+    'Die letzten Meter sind die schönsten. Sagt jeder, der schon mal ins Ziel gelaufen ist.'
+  ],
+  fast: [
+    'Fast perfekt! Nur {P} ziert sich noch wie eine Katze vor der Badewanne.',
+    '{P} schmollt in der Ecke, weil du alle anderen lieber hast.',
+    'Alles läuft – nur {P} steht noch im Stau.',
+    'So nah dran! {P} ist das letzte Puzzleteil, das immer unter dem Sofa liegt.',
+    '{P} ist wie die Socke, die nach dem Waschen fehlt – aber sie ist da, versprochen.',
+    'Alle Produkte tanzen, nur {P} steht noch am Rand der Tanzfläche.',
+    'Fast komplett – {P} wartet nur noch auf eine persönliche Einladung.',
+    'Fast-Jackpot: Nur {P} fehlt noch auf deinem Lottoschein.',
+    '{P} spielt noch schwer zu kriegen. Zeig ihm, wer hier der Chef ist.',
+    'Ein Produkt fehlt – {P} hat wohl den Wecker nicht gehört.',
+    'Fast alles im Kasten. {P} ist nur noch kurz Kaffee holen.',
+    '{P} hat gerade angerufen: Es will auch mit ins Ziel.',
+    'Nur {P} trödelt noch wie ein Kollege vor dem Montagsmeeting.',
+    'Perfektion ist zum Greifen nah – {P} muss nur noch kurz unterschreiben.',
+    '{P} ist der letzte Gast, der noch nicht auf deiner Party angekommen ist.'
+  ],
+  start: [
+    'Der Monat ist noch jung – frischer als der Kaffee um 8 Uhr.',
+    'Warmlaufen erlaubt, aber nicht zu lange: {P} wartet schon mit gepackten Koffern.',
+    'Neuer Monat, neues Glück. Headset auf, Show an!',
+    'Der Monat ist wie ein leeres Notizbuch – schreib was Schönes rein.',
+    'Frischer Start! Noch hat niemand Vorsprung – außer dir, wenn du jetzt loslegst.',
+    'Der frühe Vogel fängt den Abschluss.',
+    'Startschuss gefallen – und du hast die besten Laufschuhe an.',
+    'Noch ist alles drin. Wirklich alles. Sogar der Jackpot.',
+    'Monatsanfang: die perfekte Zeit, um alle zu überraschen.',
+    'Aufwärmphase vorbei – jetzt wird gespielt.'
+  ],
+  haelfte: [
+    'Halbzeit-Stimmung: Die Hälfte läuft wie geschmiert, der Rest wartet auf deinen Endspurt.',
+    '{P} braucht etwas Liebe – wie eine Zimmerpflanze, die seit Wochen auf Wasser hofft.',
+    '{P} hat angerufen und fragt, ob du es vergessen hast.',
+    'Die Hälfte sitzt – wie ein Puzzle, bei dem nur noch der Himmel fehlt.',
+    'Halb voll, nicht halb leer! Und {P} füllt das Glas gleich weiter.',
+    'Akku bei 60 % – reicht für den Tag, aber {P} lädt dich auf 100.',
+    '{P} sitzt noch auf der Ersatzbank und wartet auf die Einwechslung.',
+    'Die Hälfte läuft – die andere Hälfte macht noch Mittagspause.',
+    '{P} hat sich versteckt. Zeit für Verstecken spielen – und gewinnen.',
+    'Solider Mittelfeldspieler – jetzt noch ein paar Tore schießen, am besten bei {P}.',
+    'Dein Monat ist wie eine Pizza: halb belegt. {P} ist die fehlende Salami.',
+    'Die Richtung stimmt. {P} wartet nur noch auf den Turbo.',
+    '{P} ist wie das Ladekabel, das alle suchen – Zeit, es zu finden.',
+    'Halbzeitpfiff! In der Kabine gibt es heute nur ein Thema: {P}.',
+    'Läuft halbwegs – und „halbwegs“ ist nur ein Zwischenstopp.'
+  ],
+  wenig: [
+    'Die Saison ist noch nicht vorbei – echte Champions kommen in der zweiten Halbzeit. Mit Snacks.',
+    'Kleiner Tipp: {P} beißt nicht.',
+    'Jeder große Comeback-Film fängt genau hier an. Popcorn bereit?',
+    'Rom wurde auch nicht an einem Tag erbaut – aber Rom hatte auch kein Headset.',
+    '{P} hat Lampenfieber. Gib ihm einen kleinen Schubs.',
+    'Der Motor läuft – jetzt nur noch den zweiten Gang einlegen.',
+    'Das ist die Stelle im Film, wo die Musik dramatisch wird. Und dann wird es gut.',
+    'Noch viel Luft nach oben – und Luft ist bekanntlich kostenlos.',
+    'Erst langsam, dann plötzlich – so laufen die besten Aufholjagden.',
+    '{P} wartet wie ein Paket bei der Nachbarin – du musst es nur abholen.',
+    'Unterschätzt werden ist die beste Ausgangslage für eine Überraschung.',
+    'Tief durchatmen, Headset richten – jetzt kommt die zweite Luft.'
+  ],
+  null: [
+    'Noch {TAGE} Tage für das große Comeback – Hollywood liebt solche Geschichten.',
+    'Reset-Knopf gedrückt? Von hier aus geht es nur nach oben. Physik ist auf deiner Seite.',
+    'Das ist kein Tief, das ist Anlauf nehmen. Und du nimmst gerade richtig viel Anlauf.',
+    'Plot-Twist gefällig? Gleich redet das ganze Team über dich.',
+    'Start frei für die Aufholjagd – kleine Schritte, großer Applaus.',
+    'Jeder Rekord hat mal bei null angefangen.',
+    'Null ist die perfekte Zahl – sie kann nur noch wachsen.',
+    'Leeres Konto, volle Chancen. Das Glas wird jetzt aufgefüllt.',
+    'Das Beste kommt zum Schluss, sagt man. Wir beweisen es.',
+    'Der Weg zum Gipfel beginnt mit dem ersten Schritt. Und dem ersten Abschluss.',
+    'Heute ist ein perfekter Tag für den ersten Treffer.',
+    'Die Aufholjagd beginnt jetzt – und alle schauen zu.'
+  ]
+};
+const HR_SCHLUSS = {
+  tipp: [
+    'Mission heute: {T} × {P}.',
+    'Dein Zauberwort: {T} {P} pro Tag.',
+    'Tagesziel: {T} {P} – weniger als ein Kaffee pro Schicht.',
+    '{T} {P} am Tag, und alles wird gut.',
+    'Rezept für heute: {T} Portion {P}, gut umrühren.',
+    'Mit {T} {P} pro Tag kriegst du das locker hin.',
+    'Schon {T} {P} am Tag reichen – versprochen.',
+    'Heute auf dem Speiseplan: {T} {P}.',
+    'Der Plan ist simpel: {T} {P} pro Tag.',
+    '{T} {P} täglich – klingt machbar, ist machbar.',
+    'Kleiner Schritt, große Wirkung: {T} {P} pro Tag.',
+    'Spickzettel für heute: {T} × {P}.',
+    'Nur {T} {P} am Tag trennen dich vom Applaus.'
+  ],
+  alle: [
+    'Jetzt einfach weiter so – und den Kollegen ein paar Tipps geben.',
+    'Ab jetzt macht jeder Abschluss doppelt so viel Spaß.',
+    'Gönn dir heute einen Extra-Keks. Verdient ist verdient.',
+    'Der Rest des Monats ist Kür – zeig deine schönsten Pirouetten.',
+    'Bitte Autogrammkarten bereithalten.',
+    'Weiter so – Rekorde sind zum Brechen da.',
+    'Bleib so – das Team braucht seine Legenden.',
+    'Jetzt noch ein paar Extras – für die Legende.',
+    'Heute darfst du mit Sonnenbrille telefonieren.',
+    'Das Konto für Bonus-Abschlüsse ist ab sofort geöffnet.',
+    'Kleiner Tipp: Einfach genau so weitermachen.',
+    'Schreib dir diesen Monat ins Poesiealbum.',
+    'Applaus, Applaus – und jetzt die Zugabe!'
+  ],
+  kurs: [
+    'Einfach genau so weitermachen.',
+    'Pace halten, dann klappt es mit allen Zielen.',
+    'Bleib dran – das Ziel wartet schon mit Konfetti.',
+    'Nur nicht nachlassen, dann ist der Monat im Kasten.',
+    'Weiter so, dann klingelt am Monatsende die Hall of Fame.',
+    'Dranbleiben – die Ziellinie ist schon geschmückt.',
+    'Jetzt nicht abheben – auch wenn es sich so anfühlt.',
+    'Tempo halten, Spaß behalten.',
+    'Ziele einsammeln wie Treuepunkte – einfach weiter so.',
+    'Jeder Tag so wie bisher – und du bist durch.',
+    'Gas geben musst du nicht, Gas halten reicht.',
+    'Weiter so, dann wird es ein Monat zum Einrahmen.',
+    'Bleib im Flow – der Rest erledigt sich fast von allein.'
+  ]
+};
+function hrStufe(r, prods, info){
+  const mit = prods.map(p => r.cells[p]).filter(c => c && c.pct !== null);
+  if(!mit.length) return 'leer';
+  const erreicht = mit.filter(c => c.ist >= c.ziel).length, kurs = mit.filter(c => c.pct >= 1).length, total = mit.length;
+  if(erreicht === total) return 'alle';
+  if(kurs === total) return 'kurs';
+  if(info.remaining <= 2) return 'ende';
+  if(kurs === total - 1) return 'fast';
+  if(info.elapsed < 5) return 'start';
+  if(kurs >= Math.ceil(total / 2)) return 'haelfte';
+  if(kurs > 0) return 'wenig';
+  return 'null';
+}
+
+// Kopfzeile + Spruch der Einzelkarte – passend zum Stand des Mitarbeiters
+function hrSpruch(r, prods, teamId, info, standTxt, rows){
   const mit = prods.map(p => Object.assign({ p }, r.cells[p])).filter(c => c.pct !== null);
   const total = mit.length;
+  if(!total) return { titel:'Für diesen Monat sind keine Produktziele hinterlegt.', text:'Sobald Ziele eingetragen sind, erscheint hier deine Hochrechnung.' };
   const erreicht = mit.filter(c => c.ist >= c.ziel).length;
   const kurs = mit.filter(c => c.pct >= 1).length;
   const offen = mit.filter(c => c.pct < 1).sort((a, b) => a.pct - b.pct);
@@ -10403,76 +10590,22 @@ function hrSpruch(r, prods, teamId, info, standTxt){
   const P = w ? productLabel(w.p, teamId) : '';
   const T = w ? hrFmtTag(w.perDay) : '';
   const tage = info.remaining;
-  const AT = Math.max(1, Math.round(r.restMA || tage));
-  let h = 0; for(const ch of String(r.agent.name) + standTxt) h = (h * 31 + ch.codePointAt(0)) >>> 0;
-  const wahl = arr => arr[h % arr.length];
-  if(!total) return { titel:'Für diesen Monat sind keine Produktziele hinterlegt.', text:'Sobald Ziele eingetragen sind, erscheint hier deine Hochrechnung.' };
-  // Überschrift
   let titel;
   if(erreicht === total) titel = `Alle <b>${total} Produkte</b> erreicht!`;
   else if(kurs === total) titel = `Du bist bei <b>allen ${total} Produkten</b> auf Kurs${erreicht ? ` – <b>${erreicht}</b> schon erreicht` : ''}.`;
   else if(kurs === 0) titel = `Noch kein Produkt auf Kurs – <b>${tage} ${tage === 1 ? 'Tag' : 'Tage'}</b> für dein Comeback.`;
   else titel = `Du bist bei <b>${kurs} von ${total}</b> Produkten auf Kurs${erreicht ? ` – <b>${erreicht}</b> ${erreicht === 1 ? 'davon ist' : 'davon sind'} schon erreicht` : ''}.`;
-  // Spruch
-  let liste;
-  if(erreicht === total) liste = [
-    'Alle Ziele erreicht. Die Zielvorgabe hat sich gerade krankgemeldet – sie verkraftet dich nicht.',
-    'Monatsziel erledigt. Ab jetzt ist alles Bonus. Bitte trotzdem nicht im Bürostuhl Pirouetten drehen.',
-    'Du hast mehr Ziele geknackt als der Kaffeeautomat Becher ausgibt. Respekt!',
-    'Offiziell: Du bist das WLAN des Teams – alle wollen sich mit dir verbinden.',
-    'Ziele erreicht. Die Hall of Fame hat schon angerufen und gefragt, welches Foto sie nehmen soll.',
-    'Wenn Abschlüsse Kalorien wären, müsstest du jetzt dringend zum Sport.'
-  ];
-  else if(kurs === total) liste = [
-    'Du bist auf Kurs wie ein ICE … nur pünktlicher. Und ohne Stellwerksstörung.',
-    'Alles im grünen Bereich – grüner als der Smoothie, den du dir eigentlich mal vornehmen wolltest.',
-    'Läuft bei dir! Wenn das so weitergeht, braucht die Hall of Fame einen größeren Rahmen.',
-    'Autopilot an, Kurs stimmt. Bitte trotzdem nicht einschlafen – das Headset merkt es.',
-    'Deine Kurve zeigt nach oben wie die Laune am Freitag um 16 Uhr.',
-    'So viel auf Kurs – sogar das Navi ist neidisch: „Sie haben Ihr Ziel bald erreicht.“'
-  ];
-  else if(tage <= 2) liste = [
-    `Endspurt! Jetzt zählt jeder Abschluss – ${P ? `besonders bei ${P}` : 'gib nochmal alles'}. Wer jetzt bremst, verliert.`,
-    'Letzte Runde! Stell dir vor, jeder Call ist der letzte Keks in der Dose.',
-    `Noch ${tage === 1 ? 'ein Tag' : tage + ' Tage'}. Das ist wie Elfmeterschießen – nur mit Headset.`,
-    'Finale! Jetzt wird nicht mehr gezögert – jetzt wird abgeschlossen.',
-    `Countdown läuft: ${P ? `${P} wartet auf seinen großen Auftritt.` : 'Jetzt nochmal alles raushauen!'}`
-  ];
-  else if(kurs === total - 1) liste = [
-    `Fast perfekt! Nur ${P} ziert sich noch wie eine Katze vor der Badewanne. ${T} pro Tag und es macht freiwillig mit.`,
-    `${P} schmollt in der Ecke, weil du alle anderen lieber hast. ${T} pro Tag – und ihr seid wieder beste Freunde.`,
-    `Nur noch ${P} fehlt zum perfekten Monat. ${T} pro Tag – das schaffst du zwischen zwei Schlucken Kaffee.`,
-    `Alles läuft – nur ${P} steht noch im Stau. ${T} pro Tag und die Ampel springt auf Grün.`,
-    `So nah dran! ${P} ist das letzte Puzzleteil, das immer unter dem Sofa liegt. ${T} pro Tag – Sofa anheben!`
-  ];
-  else if(info.elapsed < 5) liste = [
-    'Der Monat ist noch jung – frischer als der Kaffee um 8 Uhr. Perfekt, um ordentlich vorzulegen!',
-    `Warmlaufen erlaubt, aber nicht zu lange: ${P} wartet schon mit gepackten Koffern.`,
-    'Neuer Monat, neues Glück. Die Bühne gehört dir – Headset auf, Show an!',
-    'Noch alles drin! Der Monat ist wie ein leeres Notizbuch – schreib was Schönes rein.'
-  ];
-  else if(kurs >= Math.ceil(total / 2)) liste = [
-    'Halbzeit-Stimmung: Die Hälfte läuft wie geschmiert, der Rest wartet nur auf deinen Endspurt.',
-    `Solide Basis! ${P} braucht jetzt etwas Liebe – so wie eine Zimmerpflanze. ${T} pro Tag gießen.`,
-    `Gut unterwegs! Jetzt noch ${P} anschieben – ${T} pro Tag, und aus „gut“ wird „richtig stark“.`,
-    `Die Hälfte sitzt – wie ein Puzzle, bei dem nur noch der Himmel fehlt. Fang mit ${P} an.`,
-    `${P} hat angerufen und fragt, ob du es vergessen hast. ${T} pro Tag wäre eine nette Antwort.`
-  ];
-  else if(kurs > 0) liste = [
-    'Die Saison ist noch nicht vorbei – echte Champions kommen in der zweiten Halbzeit. Und mit Snacks.',
-    `Kleiner Tipp: ${P} beißt nicht. ${T} pro Tag, und das Blatt wendet sich.`,
-    `Noch ca. ${AT} Arbeitstage – das sind ziemlich viele Chancen, wenn man mal ehrlich ist. Fang mit ${P} an!`,
-    'Jeder große Comeback-Film fängt genau hier an. Popcorn bereit? Dann los!',
-    `Rom wurde auch nicht an einem Tag erbaut – aber die hatten auch kein Tagesziel von ${T} für ${P}.`
-  ];
-  else liste = [
-    `Noch ${tage} Tage für das große Comeback – Hollywood liebt solche Geschichten. Starte mit ${P}: ${T} pro Tag.`,
-    'Reset-Knopf gedrückt? Perfekt – von hier aus kann es nur nach oben gehen. Physik ist auf deiner Seite.',
-    `Start frei für die Aufholjagd! Zuerst ${P} mit ${T} pro Tag – kleine Schritte, großer Applaus.`,
-    'Das ist kein Tief, das ist Anlauf nehmen. Und du nimmst gerade richtig viel Anlauf.',
-    `Plot-Twist gefällig? ${T} ${P} pro Tag und plötzlich redet das ganze Team über dich.`
-  ];
-  return { titel, text: wahl(liste) };
+  // Verteilung: alle Mitarbeiter derselben Stufe der Reihe nach → jeder bekommt eine andere Kombination
+  const stufe = hrStufe(r, prods, info);
+  const gleich = (rows || [r]).filter(x => hrStufe(x, prods, info) === stufe).sort((a, b) => String(a.agent.name).localeCompare(String(b.agent.name), 'de'));
+  const k = Math.max(0, gleich.indexOf(r));
+  const jetzt = new Date();
+  const d = Math.floor((jetzt - new Date(jetzt.getFullYear(), 0, 0)) / 86400000);
+  const O = HR_SPRUECHE[stufe] || HR_SPRUECHE.wenig;
+  const C = HR_SCHLUSS[stufe === 'alle' ? 'alle' : stufe === 'kurs' ? 'kurs' : 'tipp'];
+  const fuell = t => t.replace(/\{P\}/g, P).replace(/\{T\}/g, T).replace(/\{TAGE\}/g, tage);
+  const text = fuell(O[(k + d) % O.length]) + ' ' + fuell(C[(d + 5 * k + Math.floor(k / O.length)) % C.length]);
+  return { titel, text };
 }
 
 // Einzelkarte je Mitarbeiter – bewusst feste, helle Farben, damit das Bild immer gleich aussieht
@@ -10489,7 +10622,7 @@ function openHrKarte(rows, startIdx, ctx){
     const r = rows[idx];
     const { info, prods, teamId, monatName, standTxt } = ctx;
     const tageMA = Math.max(0, Math.round(r.restMA));
-    const spruch = hrSpruch(r, prods, teamId, info, standTxt);
+    const spruch = hrSpruch(r, prods, teamId, info, standTxt, rows);
     const msg = spruch.text;
     const ring = (()=>{
       const R = 30, U = 2 * Math.PI * R, f = r.total ? r.onTrack / r.total : 0;
