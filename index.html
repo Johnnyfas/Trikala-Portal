@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 189;
+const BOARD_VERSION = 190;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -10235,6 +10235,7 @@ function hrBerechne(agent, cfg, info, anteil){
   });
   return { agent, cells, onTrack, total: n, avgPct: n ? pctSum / n : 1, restMA };
 }
+function hrFmtTag(n){ return (Math.ceil(n * 10 - 1e-9) / 10).toLocaleString('de-DE', {maximumFractionDigits:1}); }
 function hrFmt(n){ return (Math.round(n*10)/10).toLocaleString('de-DE', {maximumFractionDigits:1}); }
 function hrSumStatus(r){ return r.onTrack >= Math.max(1, r.total - 1) ? 'ok' : (r.onTrack >= Math.max(1, r.total - 2) ? 'warn' : 'bad'); }
 function hrBarHtml(c, cls){
@@ -10247,8 +10248,8 @@ function hrLegendeHtml(){
   return `<div class="hr2-legend">
     <span><b>Prognose</b> = so landest du am Monatsende, wenn du im bisherigen Tempo weitermachst</span>
     <span class="hr2-lg"><i class="lg-ist"></i>kräftig = bisher</span><span class="hr2-lg"><i class="lg-prog"></i>hell = Prognose</span>
-    <span class="hr2-lg"><i class="lg ok"></i>Ziel erreicht</span><span class="hr2-lg"><i class="lg warn"></i>knapp (ab 85 %)</span><span class="hr2-lg"><i class="lg bad"></i>Ziel in Gefahr</span>
-    <span><b>„/Tag“</b> = so viele brauchst du ab heute an jedem Arbeitstag</span>
+    <span class="hr2-lg"><i class="lg ok"></i>erreicht / auf Kurs</span><span class="hr2-lg"><i class="lg warn"></i>knapp (ab 85 %)</span><span class="hr2-lg"><i class="lg bad"></i>Ziel in Gefahr</span>
+    <span><b>„/Tag“</b> = Tagesziel: so viele brauchst du ab heute an jedem Arbeitstag</span>
   </div>`;
 }
 function hrExport(el, dateiname, alsKopie, breit){
@@ -10368,7 +10369,7 @@ function renderHochrechnung(){
         if(c.pct === null){
           td.innerHTML = `<div class="hr2-top"><b>${hrFmt(c.prog)}</b></div><div class="hr2-bot"><span>bisher ${hrFmt(c.ist)}</span><span>ohne Ziel</span></div>`;
         } else {
-          const rechts = c.st === 'ok' ? '<span class="hr2-ok">✓ Ziel</span>' : (info.remaining > 0 ? `<span class="hr2-need">${hrFmt(c.perDay)}/Tag</span>` : '');
+          const rechts = c.ist >= c.ziel ? '<span class="hr2-ok">✓ erreicht</span>' : (info.remaining > 0 ? `<span class="hr2-need">${hrFmtTag(c.perDay)}/Tag</span>` : '');
           td.innerHTML = `<div class="hr2-top"><b>${hrFmt(c.prog)}</b><span>/ ${hrFmt(c.ziel)}</span></div>${hrBarHtml(c, 'hr2-bar')}<div class="hr2-bot"><span>bisher ${hrFmt(c.ist)}</span>${rechts}</div>`;
           td.title = `${productLabel(p, teamId)}: bisher ${hrFmt(c.ist)} · Prognose ${hrFmt(c.prog)} · Ziel ${hrFmt(c.ziel)} (${Math.round(c.pct*100)} %)` + (c.st !== 'ok' && info.remaining > 0 ? ` · nötig: ${hrFmt(c.perDay)} pro Arbeitstag` : '');
         }
@@ -10419,21 +10420,37 @@ function openHrKarte(rows, startIdx, ctx){
       const c = r.cells[p];
       const label = kiEsc(productLabel(p, teamId));
       if(c.pct === null) return `<div class="hrk-row st-none"><div class="hrk-p">${label}</div><div class="hrk-mid"><div class="hrk-nums">bisher <b>${hrFmt(c.ist)}</b> · Prognose <b>${hrFmt(c.prog)}</b></div></div><div class="hrk-tag">kein Ziel</div></div>`;
-      const tag = c.st === 'ok' ? '<div class="hrk-tag t-ok">✓ im Ziel</div>'
-        : info.remaining > 0 ? `<div class="hrk-tag t-${c.st}"><b>${hrFmt(c.perDay)}</b><span>pro Tag nötig</span></div>` : '<div class="hrk-tag t-bad">nicht erreicht</div>';
-      return `<div class="hrk-row st-${c.st}"><div class="hrk-p">${label}</div>
+      const erreicht = c.ist >= c.ziel;
+      const tag = erreicht ? '<div class="hrk-tag t-ok t-done">✓ erreicht</div>'
+        : info.remaining > 0 ? `<div class="hrk-tag t-${c.st}"><b>${hrFmtTag(c.perDay)}</b><span>Tagesziel${c.st === 'ok' ? ' · auf Kurs' : ''}</span></div>` : '<div class="hrk-tag t-bad">nicht erreicht</div>';
+      return `<div class="hrk-row st-${c.st}${erreicht ? ' is-done' : ''}"><div class="hrk-p">${label}</div>
         <div class="hrk-mid">${hrBarHtml(c, 'hrk-bar')}<div class="hrk-nums">bisher <b>${hrFmt(c.ist)}</b> · Prognose <b>${hrFmt(c.prog)}</b> · Ziel <b>${hrFmt(c.ziel)}</b></div></div>${tag}</div>`;
     }).join('');
+    // NPS des laufenden Monats
+    const npsBlock = (()=>{
+      let snap = null; try{ snap = liveMonthSnapshot(r.agent, new Date()); }catch(e){}
+      const sv = snap && (snap.snap || snap);
+      const nps = sv && typeof sv.nps === 'number' ? sv.nps : null;
+      const zielN = (TEAM_CONFIGS[r.agent.team] || {}).npsTarget || 0;
+      const f1 = v => v.toLocaleString('de-DE', {minimumFractionDigits:1, maximumFractionDigits:1});
+      if(nps === null) return `<div class="hrk-row hrk-nps st-none"><div class="hrk-p">NPS</div><div class="hrk-mid"><div class="hrk-nums">für diesen Monat noch kein Wert${zielN ? ` · Ziel <b>${zielN} %</b>` : ''}</div></div><div class="hrk-tag">–</div></div>`;
+      const ok = !zielN || nps >= zielN;
+      const st = ok ? 'ok' : nps >= zielN - 5 ? 'warn' : 'bad';
+      const w = zielN ? Math.max(0, Math.min(100, nps / zielN * 100)) : 100;
+      const tagN = ok ? '<div class="hrk-tag t-ok">✓ im Ziel</div>' : `<div class="hrk-tag t-${st}"><b>−${f1(zielN - nps)}</b><span>Punkte zum Ziel</span></div>`;
+      return `<div class="hrk-row hrk-nps st-${st}"><div class="hrk-p">NPS</div><div class="hrk-mid"><div class="hrk-bar"><i class="b-ist" style="width:${w}%"></i></div><div class="hrk-nums">aktuell <b>${f1(nps)} %</b>${zielN ? ` · Ziel <b>${zielN} %</b>` : ''}</div></div>${tagN}</div>`;
+    })();
+    const schonErreicht = prods.filter(p => r.cells[p].pct !== null && r.cells[p].ist >= r.cells[p].ziel).length;
     box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
       <div class="hrk-nav"><button type="button" class="hrk-prev" ${idx===0?'disabled':''}>‹ Vorheriger</button><span>${idx+1} von ${rows.length}</span><button type="button" class="hrk-next" ${idx===rows.length-1?'disabled':''}>Nächster ›</button></div>
       <div class="hrk" id="hrk-capture">
         <div class="hrk-head"><div class="hrk-eyebrow">Deine Hochrechnung · ${kiEsc(monatName)}</div>
           <div class="hrk-name">${kiEsc(r.agent.name)}</div>
           <div class="hrk-meta">Stand ${standTxt} · noch ${info.remaining} ${info.remaining === 1 ? 'Tag' : 'Tage'} im Monat${tageMA && tageMA !== info.remaining ? ` (ca. ${tageMA} Arbeitstage für dich)` : ''}</div></div>
-        <div class="hrk-sum"><div class="hrk-ring">${ring}<span>${r.onTrack}/${r.total}</span></div><div><div class="hrk-sum1">Du bist bei <b>${r.onTrack} von ${r.total}</b> Produkten auf Kurs.</div><div class="hrk-sum2">${msg}</div></div></div>
-        <div class="hrk-list">${zeilen}</div>
-        <div class="hrk-legend"><span><i class="lg-ist"></i>kräftig = bisher</span><span><i class="lg-prog"></i>hell = Prognose</span><span><i class="lg ok"></i>Ziel erreicht</span><span><i class="lg warn"></i>knapp</span><span><i class="lg bad"></i>in Gefahr</span></div>
-        <div class="hrk-foot"><b>Prognose</b> = so landest du am Monatsende, wenn du im bisherigen Tempo weitermachst. <b>„pro Tag nötig“</b> = so viele Abschlüsse brauchst du ab heute an jedem deiner Arbeitstage, um das Ziel zu erreichen.</div>
+        <div class="hrk-sum"><div class="hrk-ring">${ring}<span>${r.onTrack}/${r.total}</span></div><div><div class="hrk-sum1">Du bist bei <b>${r.onTrack} von ${r.total}</b> Produkten auf Kurs${schonErreicht ? ` – <b>${schonErreicht}</b> ${schonErreicht === 1 ? 'davon ist' : 'davon sind'} schon erreicht` : ''}.</div><div class="hrk-sum2">${msg}</div></div></div>
+        <div class="hrk-list">${zeilen}<div class="hrk-sep">Qualität</div>${npsBlock}</div>
+        <div class="hrk-legend"><span><i class="lg-ist"></i>kräftig = bisher</span><span><i class="lg-prog"></i>hell = Prognose</span><span><i class="lg ok"></i>erreicht / auf Kurs</span><span><i class="lg warn"></i>knapp</span><span><i class="lg bad"></i>in Gefahr</span></div>
+        <div class="hrk-foot"><b>Prognose</b> = so landest du am Monatsende, wenn du im bisherigen Tempo weitermachst. <b>Tagesziel</b> = so viele Abschlüsse brauchst du ab heute an jedem deiner Arbeitstage, um das Monatsziel sicher zu erreichen. <b>✓ erreicht</b> = Monatsziel schon geschafft.</div>
       </div>
       <div class="hrk-actions"><button type="button" class="btn-secondary hrk-copy">Bild kopieren</button><button type="button" class="primary hrk-save">Als Bild speichern</button></div>`;
     box.querySelector('.cd-modal-x').onclick = close;
@@ -14519,6 +14536,14 @@ html[data-fx-theme="dark"]{--m3-sea1:#18293D;--m3-sea2:#0E1B2B;--m3-land:#243140
 html[data-fx-theme="dark"] .sh3-tag rect{fill:#1C2733;} html[data-fx-theme="dark"] .sh3-tag text{fill:#fff;}
 @media (max-width:1100px){ .sh2{grid-template-columns:220px minmax(0,1fr);} .sh2-visual,.sh2-visual .sh-map{width:220px;height:203px;} }
 @media (max-width:700px){ .sh2{grid-template-columns:1fr;} .sh2-visual{width:100%;height:auto;aspect-ratio:260/240;max-width:100%;} .sh2-visual .sh-map{width:100%;height:100%;} }
+
+/* v190: Einzelkarte – Tagesziel statt „im Ziel“, NPS */
+.hrk-tag.t-ok b{color:#0E7C7B;}
+.hrk-tag.t-done{font-size:12.5px;}
+.hrk-row.is-done{background:#F1F8F7;}
+.hrk-sep{padding:8px 20px 4px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8A93A0;background:#FAFAFB;border-bottom:1px solid #F4F0F2;}
+.hrk-nps .hrk-p{font-size:13px;}
+.hrk-nps.st-ok .b-ist{background:#0E7C7B;} .hrk-nps.st-warn .b-ist{background:#C2792B;} .hrk-nps.st-bad .b-ist{background:#B4423A;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
