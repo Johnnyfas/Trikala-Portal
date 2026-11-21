@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 190;
+const BOARD_VERSION = 191;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -10220,12 +10220,13 @@ function hrAnteilArbeitstage(info, now){
 }
 function hrStatus(pct){ return pct === null ? 'none' : pct >= 1 ? 'ok' : pct >= 0.85 ? 'warn' : 'bad'; }
 function hrBerechne(agent, cfg, info, anteil){
-  const targets = agentTargets(agent);
-  const ist = hrAgentSums(agent, info.mk, cfg.products);
+  const targets = hrAgentTargets(agent);
+  const hrProds = hrProdukteVon(cfg);
+  const ist = hrAgentSums(agent, info.mk, hrProds);
   const restMA = info.remaining * anteil;
   let onTrack = 0, pctSum = 0, n = 0;
   const cells = {};
-  cfg.products.forEach((p, i)=>{
+  hrProds.forEach((p, i)=>{
     const ziel = targets[i] || 0;
     const prog = ist[p] + (ist[p] / info.elapsed) * info.remaining;
     const pct = ziel > 0 ? prog / ziel : null;
@@ -10311,7 +10312,7 @@ function renderHochrechnung(){
     anyTeam = true;
     const info = hrWorkdayInfo(teamAgents, now);
     const anteil = hrAnteilArbeitstage(info, now);
-    const prods = displayOrderProducts(cfg.products.slice(), teamId);
+    const prods = displayOrderProducts(hrProdukteVon(cfg).slice(), teamId);
     const shownAgents = teamAgents.filter(a => fkMatchesLeader(a, hrLeader));
     if(!shownAgents.length) return;
 
@@ -10390,6 +10391,73 @@ function renderHochrechnung(){
   if(!anyTeam) container.appendChild(emptyStateEl('Noch keine Mitarbeiter angelegt', 'Lege zuerst Mitarbeiter an.'));
 }
 
+
+// v191: Kopfzeile + Spruch der Einzelkarte – passend zum Stand des Mitarbeiters, mit Augenzwinkern
+function hrSpruch(r, prods, teamId, info, standTxt){
+  const mit = prods.map(p => Object.assign({ p }, r.cells[p])).filter(c => c.pct !== null);
+  const total = mit.length;
+  const erreicht = mit.filter(c => c.ist >= c.ziel).length;
+  const kurs = mit.filter(c => c.pct >= 1).length;
+  const offen = mit.filter(c => c.pct < 1).sort((a, b) => a.pct - b.pct);
+  const w = offen[0];
+  const P = w ? productLabel(w.p, teamId) : '';
+  const T = w ? hrFmtTag(w.perDay) : '';
+  const tage = info.remaining;
+  const AT = Math.max(1, Math.round(r.restMA || tage));
+  let h = 0; for(const ch of String(r.agent.name) + standTxt) h = (h * 31 + ch.codePointAt(0)) >>> 0;
+  const wahl = arr => arr[h % arr.length];
+  if(!total) return { titel:'Für diesen Monat sind keine Produktziele hinterlegt.', text:'Sobald Ziele eingetragen sind, erscheint hier deine Hochrechnung.' };
+  // Überschrift
+  let titel;
+  if(erreicht === total) titel = `Alle <b>${total} Produkte</b> erreicht!`;
+  else if(kurs === total) titel = `Du bist bei <b>allen ${total} Produkten</b> auf Kurs${erreicht ? ` – <b>${erreicht}</b> schon erreicht` : ''}.`;
+  else if(kurs === 0) titel = `Noch kein Produkt auf Kurs – <b>${tage} ${tage === 1 ? 'Tag' : 'Tage'}</b> für dein Comeback.`;
+  else titel = `Du bist bei <b>${kurs} von ${total}</b> Produkten auf Kurs${erreicht ? ` – <b>${erreicht}</b> ${erreicht === 1 ? 'davon ist' : 'davon sind'} schon erreicht` : ''}.`;
+  // Spruch
+  let liste;
+  if(erreicht === total) liste = [
+    'Monatsziel komplett erledigt – ab jetzt ist alles Bonus. Die Zielvorgabe hat ehrlich gesagt ein bisschen Angst vor dir.',
+    'Alles abgehakt! Du darfst jetzt offiziell ein bisschen angeben. Aber nur ein bisschen.',
+    'Ziele? Erledigt. Was jetzt noch kommt, ist reine Kür – zeig, was in dir steckt!'
+  ];
+  else if(kurs === total) liste = [
+    'Läuft bei dir! Wenn das so weitergeht, kannst du schon mal einen Platz in der Hall of Fame reservieren.',
+    'Alles auf Kurs – der Autopilot ist an. Bitte trotzdem nicht einschlafen.',
+    'Du bist auf Kurs wie ein ICE … nur pünktlicher. Einfach genau so weitermachen!'
+  ];
+  else if(tage <= 2) liste = [
+    `Endspurt! Jetzt zählt jeder einzelne Abschluss – ${P ? `vor allem bei ${P}` : 'gib nochmal alles'}.`,
+    'Die letzten Meter sind die schönsten. Jetzt nochmal Vollgas – das Ziel ist in Sichtweite!',
+    `Finale! Noch ${tage === 1 ? 'ein Tag' : tage + ' Tage'}, um allen zu zeigen, was du draufhast.`
+  ];
+  else if(kurs === total - 1) liste = [
+    `Fast perfekt! Nur ${P} ziert sich noch – mit ${T} pro Tag ist auch das im Sack.`,
+    `${P} fühlt sich ein bisschen vernachlässigt. ${T} pro Tag, und alle sind wieder glücklich.`,
+    `Nur noch ${P} fehlt zum perfekten Monat. ${T} pro Tag – das schaffst du vor der ersten Kaffeepause.`
+  ];
+  else if(info.elapsed < 5) liste = [
+    'Der Monat ist noch jung – perfekter Zeitpunkt, um ordentlich vorzulegen!',
+    `Warmlaufen erlaubt, aber nicht zu lange: Mit ${P} kannst du direkt Punkte sammeln.`,
+    'Neuer Monat, neues Glück – die Bühne gehört dir!'
+  ];
+  else if(kurs >= Math.ceil(total / 2)) liste = [
+    `Solide Basis! ${P} braucht jetzt etwas Liebe – Tagesziel ${T}, und der Monat wird richtig stark.`,
+    'Halbzeit-Stimmung: Die Hälfte läuft, der Rest wartet nur auf deinen Endspurt.',
+    `Gute Grundlage! Jetzt noch ${P} anschieben – ${T} pro Tag, und du bist voll dabei.`
+  ];
+  else if(kurs > 0) liste = [
+    'Die Saison ist noch nicht vorbei – echte Champions kommen in der zweiten Halbzeit.',
+    `Kleiner Tipp: ${P} beißt nicht. ${T} pro Tag, und das Blatt wendet sich.`,
+    `Noch ca. ${AT} Arbeitstage, jeder Call ist eine neue Chance. Fang mit ${P} an!`
+  ];
+  else liste = [
+    `Noch ${tage} Tage für das große Comeback – Hollywood liebt solche Geschichten. Starte mit ${P}: ${T} pro Tag.`,
+    'Reset-Knopf gedrückt? Perfekt – ab heute schreiben wir die Erfolgsgeschichte. Jeder Abschluss zählt!',
+    `Start frei für die Aufholjagd! Schritt für Schritt: zuerst ${P} mit ${T} pro Tag.`
+  ];
+  return { titel, text: wahl(liste) };
+}
+
 // Einzelkarte je Mitarbeiter – bewusst feste, helle Farben, damit das Bild immer gleich aussieht
 function openHrKarte(rows, startIdx, ctx){
   let idx = startIdx;
@@ -10404,11 +10472,8 @@ function openHrKarte(rows, startIdx, ctx){
     const r = rows[idx];
     const { info, prods, teamId, monatName, standTxt } = ctx;
     const tageMA = Math.max(0, Math.round(r.restMA));
-    const msg = r.total === 0 ? 'Für diesen Monat sind keine Produktziele hinterlegt.'
-      : r.onTrack === r.total ? 'Stark! Wenn du so weitermachst, schaffst du alle deine Ziele.'
-      : r.onTrack === r.total - 1 ? 'Fast geschafft – nur noch ein Produkt fehlt zum vollen Erfolg.'
-      : r.onTrack >= Math.ceil(r.total / 2) ? 'Gute Basis! Mit etwas mehr Tempo bei den markierten Produkten ist noch viel drin.'
-      : 'Jetzt ist der richtige Moment, Gas zu geben – jeder Abschluss zählt.';
+    const spruch = hrSpruch(r, prods, teamId, info, standTxt);
+    const msg = spruch.text;
     const ring = (()=>{
       const R = 30, U = 2 * Math.PI * R, f = r.total ? r.onTrack / r.total : 0;
       const col = { ok:'#0E7C7B', warn:'#C2792B', bad:'#B4423A' }[hrSumStatus(r)];
@@ -10447,7 +10512,7 @@ function openHrKarte(rows, startIdx, ctx){
         <div class="hrk-head"><div class="hrk-eyebrow">Deine Hochrechnung · ${kiEsc(monatName)}</div>
           <div class="hrk-name">${kiEsc(r.agent.name)}</div>
           <div class="hrk-meta">Stand ${standTxt} · noch ${info.remaining} ${info.remaining === 1 ? 'Tag' : 'Tage'} im Monat${tageMA && tageMA !== info.remaining ? ` (ca. ${tageMA} Arbeitstage für dich)` : ''}</div></div>
-        <div class="hrk-sum"><div class="hrk-ring">${ring}<span>${r.onTrack}/${r.total}</span></div><div><div class="hrk-sum1">Du bist bei <b>${r.onTrack} von ${r.total}</b> Produkten auf Kurs${schonErreicht ? ` – <b>${schonErreicht}</b> ${schonErreicht === 1 ? 'davon ist' : 'davon sind'} schon erreicht` : ''}.</div><div class="hrk-sum2">${msg}</div></div></div>
+        <div class="hrk-sum"><div class="hrk-ring">${ring}<span>${r.onTrack}/${r.total}</span></div><div><div class="hrk-sum1">${spruch.titel}</div><div class="hrk-sum2">${msg}</div></div></div>
         <div class="hrk-list">${zeilen}<div class="hrk-sep">Qualität</div>${npsBlock}</div>
         <div class="hrk-legend"><span><i class="lg-ist"></i>kräftig = bisher</span><span><i class="lg-prog"></i>hell = Prognose</span><span><i class="lg ok"></i>erreicht / auf Kurs</span><span><i class="lg warn"></i>knapp</span><span><i class="lg bad"></i>in Gefahr</span></div>
         <div class="hrk-foot"><b>Prognose</b> = so landest du am Monatsende, wenn du im bisherigen Tempo weitermachst. <b>Tagesziel</b> = so viele Abschlüsse brauchst du ab heute an jedem deiner Arbeitstage, um das Monatsziel sicher zu erreichen. <b>✓ erreicht</b> = Monatsziel schon geschafft.</div>
@@ -12239,12 +12304,28 @@ function maDefaultProdukte(t){
   const idx = p => { const i = order.indexOf(p); return i === -1 ? 999 : i; };
   return [...def.products, ...extras].sort((a,b)=> idx(a) - idx(b)).map(key => ({
     key, label: (MA_PROD_DEFAULTS.labels[t] && MA_PROD_DEFAULTS.labels[t][key]) || key,
-    ziel: def.products.includes(key), cr: def.products.includes(key) && key !== 'BOJ'
+    ziel: def.products.includes(key), cr: def.products.includes(key) && key !== 'BOJ',
+    hr: maHrStandard(t, key, def.products.includes(key))
   }));
+}
+// v191: Produkte der Hochrechnung – im MF-Team DA statt HV
+function maHrStandard(t, key, ziel){
+  if(t === 'Trikala01' && key === 'VVM+BOJ') return false;
+  if(t === 'Trikala01' && key === 'DA') return true;
+  return !!ziel;
+}
+function maHrOf(t, p){ return p.hr !== undefined ? !!p.hr : maHrStandard(t, p.key, p.ziel); }
+function hrProdukteVon(cfg){ return cfg.hrProducts || cfg.products; }
+function hrAgentTargets(agent){
+  const cfg = TEAM_CONFIGS[agent.team];
+  if(!cfg) return [];
+  if(!cfg.hrTargets) return agentTargets(agent);
+  return cfg.hrTargets[agent.category || 'regular'] || cfg.hrTargets['regular'] || [];
 }
 function maProdukte(t){
   const o = maQuelle()[t];
-  return (o && Array.isArray(o.produkte) && o.produkte.length) ? o.produkte.filter(p => p && p.key) : maDefaultProdukte(t);
+  const list = (o && Array.isArray(o.produkte) && o.produkte.length) ? o.produkte.filter(p => p && p.key) : maDefaultProdukte(t);
+  return list.map(p => Object.assign({}, p, { hr: maHrOf(t, p) }));
 }
 function maDefaultZiel(t, cat, p){
   const def = TEAM_CONFIGS_DEFAULT[t];
@@ -12279,11 +12360,12 @@ function applyMaZiele(){
     prods.forEach(p => { if(p.label && p.label !== p.key) PRODUCT_LABELS_BY_TEAM[t][p.key] = p.label; });
     PRODUCT_DISPLAY_ORDER_BY_TEAM[t] = prods.map(p => p.key);
     cfg.targets = {};
+    cfg.hrProducts = prods.filter(p => p.hr).map(p => p.key);
+    cfg.hrTargets = {};
     kats.forEach(c=>{
-      cfg.targets[c.key] = cfg.products.map(p=>{
-        const v = o[c.key] && o[c.key][p];
-        return (typeof v === 'number' && v >= 0) ? v : maDefaultZiel(t, c.key, p);
-      });
+      const zielVon = p => { const v = o[c.key] && o[c.key][p]; return (typeof v === 'number' && v >= 0) ? v : maDefaultZiel(t, c.key, p); };
+      cfg.targets[c.key] = cfg.products.map(zielVon);
+      cfg.hrTargets[c.key] = cfg.hrProducts.map(zielVon);
     });
     ['crTarget','npsTarget','lqTarget'].forEach(k=>{ const v = o[k]; cfg[k] = (typeof v === 'number' && v > 0) ? v : def[k]; });
   });
@@ -12298,7 +12380,8 @@ function openMaZieleEditor(){
   teams.forEach(t=>{
     const cfg = TEAM_CONFIGS[t];
     const ziele = {};
-    draft.kats.forEach(c => { ziele[c.key] = {}; cfg.products.forEach((p,i) => ziele[c.key][p] = (cfg.targets[c.key] || [])[i] ?? 0); });
+    const gespeichert = maQuelle()[t] || {};
+    draft.kats.forEach(c => { ziele[c.key] = {}; maProdukte(t).filter(p => p.ziel || p.hr).forEach(p => { const v = gespeichert[c.key] && gespeichert[c.key][p.key]; ziele[c.key][p.key] = (typeof v === 'number' && v >= 0) ? v : maDefaultZiel(t, c.key, p.key); }); });
     draft.teams[t] = { produkte: clone(maProdukte(t)), ziele, kpi: { crTarget: cfg.crTarget, npsTarget: cfg.npsTarget, lqTarget: cfg.lqTarget } };
   });
   const katAgentCount = k => (state.agents||[]).filter(a => (a.category||'regular') === k).length;
@@ -12334,6 +12417,7 @@ function openMaZieleEditor(){
             <div class="mz-ptog">
               <label title="Hat Stückziele je Kategorie"><input type="checkbox" data-t="${t}" data-pz="${pi}" ${pr.ziel ? 'checked' : ''}> Ziel</label>
               <label title="Zählt zur Gesamt-CR"><input type="checkbox" data-t="${t}" data-pc="${pi}" ${pr.cr ? 'checked' : ''}> CR</label>
+              <label title="Erscheint in der Hochrechnung (mit eigenem Ziel)"><input type="checkbox" data-t="${t}" data-ph="${pi}" ${pr.hr ? 'checked' : ''}> HR</label>
             </div>
             <div class="mz-pact">
               <button type="button" data-t="${t}" data-pl="${pi}" title="nach links" ${pi === 0 ? 'disabled' : ''}>‹</button>
@@ -12341,14 +12425,14 @@ function openMaZieleEditor(){
               <button type="button" data-t="${t}" data-pr="${pi}" title="nach rechts" ${pi === prods.length - 1 ? 'disabled' : ''}>›</button>
             </div></th>`).join('') +
         `<th class="mz-addcol"><button type="button" class="mz-add" data-padd="${t}" title="Produkt hinzufügen">+ Produkt</button></th></tr></thead><tbody>` +
-        draft.kats.map(c => `<tr><td class="mz-cat">${esc(c.label) || '–'}</td>` + prods.map(pr => pr.ziel
-            ? `<td><input type="text" inputmode="decimal" data-t="${t}" data-cat="${c.key}" data-p="${esc(pr.key)}" value="${String(zielOf(t, c.key, pr.key)).replace('.',',')}"></td>`
+        draft.kats.map(c => `<tr><td class="mz-cat">${esc(c.label) || '–'}</td>` + prods.map(pr => (pr.ziel || pr.hr)
+            ? `<td${pr.ziel ? '' : ' class="mz-hronly" title="Ziel nur für die Hochrechnung"'}><input type="text" inputmode="decimal" data-t="${t}" data-cat="${c.key}" data-p="${esc(pr.key)}" value="${String(zielOf(t, c.key, pr.key)).replace('.',',')}"></td>`
             : `<td class="mz-na" title="Kein Stückziel – Färbung: 0 rot · 1–9 orange · ab 10 grün">–</td>`).join('') + '<td></td></tr>').join('') +
         `</tbody></table></div><div class="mz-kpis">` +
         [['crTarget','CR-Ziel (Standard)','%'],['npsTarget','NPS-Ziel','%'],['lqTarget','LQ-Ziel','%']].map(([k,l,u]) =>
           `<label>${l}<span><input type="text" inputmode="decimal" data-t="${t}" data-k="${k}" value="${String(d.kpi[k]).replace('.',',')}" title="Vorgabe: ${TEAM_CONFIGS_DEFAULT[t][k]}"> ${u}</span></label>`).join('') + `</div></div>`;
     });
-    h += `<div class="mz-foot"><span class="mz-hint">„Ziel“ aus = Produkt wird angezeigt, hat aber keine Stückziele (wie DA). „CR“ = zählt zur Gesamt-CR. Ausgeblendete Produkte behalten ihre Zahlen – mit gleichem Namen wieder hinzugefügt, sind sie wieder da.</span><div class="mz-btns"><button type="button" class="btn-secondary mz-cancel">Abbrechen</button><button type="button" class="primary mz-save">Speichern</button></div></div>`;
+    h += `<div class="mz-foot"><span class="mz-hint">„Ziel“ aus = Produkt wird angezeigt, hat aber keine Stückziele. „CR“ = zählt zur Gesamt-CR. „HR“ = erscheint in der Hochrechnung – Produkte nur mit HR (wie DA) haben ein eigenes Ziel nur dafür. Ausgeblendete Produkte behalten ihre Zahlen – mit gleichem Namen wieder hinzugefügt, sind sie wieder da.</span><div class="mz-btns"><button type="button" class="btn-secondary mz-cancel">Abbrechen</button><button type="button" class="primary mz-save">Speichern</button></div></div>`;
     box.innerHTML = h;
     ov.scrollTop = scroll;
     wire();
@@ -12367,13 +12451,14 @@ function openMaZieleEditor(){
     box.querySelectorAll('.mz-pname').forEach(i => i.oninput = () => { draft.teams[i.dataset.t].produkte[+i.dataset.pi].label = i.value; });
     box.querySelectorAll('[data-pz]').forEach(c => c.onchange = () => { draft.teams[c.dataset.t].produkte[+c.dataset.pz].ziel = c.checked; render(); });
     box.querySelectorAll('[data-pc]').forEach(c => c.onchange = () => { draft.teams[c.dataset.t].produkte[+c.dataset.pc].cr = c.checked; });
+    box.querySelectorAll('[data-ph]').forEach(c => c.onchange = () => { draft.teams[c.dataset.t].produkte[+c.dataset.ph].hr = c.checked; render(); });
     const move = (t, i, dir) => { const a = draft.teams[t].produkte; const j = i + dir; if(j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; render(); };
     box.querySelectorAll('[data-pl]').forEach(b => b.onclick = () => move(b.dataset.t, +b.dataset.pl, -1));
     box.querySelectorAll('[data-pr]').forEach(b => b.onclick = () => move(b.dataset.t, +b.dataset.pr, 1));
     box.querySelectorAll('[data-pdel]').forEach(b => b.onclick = () => { draft.teams[b.dataset.t].produkte.splice(+b.dataset.pdel, 1); render(); });
     box.querySelectorAll('[data-padd]').forEach(b => b.onclick = () => {
       const t = b.dataset.padd, a = draft.teams[t].produkte;
-      a.push({ key: '_neu' + Date.now().toString(36), neu: true, label: 'Neues Produkt', ziel: true, cr: true });
+      a.push({ key: '_neu' + Date.now().toString(36), neu: true, label: 'Neues Produkt', ziel: true, cr: true, hr: true });
       render();
       const inp = box.querySelector(`.mz-pname[data-t="${t}"][data-pi="${a.length-1}"]`); if(inp){ inp.focus(); inp.select(); }
     });
@@ -12428,8 +12513,8 @@ function openMaZieleEditor(){
       const d = draft.teams[t], def = TEAM_CONFIGS_DEFAULT[t];
       const o = {};
       const prodsDefault = JSON.stringify(maDefaultProdukte(t));
-      if(JSON.stringify(d.produkte.map(p => ({key:p.key, label:p.label, ziel:!!p.ziel, cr:!!p.cr}))) !== prodsDefault) o.produkte = d.produkte.map(p => ({ key: p.key, label: p.label, ziel: !!p.ziel, cr: !!p.cr }));
-      kats.forEach(c => d.produkte.filter(p => p.ziel).forEach(pr => {
+      if(JSON.stringify(d.produkte.map(p => ({key:p.key, label:p.label, ziel:!!p.ziel, cr:!!p.cr, hr:!!p.hr}))) !== prodsDefault) o.produkte = d.produkte.map(p => ({ key: p.key, label: p.label, ziel: !!p.ziel, cr: !!p.cr, hr: !!p.hr }));
+      kats.forEach(c => d.produkte.filter(p => p.ziel || p.hr).forEach(pr => {
         const v = (d.ziele[c.key] && d.ziele[c.key][pr.key] !== undefined) ? d.ziele[c.key][pr.key] : maDefaultZiel(t, c.key, pr.key);
         if(v !== maDefaultZiel(t, c.key, pr.key)) (o[c.key] = o[c.key] || {})[pr.key] = v;
       }));
@@ -14544,6 +14629,8 @@ html[data-fx-theme="dark"] .sh3-tag rect{fill:#1C2733;} html[data-fx-theme="dark
 .hrk-sep{padding:8px 20px 4px;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8A93A0;background:#FAFAFB;border-bottom:1px solid #F4F0F2;}
 .hrk-nps .hrk-p{font-size:13px;}
 .hrk-nps.st-ok .b-ist{background:#0E7C7B;} .hrk-nps.st-warn .b-ist{background:#C2792B;} .hrk-nps.st-bad .b-ist{background:#B4423A;}
+
+.mz-table td.mz-hronly input{border-style:dashed;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
