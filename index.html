@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 193;
+const BOARD_VERSION = 194;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -10655,6 +10655,22 @@ function openHrKarte(rows, startIdx, ctx){
       const tagN = ok ? '<div class="hrk-tag t-ok">✓ im Ziel</div>' : `<div class="hrk-tag t-${st}"><b>−${f1(zielN - nps)}</b><span>Punkte zum Ziel</span></div>`;
       return `<div class="hrk-row hrk-nps st-${st}"><div class="hrk-p">NPS</div><div class="hrk-mid"><div class="hrk-bar"><i class="b-ist" style="width:${w}%"></i></div><div class="hrk-nums">aktuell <b>${f1(nps)} %</b>${zielN ? ` · Ziel <b>${zielN} %</b>` : ''}</div></div>${tagN}</div>`;
     })();
+    // CR des laufenden Monats – gleiche Berechnung wie in „Mitarbeiter Ziele“
+    const crBlock = (()=>{
+      const cfgT = TEAM_CONFIGS[r.agent.team] || {};
+      const zielC = cfgT.crTarget || 0;
+      const calls = r.agent.calls > 0 ? r.agent.calls : 0;
+      const f1 = v => v.toLocaleString('de-DE', {minimumFractionDigits:1, maximumFractionDigits:1});
+      if(!calls) return `<div class="hrk-row hrk-nps st-none"><div class="hrk-p">CR</div><div class="hrk-mid"><div class="hrk-nums">noch keine Calls eingetragen${zielC ? ` · Ziel <b>${f1(zielC)} %</b>` : ''}</div></div><div class="hrk-tag">–</div></div>`;
+      const cr = totalCr(r.agent);
+      const rot = r.agent.team === 'Trikala01' ? 4 : 7;
+      const ok = !zielC || cr >= zielC;
+      const st = ok ? 'ok' : cr >= rot ? 'warn' : 'bad';
+      const w = zielC ? Math.max(0, Math.min(100, cr / zielC * 100)) : 100;
+      const fehlen = zielC ? Math.max(0, Math.ceil(zielC * calls / 100 - totalStk(r.agent))) : 0;
+      const tagC = ok ? '<div class="hrk-tag t-ok">✓ im Ziel</div>' : `<div class="hrk-tag t-${st}"><b>−${f1(zielC - cr)}</b><span>Punkte zum Ziel</span></div>`;
+      return `<div class="hrk-row hrk-nps st-${st}"><div class="hrk-p">CR</div><div class="hrk-mid"><div class="hrk-bar"><i class="b-ist" style="width:${w}%"></i></div><div class="hrk-nums">aktuell <b>${f1(cr)} %</b>${zielC ? ` · Ziel <b>${f1(zielC)} %</b>` : ''}${!ok && fehlen ? ` · ca. <b>${fehlen}</b> Abschlüsse fehlen` : ''}</div></div>${tagC}</div>`;
+    })();
     const schonErreicht = prods.filter(p => r.cells[p].pct !== null && r.cells[p].ist >= r.cells[p].ziel).length;
     box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
       <div class="hrk-nav"><button type="button" class="hrk-prev" ${idx===0?'disabled':''}>‹ Vorheriger</button><span>${idx+1} von ${rows.length}</span><button type="button" class="hrk-next" ${idx===rows.length-1?'disabled':''}>Nächster ›</button></div>
@@ -10663,7 +10679,7 @@ function openHrKarte(rows, startIdx, ctx){
           <div class="hrk-name">${kiEsc(r.agent.name)}</div>
           <div class="hrk-meta">Stand ${standTxt} · noch ${info.remaining} ${info.remaining === 1 ? 'Tag' : 'Tage'} im Monat${tageMA && tageMA !== info.remaining ? ` (ca. ${tageMA} Arbeitstage für dich)` : ''}</div></div>
         <div class="hrk-sum"><div class="hrk-ring">${ring}<span>${r.onTrack}/${r.total}</span></div><div><div class="hrk-sum1">${spruch.titel}</div><div class="hrk-sum2">${msg}</div></div></div>
-        <div class="hrk-list">${zeilen}<div class="hrk-sep">Qualität</div>${npsBlock}</div>
+        <div class="hrk-list">${zeilen}<div class="hrk-sep">CR & Qualität</div>${crBlock}${npsBlock}</div>
         <div class="hrk-legend"><span><i class="lg-ist"></i>kräftig = bisher</span><span><i class="lg-prog"></i>hell = Prognose</span><span><i class="lg ok"></i>erreicht / auf Kurs</span><span><i class="lg warn"></i>knapp</span><span><i class="lg bad"></i>in Gefahr</span></div>
         <div class="hrk-foot"><b>Prognose</b> = so landest du am Monatsende, wenn du im bisherigen Tempo weitermachst. <b>Tagesziel</b> = so viele Abschlüsse brauchst du ab heute an jedem deiner Arbeitstage, um das Monatsziel sicher zu erreichen. <b>✓ erreicht</b> = Monatsziel schon geschafft.</div>
       </div>
