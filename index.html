@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 191;
+const BOARD_VERSION = 192;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -10416,44 +10416,61 @@ function hrSpruch(r, prods, teamId, info, standTxt){
   // Spruch
   let liste;
   if(erreicht === total) liste = [
-    'Monatsziel komplett erledigt – ab jetzt ist alles Bonus. Die Zielvorgabe hat ehrlich gesagt ein bisschen Angst vor dir.',
-    'Alles abgehakt! Du darfst jetzt offiziell ein bisschen angeben. Aber nur ein bisschen.',
-    'Ziele? Erledigt. Was jetzt noch kommt, ist reine Kür – zeig, was in dir steckt!'
+    'Alle Ziele erreicht. Die Zielvorgabe hat sich gerade krankgemeldet – sie verkraftet dich nicht.',
+    'Monatsziel erledigt. Ab jetzt ist alles Bonus. Bitte trotzdem nicht im Bürostuhl Pirouetten drehen.',
+    'Du hast mehr Ziele geknackt als der Kaffeeautomat Becher ausgibt. Respekt!',
+    'Offiziell: Du bist das WLAN des Teams – alle wollen sich mit dir verbinden.',
+    'Ziele erreicht. Die Hall of Fame hat schon angerufen und gefragt, welches Foto sie nehmen soll.',
+    'Wenn Abschlüsse Kalorien wären, müsstest du jetzt dringend zum Sport.'
   ];
   else if(kurs === total) liste = [
-    'Läuft bei dir! Wenn das so weitergeht, kannst du schon mal einen Platz in der Hall of Fame reservieren.',
-    'Alles auf Kurs – der Autopilot ist an. Bitte trotzdem nicht einschlafen.',
-    'Du bist auf Kurs wie ein ICE … nur pünktlicher. Einfach genau so weitermachen!'
+    'Du bist auf Kurs wie ein ICE … nur pünktlicher. Und ohne Stellwerksstörung.',
+    'Alles im grünen Bereich – grüner als der Smoothie, den du dir eigentlich mal vornehmen wolltest.',
+    'Läuft bei dir! Wenn das so weitergeht, braucht die Hall of Fame einen größeren Rahmen.',
+    'Autopilot an, Kurs stimmt. Bitte trotzdem nicht einschlafen – das Headset merkt es.',
+    'Deine Kurve zeigt nach oben wie die Laune am Freitag um 16 Uhr.',
+    'So viel auf Kurs – sogar das Navi ist neidisch: „Sie haben Ihr Ziel bald erreicht.“'
   ];
   else if(tage <= 2) liste = [
-    `Endspurt! Jetzt zählt jeder einzelne Abschluss – ${P ? `vor allem bei ${P}` : 'gib nochmal alles'}.`,
-    'Die letzten Meter sind die schönsten. Jetzt nochmal Vollgas – das Ziel ist in Sichtweite!',
-    `Finale! Noch ${tage === 1 ? 'ein Tag' : tage + ' Tage'}, um allen zu zeigen, was du draufhast.`
+    `Endspurt! Jetzt zählt jeder Abschluss – ${P ? `besonders bei ${P}` : 'gib nochmal alles'}. Wer jetzt bremst, verliert.`,
+    'Letzte Runde! Stell dir vor, jeder Call ist der letzte Keks in der Dose.',
+    `Noch ${tage === 1 ? 'ein Tag' : tage + ' Tage'}. Das ist wie Elfmeterschießen – nur mit Headset.`,
+    'Finale! Jetzt wird nicht mehr gezögert – jetzt wird abgeschlossen.',
+    `Countdown läuft: ${P ? `${P} wartet auf seinen großen Auftritt.` : 'Jetzt nochmal alles raushauen!'}`
   ];
   else if(kurs === total - 1) liste = [
-    `Fast perfekt! Nur ${P} ziert sich noch – mit ${T} pro Tag ist auch das im Sack.`,
-    `${P} fühlt sich ein bisschen vernachlässigt. ${T} pro Tag, und alle sind wieder glücklich.`,
-    `Nur noch ${P} fehlt zum perfekten Monat. ${T} pro Tag – das schaffst du vor der ersten Kaffeepause.`
+    `Fast perfekt! Nur ${P} ziert sich noch wie eine Katze vor der Badewanne. ${T} pro Tag und es macht freiwillig mit.`,
+    `${P} schmollt in der Ecke, weil du alle anderen lieber hast. ${T} pro Tag – und ihr seid wieder beste Freunde.`,
+    `Nur noch ${P} fehlt zum perfekten Monat. ${T} pro Tag – das schaffst du zwischen zwei Schlucken Kaffee.`,
+    `Alles läuft – nur ${P} steht noch im Stau. ${T} pro Tag und die Ampel springt auf Grün.`,
+    `So nah dran! ${P} ist das letzte Puzzleteil, das immer unter dem Sofa liegt. ${T} pro Tag – Sofa anheben!`
   ];
   else if(info.elapsed < 5) liste = [
-    'Der Monat ist noch jung – perfekter Zeitpunkt, um ordentlich vorzulegen!',
-    `Warmlaufen erlaubt, aber nicht zu lange: Mit ${P} kannst du direkt Punkte sammeln.`,
-    'Neuer Monat, neues Glück – die Bühne gehört dir!'
+    'Der Monat ist noch jung – frischer als der Kaffee um 8 Uhr. Perfekt, um ordentlich vorzulegen!',
+    `Warmlaufen erlaubt, aber nicht zu lange: ${P} wartet schon mit gepackten Koffern.`,
+    'Neuer Monat, neues Glück. Die Bühne gehört dir – Headset auf, Show an!',
+    'Noch alles drin! Der Monat ist wie ein leeres Notizbuch – schreib was Schönes rein.'
   ];
   else if(kurs >= Math.ceil(total / 2)) liste = [
-    `Solide Basis! ${P} braucht jetzt etwas Liebe – Tagesziel ${T}, und der Monat wird richtig stark.`,
-    'Halbzeit-Stimmung: Die Hälfte läuft, der Rest wartet nur auf deinen Endspurt.',
-    `Gute Grundlage! Jetzt noch ${P} anschieben – ${T} pro Tag, und du bist voll dabei.`
+    'Halbzeit-Stimmung: Die Hälfte läuft wie geschmiert, der Rest wartet nur auf deinen Endspurt.',
+    `Solide Basis! ${P} braucht jetzt etwas Liebe – so wie eine Zimmerpflanze. ${T} pro Tag gießen.`,
+    `Gut unterwegs! Jetzt noch ${P} anschieben – ${T} pro Tag, und aus „gut“ wird „richtig stark“.`,
+    `Die Hälfte sitzt – wie ein Puzzle, bei dem nur noch der Himmel fehlt. Fang mit ${P} an.`,
+    `${P} hat angerufen und fragt, ob du es vergessen hast. ${T} pro Tag wäre eine nette Antwort.`
   ];
   else if(kurs > 0) liste = [
-    'Die Saison ist noch nicht vorbei – echte Champions kommen in der zweiten Halbzeit.',
+    'Die Saison ist noch nicht vorbei – echte Champions kommen in der zweiten Halbzeit. Und mit Snacks.',
     `Kleiner Tipp: ${P} beißt nicht. ${T} pro Tag, und das Blatt wendet sich.`,
-    `Noch ca. ${AT} Arbeitstage, jeder Call ist eine neue Chance. Fang mit ${P} an!`
+    `Noch ca. ${AT} Arbeitstage – das sind ziemlich viele Chancen, wenn man mal ehrlich ist. Fang mit ${P} an!`,
+    'Jeder große Comeback-Film fängt genau hier an. Popcorn bereit? Dann los!',
+    `Rom wurde auch nicht an einem Tag erbaut – aber die hatten auch kein Tagesziel von ${T} für ${P}.`
   ];
   else liste = [
     `Noch ${tage} Tage für das große Comeback – Hollywood liebt solche Geschichten. Starte mit ${P}: ${T} pro Tag.`,
-    'Reset-Knopf gedrückt? Perfekt – ab heute schreiben wir die Erfolgsgeschichte. Jeder Abschluss zählt!',
-    `Start frei für die Aufholjagd! Schritt für Schritt: zuerst ${P} mit ${T} pro Tag.`
+    'Reset-Knopf gedrückt? Perfekt – von hier aus kann es nur nach oben gehen. Physik ist auf deiner Seite.',
+    `Start frei für die Aufholjagd! Zuerst ${P} mit ${T} pro Tag – kleine Schritte, großer Applaus.`,
+    'Das ist kein Tief, das ist Anlauf nehmen. Und du nimmst gerade richtig viel Anlauf.',
+    `Plot-Twist gefällig? ${T} ${P} pro Tag und plötzlich redet das ganze Team über dich.`
   ];
   return { titel, text: wahl(liste) };
 }
