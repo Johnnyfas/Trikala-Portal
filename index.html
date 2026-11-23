@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 195;
+const BOARD_VERSION = 196;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -10671,12 +10671,12 @@ function openHrKarte(rows, startIdx, ctx){
     const zeilen = prods.map(p=>{
       const c = r.cells[p];
       const label = kiEsc(productLabel(p, teamId));
-      if(c.pct === null) return `<div class="hrk-row st-none"><div class="hrk-p">${label}</div><div class="hrk-mid"><div class="hrk-nums">bisher <b>${hrFmt(c.ist)}</b> · Prognose <b>${hrFmt(c.prog)}</b></div></div><div class="hrk-tag">kein Ziel</div></div>`;
+      if(c.pct === null) return `<div class="hrk-row st-none"><div class="hrk-p">${label}</div><div class="hrk-mid"><div class="hrk-ist"><b>${hrFmt(c.ist)}</b> bisher</div><div class="hrk-prog"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg>Prognose Monatsende: <b>${hrFmt(c.prog)}</b></div></div><div class="hrk-tag">kein Ziel</div></div>`;
       const erreicht = c.ist >= c.ziel;
       const tag = erreicht ? '<div class="hrk-tag t-ok t-done">✓ erreicht</div>'
         : info.remaining > 0 ? `<div class="hrk-tag t-${c.st}"><b>${hrFmtTag(c.perDay)}</b><span>Tagesziel${c.st === 'ok' ? ' · auf Kurs' : ''}</span></div>` : '<div class="hrk-tag t-bad">nicht erreicht</div>';
       return `<div class="hrk-row st-${c.st}${erreicht ? ' is-done' : ''}"><div class="hrk-p">${label}</div>
-        <div class="hrk-mid">${hrBarHtml(c, 'hrk-bar')}<div class="hrk-nums">bisher <b>${hrFmt(c.ist)}</b> · Prognose <b>${hrFmt(c.prog)}</b> · Ziel <b>${hrFmt(c.ziel)}</b></div></div>${tag}</div>`;
+        <div class="hrk-mid"><div class="hrk-ist"><b>${hrFmt(c.ist)}</b> von ${hrFmt(c.ziel)}</div>${hrBarHtml(c, 'hrk-bar')}<div class="hrk-prog"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8M14 7h7v7"/></svg>Prognose Monatsende: <b>${hrFmt(c.prog)}</b></div></div>${tag}</div>`;
     }).join('');
     // NPS des laufenden Monats
     const npsBlock = (()=>{
@@ -10690,7 +10690,7 @@ function openHrKarte(rows, startIdx, ctx){
       const st = ok ? 'ok' : nps >= zielN - 5 ? 'warn' : 'bad';
       const w = zielN ? Math.max(0, Math.min(100, nps / zielN * 100)) : 100;
       const tagN = ok ? '<div class="hrk-tag t-ok">✓ im Ziel</div>' : `<div class="hrk-tag t-${st}"><b>−${f1(zielN - nps)}</b><span>Punkte zum Ziel</span></div>`;
-      return `<div class="hrk-row hrk-nps st-${st}"><div class="hrk-p">NPS</div><div class="hrk-mid"><div class="hrk-bar"><i class="b-ist" style="width:${w}%"></i></div><div class="hrk-nums">aktuell <b>${f1(nps)} %</b>${zielN ? ` · Ziel <b>${zielN} %</b>` : ''}</div></div>${tagN}</div>`;
+      return `<div class="hrk-row hrk-nps st-${st}"><div class="hrk-p">NPS</div><div class="hrk-mid"><div class="hrk-ist"><b>${f1(nps)} %</b>${zielN ? ` von ${zielN} %` : ''}</div><div class="hrk-bar"><i class="b-ist" style="width:${w}%"></i></div></div>${tagN}</div>`;
     })();
     // CR des laufenden Monats – gleiche Berechnung wie in „Mitarbeiter Ziele“
     const crBlock = (()=>{
@@ -10706,7 +10706,7 @@ function openHrKarte(rows, startIdx, ctx){
       const w = zielC ? Math.max(0, Math.min(100, cr / zielC * 100)) : 100;
       const fehlen = zielC ? Math.max(0, Math.ceil(zielC * calls / 100 - totalStk(r.agent))) : 0;
       const tagC = ok ? '<div class="hrk-tag t-ok">✓ im Ziel</div>' : `<div class="hrk-tag t-${st}"><b>−${f1(zielC - cr)}</b><span>Punkte zum Ziel</span></div>`;
-      return `<div class="hrk-row hrk-nps st-${st}"><div class="hrk-p">CR</div><div class="hrk-mid"><div class="hrk-bar"><i class="b-ist" style="width:${w}%"></i></div><div class="hrk-nums">aktuell <b>${f1(cr)} %</b>${zielC ? ` · Ziel <b>${f1(zielC)} %</b>` : ''}${!ok && fehlen ? ` · ca. <b>${fehlen}</b> Abschlüsse fehlen` : ''}</div></div>${tagC}</div>`;
+      return `<div class="hrk-row hrk-nps st-${st}"><div class="hrk-p">CR</div><div class="hrk-mid"><div class="hrk-ist"><b>${f1(cr)} %</b>${zielC ? ` von ${f1(zielC)} %` : ''}</div><div class="hrk-bar"><i class="b-ist" style="width:${w}%"></i></div>${!ok && fehlen ? `<div class="hrk-prog">ca. <b>${fehlen}</b> ${fehlen === 1 ? 'Abschluss fehlt' : 'Abschlüsse fehlen'} bei deinen bisherigen Calls</div>` : ''}</div>${tagC}</div>`;
     })();
     const schonErreicht = prods.filter(p => r.cells[p].pct !== null && r.cells[p].ist >= r.cells[p].ziel).length;
     box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
@@ -14834,6 +14834,14 @@ html[data-fx-theme="dark"] .sh3-tag rect{fill:#1C2733;} html[data-fx-theme="dark
 .hrk-nps.st-ok .b-ist{background:#0E7C7B;} .hrk-nps.st-warn .b-ist{background:#C2792B;} .hrk-nps.st-bad .b-ist{background:#B4423A;}
 
 .mz-table td.mz-hronly input{border-style:dashed;}
+
+/* v196: Einzelkarte – „bisher von Ziel“ oben, Prognose getrennt darunter */
+.hrk-ist{font-size:12px;color:#5B6470;margin-bottom:4px;font-variant-numeric:tabular-nums;}
+.hrk-ist b{font-family:'Space Grotesk',sans-serif;font-size:16px;color:#1B1F24;font-weight:700;margin-right:1px;}
+.hrk-mid .hrk-bar{margin-bottom:4px;}
+.hrk-prog{display:block;font-size:11px;line-height:1.4;color:#8A93A0;font-style:italic;font-variant-numeric:tabular-nums;}
+.hrk-prog b{color:#5B6470;font-style:normal;font-weight:700;}
+.hrk-prog svg{color:#A4ACB7;vertical-align:-2px;margin-right:4px;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
