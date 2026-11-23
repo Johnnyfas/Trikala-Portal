@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 197;
+const BOARD_VERSION = 199;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -10322,7 +10322,7 @@ function renderHochrechnung(){
     head.className = 'hr-team-head hr2-head';
     const restTxt = info.hasData ? `Stand ${standTxt} · Tag ${info.elapsed} von ${info.total} · noch ${info.remaining} ${info.remaining === 1 ? 'Tag' : 'Tage'}` : `Stand ${standTxt}`;
     head.innerHTML = `<div><div class="hr2-h1">Hochrechnung ${monatName}</div><div class="hr2-h2">${kiEsc(cfg.label)} — ${kiEsc(cfg.project)}</div></div>
-      <div class="hr2-headr"><span class="hr-days">${restTxt}</span><button type="button" class="hr2-exp hr2-noexp">Als Bild speichern</button></div>`;
+      <div class="hr2-headr"><span class="hr-days">${restTxt}</span><button type="button" class="hr2-exp hr2-noexp">Als Bild speichern</button><button type="button" class="hr2-exp hr2-all hr2-noexp" title="Für jeden Mitarbeiter eine eigene Karte als Bild – gesammelt in einem Ordner">Alle Karten speichern</button></div>`;
     block.appendChild(head);
 
     if(!info.hasData || info.elapsed === 0){
@@ -10385,6 +10385,7 @@ function renderHochrechnung(){
     });
     wrap.appendChild(t);
     block.appendChild(wrap);
+    head.querySelector('.hr2-all').onclick = e => hrAlleKarten(rows, { cfg, teamId, prods, info, monatName, standTxt }, e.currentTarget);
     head.querySelector('.hr2-exp').onclick = ()=> hrExport(block, `Hochrechnung_${hrDateiTeil(cfg.label)}_${standTxt.replace(/\./g,'-')}.png`, false, true);
     container.appendChild(block);
   });
@@ -10646,17 +10647,8 @@ function hrSpruch(r, prods, teamId, info, standTxt, rows){
 }
 
 // Einzelkarte je Mitarbeiter – bewusst feste, helle Farben, damit das Bild immer gleich aussieht
-function openHrKarte(rows, startIdx, ctx){
-  let idx = startIdx;
-  const ov = document.createElement('div'); ov.className = 'chart-overlay cd-modal-overlay hrk-ov';
-  const box = document.createElement('div'); box.className = 'hrk-box';
-  ov.appendChild(box); document.body.appendChild(ov);
-  const close = ()=>{ ov.remove(); document.removeEventListener('keydown', onKey); };
-  const onKey = e=>{ if(e.key === 'Escape') close(); else if(e.key === 'ArrowLeft' && idx > 0){ idx--; render(); } else if(e.key === 'ArrowRight' && idx < rows.length-1){ idx++; render(); } };
-  document.addEventListener('keydown', onKey);
-  ov.addEventListener('mousedown', e=>{ if(e.target === ov) close(); });
-  function render(){
-    const r = rows[idx];
+// v198: Inhalt einer Einzelkarte (für Fenster und Sammel-Export)
+function hrKarteHtml(r, rows, ctx){
     const { info, prods, teamId, monatName, standTxt } = ctx;
     const tageMA = Math.max(0, Math.round(r.restMA));
     const spruch = hrSpruch(r, prods, teamId, info, standTxt, rows);
@@ -10709,17 +10701,103 @@ function openHrKarte(rows, startIdx, ctx){
       return `<div class="hrk-row hrk-nps st-${st}"><div class="hrk-p">CR</div><div class="hrk-mid"><div class="hrk-ist"><b>${f1(cr)} %</b>${zielC ? ` von ${f1(zielC)} %` : ''}</div><div class="hrk-bar"><i class="b-ist" style="width:${w}%"></i></div>${!ok && fehlen ? `<div class="hrk-prog">ca. <b>${fehlen}</b> ${fehlen === 1 ? 'Abschluss fehlt' : 'Abschlüsse fehlen'} bei deinen bisherigen Calls</div>` : ''}</div>${tagC}</div>`;
     })();
     const schonErreicht = prods.filter(p => r.cells[p].pct !== null && r.cells[p].ist >= r.cells[p].ziel).length;
-    box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
-      <div class="hrk-nav"><button type="button" class="hrk-prev" ${idx===0?'disabled':''}>‹ Vorheriger</button><span>${idx+1} von ${rows.length}</span><button type="button" class="hrk-next" ${idx===rows.length-1?'disabled':''}>Nächster ›</button></div>
-      <div class="hrk" id="hrk-capture">
+    return `
+      <div class="hrk">
         <div class="hrk-head"><div class="hrk-eyebrow">Deine Hochrechnung · ${kiEsc(monatName)}</div>
           <div class="hrk-name">${kiEsc(r.agent.name)}</div>
           <div class="hrk-meta">Stand ${standTxt} · noch ${info.remaining} ${info.remaining === 1 ? 'Tag' : 'Tage'} im Monat${tageMA && tageMA !== info.remaining ? ` (ca. ${tageMA} Arbeitstage für dich)` : ''}</div></div>
-        <div class="hrk-sum"><div class="hrk-ring">${ring}<span>${r.onTrack}/${r.total}</span></div><div><div class="hrk-sum1">${spruch.titel}</div><div class="hrk-sum2">${msg}</div></div></div>
+        <div class="hrk-spruch"><span class="hrk-q" aria-hidden="true">“</span><div class="hrk-spruch-t">${msg}</div></div>
+        <div class="hrk-sum"><div class="hrk-ring">${ring}<span>${r.onTrack}/${r.total}</span></div><div><div class="hrk-sum1">${spruch.titel}</div></div></div>
         <div class="hrk-list">${zeilen}<div class="hrk-sep">CR & Qualität</div>${crBlock}${npsBlock}</div>
         <div class="hrk-legend"><span><i class="lg-ist"></i>kräftig = bisher</span><span><i class="lg-prog"></i>hell = Prognose</span><span><i class="lg ok"></i>erreicht / auf Kurs</span><span><i class="lg warn"></i>knapp</span><span><i class="lg bad"></i>in Gefahr</span></div>
         <div class="hrk-foot"><b>Prognose</b> = so landest du am Monatsende, wenn du im bisherigen Tempo weitermachst. <b>Tagesziel</b> = so viele Abschlüsse brauchst du ab heute an jedem deiner Arbeitstage, um das Monatsziel sicher zu erreichen. <b>✓ erreicht</b> = Monatsziel schon geschafft.</div>
-      </div>
+      </div>`;
+}
+
+// v198: Alle Einzelkarten auf einmal speichern – direkt in einen Ordner (Chrome/Edge) oder als ZIP
+function hrLadeJSZip(){
+  if(window.JSZip) return Promise.resolve(window.JSZip);
+  const urls = ['https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js', 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'];
+  return urls.reduce((p, u) => p.catch(() => new Promise((res, rej) => {
+    const sc = document.createElement('script'); sc.src = u;
+    sc.onload = () => window.JSZip ? res(window.JSZip) : rej(new Error('JSZip fehlt'));
+    sc.onerror = () => { sc.remove(); rej(new Error('Laden fehlgeschlagen')); };
+    document.head.appendChild(sc);
+  })), Promise.reject(new Error('start')));
+}
+async function hrAlleKarten(rows, ctx, btn){
+  if(!rows.length) return;
+  if(typeof html2canvas !== 'function'){ if(window.fxToast) fxToast('Bild-Export nicht verfügbar'); return; }
+  const ordnerName = `Hochrechnung_${hrDateiTeil(ctx.cfg.label)}_${ctx.standTxt.replace(/\./g,'-')}`;
+  let ordner = null, zip = null;
+  if(window.showDirectoryPicker){
+    try{
+      const basis = await window.showDirectoryPicker({ id:'hochrechnung', mode:'readwrite' });
+      ordner = await basis.getDirectoryHandle(ordnerName, { create:true });
+    }catch(e){ if(e && e.name === 'AbortError') return; ordner = null; }
+  }
+  if(!ordner){
+    try{ const JZ = await hrLadeJSZip(); zip = new JZ(); }
+    catch(e){ if(window.fxToast) fxToast('ZIP-Funktion konnte nicht geladen werden – bitte Internet prüfen'); return; }
+  }
+  const alt = btn ? btn.textContent : '';
+  if(btn) btn.disabled = true;
+  const prog = document.createElement('div');
+  prog.className = 'chart-overlay cd-modal-overlay hrk-prog-ov';
+  prog.innerHTML = `<div class="hrk-prog-box"><div class="hrk-prog-t">Karten werden erstellt …</div><div class="hrk-prog-bar"><i></i></div><div class="hrk-prog-n">0 von ${rows.length}</div></div>`;
+  document.body.appendChild(prog);
+  const host = document.createElement('div');
+  host.style.cssText = 'position:fixed;left:-10000px;top:0;width:448px;pointer-events:none;';
+  document.body.appendChild(host);
+  let ok = 0;
+  try{
+    for(let i = 0; i < rows.length; i++){
+      const r = rows[i];
+      host.innerHTML = hrKarteHtml(r, rows, ctx);
+      await new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res)));
+      const canvas = await html2canvas(host.firstElementChild, { backgroundColor:'#FFFFFF', scale:2 });
+      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      const fname = `Hochrechnung_${hrDateiTeil(r.agent.name)}_${ctx.standTxt.replace(/\./g,'-')}.png`;
+      if(ordner){
+        const fh = await ordner.getFileHandle(fname, { create:true });
+        const w = await fh.createWritable(); await w.write(blob); await w.close();
+      } else zip.file(fname, blob);
+      ok++;
+      prog.querySelector('.hrk-prog-bar i').style.width = Math.round(ok / rows.length * 100) + '%';
+      prog.querySelector('.hrk-prog-n').textContent = `${ok} von ${rows.length} · ${r.agent.name}`;
+    }
+    if(zip){
+      prog.querySelector('.hrk-prog-t').textContent = 'ZIP-Datei wird gepackt …';
+      const zb = await zip.generateAsync({ type:'blob' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(zb); a.download = ordnerName + '.zip';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+    }
+    if(window.fxToast) fxToast(ordner ? `${ok} Karten im Ordner „${ordnerName}“ gespeichert` : `${ok} Karten als ZIP gespeichert`);
+  }catch(e){
+    console.error(e);
+    if(window.fxToast) fxToast(`Fehler nach ${ok} Karten – bitte erneut versuchen`);
+  }finally{
+    host.remove(); prog.remove();
+    if(btn){ btn.disabled = false; btn.textContent = alt; }
+  }
+}
+
+function openHrKarte(rows, startIdx, ctx){
+  let idx = startIdx;
+  const ov = document.createElement('div'); ov.className = 'chart-overlay cd-modal-overlay hrk-ov';
+  const box = document.createElement('div'); box.className = 'hrk-box';
+  ov.appendChild(box); document.body.appendChild(ov);
+  const close = ()=>{ ov.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = e=>{ if(e.key === 'Escape') close(); else if(e.key === 'ArrowLeft' && idx > 0){ idx--; render(); } else if(e.key === 'ArrowRight' && idx < rows.length-1){ idx++; render(); } };
+  document.addEventListener('keydown', onKey);
+  ov.addEventListener('mousedown', e=>{ if(e.target === ov) close(); });
+  function render(){
+    const r = rows[idx];
+    const { standTxt } = ctx;
+    const karte = hrKarteHtml(r, rows, ctx).replace('<div class="hrk">', '<div class="hrk" id="hrk-capture">');
+    box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
+      <div class="hrk-nav"><button type="button" class="hrk-prev" ${idx===0?'disabled':''}>‹ Vorheriger</button><span>${idx+1} von ${rows.length}</span><button type="button" class="hrk-next" ${idx===rows.length-1?'disabled':''}>Nächster ›</button></div>
+      ${karte}
       <div class="hrk-actions"><button type="button" class="btn-secondary hrk-copy">Bild kopieren</button><button type="button" class="primary hrk-save">Als Bild speichern</button></div>`;
     box.querySelector('.cd-modal-x').onclick = close;
     const pv = box.querySelector('.hrk-prev'), nx = box.querySelector('.hrk-next');
@@ -14849,6 +14927,24 @@ html[data-fx-theme="dark"] .sh3-tag rect{fill:#1C2733;} html[data-fx-theme="dark
 .hrk-p{overflow-wrap:anywhere;line-height:1.15;}
 @media (max-width:480px){ .hrk-row{grid-template-columns:58px 1fr auto;} }
 .hrk-actions{position:sticky;bottom:-16px;z-index:2;background:var(--panel);padding:10px 0 2px;margin-top:-2px;box-shadow:0 -10px 14px -10px rgba(16,24,40,.25);}
+
+/* v198: Sammel-Export */
+.hr2-exp.hr2-all{background:var(--tmg);border-color:var(--tmg);}
+.hr2-exp.hr2-all:disabled{opacity:.6;cursor:wait;}
+.hrk-prog-box{background:var(--panel);border-radius:16px;padding:22px 24px;width:min(380px,100%);display:flex;flex-direction:column;gap:12px;font-family:'Inter',sans-serif;box-shadow:0 20px 50px -20px rgba(0,0,0,.4);}
+.hrk-prog-t{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;}
+.hrk-prog-bar{height:10px;border-radius:999px;background:var(--border);overflow:hidden;}
+.hrk-prog-bar i{display:block;height:100%;width:0;background:var(--tmg);border-radius:999px;transition:width .2s;}
+.hrk-prog-n{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+/* v199: Spruch als Hingucker direkt unter dem Kopf */
+.hrk-spruch{position:relative;margin:-14px 16px 4px;padding:16px 18px 16px 52px;background:#FFF4FA;border:1.5px solid #F7C3DE;border-radius:14px;box-shadow:0 8px 20px -12px rgba(160,0,90,.35);}
+.hrk-q{position:absolute;left:14px;top:4px;font-family:Georgia,'Times New Roman',serif;font-size:54px;line-height:1;color:#E20074;font-weight:700;}
+.hrk-spruch-t{font-family:'Inter',sans-serif;font-size:16px;line-height:1.45;font-weight:600;color:#7A0046;letter-spacing:-.005em;}
+.hrk-head{padding-bottom:28px!important;}
+.hrk-sum{padding-top:12px;}
+.hrk-sum1{font-size:15.5px;}
+@media (max-width:480px){ .hrk-spruch{margin:-14px 10px 4px;padding:14px 14px 14px 44px;} .hrk-q{font-size:46px;left:11px;} .hrk-spruch-t{font-size:15px;} }
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
