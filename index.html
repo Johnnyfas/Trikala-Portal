@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 202;
+const BOARD_VERSION = 203;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -7434,6 +7434,43 @@ function vlBarSVG(w, h, o){
   return svg + '</svg>';
 }
 
+// v203: CHT und WHT als Doppelbalken in einem Diagramm (CHT gefüllt, WHT umrandet)
+function vlPairBarSVG(w, h, o){
+  const pad = {l:38, r:10, t:34, b:34};
+  const cw = w-pad.l-pad.r, ch = h-pad.t-pad.b, n = o.monate.length;
+  const A = o.a.values.map(v=>parseFloat(v)||0), B = o.b.values.map(v=>parseFloat(v)||0);
+  const sc = vlNiceMax(Math.max(0, ...A, ...B), 600);
+  let { svg, T, fs } = vlFrame(w, h);
+  const slot = cw/n, bw = Math.max(5, Math.min(22, slot*0.32)), gap = Math.max(2, bw*0.18);
+  const vfs = slot < 44 ? fs-2 : fs-1;
+  for(let i=0;i<=sc.n;i++){
+    const tv = sc.max*i/sc.n, y = pad.t + ch - (i/sc.n)*ch;
+    svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+cw}" y2="${y}" style="stroke:var(--border);" ${i? 'stroke-dasharray="2 4"' : ''}/>`;
+    svg += `<text x="${pad.l-6}" y="${y+3.5}" text-anchor="end" font-size="${fs-1}" style="${T}fill:var(--muted);">${Math.round(tv)}</text>`;
+  }
+  // Legende
+  svg += `<rect x="${pad.l}" y="6" width="11" height="11" rx="3" style="fill:var(--muted);"/><text x="${pad.l+16}" y="15.5" font-size="${fs-1}" font-weight="600" style="${T}fill:var(--text);">${o.a.label}</text>`;
+  const lx = pad.l + 16 + o.a.label.length*7 + 18;
+  svg += `<rect x="${lx}" y="6.5" width="10" height="10" rx="3" style="fill:var(--muted);fill-opacity:.25;stroke:var(--muted);" stroke-width="1.5"/><text x="${lx+16}" y="15.5" font-size="${fs-1}" font-weight="600" style="${T}fill:var(--text);">${o.b.label}</text>`;
+  if(o.hinweis) svg += `<text x="${pad.l+cw}" y="15.5" text-anchor="end" font-size="${fs-2}" style="${T}fill:var(--muted);">${o.hinweis}</text>`;
+  let prevYr = null;
+  o.monate.forEach((m,i)=>{
+    const cx = pad.l + (i+0.5)*slot, L = vlMonthLabel(m);
+    [[A[i], o.a.col, -1, false], [B[i], o.b.col, 1, true]].forEach(([v, col, side, hohl])=>{
+      if(!(v > 0)) return;
+      const x = side < 0 ? cx - gap/2 - bw : cx + gap/2;
+      const bh = v/sc.max*ch, by = pad.t + ch - bh, c = col(v);
+      svg += hohl
+        ? `<rect x="${x+0.75}" y="${by+0.75}" width="${bw-1.5}" height="${Math.max(0,bh-0.75)}" rx="3" style="fill:${c};fill-opacity:.22;stroke:${c};" stroke-width="1.5"/>`
+        : `<rect x="${x}" y="${by}" width="${bw}" height="${bh}" rx="3" style="fill:${c};"/>`;
+      svg += `<text x="${x+bw/2}" y="${by-4}" text-anchor="middle" font-size="${vfs}" font-weight="700" style="${T}fill:${c};font-variant-numeric:tabular-nums;">${Math.round(v)}</text>`;
+    });
+    svg += `<text x="${cx}" y="${h-pad.b+16}" text-anchor="middle" font-size="${fs-1}" style="${T}fill:var(--muted);">${L.mon}</text>`;
+    if(L.yr && L.yr !== prevYr){ svg += `<text x="${cx}" y="${h-pad.b+28}" text-anchor="middle" font-size="${fs-2}" font-weight="600" style="${T}fill:var(--muted);opacity:.75;">${L.yr}</text>`; prevYr = L.yr; }
+  });
+  return svg + '</svg>';
+}
+
 function showChartPopup(title, drawFn){
   const overlay = document.createElement('div');
   overlay.className = 'chart-overlay';
@@ -7853,31 +7890,22 @@ function renderVerlauf(){
     chartWrapNPS.appendChild(canvasNPS);
     chartsRow.appendChild(chartWrapNPS);
 
-    // Diagramm 4: CHT
+    // Diagramm 4: CHT – bei Teams mit WHT zusammen mit WHT in einem Diagramm (v203)
     const chtValues = monate.map(m => agentData.monate[m].cht || null);
+    const whtValues = monate.map(m => agentData.monate[m].wht || null);
     const hasChtData = chtValues.some(v => v !== null && v > 0);
-    if(hasChtData){
+    const hasWhtData = hasWHT(teamId) && whtValues.some(v => v > 0);
+    if(hasChtData || hasWhtData){
+      const titelCW = hasWhtData ? 'CHT & WHT Entwicklung' : 'CHT Entwicklung';
+      const zeichneCW = el => hasWhtData ? drawCHTWHTChart(el, monate, chtValues, whtValues) : drawCHTChart(el, monate, chtValues);
       const chartWrapCHT = document.createElement('div');
       chartWrapCHT.className = 'vl-chart-wrap';
-      chartWrapCHT.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — CHT Entwicklung</div>`;
-      chartWrapCHT.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — CHT Entwicklung', c=>drawCHTChart(c, monate, chtValues)));
+      chartWrapCHT.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — ${titelCW}</div>`;
+      chartWrapCHT.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — '+titelCW, c=>zeichneCW(c)));
       const canvasCHT = document.createElement('div'); canvasCHT.className = 'vl-chart-host';
-      canvasCHT.height = 200;
       chartWrapCHT.appendChild(canvasCHT);
       chartsRow.appendChild(chartWrapCHT);
-      setTimeout(()=>{ drawCHTChart(canvasCHT, monate, chtValues); }, 50);
-    }
-    // Diagramm 5: WHT (v177, nur Teams mit WHT)
-    const whtValues = monate.map(m => agentData.monate[m].wht || null);
-    if(hasWHT(teamId) && whtValues.some(v => v > 0)){
-      const chartWrapWHT = document.createElement('div');
-      chartWrapWHT.className = 'vl-chart-wrap';
-      chartWrapWHT.innerHTML = `<div class="vl-chart-title">${agentDisplayName} — WHT Entwicklung</div>`;
-      chartWrapWHT.addEventListener('click', ()=>showChartPopup(agentDisplayName+' — WHT Entwicklung', c=>drawWHTChart(c, monate, whtValues)));
-      const hostWHT = document.createElement('div'); hostWHT.className = 'vl-chart-host';
-      chartWrapWHT.appendChild(hostWHT);
-      chartsRow.appendChild(chartWrapWHT);
-      setTimeout(()=>{ drawWHTChart(hostWHT, monate, whtValues); }, 50);
+      setTimeout(()=>{ zeichneCW(canvasCHT); }, 50);
     }
 
     teamBlock.appendChild(chartsRow);
@@ -7912,6 +7940,13 @@ function renderVerlauf(){
     }
     function drawCHTChart(el, monate, chtValues){
       vlRender(el, (w,h)=>vlBarSVG(w, h, { monate, values: chtValues.map(v=>v||0) }));
+    }
+    function drawCHTWHTChart(el, monate, chtValues, whtValues){
+      const chtCol = v => v <= 550 ? 'var(--good)' : v <= 680 ? 'var(--warn)' : 'var(--bad)';
+      vlRender(el, (w,h)=>vlPairBarSVG(w, h, { monate,
+        a:{ label:'CHT', values: chtValues.map(v=>v||0), col: chtCol },
+        b:{ label:'WHT', values: whtValues.map(v=>v||0), col: v => whtOk(v) ? 'var(--good)' : 'var(--bad)' },
+        hinweis: 'Sekunden' }));
     }
     function drawWHTChart(el, monate, whtValues){
       vlRender(el, (w,h)=>vlBarSVG(w, h, { monate, values: whtValues.map(v=>v||0), colorFn: v => whtOk(v) ? 'var(--good)' : 'var(--bad)' }));
