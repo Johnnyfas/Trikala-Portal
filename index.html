@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 203;
+const BOARD_VERSION = 204;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -8296,15 +8296,26 @@ function renderMonatsabschluss(){
     datasets.forEach((ds, k)=>{
       ptsBy[k].forEach((p,j)=>{
         const last = j === ptsBy[k].length-1;
-        const others = ptsBy.filter((_,o)=>o!==k).map(arr=>arr.find(q=>q.i===p.i)).filter(Boolean);
-        const below = others.some(q => q.y < p.y || (q.y === p.y && k > 0));
-        let ty = below ? p.y + fs + 6 : p.y - 8;
-        if(ty < pad.t - 6) ty = p.y + fs + 6;
-        if(ty > pad.t + ch - 2 && !below) ty = p.y - 8;
+        // v204: Beschriftung je Monat: oberster Punkt oben, unterster unten, mittlere links daneben
+        const imMonat = ptsBy.map((arr, o) => ({ o, q: arr.find(q=>q.i===p.i) })).filter(x => x.q).sort((a, b) => a.q.y - b.q.y || a.o - b.o);
+        const rang = imMonat.findIndex(x => x.o === k);
+        const platz = fs + 12;
+        const ob = rang > 0 ? p.y - imMonat[rang-1].q.y : 999;              // Abstand zum Punkt darüber
+        const un = rang < imMonat.length - 1 ? imMonat[rang+1].q.y - p.y : 999; // Abstand zum Punkt darunter
+        let mitte = false, below;
+        if(rang === 0) below = false;
+        else if(rang === imMonat.length - 1) below = true;
+        else if(un >= platz) below = true;
+        else if(ob >= platz) below = false;
+        else { mitte = true; below = false; }
+        let ty = mitte ? p.y + fs/2 - 1 : below ? p.y + fs + 6 : p.y - 8;
+        if(!mitte && ty < pad.t - 6) ty = p.y + fs + 6;
+        if(!mitte && ty > pad.t + ch - 2 && !below) ty = p.y - 8;
+        const tx = mitte ? p.x - 9 : p.x, anchor = mitte ? 'end' : 'middle';
         svg += ds.dash
           ? `<circle cx="${p.x}" cy="${p.y}" r="${last?4:3.2}" style="fill:var(--panel);" stroke="${ds.color}" stroke-width="2"/>`
           : `<circle cx="${p.x}" cy="${p.y}" r="${last?4:3}" fill="${ds.color}" style="stroke:var(--panel);" stroke-width="1.5"/>`;
-        svg += `<text x="${p.x}" y="${ty}" text-anchor="middle" font-size="${fs}" font-weight="${last?700:600}" fill="${ds.color}" style="${T}font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round;">${fmt(p.v)}</text>`;
+        svg += `<text x="${tx}" y="${ty}" text-anchor="${anchor}" font-size="${fs}" font-weight="${last?700:600}" fill="${ds.color}" style="${T}font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round;">${fmt(p.v)}</text>`;
         svg += `<circle class="ma-pt" cx="${p.x}" cy="${p.y}" r="10" fill="transparent" data-tip="${ds.label} · ${labels[p.i]}: ${fmt(p.v)}"/>`;
       });
     });
@@ -8468,8 +8479,12 @@ function renderMonatsabschluss(){
   //  3. hinterlegte Helpsense-Werte Januar–Juli (per Pylon-Nr.)
   const chtMonate = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const chtJetzt = new Date();
+  const maKeyVon = teamId => teamId === 'Trikala01' ? 'mf' : teamId === 'Trikala06' ? 'fn' : null;
+  const maWert = (teamId, monat, feld) => { const k = maKeyVon(teamId); const md = k && state.monatsabschluss[k] && state.monatsabschluss[k][monat]; const v = md ? parseFloat(md[feld]) : 0; return v > 0 ? v : 0; };
   const chtTeamAvg = (teamId) => chtMonate.map((monat, idx)=>{
     if(chtJetzt.getFullYear() === 2026 && idx > chtJetzt.getMonth()) return 0; // Zukunft
+    // v204: im Monatsabschluss eingetragener Wert hat Vorrang vor dem Durchschnitt der Mitarbeiter
+    const ma = maWert(teamId, monat, 'cht'); if(ma) return Math.round(ma);
     const istAktuell = chtJetzt.getFullYear() === 2026 && idx === chtJetzt.getMonth();
     const agents = state.agents.filter(a=>a.team===teamId && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
     const vals = [];
@@ -8492,6 +8507,7 @@ function renderMonatsabschluss(){
   const whtTeams = Object.keys(TEAM_CONFIGS).filter(hasWHT);
   const whtAvg = teamId => chtMonate.map((monat, idx)=>{
     if(chtJetzt.getFullYear() === 2026 && idx > chtJetzt.getMonth()) return 0;
+    const ma = maWert(teamId, monat, 'wht'); if(ma) return Math.round(ma);
     const istAktuell = chtJetzt.getFullYear() === 2026 && idx === chtJetzt.getMonth();
     const vals = state.agents.filter(a=>a.team===teamId && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work').map(a=>{
       if(istAktuell && a.wht > 0) return a.wht;
