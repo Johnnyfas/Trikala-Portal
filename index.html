@@ -1607,7 +1607,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 196;
+const BOARD_VERSION = 197;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -14842,6 +14842,13 @@ html[data-fx-theme="dark"] .sh3-tag rect{fill:#1C2733;} html[data-fx-theme="dark
 .hrk-prog{display:block;font-size:11px;line-height:1.4;color:#8A93A0;font-style:italic;font-variant-numeric:tabular-nums;}
 .hrk-prog b{color:#5B6470;font-style:normal;font-weight:700;}
 .hrk-prog svg{color:#A4ACB7;vertical-align:-2px;margin-right:4px;}
+
+/* v197: Einzelkarte nicht mehr abschneiden (Fenster scrollt statt Karte zu stauchen) */
+.hrk-box > *{flex-shrink:0;}
+.hrk-row{grid-template-columns:70px 1fr auto;}
+.hrk-p{overflow-wrap:anywhere;line-height:1.15;}
+@media (max-width:480px){ .hrk-row{grid-template-columns:58px 1fr auto;} }
+.hrk-actions{position:sticky;bottom:-16px;z-index:2;background:var(--panel);padding:10px 0 2px;margin-top:-2px;box-shadow:0 -10px 14px -10px rgba(16,24,40,.25);}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
