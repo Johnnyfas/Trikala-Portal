@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 205;
+const BOARD_VERSION = 206;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -11103,9 +11103,21 @@ function renderHochrechnung(){
 }
 
 
-// v193: Sprüche – große Auswahl; innerhalb eines Teams bekommt am selben Tag niemand denselben Spruch
+// v206: mehr griechische Sprüche (Trikala, Batzina, Tostia …). v193: Sprüche – große Auswahl; innerhalb eines Teams bekommt am selben Tag niemand denselben Spruch
 const HR_SPRUECHE = {
   "alle": [
+    "Alle Ziele erreicht! In Trikala wird ab heute eine Pita nach dir benannt. Mit doppelt Fleisch.",
+    "Monat durchgespielt! Der Gyros-Mann legt dir ab sofort automatisch ein Extra-Stück drauf.",
+    "Alles erreicht – selbst der Glockenturm am Kastro hat kurz „Bravo“ geläutet.",
+    "Alle Ziele erreicht! Heute gibt’s Tostia statt Gyros Pita – du hast dir die XXL-Variante verdient.",
+    "Du hast den Monat gerockt. Die Uhr oben am Kastro von Trikala schlägt heute extra für dich.",
+    "Alles erreicht – in Manavika wird schon ein Tsipouro auf deinen Namen eingeschenkt. Mit Meze, versteht sich.",
+    "Ziele geknackt! Die Elfen vom Mylos ton Xotikon wollen dich als Chef-Elf einstellen.",
+    "Alles erreicht. Die Giagia backt dir eine Batzina so groß wie der Hauptplatz von Trikala.",
+    "Du hast alle Ziele erledigt. Der Lithaios fließt heute vor lauter Stolz rückwärts.",
+    "Alles im Sack! Wenn Ziele Loukoumades wären, hättest du die ganze Schüssel leergeputzt – samt Honig.",
+    "Glückwunsch! Beim nächsten Panigyri spielt die Band nur noch Lieder über dich.",
+    "Asklepios kam aus Trikala und konnte heilen. Du kommst aus Trikala und kannst verkaufen. Legenden unter sich.",
     "Alle Ziele erreicht. Die Zielvorgabe hat Urlaub beantragt – sie braucht Abstand von dir.",
     "Du hast alle Ziele geknackt. Selbst die Mönche oben auf den Meteora-Klöstern haben kurz applaudiert.",
     "Monatsziel erledigt. Ab jetzt bist du offiziell schuld, wenn die Ziele nächstes Jahr höher werden.",
@@ -11124,6 +11136,17 @@ const HR_SPRUECHE = {
     "Du hast alles erreicht. Die Warteschleifenmusik überlegt, sich nach dir zu benennen."
   ],
   "kurs": [
+    "Auf Kurs! Du bist so stabil wie die Meteora-Felsen – und die stehen seit Millionen Jahren.",
+    "Läuft bei dir wie Tsipouro in Manavika: von ganz allein und in bester Gesellschaft.",
+    "Du bist so gut im Rennen, dass die Fahrräder von Trikala dich um Tipps bitten.",
+    "Du bist so auf Kurs wie der selbstfahrende Bus von Trikala – kein Fahrer nötig, kein Umweg drin.",
+    "Läuft wie eine Radtour am Lithaios entlang: flach, flott, und keiner bremst dich.",
+    "Auf Kurs! Du bist wie eine gute Batzina: knusprig, goldbraun, und alle wollen ein Stück von dir.",
+    "Alles nach Plan – so zuverlässig wie die Schlange vor dem Gyros-Laden am Freitagabend.",
+    "Du drehst deine Runden so gleichmäßig wie der Spieß beim Kontosouvli – und genauso lecker.",
+    "Du bist so gut unterwegs, dass die Meteora-Felsen sich fragen, wer hier eigentlich hoch hinaus will.",
+    "Alles im Plan wie das Sonntagsessen bei der Giagia: pünktlich, reichlich, und keiner geht hungrig nach Hause.",
+    "Auf Kurs! Wenn das so weitergeht, bekommst du in jedem Souvlatzidiko von Trikala die Pommes gratis.",
     "Du bist auf Kurs wie ein ICE … nur pünktlich. Ein echtes Wunder der Technik.",
     "Alles nach Plan – du bist das Navi, das nie „Bitte wenden“ sagen muss.",
     "Auf Kurs! Wenn das so weitergeht, schreibt dir die Hochrechnung bald Liebesbriefe.",
@@ -11142,6 +11165,15 @@ const HR_SPRUECHE = {
     "Wenn du so weitermachst, müssen wir für die Hall of Fame einen größeren Nagel kaufen."
   ],
   "ende": [
+    "Endspurt! Jetzt wird geackert wie die Giagia zwei Stunden vor dem Ostermahl.",
+    "Letzte Runde! Wie beim Lamm am Spieß an Ostern: Jetzt nochmal kräftig drehen.",
+    "Finale! Die Tostia ist fast aufgegessen – jetzt nicht schlappmachen, der beste Bissen kommt zum Schluss.",
+    "Endspurt! Jetzt gilt dasselbe wie beim letzten Stück Batzina auf dem Teller: schnell sein, bevor es ein anderer nimmt.",
+    "Letzte Tage! Jetzt ist Tostia-Zeit: groß denken, kräftig zubeißen.",
+    "Finale! Stell dir vor, hinter der Ziellinie wartet ein Galaktoboureko – noch warm.",
+    "Schlussspurt wie beim Panigyri um Mitternacht: Jetzt geht der Tanz erst richtig los.",
+    "Endspurt! Der Gyros-Spieß ist fast runter – jetzt kommen die knusprigsten Stücke.",
+    "Die letzten Meter – wie der Aufstieg zum Kastro: kurz steil, aber oben die beste Aussicht über Trikala.",
     "Endspurt! Jetzt ist jeder Call wie das letzte Stück Baklava – unbedingt mitnehmen.",
     "Letzte Runde! Stell dir vor, hinter der Ziellinie wartet ein Buffet und du hast seit Stunden nichts gegessen.",
     "Das ist Elfmeterschießen in der Nachspielzeit – nur mit Headset statt Fußballschuhen.",
@@ -11156,6 +11188,14 @@ const HR_SPRUECHE = {
     "Noch ein letzter Sprint – danach darfst du dich feiern lassen. Oder wenigstens einen Frappé trinken."
   ],
   "fast": [
+    "Fast perfekt – wie ein Choriatiki ohne Feta. Hol dir das letzte Stück, dann ist der Salat komplett.",
+    "Ein Produkt fehlt noch wie die Zitrone auf dem Souvlaki. Kleiner Spritzer, großer Unterschied.",
+    "Fast alles da – wie eine Gyros Pita ohne Zwiebeln. Gut, aber jeder merkt, dass was fehlt.",
+    "Ein Produkt fehlt noch wie die Pommes in der Gyros Pita. Geht auch ohne – aber ehrlich, wer will das?",
+    "Alle sitzen schon am Tisch in der Taverne – nur ein Produkt sucht noch einen Parkplatz in Trikala.",
+    "Fast komplett! Es fehlt nur noch das letzte Stück Batzina – und das schmeckt bekanntlich am besten.",
+    "Ein Produkt tanzt noch nicht mit im Tsamiko-Kreis. Nimm es an die Hand.",
+    "So nah dran wie Kalambaka an den Meteora. Ein paar Stufen noch, dann bist du oben.",
     "Fast perfekt! Nur ein Produkt ziert sich noch wie eine Katze vor der Badewanne.",
     "Ein Produkt schmollt in der Ecke, weil du alle anderen lieber hast. Zeit für eine Versöhnung.",
     "Alle Produkte tanzen Sirtaki – nur eins steht noch schüchtern am Rand.",
@@ -11174,6 +11214,13 @@ const HR_SPRUECHE = {
     "Das letzte Produkt hat angerufen: Es will auch mit aufs Siegerfoto."
   ],
   "start": [
+    "Neuer Monat – der Grill ist an, die Pita liegt bereit. Jetzt fehlt nur noch die Füllung.",
+    "Monatsstart wie der erste Schluck Frappé: Strohhalm rein, und los geht’s.",
+    "Neuer Monat – wie eine frische Bougatsa am Morgen: warm, knusprig, voller Möglichkeiten.",
+    "Monatsstart! Erst ein Freddo Espresso, dann die Welt erobern. In genau dieser Reihenfolge.",
+    "Der Monat ist wie ein frisch angeschnittener Gyros-Spieß: Alles ist noch da, alles ist noch drin.",
+    "Start frei! Die Fahrräder in Trikala stehen schon bereit – tritt kräftig in die Pedale.",
+    "Neuer Monat, leerer Teller. Zeit, ihn so vollzumachen wie die Giagia beim Sonntagsessen.",
     "Der Monat ist noch so frisch wie der erste Frappé am Morgen.",
     "Neuer Monat, neues Glück. Headset auf, Show an, Bühne frei!",
     "Der Monat ist ein leeres Notizbuch – schreib einen Bestseller rein.",
@@ -11188,6 +11235,16 @@ const HR_SPRUECHE = {
     "Neuer Monat – die Ziele ahnen noch nicht, was gleich auf sie zukommt."
   ],
   "haelfte": [
+    "Halbzeit wie bei einer Gyros-Platte für zwei: Die Hälfte ist weg, aber der Hunger ist noch da.",
+    "Die Hälfte läuft – wie ein Mezedes-Teller, auf dem nur noch die besten Stücke liegen.",
+    "Halber Monat, halbe Batzina. Und die zweite Hälfte ist immer die knusprigere.",
+    "Halbzeit! Deine Batzina ist schon halb gebacken – noch ein paar Minuten, dann wird sie goldbraun.",
+    "Die Hälfte sitzt. Du bist wie eine halb gegessene Tostia: Aufhören ist jetzt keine Option.",
+    "Halber Weg – wie mitten auf der Brücke über den Lithaios. Das andere Ufer winkt schon.",
+    "Ein paar Produkte sitzen noch im Kafeneio und spielen Tavli. Hol sie an den Arbeitsplatz.",
+    "Halb voll! Wie ein Tsipouro-Glas – und wir wissen alle: Das wird noch nachgefüllt.",
+    "Die Hälfte läuft wie geschmiert. Mit Olivenöl natürlich – wir sind ja in Thessalien.",
+    "Du bist wie eine Spanakopita in Arbeit: Die erste Lage Blätterteig liegt, jetzt kommt die Füllung.",
     "Halbzeit-Stimmung: Die Hälfte läuft wie geschmiert, die andere Hälfte macht noch Mittagspause.",
     "Dein Monat ist wie eine Pizza: halb belegt. Die Salami ist schon unterwegs.",
     "Halb voll, nicht halb leer! Und der Nachschub ist bereits bestellt.",
@@ -11206,6 +11263,16 @@ const HR_SPRUECHE = {
     "Ein paar Ziele brauchen noch Liebe – wie die Zimmerpflanze, die du seit Wochen anschweigst."
   ],
   "wenig": [
+    "Noch nicht viel auf dem Teller? Die Giagia wäre empört. Also: nachlegen!",
+    "Auch der Weg zur Batzina beginnt mit Maismehl und Geduld. Rühr weiter – das wird was.",
+    "Die Zahlen schlafen noch Siesta. Weck sie mit einem starken Elliniko – und einem noch stärkeren Gespräch.",
+    "Deine Hochrechnung ist wie ein Souvlaki vor dem Grillen: roh, aber mit großem Potenzial.",
+    "Kein Stress: Auch eine Batzina wird nicht in fünf Minuten fertig. Aber wenn sie fertig ist – wow.",
+    "Die Kurve ist noch flach wie die Thessalische Ebene. Aber dahinter kommen bekanntlich die Meteora.",
+    "Deine Zahlen sind wie Kokoretsi auf dem Grill: Das dauert, aber das Ergebnis lohnt sich.",
+    "Auch der beste Gyros-Spieß war morgens mal roh. Jetzt wird gegrillt!",
+    "Die Ziele sitzen noch im Kafeneio und trinken einen Elliniko. Zeit, ihnen die Rechnung zu bringen.",
+    "Noch läuft’s wie der Verkehr in Trikala zur Mittagszeit. Gleich ist die Straße wieder frei.",
     "Die Saison ist noch nicht vorbei – echte Champions kommen in der zweiten Halbzeit. Mit Snacks.",
     "Kleiner Tipp: Die Ziele beißen nicht. Meistens.",
     "Das ist die Stelle im Film, an der die Musik dramatisch wird. Und dann kommt die große Wende.",
@@ -11224,6 +11291,15 @@ const HR_SPRUECHE = {
     "Das Navi sagt: Route wird neu berechnet – Ankunft als Gewinner."
   ],
   "null": [
+    "Noch {TAGE} Tage – das reicht für mehr Comebacks als eine griechische Serie Folgen hat.",
+    "Noch nichts auf Kurs? Selbst der selbstfahrende Bus von Trikala musste erst mal losrollen.",
+    "Null ist kein Ergebnis, sondern ein leerer Pita-Teller. Und der wird jetzt gefüllt.",
+    "Die Giagia sagt immer: „Wer nicht isst, wird nicht groß.“ Also – hol dir die ersten Abschlüsse.",
+    "Noch {TAGE} Tage – genug Zeit für eine Tostia, ein Comeback und einen Tsipouro zur Feier.",
+    "Von null auf Tostia: erst kleine Bissen, dann der ganz große Wurf.",
+    "Leerer Teller? Die Giagia sagt: Dann wird jetzt nachgelegt. Und der Giagia widerspricht man nicht.",
+    "Auch die Mönche von Meteora haben mit einem einzigen Stein angefangen. Und schau, wo sie heute wohnen.",
+    "Die Batzina ist noch Teig. Ofen an, Hitze rauf – noch {TAGE} Tage, bis sie goldbraun ist.",
     "Noch {TAGE} Tage für das große Comeback – Hollywood liebt solche Geschichten.",
     "Reset-Knopf gedrückt? Perfekt – von hier aus geht es nur nach oben. Die Physik ist auf deiner Seite.",
     "Das ist kein Tief, das ist Anlauf nehmen. Und du nimmst gerade richtig viel Anlauf.",
@@ -11242,6 +11318,12 @@ const HR_SPRUECHE = {
 };
 const HR_SCHLUSS = {
   "gut": [
+    "CR und NPS sind so gut, dass dir die Giagia gleich eine zweite Portion Moussaka auftut.",
+    "CR und NPS im Ziel – wie Gyros und Tzatziki: gehören zusammen und machen alle glücklich.",
+    "CR top, NPS top – du bist die Tostia unter den Verkäufern: XXL und von allen geliebt.",
+    "CR und NPS sind so gut, dass in Manavika eine Runde Tsipouro auf dich ausgegeben wird.",
+    "Deine Kunden reden über dich wie über die beste Batzina von Trikala – mit leuchtenden Augen.",
+    "CR und NPS im grünen Bereich – grüner als die Platanen am Lithaios.",
     "Und CR und NPS? Beide im grünen Bereich. Du bist quasi ein wandelndes Qualitätssiegel.",
     "Die Kunden lieben dich, die CR liebt dich – das ist mehr Liebe als in jeder Telenovela.",
     "CR und NPS singen im Duett – Eurovision-verdächtig.",
@@ -11258,6 +11340,11 @@ const HR_SCHLUSS = {
     "CR und NPS im grünen Bereich. Die Qualitätsabteilung hätte gern ein Selfie mit dir."
   ],
   "cr_gut": [
+    "CR stark wie ein Tsipouro, NPS noch mild wie ein Frappé light. Etwas mehr Herz, dann passt die Mischung.",
+    "Die CR ist ein voller Gyros-Teller – jetzt noch ein Extra-Klecks Herzlichkeit für den NPS.",
+    "Deine CR ist schon beim Hauptgang, der NPS noch bei der Vorspeise. Etwas mehr Herz, und beide sitzen am selben Tisch.",
+    "CR stark, NPS noch blass – wie eine Batzina, die zwei Minuten mehr Ofen braucht. Mehr Wärme, dann wird sie goldbraun.",
+    "Deine CR feiert schon im Tsipouradiko. Lad den NPS ein – mit einem ehrlichen Lächeln am Ende jedes Gesprächs.",
     "Deine CR glänzt! Jetzt noch ein extra Lächeln ins Headset – dann zieht der NPS nach.",
     "Verkaufen kannst du wie ein Weltmeister. Jetzt die Kunden noch zum Schwärmen bringen – der NPS dankt.",
     "CR im Ziel – der NPS wartet nur noch auf deinen Charme-Turbo.",
@@ -11274,6 +11361,11 @@ const HR_SCHLUSS = {
     "Abschlussstark wie immer! Jetzt die Kunden noch so verabschieden, als wären sie Stammgäste in deiner Taverne."
   ],
   "nps_gut": [
+    "Die Kunden würden mit dir sofort einen Frappé trinken gehen. Frag sie doch beim nächsten Mal nach einem Angebot – die CR wartet schon.",
+    "Die Kunden lieben dich wie eine frische Bougatsa. Jetzt noch fragen, ob sie Puderzucker dazu wollen – die CR dankt.",
+    "Du bist so herzlich wie eine griechische Tante am Telefon. Jetzt noch so überzeugend wie sie – dann kommt die CR.",
+    "NPS top! Die Meze hast du schon serviert – jetzt noch den Hauptgang anbieten.",
+    "Kunden begeistert – fehlt nur noch die Frage „Darf’s ein bisschen mehr sein?“. Wie beim Gyros-Mann um die Ecke.",
     "Die Kunden lieben dich – jetzt diese Liebe noch in Abschlüsse verwandeln.",
     "Dein NPS ist top! Wer so gut ankommt, darf ruhig öfter etwas anbieten. Die Kunden mögen dich ja!",
     "Sympathie-Weltmeister! Die CR wartet nur auf deine Frage nach dem Abschluss.",
@@ -11290,6 +11382,14 @@ const HR_SCHLUSS = {
     "Dein NPS ist ein Star. Gib der CR eine Nebenrolle – sie will auch auf die Bühne."
   ],
   "schwach": [
+    "CR und NPS sind wie ein Souvlaki ohne Zitrone – ein Spritzer Begeisterung, und beide schmecken sofort besser.",
+    "CR und NPS hängen noch in Kalambaka fest. Mit ein paar guten Gesprächen geht’s hoch zu den Meteora.",
+    "CR und NPS sind wie Pita, die noch auf den Grill muss: kurz Hitze geben, dann wird’s richtig gut.",
+    "CR und NPS brauchen gerade eine Extraportion – wie eine Tostia, wenn die Gyros Pita nicht satt gemacht hat.",
+    "CR und NPS sind noch wie Batzina-Teig: Mit etwas Hitze und Geduld wird daraus was Großartiges.",
+    "CR und NPS machen Pause im Kafeneio. Hol sie zurück – der Elliniko ist eh schon kalt.",
+    "Ein Lächeln wie beim Panigyri, eine Frage wie auf der Laiki – und CR und NPS kommen hinterher.",
+    "CR und NPS sind wie Kokoretsi: brauchen Zeit am Grill, aber dann sind sie das Highlight.",
     "CR und NPS haben noch Luft nach oben – und Luft ist bekanntlich gratis.",
     "CR und NPS warten auf dein Update. Kostenlos, sofort verfügbar, kein Neustart nötig.",
     "Ein Lächeln mehr, eine Frage mehr – und CR und NPS kommen richtig in Fahrt.",
@@ -11306,6 +11406,11 @@ const HR_SCHLUSS = {
     "CR und NPS warten auf ihr Comeback. Die Hauptrolle hast du."
   ],
   "neutral": [
+    "CR und NPS lassen noch auf sich warten – wie der Kellner in der Taverne am Sonntagmittag.",
+    "Noch keine Werte. Die Statistik trinkt wohl noch ihren Freddo Espresso.",
+    "CR und NPS sind noch unterwegs – vermutlich mit dem Fahrrad über die Brücke am Lithaios.",
+    "Noch keine Werte – wie ein leerer Teller vor der Giagia. Das bleibt nicht lange so.",
+    "CR und NPS backen noch im Ofen wie eine Batzina. Bald duftet’s.",
     "CR und NPS kommen bald – mach sie zu einer schönen Überraschung.",
     "Noch keine CR- und NPS-Werte? Perfekt – dann schreib sie gleich richtig gut.",
     "Die Qualitätszahlen sind noch unterwegs. Vermutlich stehen sie im Stau vor Trikala.",
@@ -11323,6 +11428,39 @@ const HR_SCHLUSS = {
 };
 
 const HR_SPRUECHE_ALLG = [
+  "Gute Laune am Telefon ist wie Oregano auf dem Souvlaki: Man sieht sie kaum, aber man schmeckt sie sofort.",
+  "Wusstest du? Eine Batzina braucht kaum Zutaten – nur gute Hände. Genau wie ein starker Call.",
+  "Wer in Trikala aufwächst, lernt früh: Fahrrad fahren, Tsipouro schätzen und niemals ohne Angebot auflegen.",
+  "Ein Gespräch ohne Bedarfsanalyse ist wie Gyros bestellen, ohne zu sagen, ob mit oder ohne Zwiebeln.",
+  "Lebensweisheit aus dem Kafeneio: Wer redet, verkauft. Wer zuhört, verkauft mehr.",
+  "Kunden sind wie die Giagia: Sie merken sofort, ob du es ernst meinst.",
+  "Heute ist ein guter Tag für einen Abschluss – und für eine Tostia in der Mittagspause.",
+  "Ein Lächeln am Telefon wirkt wie Honig auf Loukoumades: Alles wird ein bisschen süßer.",
+  "Wenn die Meteora-Mönche Headsets hätten, würden sie heute bei dir abschauen.",
+  "Kleine Erinnerung: Auch die größte Tostia beginnt mit einer einzigen Pita.",
+  "Fun Fact: Kein Mensch hat je eine Batzina abgelehnt. Mit einem guten Angebot ist es genauso.",
+  "Ein Call ist wie Tavli: Mit Glück allein gewinnt man nicht – mit Strategie schon.",
+  "Freundlichkeit ist die Feta in jedem Gespräch: Ohne sie fehlt einfach was.",
+  "Wer den Kunden wie einen Gast in der Taverne behandelt, bekommt am Ende das beste Trinkgeld: ein Ja.",
+  "Profis telefonieren wie die Giagia kocht: mit Gefühl, ohne Rezept und mit garantiert gutem Ergebnis.",
+  "Ein guter Einstieg ist wie der Duft vom Gyros-Grill: Er macht sofort Lust auf mehr.",
+  "Der Lithaios fließt jeden Tag weiter – genau wie deine Chancen auf den nächsten Abschluss.",
+  "Wenn du heute einen schweren Kunden hast: Denk an die Mönche, die Meteora zu Fuß hochgegangen sind. Du schaffst das.",
+  "Die drei Säulen von Trikala: Batzina, Tsipouro und starke Gespräche. Die dritte liegt an dir.",
+  "Ein Abschluss vor der Mittagspause macht die Gyros Pita gleich doppelt lecker.",
+  "Merke: Eine Tostia ist einfach eine Gyros Pita, die an sich geglaubt hat. Sei wie die Tostia.",
+  "Fun Fact: Gyros Pita macht glücklich. Tostia macht doppelt glücklich. Abschlüsse machen am glücklichsten.",
+  "Ein guter Call ist wie eine Batzina: einfache Zutaten, viel Liebe – und am Ende wollen alle mehr.",
+  "Trikala hat als erste Stadt Griechenlands einen selbstfahrenden Bus getestet. Du testest heute selbstlaufende Abschlüsse.",
+  "Asklepios, der Gott der Heilkunst, stammt aus Trikala. Dein Talent offensichtlich auch.",
+  "Profi-Tipp aus Manavika: erst die Meze, dann der Tsipouro, dann der Abschluss. Oder so ähnlich.",
+  "Ein Call ohne Lächeln ist wie eine Gyros Pita ohne Pita – da fällt alles auseinander.",
+  "Wer zu den Meteora hochschaut, weiß: Hoch hinaus geht immer.",
+  "Bei der Giagia gibt es kein „Ich hab keinen Hunger“. Bei dir gibt es kein „Kein Bedarf“, ohne mal nachzufragen.",
+  "Im Advent leuchtet der Mylos ton Xotikon – dein Headset leuchtet das ganze Jahr.",
+  "Ein Freddo Espresso, ein Headset und gute Laune – mehr braucht ein echter Trikalinos nicht.",
+  "Siga-siga ist super beim Kaffeetrinken. Beim Anbieten darf’s ruhig zügiger gehen.",
+  "Kunden sind wie Gäste in der Taverne: Wer gut bedient wird, kommt wieder.",
   "Fun Fact: Headsets funktionieren mit guter Laune nachweislich 37 % besser. Quelle: Vertrau uns.",
   "Kaffee ist gut. Abschlüsse sind besser. Abschlüsse mit Kaffee sind unschlagbar.",
   "Jeder Call ist eine Wundertüte – mal ist ein Abschluss drin, mal eine Oma, die sich verwählt hat.",
@@ -11357,6 +11495,21 @@ const HR_SPRUECHE_ALLG = [
   "Wer mit Herz telefoniert, hat am Monatsende die Zahlen auf seiner Seite."
 ];
 const HR_SCHLUSS_ALLG = [
+  "CR und NPS sind wie Tsipouro und Meze – zusammen am besten, einzeln nur halb so gut.",
+  "Merksatz aus der Taverne: Gute Bedienung bringt Stammgäste – und Stammgäste bringen CR und NPS.",
+  "CR und NPS sind wie Batzina und Feta: Wer das eine pflegt, bekommt das andere gleich mit.",
+  "Ein herzliches „Kalo apogevma“ am Ende des Gesprächs – und der NPS lächelt mit.",
+  "CR ist der Gyros, NPS das Tzatziki. Erst zusammen wird’s eine richtige Pita.",
+  "CR und NPS lieben es wie die Giagia: ehrlich, warmherzig und mit einem guten Angebot zum Schluss.",
+  "Wer anbietet wie auf der Laiki und zuhört wie im Kafeneio, hat CR und NPS auf seiner Seite.",
+  "CR und NPS sind wie die zwei Ufer des Lithaios – mit jedem guten Gespräch baust du eine Brücke dazwischen.",
+  "Gut verkaufen und gut beraten – das ist wie Pita und Füllung. Das eine hält, das andere schmeckt.",
+  "Kleiner Tipp aus Trikala: Ein Gespräch ist erst fertig, wenn der Kunde mit einem Lächeln auflegt – das liebt der NPS.",
+  "CR und NPS sind wie Pita und Gyros – das eine ohne das andere ist nur halb so lecker.",
+  "CR und NPS sind wie Meteora und Kalambaka – zusammen eine Weltattraktion.",
+  "Ein Tsipouro kommt nie allein, sondern immer mit Meze. Genauso CR und NPS: immer zusammen denken.",
+  "Kleiner Reminder aus Trikala: Gute Gespräche sind wie Batzina – mit Liebe gemacht schmeckt man den Unterschied.",
+  "Mutig anbieten wie ein Händler auf der Laiki, herzlich verabschieden wie die Giagia – CR und NPS sagen danke.",
   "Und denk dran: CR und NPS sind ein Team – beide wollen gepflegt werden.",
   "Gute Abschlüsse plus zufriedene Kunden – das ist die geheime Formel für CR und NPS.",
   "CR und NPS freuen sich über jedes gute Gespräch. Wirklich über jedes.",
@@ -11420,11 +11573,14 @@ function hrSpruchVerteilung(){
     }
     const pool = pools.find(p => p && p.length) || alleO; return pool[h % pool.length];
   };
+  // v206: griechische Sprüche (Essen, Trikala, Meteora …) werden zuerst vergeben, die übrigen sind Reserve
+  const GR = /Gyros|Pita|Tostia|Batzina|Trikala|Meteora|Giagia|Tsipouro|Lithaios|Manavika|Kastro|Souvlaki|Frappé|Meze|Kafeneio|Panigyri|Taverne|Bougatsa|Kokoretsi|Thessal|Kalambaka|Sirtaki|Feta|Tzatziki|Olive|Laiki|Elliniko|Loukoumades|Baklava|Moussaka|Asklepios|Xotikon|Spanakopita|Galaktoboureko|Kontosouvli|Tsamiko|Freddo|Piräus|Athen|Trikalinos|Siga|Souvlatzidiko|Tavli|Choriatiki|Mezedes|Oregano|Kalo apogevma|Ostermahl|Ostern/;
+  const gr = pool => (pool || []).filter(t => GR.test(t));
   const out = {};
   alle.forEach(x=>{
     out[x.id] = {
-      o: nimm([HR_SPRUECHE[x.stufe], HR_SPRUECHE_ALLG, alleO], benutztO, x.h),
-      c: nimm([HR_SCHLUSS[x.gruppe], HR_SCHLUSS_ALLG, alleC], benutztC, x.h >>> 3)
+      o: nimm([gr(HR_SPRUECHE[x.stufe]), gr(HR_SPRUECHE_ALLG), HR_SPRUECHE[x.stufe], HR_SPRUECHE_ALLG, alleO], benutztO, x.h),
+      c: nimm([gr(HR_SCHLUSS[x.gruppe]), gr(HR_SCHLUSS_ALLG), HR_SCHLUSS[x.gruppe], HR_SCHLUSS_ALLG, alleC], benutztC, x.h >>> 3)
     };
   });
   return out;
