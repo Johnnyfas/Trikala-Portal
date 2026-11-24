@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 207;
+const BOARD_VERSION = 208;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -11124,7 +11124,7 @@ const HR_NEU = {
     "Kaum da, schon richtig gut unterwegs. Du bist der Beweis, dass Talent kein Dienstalter braucht.",
     "Die ersten Wochen, und du rollst schon wie ein Fahrrad am Lithaios – ganz ohne Stützräder.",
     "Wenn das deine Einarbeitung ist, wollen wir gar nicht wissen, was passiert, wenn du erst richtig warm bist.",
-    "Neu, aber schon ein Naturtalent – wie eine Tostia, die von Anfang an wusste, dass sie mal groß wird.",
+    "Neu, aber schon ein Naturtalent – wie eine Tostia: von Anfang an doppelt so gut.",
     "Du machst das, als hättest du nie etwas anderes gemacht. Bitte verrat den anderen nicht, wie leicht es aussieht.",
     "Starke erste Wochen! Die Meteora-Mönche haben länger gebraucht, um oben anzukommen.",
     "Neu im Team, schon mittendrin. Willkommen in der Familie – hier gibt’s Frappé und Applaus."
@@ -11140,9 +11140,9 @@ const HR_NEU = {
     "Die ersten Wochen sind zum Ankommen da. Die Zahlen kommen ganz von allein, wenn du dich sicher fühlst.",
     "Du sammelst gerade Erfahrung wie die Giagia Rezepte: eins nach dem anderen, und keins geht verloren.",
     "Fehler sind erlaubt – sie sind die kostenlose Nachhilfe des Callcenters.",
-    "Auch die größte Tostia war mal eine kleine Pita. Gib dir Zeit zu wachsen.",
+    "Für eine Tostia braucht man zwei Pitas – und für einen guten Start ein bisschen Zeit. Gib sie dir.",
     "Kopf hoch: Jeder Profi hier hatte mal seine ersten Wochen. Manche erzählen bis heute lustige Geschichten davon.",
-    "Siga-siga – Schritt für Schritt. Wer gut ankommt, kommt auch weit.",
+    "Schritt für Schritt, Bissen für Bissen – wer gut ankommt, kommt auch weit.",
     "Das Wichtigste gerade: gut zuhören und freundlich bleiben. Der Rest ist Übung.",
     "Du bist noch in der Aufwärmphase – und das ist genau richtig so. Das ganze Team steht hinter dir.",
     "Jeder gute Call ist ein kleiner Sieg. Sammle sie wie Sticker im Panini-Album."
@@ -11528,7 +11528,7 @@ const HR_SPRUECHE_ALLG = [
   "Heute ist ein guter Tag für einen Abschluss – und für eine Tostia in der Mittagspause.",
   "Ein Lächeln am Telefon wirkt wie Honig auf Loukoumades: Alles wird ein bisschen süßer.",
   "Wenn die Meteora-Mönche Headsets hätten, würden sie heute bei dir abschauen.",
-  "Kleine Erinnerung: Auch die größte Tostia beginnt mit einer einzigen Pita.",
+  "Kleine Erinnerung: Eine Tostia braucht zwei Pitas – und ein starkes Gespräch zwei Dinge: gut zuhören und mutig anbieten.",
   "Fun Fact: Kein Mensch hat je eine Batzina abgelehnt. Mit einem guten Angebot ist es genauso.",
   "Ein Call ist wie Tavli: Mit Glück allein gewinnt man nicht – mit Strategie schon.",
   "Freundlichkeit ist die Feta in jedem Gespräch: Ohne sie fehlt einfach was.",
@@ -11539,7 +11539,7 @@ const HR_SPRUECHE_ALLG = [
   "Wenn du heute einen schweren Kunden hast: Denk an die Mönche, die Meteora zu Fuß hochgegangen sind. Du schaffst das.",
   "Die drei Säulen von Trikala: Batzina, Tsipouro und starke Gespräche. Die dritte liegt an dir.",
   "Ein Abschluss vor der Mittagspause macht die Gyros Pita gleich doppelt lecker.",
-  "Merke: Eine Tostia ist einfach eine Gyros Pita, die an sich geglaubt hat. Sei wie die Tostia.",
+  "Merke: Eine Tostia ist eine Gyros Pita mit doppelter Pita – und doppeltem Ehrgeiz. Sei wie die Tostia.",
   "Fun Fact: Gyros Pita macht glücklich. Tostia macht doppelt glücklich. Abschlüsse machen am glücklichsten.",
   "Ein guter Call ist wie eine Batzina: einfache Zutaten, viel Liebe – und am Ende wollen alle mehr.",
   "Trikala hat als erste Stadt Griechenlands einen selbstfahrenden Bus getestet. Du testest heute selbstlaufende Abschlüsse.",
@@ -11550,7 +11550,7 @@ const HR_SPRUECHE_ALLG = [
   "Bei der Giagia gibt es kein „Ich hab keinen Hunger“. Bei dir gibt es kein „Kein Bedarf“, ohne mal nachzufragen.",
   "Im Advent leuchtet der Mylos ton Xotikon – dein Headset leuchtet das ganze Jahr.",
   "Ein Freddo Espresso, ein Headset und gute Laune – mehr braucht ein echter Trikalinos nicht.",
-  "Siga-siga ist super beim Kaffeetrinken. Beim Anbieten darf’s ruhig zügiger gehen.",
+  "Gemütlich ist super beim Frappé-Trinken. Beim Anbieten darf’s ruhig zügiger gehen.",
   "Kunden sind wie Gäste in der Taverne: Wer gut bedient wird, kommt wieder.",
   "Fun Fact: Headsets funktionieren mit guter Laune nachweislich 37 % besser. Quelle: Vertrau uns.",
   "Kaffee ist gut. Abschlüsse sind besser. Abschlüsse mit Kaffee sind unschlagbar.",
@@ -11589,7 +11589,7 @@ const HR_SCHLUSS_ALLG = [
   "CR und NPS sind wie Tsipouro und Meze – zusammen am besten, einzeln nur halb so gut.",
   "Merksatz aus der Taverne: Gute Bedienung bringt Stammgäste – und Stammgäste bringen CR und NPS.",
   "CR und NPS sind wie Batzina und Feta: Wer das eine pflegt, bekommt das andere gleich mit.",
-  "Ein herzliches „Kalo apogevma“ am Ende des Gesprächs – und der NPS lächelt mit.",
+  "Ein herzliches „Schönen Tag noch!“ am Ende des Gesprächs – und der NPS lächelt mit.",
   "CR ist der Gyros, NPS das Tzatziki. Erst zusammen wird’s eine richtige Pita.",
   "CR und NPS lieben es wie die Giagia: ehrlich, warmherzig und mit einem guten Angebot zum Schluss.",
   "Wer anbietet wie auf der Laiki und zuhört wie im Kafeneio, hat CR und NPS auf seiner Seite.",
@@ -11665,7 +11665,7 @@ function hrSpruchVerteilung(){
     const pool = pools.find(p => p && p.length) || alleO; return pool[h % pool.length];
   };
   // v206: griechische Sprüche (Essen, Trikala, Meteora …) werden zuerst vergeben, die übrigen sind Reserve
-  const GR = /Gyros|Pita|Tostia|Batzina|Trikala|Meteora|Giagia|Tsipouro|Lithaios|Manavika|Kastro|Souvlaki|Frappé|Meze|Kafeneio|Panigyri|Taverne|Bougatsa|Kokoretsi|Thessal|Kalambaka|Sirtaki|Feta|Tzatziki|Olive|Laiki|Elliniko|Loukoumades|Baklava|Moussaka|Asklepios|Xotikon|Spanakopita|Galaktoboureko|Kontosouvli|Tsamiko|Freddo|Piräus|Athen|Trikalinos|Siga|Souvlatzidiko|Tavli|Choriatiki|Mezedes|Oregano|Kalo apogevma|Ostermahl|Ostern/;
+  const GR = /Gyros|Pita|Tostia|Batzina|Trikala|Meteora|Giagia|Tsipouro|Lithaios|Manavika|Kastro|Souvlaki|Frappé|Meze|Kafeneio|Panigyri|Taverne|Bougatsa|Kokoretsi|Thessal|Kalambaka|Sirtaki|Feta|Tzatziki|Olive|Laiki|Elliniko|Loukoumades|Baklava|Moussaka|Asklepios|Xotikon|Spanakopita|Galaktoboureko|Kontosouvli|Tsamiko|Freddo|Piräus|Athen|Trikalinos|Souvlatzidiko|Tavli|Choriatiki|Mezedes|Oregano|Ostermahl|Ostern/;
   const gr = pool => (pool || []).filter(t => GR.test(t));
   const out = {};
   const neuAlle = [...HR_NEU.gut, ...HR_NEU.lernen];
