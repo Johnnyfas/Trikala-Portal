@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 211;
+const BOARD_VERSION = 212;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -4597,7 +4597,6 @@ function renderCoaching(){
         catSelect.appendChild(opt);
       });
       catSelect.addEventListener('change', e=>{
-        if(agent.category === 'schulung' && e.target.value !== 'schulung' && !agent.startDatum) agent.startDatum = fkIsoDate(new Date());
         agent.category = e.target.value;
         scheduleSave();
         renderAll();
@@ -4639,7 +4638,6 @@ function renderCoaching(){
       });
       ortSelect.addEventListener('change', e=>{ agent.arbeitsort = e.target.value; scheduleSave(); });
       topLeft.appendChild(ortSelect);
-      topLeft.appendChild(buildStartDatumField(agent));
 
       const removeBtn = document.createElement('button');
       removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
@@ -4855,7 +4853,6 @@ function renderCoaching(){
       catSelect.appendChild(opt);
     });
     catSelect.addEventListener('change', e=>{
-      if(agent.category === 'schulung' && e.target.value !== 'schulung' && !agent.startDatum) agent.startDatum = fkIsoDate(new Date());
       agent.category = e.target.value;
       scheduleSave();
       renderAll();
@@ -4889,7 +4886,6 @@ function renderCoaching(){
     });
     ortSelect.addEventListener('change', e=>{ agent.arbeitsort = e.target.value; scheduleSave(); });
     topLeft.appendChild(ortSelect);
-    topLeft.appendChild(buildStartDatumField(agent));
 
     const removeBtn = document.createElement('button');
     removeBtn.className = 'remove-btn'; removeBtn.textContent = '✕'; removeBtn.title = 'Entfernen';
@@ -11190,7 +11186,7 @@ function renderHochrechnung(){
 
 
 
-// v207: Mitarbeiter in den ersten 3 Monaten (Feld „Start im Team“) bekommen allgemeine, ermutigende Sprüche
+// v207: Mitarbeiter in den ersten 3 Monaten (erkannt am Mitarbeiter Verlauf) bekommen allgemeine, ermutigende Sprüche
 // ohne Verkaufsdruck – sie sollen erst ankommen und lernen.
 const HR_NEU = {
   "gut": [
@@ -11246,30 +11242,29 @@ const HR_NEU_SCHLUSS = [
   "Du gehörst dazu – mit allem, was du schon kannst, und mit allem, was noch kommt.",
   "Schreib dir deine Lieblingsformulierungen auf. Bald hast du deinen eigenen Leitfaden im Kopf."
 ];
+// v212: „Neu“ wird aus dem Mitarbeiter Verlauf erkannt: kein Verlauf oder weniger als 3 abgeschlossene
+// Monate mit Werten vor dem betrachteten Monat → Mitarbeiter ist in seinen ersten 3 Monaten.
+function vlMonateMitWerten(agent, vor){
+  const grenze = vor.getFullYear() * 12 + vor.getMonth();
+  const gesehen = new Set();
+  verlaufEntriesForAgent(agent).forEach(vl=>{
+    Object.entries(vl.monate || {}).forEach(([key, md])=>{
+      const mm = String(key).match(/^(?:(\d{4})-)?(.+)$/);
+      const idx = VL_MONATE.indexOf(mm[2]); if(idx < 0) return;
+      const jahr = mm[1] ? +mm[1] : 2026;
+      if(jahr * 12 + idx >= grenze) return;
+      const sales = (md && md.sales) || {};
+      const hat = Object.values(sales).some(v => +v > 0) || +(md && md.calls) > 0 || (md && typeof md.nps === 'number' && md.nps !== 0);
+      if(hat) gesehen.add(jahr * 12 + idx);
+    });
+  });
+  return gesehen.size;
+}
 function istNeuImTeam(agent, now){
-  const v = agent && agent.startDatum;
-  if(!v || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return false;
-  const [y, m, d] = v.split('-').map(Number);
-  const ende = new Date(y, m - 1 + 3, d);   // 3 Monate nach dem Start
-  return (now || new Date()) < ende;
+  if(!agent || agent.category === 'schulung') return false;
+  now = now || new Date();
+  return vlMonateMitWerten(agent, new Date(now.getFullYear(), now.getMonth(), 1)) < 3;
 }
-// Datumsfeld „Start im Team“ für die Mitarbeiterkarte
-function buildStartDatumField(agent){
-  const inp = document.createElement('input');
-  inp.type = 'date';
-  inp.className = 'pylon-input start-input';
-  inp.title = 'Start im Team (nach der Schulung) – in den ersten 3 Monaten bekommt der Mitarbeiter in Hochrechnung und Monatsbilanz ermutigende Sprüche ohne Verkaufsdruck';
-  inp.value = agent.startDatum || '';
-  const markiere = () => inp.classList.toggle('is-neu', istNeuImTeam(agent));
-  markiere();
-  inp.addEventListener('change', e => { agent.startDatum = e.target.value || ''; markiere(); scheduleSave(); });
-  const wrap = document.createElement('label');
-  wrap.className = 'start-wrap';
-  wrap.innerHTML = '<span>Start</span>';
-  wrap.appendChild(inp);
-  return wrap;
-}
-
 // v206: mehr griechische Sprüche (Trikala, Batzina, Tostia …). v193: Sprüche – große Auswahl; innerhalb eines Teams bekommt am selben Tag niemand denselben Spruch
 const HR_SPRUECHE = {
   "alle": [
@@ -16198,10 +16193,6 @@ html[data-fx-theme="dark"] .tl-pill.st-warn{background:rgba(194,121,43,.2);color
 html[data-fx-theme="dark"] .tl-pill.st-bad{background:rgba(180,66,58,.25);color:#F3AAA3;}
 
 
-/* v207: Start im Team */
-.start-wrap{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
-.start-input{width:auto!important;padding:3px 6px!important;text-transform:none;letter-spacing:0;}
-.start-input.is-neu{border-color:var(--teal,#0E7C7B)!important;color:var(--teal,#0E7C7B)!important;background:rgba(14,124,123,.08)!important;}
 .hrk-neu{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:1px 8px;font-weight:700;font-size:11px;margin-right:4px;}
 
 /* v209: Giagia mit Sprechblase */
