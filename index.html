@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 208;
+const BOARD_VERSION = 209;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -3694,6 +3694,32 @@ document.getElementById('cd-gear').addEventListener('click', ()=>{ initCoachDash
 // Sub-Tab Steuerung für Mitarbeiter Ziele (Mitarbeiter Ziele / Tageswerte)
 
 // =====================================================================
+// v209: Die Giagia spricht den Spruch – Figur mit Sprechblase, damit der Spruch sofort ins Auge fällt
+const GIAGIA_SVG = `<svg class="gg-fig" viewBox="0 0 100 120" aria-hidden="true">
+  <path d="M20 120 Q22 86 50 80 Q78 86 80 120 Z" fill="#2B2B33"/>
+  <path d="M36 120 Q37 96 50 93 Q63 96 64 120 Z" fill="#F3E9DC"/>
+  <circle cx="44" cy="104" r="1.6" fill="#E20074"/><circle cx="56" cy="104" r="1.6" fill="#E20074"/><circle cx="50" cy="112" r="1.6" fill="#E20074"/>
+  <path d="M71 92 Q85 84 87 67" fill="none" stroke="#2B2B33" stroke-width="9" stroke-linecap="round"/>
+  <line x1="87" y1="64" x2="93" y2="38" stroke="#B07A44" stroke-width="3.5" stroke-linecap="round"/>
+  <ellipse cx="94" cy="33" rx="4.5" ry="6.5" fill="#B07A44"/>
+  <circle cx="87" cy="65" r="5.2" fill="#F2C7A5"/>
+  <path d="M25 56 Q23 21 50 21 Q77 21 75 56 Q75 74 58 78 L50 80 L42 78 Q25 74 25 56 Z" fill="#1F1F26"/>
+  <circle cx="50" cy="80" r="3.6" fill="#1F1F26"/><path d="M50 81 L45 89 M50 81 L55 89" stroke="#1F1F26" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="50" cy="54" rx="17" ry="19" fill="#F2C7A5"/>
+  <path d="M33 44 Q50 31 67 44 Q59 39 50 40 Q41 39 33 44 Z" fill="#C9C9CF"/>
+  <circle cx="39" cy="61" r="3.2" fill="#F29AA8" opacity=".65"/><circle cx="61" cy="61" r="3.2" fill="#F29AA8" opacity=".65"/>
+  <circle cx="43" cy="53" r="5.6" fill="rgba(255,255,255,.35)" stroke="#5A4632" stroke-width="1.6"/><circle cx="57" cy="53" r="5.6" fill="rgba(255,255,255,.35)" stroke="#5A4632" stroke-width="1.6"/>
+  <path d="M48.6 53 L51.4 53" stroke="#5A4632" stroke-width="1.6"/>
+  <path d="M40.5 53.6 Q43 51.4 45.5 53.6 M54.5 53.6 Q57 51.4 59.5 53.6" fill="none" stroke="#3A2A20" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M50 55.5 Q51.8 58.5 49.4 59.5" fill="none" stroke="#C99A7C" stroke-width="1.3" stroke-linecap="round"/>
+  <path d="M44 64 Q50 69 56 64" fill="none" stroke="#8A3B3B" stroke-width="1.9" stroke-linecap="round"/>
+</svg>`;
+function hrSpruchHtml(text){
+  return `<div class="hrk-spruch gg"><div class="gg-figwrap">${GIAGIA_SVG}</div>
+    <div class="gg-bubble"><i class="gg-tail" aria-hidden="true"></i>
+      <div class="gg-lbl">Giagia sagt:</div><div class="hrk-spruch-t">${text}</div></div></div>`;
+}
+// =====================================================================
 // v205: FRÜHWARNSYSTEM
 // Erkennt früh, wenn ein Mitarbeiter abrutscht – bevor der Monat gelaufen ist.
 // =====================================================================
@@ -3997,7 +4023,7 @@ function mbKarteHtml(x, monatName, vmName){
     <div class="hrk-head hrb-head"><div class="hrk-eyebrow">Deine Monatsbilanz · ${kiEsc(monatName)}</div>
       <div class="hrk-name">${kiEsc(d.agent.name)}</div>
       <div class="hrk-meta">${x.neu ? '<span class="hrk-neu">Neu im Team</span> ' : ''}${kiEsc((TEAM_CONFIGS[d.agent.team] || {}).project || '')} · Endstand des Monats</div></div>
-    <div class="hrk-spruch"><span class="hrk-q" aria-hidden="true">“</span><div class="hrk-spruch-t">${kiEsc(x.spruch || '')}</div></div>
+    ${hrSpruchHtml(kiEsc(x.spruch || ''))}
     <div class="hrb-hero"><div class="hrk-ring hrb-ring">${ring}<span>${q === null ? '–' : q + '%'}</span></div>
       <div><div class="hrk-sum1">Zielerfüllung <b>${q === null ? '–' : q + ' %'}</b></div>
       <div class="hrb-sub">${d.erreicht} von ${d.total} Produkten erreicht${qv !== null ? ` · ${vmName}: ${qv} % ${mbDelta(q, qv)}` : ''}</div></div></div>
@@ -11785,7 +11811,7 @@ function hrKarteHtml(r, rows, ctx){
         <div class="hrk-head"><div class="hrk-eyebrow">Deine Hochrechnung · ${kiEsc(monatName)}</div>
           <div class="hrk-name">${kiEsc(r.agent.name)}</div>
           <div class="hrk-meta">${istNeuImTeam(r.agent) ? '<span class="hrk-neu">Neu im Team</span> ' : ''}Stand ${standTxt} · noch ${info.remaining} ${info.remaining === 1 ? 'Tag' : 'Tage'} im Monat${tageMA && tageMA !== info.remaining ? ` (ca. ${tageMA} Arbeitstage für dich)` : ''}</div></div>
-        <div class="hrk-spruch"><span class="hrk-q" aria-hidden="true">“</span><div class="hrk-spruch-t">${msg}</div></div>
+        ${hrSpruchHtml(msg)}
         <div class="hrk-sum"><div class="hrk-ring">${ring}<span>${r.onTrack}/${r.total}</span></div><div><div class="hrk-sum1">${spruch.titel}</div></div></div>
         <div class="hrk-list">${zeilen}<div class="hrk-sep">CR & Qualität</div>${crBlock}${npsBlock}</div>
         <div class="hrk-legend"><span><i class="lg-ist"></i>kräftig = bisher</span><span><i class="lg-prog"></i>hell = Prognose</span><span><i class="lg ok"></i>erreicht / auf Kurs</span><span><i class="lg warn"></i>knapp</span><span><i class="lg bad"></i>in Gefahr</span></div>
@@ -16127,6 +16153,16 @@ html[data-fx-theme="dark"] .tl-pill.st-bad{background:rgba(180,66,58,.25);color:
 .start-input{width:auto!important;padding:3px 6px!important;text-transform:none;letter-spacing:0;}
 .start-input.is-neu{border-color:var(--teal,#0E7C7B)!important;color:var(--teal,#0E7C7B)!important;background:rgba(14,124,123,.08)!important;}
 .hrk-neu{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:1px 8px;font-weight:700;font-size:11px;margin-right:4px;}
+
+/* v209: Giagia mit Sprechblase */
+.hrk-spruch.gg{display:flex;align-items:flex-end;gap:16px;margin:-18px 14px 6px;padding:0;background:none;border:0;box-shadow:none;}
+.gg-figwrap{flex:0 0 104px;width:104px;height:126px;position:relative;z-index:1;}
+.gg-fig{width:104px;height:126px;display:block;filter:drop-shadow(0 4px 6px rgba(90,0,50,.25));}
+.gg-bubble{position:relative;flex:1;min-width:0;background:#FFFBEA;border:2.5px solid #E20074;border-radius:18px;padding:12px 16px 14px;box-shadow:4px 4px 0 #E20074;margin-bottom:6px;}
+.gg-tail{position:absolute;left:-11px;bottom:26px;width:18px;height:18px;background:#FFFBEA;border-left:2.5px solid #E20074;border-bottom:2.5px solid #E20074;transform:rotate(45deg);border-radius:0 0 0 3px;}
+.gg-lbl{font-family:'Inter',sans-serif;font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#E20074;margin-bottom:3px;}
+.hrk-spruch.gg .hrk-spruch-t{font-size:17px;line-height:1.42;font-weight:700;color:#3A0A26;}
+@media (max-width:480px){ .hrk-spruch.gg{margin:-14px 10px 6px;gap:12px;} .gg-figwrap,.gg-fig{width:76px;height:92px;flex-basis:76px;} .hrk-spruch.gg .hrk-spruch-t{font-size:15.5px;} }
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
