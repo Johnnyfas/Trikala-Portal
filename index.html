@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 212;
+const BOARD_VERSION = 213;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -1633,13 +1633,21 @@ const VL_MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','Augus
 function vlNameMatches(vName, aName){
   if(!vName || !aName) return false;
   const n = aName.trim(), v = vName.trim();
-  return v === n || n.startsWith(v + ' ') || n.endsWith(' ' + v) || v.startsWith(n + ' ') || v.endsWith(' ' + n);
+  if(v === n || n.startsWith(v + ' ') || n.endsWith(' ' + v) || v.startsWith(n + ' ') || v.endsWith(' ' + n)) return true;
+  // v212: Nachname + Initiale, z.B. "Antoniou I." passt zu "Antoniou Ioannis" bzw. "Ioannis Antoniou"
+  const tok = x => x.toLowerCase().replace(/\./g, ' ').split(/\s+/).filter(Boolean);
+  const vt = tok(v), at = tok(n);
+  const lang = vt.filter(t => t.length > 2), kurz = vt.filter(t => t.length <= 2);
+  if(lang.length !== 1 || !kurz.length) return false;
+  const i = at.indexOf(lang[0]); if(i < 0) return false;
+  const rest = at.filter((_, k) => k !== i);
+  return kurz.every(ini => rest.some(t => t.startsWith(ini)));
 }
 // Alle Verlaufs-Einträge eines Mitarbeiters: zuerst die fest verknüpften (meiste Monate zuerst),
 // sonst Fallback über den Namen.
 function verlaufEntriesForAgent(agent){
   if(!agent) return [];
-  const all = Object.values(state.verlauf || {}).filter(v => v && v.monate);
+  const all = Object.values(state.verlauf || {}).filter(v => v && v.monate && !v.ausgeblendet);
   const linked = all.filter(v => agent.id && v.agentId === agent.id)
     .sort((a,b)=>Object.keys(b.monate).length - Object.keys(a.monate).length);
   // Danach (als Rückfall für ältere Monate) ein noch nicht verknüpfter Eintrag mit passendem Namen
@@ -1688,7 +1696,9 @@ function linkVerlaufToAgents(){
   let changed = false;
   const agents = (state.agents||[]).filter(a => a && a.id && a.name && a.name.trim());
   Object.values(state.verlauf).forEach(v=>{
-    if(!v || !v.monate || v.agentId || !v.name) return;
+    if(!v || !v.monate || !v.name || v.ausgeblendet) return;
+    // v212: auch Einträge, deren Mitarbeiter gelöscht wurde, dürfen neu (eindeutig) verknüpft werden
+    if(v.agentId && agents.some(a => a.id === v.agentId)) return;
     const team = agents.filter(a => a.team === v.team);
     // Eindeutigkeit gegen ALLE Mitarbeiter des Teams prüfen (auch bereits verknüpfte), damit z.B.
     // ein alter Eintrag "Papa" nie einer von zwei Personen namens Papa zugeschlagen wird.
@@ -8330,6 +8340,50 @@ function showChartPopup(title, drawFn){
 
 
 const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+// v212: Alle Verlaufs-Einträge eines Mitarbeiters zu einem Objekt zusammenführen (aktueller Name)
+function vlZusammengefuehrt(agent){
+  const eintraege = verlaufEntriesForAgent(agent);
+  if(!eintraege.length) return null;
+  const monate = {};
+  eintraege.forEach(vl => Object.entries(vl.monate || {}).forEach(([k, md])=>{
+    const key = /^\d{4}-/.test(k) ? k : '2026-' + k;
+    if(!monate[key]) monate[key] = md;
+  }));
+  if(!Object.keys(monate).length) return null;
+  return { name: agent.name, team: agent.team, agentId: agent.id, monate };
+}
+// Verlaufs-Einträge, die keinem aktuellen Mitarbeiter gehören (gelöscht oder Name nicht erkennbar)
+function vlVerwaiste(){
+  const agents = state.agents.filter(a => a && a.name && a.name.trim());
+  const benutzt = new Set();
+  agents.forEach(a => verlaufEntriesForAgent(a).forEach(v => benutzt.add(v)));
+  return Object.entries(state.verlauf || {}).filter(([, v]) => v && v.monate && !v.ausgeblendet && !benutzt.has(v));
+}
+function vlVerwaistSection(){
+  const liste = vlVerwaiste();
+  if(!liste.length) return null;
+  const d = document.createElement('details');
+  d.className = 'vl-orphans';
+  d.open = !!window.vlOrphOffen;
+  d.addEventListener('toggle', () => { window.vlOrphOffen = d.open; });
+  d.innerHTML = `<summary>Verlaufsdaten ohne Mitarbeiter (${liste.length}) – ehemalige oder umbenannte Mitarbeiter</summary>
+    <div class="vl-orph-hint">Diese Einträge erscheinen nicht mehr in der Auswahl. Wurde jemand umbenannt, ordne die alten Daten dem Mitarbeiter zu – dann zählen sie wieder zu seinem Verlauf. Ehemalige Mitarbeiter kannst du ausblenden.</div>`;
+  const tab = document.createElement('div'); tab.className = 'vl-orph-list';
+  liste.forEach(([key, v])=>{
+    const n = Object.keys(v.monate).length;
+    const team = state.agents.filter(a => a && a.name && a.name.trim() && a.team === v.team);
+    const row = document.createElement('div'); row.className = 'vl-orph-row';
+    row.innerHTML = `<div class="vl-orph-n"><b>${kiEsc(v.name || key)}</b><span>${kiEsc((TEAM_CONFIGS[v.team] || {}).label || v.team || '')} · ${n} ${n === 1 ? 'Monat' : 'Monate'}</span></div>
+      <select class="cp-form-select vl-orph-sel"><option value="">Zuordnen zu …</option>${team.map(a => `<option value="${a.id}">${kiEsc(a.name)}</option>`).join('')}</select>
+      <button type="button" class="fk-btn vl-orph-hide">Ausblenden</button>`;
+    row.querySelector('.vl-orph-sel').onchange = e => { if(!e.target.value) return; v.agentId = e.target.value; delete v.ausgeblendet; scheduleSave(); renderVerlauf(); if(window.fxToast) fxToast('Verlauf zugeordnet'); };
+    row.querySelector('.vl-orph-hide').onclick = () => { v.ausgeblendet = true; scheduleSave(); renderVerlauf(); };
+    tab.appendChild(row);
+  });
+  d.appendChild(tab);
+  return d;
+}
 let vlSelectedAgent = {};
 
 
@@ -8436,6 +8490,7 @@ function renderVerlauf(){
     return current ? current.name : av.name;
   }
 
+  try{ const orph = vlVerwaistSection(); if(orph) container.appendChild(orph); }catch(e){ console.warn('Verlauf ohne Mitarbeiter', e); }
   // ===== TOP 5 / BOTTOM 5 (Durchschnitt über alle vorhandenen Monate) =====
   try {
   const rankOuter = document.createElement('div');
@@ -8443,13 +8498,7 @@ function renderVerlauf(){
 
   function avgFromVerlauf(agent, field){
     // Fuzzy-Match: voller Name, nur Nachname, oder Nachname stimmt überein
-    const entry = Object.values(state.verlauf).find(v => v.team===agent.team && (
-      v.name === agent.name ||
-      agent.name.startsWith(v.name + ' ') ||
-      agent.name.endsWith(' ' + v.name) ||
-      v.name.startsWith(agent.name + ' ') ||
-      v.name.endsWith(' ' + agent.name)
-    ));
+    const entry = vlZusammengefuehrt(agent);
     if(!entry) return null;
     const vals = Object.values(entry.monate||{}).map(m=>m[field]).filter(v=>v !== undefined && v !== null && v > 0);
     if(!vals.length) return null;
@@ -8520,7 +8569,7 @@ function renderVerlauf(){
   toolbar.appendChild(autoHint);
   const infoSpan = document.createElement('span');
   infoSpan.style.cssText = 'font-family:"Inter",sans-serif;font-size:12px;color:var(--muted);';
-  const gespeicherteSnapshots = Object.keys(state.verlauf||{}).length;
+  const gespeicherteSnapshots = state.agents.filter(a => a && a.name && a.name.trim() && verlaufEntriesForAgent(a).length).length;
   infoSpan.textContent = gespeicherteSnapshots > 0 ? `${gespeicherteSnapshots} Mitarbeiter mit Verlaufsdaten` : 'Noch keine Verlaufsdaten';
   toolbar.appendChild(infoSpan);
   container.appendChild(toolbar);
@@ -8536,8 +8585,10 @@ function renderVerlauf(){
   // Teams
   Object.keys(TEAM_CONFIGS).forEach(teamId => {
     const cfg = TEAM_CONFIGS[teamId];
-    const vlPos = v => { const i = state.agents.findIndex(a => (v.agentId && a.id === v.agentId) || (a.team === v.team && a.name === v.name)); return i === -1 ? 1e9 : i; };
-    const teamAgents = Object.values(state.verlauf).filter(v => v.team === teamId).sort((a,b)=> vlPos(a) - vlPos(b));   // v176: gleiche Reihenfolge wie überall
+    // v212: nur Mitarbeiter, die es aktuell gibt – mit aktuellem Namen. Alle Verlaufs-Einträge eines
+    // Mitarbeiters (auch unter altem Namen) werden zu einem zusammengeführt. Gelöschte erscheinen nicht mehr.
+    const teamAgents = state.agents.filter(a => a && a.name && a.name.trim() && a.team === teamId)
+      .map(a => vlZusammengefuehrt(a)).filter(Boolean);
     if(!teamAgents.length) return;
 
     const teamBlock = document.createElement('div');
@@ -8550,22 +8601,19 @@ function renderVerlauf(){
     agentToolbar.innerHTML = '<label style="font-family:Inter,sans-serif;font-size:13px;font-weight:600;">Mitarbeiter: </label>';
     const sel = document.createElement('select');
     sel.className = 'vl-agent-select';
+    if(!teamAgents.some(av => 'id:' + av.agentId === vlSelectedAgent[teamId])) vlSelectedAgent[teamId] = 'id:' + teamAgents[0].agentId;
     teamAgents.forEach(av => {
       const opt = document.createElement('option');
-      opt.value = av.name + '_' + av.team;
-      opt.textContent = getVerlaufDisplayName(av);
+      opt.value = 'id:' + av.agentId;
+      opt.textContent = av.name;
       if(vlSelectedAgent[teamId] === opt.value) opt.selected = true;
       sel.appendChild(opt);
     });
-    if(!vlSelectedAgent[teamId]) vlSelectedAgent[teamId] = teamAgents[0].name + '_' + teamAgents[0].team;
     sel.addEventListener('change', e => { vlSelectedAgent[teamId] = e.target.value; renderVerlauf(); });
     agentToolbar.appendChild(sel);
     teamBlock.appendChild(agentToolbar);
 
-    const agentKey = vlSelectedAgent[teamId];
-    const [selName, ...selTeamParts] = agentKey.split('_');
-    const selTeam = selTeamParts.join('_');
-    const agentData = state.verlauf[agentKey] || Object.values(state.verlauf).find(v=>v.name===selName && v.team===selTeam);
+    const agentData = teamAgents.find(av => 'id:' + av.agentId === vlSelectedAgent[teamId]);
     if(!agentData){ container.appendChild(teamBlock); return; }
 
     const MONATE_NAMEN = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
@@ -16228,6 +16276,17 @@ html[data-fx-theme="dark"] .tl-pill.st-bad{background:rgba(180,66,58,.25);color:
 .gg-img{display:block;width:100%;height:100%;object-fit:cover;border-radius:15px;}
 .gg-foto .gg-tail{bottom:30px;}
 @media (max-width:480px){ .gg-foto .gg-figwrap{width:92px;height:92px;flex-basis:92px;} }
+
+/* v212: Verlauf ohne Mitarbeiter */
+.vl-orphans{margin:18px 0 6px;border:1px dashed var(--border);border-radius:12px;padding:10px 14px;background:var(--panel,#fff);font-family:'Inter',sans-serif;}
+.vl-orphans summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);}
+.vl-orph-hint{font-size:12px;color:var(--muted);margin:8px 0 10px;line-height:1.45;}
+.vl-orph-list{display:flex;flex-direction:column;gap:8px;}
+.vl-orph-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 0;border-top:1px solid var(--border);}
+.vl-orph-n{flex:1;min-width:160px;display:flex;flex-direction:column;}
+.vl-orph-n b{font-size:13.5px;color:var(--text);}
+.vl-orph-n span{font-size:11.5px;color:var(--muted);}
+.vl-orph-sel{width:auto!important;min-width:180px;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
