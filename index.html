@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 216;
+const BOARD_VERSION = 217;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -5021,6 +5021,13 @@ function renderCoaching(){
   }
 }
 
+// v217: Kriterien-Text aus den aktuell gültigen Zielen (nicht mehr fest eingetippt)
+function hofKriterienText(){
+  const teil = id => { const c = TEAM_CONFIGS[id]; if(!c) return '';
+    const t = c.targets.regular || [];
+    return `<strong>${c.label === 'Trikala01' ? 'MF' : 'FN'}:</strong> NPS ≥ ${c.npsTarget} % · CR ≥ ${c.crTarget} % · LQ ≥ ${c.lqTarget} % · ` + c.products.map((p, i) => `${productLabel(p, id)} ${t[i]}`).join(', '); };
+  return `<strong>Alle Bedingungen müssen erfüllt sein:</strong> NPS ≥ Ziel + CR ≥ Ziel + LQ ≥ Ziel (sobald eingetragen) + alle Produkte bis auf eines ≥ Ziel<br>${teil('Trikala01')}<br>${teil('Trikala06')}<br><span style="opacity:.75">Produktziele gelten für Standard-Mitarbeiter; 6-Stündler und Helpline haben eigene Ziele.</span>`;
+}
 function renderHallOfFame(){
   const container = document.getElementById('halloffame-container');
   container.innerHTML = '';
@@ -5030,12 +5037,8 @@ function renderHallOfFame(){
   wrap.innerHTML = `
     <div class="hof-trophy">🏆</div>
     <div class="hof-title">Hall of Fame</div>
-    <div class="hof-sub">Mitarbeiter die NPS-Ziel erreicht haben UND alle Produktziele bis auf eines erfüllt haben.</div>
-    <div class="hof-criteria">
-      <strong>Kriterien:</strong> NPS ≥ Ziel &nbsp;+&nbsp; CR ≥ Ziel (MF: 7%, FN: 11%) &nbsp;+&nbsp; alle Produkte bis auf eines ≥ Ziel &nbsp;·&nbsp;
-      <strong>MF Ziele:</strong> MF 24, SU 3, BB 4, TV 3, VVM+BOJ 5 &nbsp;·&nbsp;
-      <strong>FN Ziele:</strong> SU 16, BB 17, TV 9, VVM+NVM 20, MF 2
-    </div>
+    <div class="hof-sub">Mitarbeiter, die NPS, CR und LQ im Ziel haben UND alle Produktziele bis auf eines erfüllt haben.</div>
+    <div class="hof-criteria">${hofKriterienText()}</div>
     <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px;padding:8px 12px;background:#f8f9fa;border-radius:8px;display:inline-block;">
       💡 Aktueller Monat: Live-Daten. Vergangene Monate: NPS, LQ und CR aus dem Mitarbeiter-Verlauf, Stückzahlen aus den Tageswerten (falls erfasst) bzw. dem Verlauf.
     </div>
@@ -5107,97 +5110,92 @@ function renderHallOfFame(){
   // Diagnose pro Monat: wie viele Mitarbeiter hatten überhaupt Daten?
   const hofDatenProMonat = {};
 
-  // Prüfe ob ein MA die Hall of Fame Kriterien erfüllt
-  function checkHOF(agent, monatKey){
-    // v169: vergangene Monate mit den damals gültigen Zielen prüfen
-    if(monatKey !== aktuellerMonatKey && !checkHOF._inMonat) {
-      checkHOF._inMonat = true;
-      try{ return withMonatsZiele(maYmAusMonatKey(monatKey), () => checkHOF(agent, monatKey)); }
-      finally{ checkHOF._inMonat = false; }
+  // v217: Prüfung mit Begründung – Entscheidung und „Warum nicht dabei?“ nutzen dieselbe Logik
+  function hofPruefung(agent, monatKey){
+    if(monatKey !== aktuellerMonatKey && !hofPruefung._inMonat) {
+      hofPruefung._inMonat = true;
+      try{ return withMonatsZiele(maYmAusMonatKey(monatKey), () => hofPruefung(agent, monatKey)); }
+      finally{ hofPruefung._inMonat = false; }
     }
-    let md;
-    if(monatKey === aktuellerMonatKey){
-      // Aktueller Monat: Live-Daten aus dem Monatsstand
-      md = {
-        nps: agent.nps || 0,
-        lq: agent.lq || 0,
-        cr: totalCr(agent) || 0,
-        cht: agent.cht || 0,
-        sales: agent.sales ? JSON.parse(JSON.stringify(agent.sales)) : {}
-      };
-    } else {
-      // Vergangene Monate: NPS/LQ/CR aus dem Mitarbeiter-Verlauf dieses Monats.
-      // Ohne Monats-NPS kann das NPS-Kriterium nicht geprüft werden → kein Eintrag
-      // (früher wurde hier fälschlich der AKTUELLE NPS verwendet).
-      const vm = agentVerlaufMonat(agent, monatKey.split('-')[0], monatKey.split('-').slice(1).join('-'));
-      if(!vm) return null;
-      const twSales = salesAusTageswerten(agent, monatKey);
-      md = {
-        nps: vm.nps || 0,
-        lq: vm.lq || 0,
-        cr: vm.cr || 0,
-        cht: vm.cht || 0,
-        // Stückzahlen: Tageswerte, falls für diesen Monat erfasst, sonst Verlaufs-Snapshot
-        sales: twSales || vm.sales || {}
-      };
-      if(!md.nps) return null;
-    }
-    hofDatenProMonat[monatKey] = (hofDatenProMonat[monatKey] || 0) + 1;
     const cfg = TEAM_CONFIGS[agent.team];
     if(!cfg) return null;
-
-    // Monatsspezifisches NPS-Ziel
+    let md;
+    if(monatKey === aktuellerMonatKey){
+      // Aktueller Monat: nur Werte, die in DIESEM Monat eingetragen wurden (kein NPS/LQ/Calls aus dem Vormonat)
+      const calls = fkCurVal(agent, 'calls', jetzt) || 0;
+      md = { nps: fkCurVal(agent, 'nps', jetzt) || 0, lq: fkCurVal(agent, 'lq', jetzt) || 0,
+             cr: calls ? totalStk(agent) / calls * 100 : 0, calls,
+             sales: agent.sales ? JSON.parse(JSON.stringify(agent.sales)) : {}, aktuell: true };
+    } else {
+      const vm = agentVerlaufMonat(agent, monatKey.split('-')[0], monatKey.split('-').slice(1).join('-'));
+      if(!vm) return { keineDaten: true, items: [] };
+      const twSales = salesAusTageswerten(agent, monatKey);
+      md = { nps: vm.nps || 0, lq: vm.lq || 0, cr: vm.cr || 0, cht: vm.cht || 0, sales: twSales || vm.sales || {} };
+    }
+    const f1 = n => (Math.round(n * 10) / 10).toLocaleString('de-DE');
+    const items = [];
     const NPS_ZIELE = {
       'Trikala01': {'2026-Januar':67,'2026-Februar':67,'2026-März':67,'2026-April':67,'2026-Mai':68,'2026-Juni':68,'2026-Juli':69},
       'Trikala06': {'2026-Januar':66,'2026-Februar':66,'2026-März':66,'2026-April':66,'2026-Mai':67,'2026-Juni':67,'2026-Juli':63}
     };
     const npsZielMonat = (NPS_ZIELE[agent.team] && NPS_ZIELE[agent.team][monatKey]) || cfg.npsTarget;
-    const npsOk = (md.nps || 0) >= npsZielMonat;
-    if(!npsOk) return null;
-
-    // LQ Ziel prüfen (ab September 2026)
+    items.push(md.nps
+      ? { lbl:'NPS', ok: md.nps >= npsZielMonat, txt: `${f1(md.nps)} % (Ziel ${npsZielMonat} %)` }
+      : { lbl:'NPS', ok:false, txt: md.aktuell ? 'für diesen Monat noch nicht eingetragen' : 'kein Monats-NPS im Verlauf' });
     const [monatJahr, monatName] = monatKey.split('-');
-    const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-    const monatIdx = MONATE_ORDER.indexOf(monatName);
-    const isAbSeptember2026 = parseInt(monatJahr) > 2026 || (parseInt(monatJahr) === 2026 && monatIdx >= 8);
-    if(isAbSeptember2026 && md.lq !== undefined && md.lq > 0){
-      const lqOk = md.lq >= cfg.lqTarget;
-      if(!lqOk) return null;
-    }
-
-    // CR Ziel prüfen (nur wenn CR-Daten vorhanden)
-    if(md.cr && md.cr > 0){
-      const crOk = md.cr >= cfg.crTarget;
-      if(!crOk) return null;
-    }
-
-    // Produkt-Ziele prüfen
+    const monatIdx = MONATE.indexOf(monatName);
+    const abSept = parseInt(monatJahr) > 2026 || (parseInt(monatJahr) === 2026 && monatIdx >= 8);
+    if(abSept && md.lq > 0) items.push({ lbl:'LQ', ok: md.lq >= cfg.lqTarget, txt: `${f1(md.lq)} % (Ziel ${cfg.lqTarget} %)` });
+    else if(abSept) items.push({ lbl:'LQ', ok:true, neutral:true, txt:'nicht eingetragen – zählt nicht' });
+    if(md.cr > 0) items.push({ lbl:'CR', ok: md.cr >= cfg.crTarget, txt: `${f1(md.cr)} % (Ziel ${cfg.crTarget} %)${md.aktuell ? ` · ${f1(totalStk(agent))} Stk ÷ ${Math.round(md.calls)} Calls` : ''}` });
+    else items.push({ lbl:'CR', ok:true, neutral:true, txt: md.aktuell ? 'keine Calls eingetragen – zählt nicht' : 'keine CR im Verlauf – zählt nicht' });
     const targets = agentTargets({team: agent.team, category: agent.category || 'regular'});
-    const prods = cfg.products;
-    let goalsHit = 0, goalsTotal = 0;
-    prods.forEach((p, i) => {
-      if(!(targets[i] > 0)) return;            // Produkt ohne Ziel zählt nicht
+    let goalsHit = 0, goalsTotal = 0; const fehlt = [];
+    cfg.products.forEach((p, k) => {
+      if(!(targets[k] > 0)) return;
       goalsTotal++;
       const val = (md.sales && md.sales[p]) || 0;
-      if(val >= targets[i]) goalsHit++;
+      if(val >= targets[k]) goalsHit++; else fehlt.push(`${productLabel(p, agent.team)} ${Math.round(val)}/${targets[k]}`);
     });
-
-    // v168: alle Produktziele bis auf eines (bei 5 Produkten wie bisher 4 von 5)
-    if(goalsHit < Math.max(1, goalsTotal - 1)) return null;
-
-    return {
-      name: agent.name,
-      team: agent.team,
-      nps: md.nps,
-      lq: md.lq,
-      npsTarget: npsZielMonat,
-      lqTarget: cfg.lqTarget,
-      crTarget: cfg.crTarget,
-      goalsHit,
-      totalGoals: goalsTotal,
-      cr: md.cr || 0,
-    };
+    const brauch = Math.max(1, goalsTotal - 1);
+    items.push({ lbl:'Produkte', ok: goalsHit >= brauch, txt: `${goalsHit} von ${goalsTotal} im Ziel (nötig: ${brauch})${fehlt.length ? ' · fehlt: ' + fehlt.join(', ') : ''}` });
+    return { md, items, npsZielMonat, goalsHit, goalsTotal };
   }
+  // Prüfe ob ein MA die Hall of Fame Kriterien erfüllt
+  function checkHOF(agent, monatKey){
+    const d = hofPruefung(agent, monatKey);
+    if(!d || d.keineDaten) return null;
+    if(monatKey !== aktuellerMonatKey && !d.md.nps) return null;
+    hofDatenProMonat[monatKey] = (hofDatenProMonat[monatKey] || 0) + 1;
+    if(d.items.some(x => !x.ok)) return null;
+    const cfg = TEAM_CONFIGS[agent.team];
+    return { name: agent.name, team: agent.team, nps: d.md.nps, lq: d.md.lq, npsTarget: d.npsZielMonat, lqTarget: cfg.lqTarget,
+             crTarget: cfg.crTarget, goalsHit: d.goalsHit, totalGoals: d.goalsTotal, cr: d.md.cr || 0 };
+  }
+
+  // v217: „Warum ist jemand nicht dabei?“ – für den laufenden Monat
+  (function(){
+    const box = document.createElement('div');
+    box.className = 'hof-diag';
+    const aktive = state.agents.filter(a => a && a.name && a.name.trim() && TEAM_CONFIGS[a.team] && a.category !== 'schulung');
+    const pruef = aktive.map(a => ({ a, d: hofPruefung(a, aktuellerMonatKey) })).filter(x => x.d && !x.d.keineDaten);
+    const knapp = pruef.map(x => ({ ...x, f: x.d.items.filter(i => !i.ok) })).filter(x => x.f.length === 1);
+    box.innerHTML = `<div class="hof-diag-h">🔍 Warum ist jemand nicht dabei? <span>${aktuellerMonatName} ${aktuellesJahr}</span></div>
+      <div class="hof-diag-row"><select class="cp-form-select hof-diag-sel"><option value="">Mitarbeiter wählen …</option>${aktive.map(a => `<option value="${a.id}">${kiEsc(a.name)}</option>`).join('')}</select></div>
+      <div class="hof-diag-out"></div>
+      ${knapp.length ? `<div class="hof-diag-k"><b>Knapp verpasst – nur eine Bedingung fehlt:</b>${knapp.map(x => { const f = x.f[0]; return `<div><span>${kiEsc(x.a.name)}</span><em>${f.lbl}: ${kiEsc(f.txt)}</em></div>`; }).join('')}</div>` : ''}`;
+    const out = box.querySelector('.hof-diag-out');
+    box.querySelector('.hof-diag-sel').onchange = e => {
+      const a = aktive.find(x => x.id === e.target.value);
+      if(!a){ out.innerHTML = ''; return; }
+      const d = hofPruefung(a, aktuellerMonatKey);
+      const alleOk = d.items.every(i => i.ok);
+      out.innerHTML = `<div class="hof-diag-res ${alleOk ? 'ok' : 'nok'}">${alleOk ? '✅ Erfüllt alle Bedingungen – steht in der Hall of Fame.' : '❌ Nicht dabei, weil mindestens eine Bedingung fehlt:'}</div>` +
+        d.items.map(i => `<div class="hof-diag-i ${i.neutral ? 'neu' : i.ok ? 'ok' : 'nok'}"><b>${i.neutral ? '–' : i.ok ? '✓' : '✗'} ${i.lbl}</b><span>${kiEsc(i.txt)}</span></div>`).join('') +
+        `<div class="hof-diag-cat">Kategorie: ${{regular:'Standard', '6h':'6-Stündler', helpline:'Helpline'}[a.category || 'regular'] || a.category} – danach richten sich die Produktziele.</div>`;
+    };
+    wrap.appendChild(box);
+  })();
 
   const monthsWrap = document.createElement('div');
   monthsWrap.className = 'hof-months';
@@ -16347,6 +16345,25 @@ html[data-fx-theme="dark"] .tl-pill.st-bad{background:rgba(180,66,58,.25);color:
 .cf-ver-det[open] .cf-ver-plus{transform:rotate(45deg);}
 .cf-ver-det[open]{border-style:solid;}
 .cf-ver-det[open] summary{margin-bottom:8px;}
+
+/* v217: Hall of Fame – Warum nicht dabei? */
+.hof-diag{max-width:760px;margin:18px auto 6px;text-align:left;background:var(--panel,#fff);border:1px solid var(--border);border-radius:14px;padding:14px 16px;font-family:'Inter',sans-serif;}
+.hof-diag-h{font-weight:700;font-size:14.5px;color:var(--text);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+.hof-diag-h span{font-weight:500;font-size:12px;color:var(--muted);}
+.hof-diag-row{margin:10px 0 6px;}
+.hof-diag-sel{width:100%!important;max-width:360px;}
+.hof-diag-res{font-weight:700;font-size:13px;margin:8px 0 6px;}
+.hof-diag-res.ok{color:#0E7C7B;}.hof-diag-res.nok{color:#B4423A;}
+.hof-diag-i{display:flex;gap:10px;padding:6px 0;border-top:1px solid var(--border);font-size:13px;}
+.hof-diag-i b{flex:0 0 96px;}
+.hof-diag-i span{color:var(--text);min-width:0;}
+.hof-diag-i.ok b{color:#0E7C7B;}.hof-diag-i.nok b{color:#B4423A;}.hof-diag-i.neu b{color:var(--muted);}
+.hof-diag-cat{font-size:11.5px;color:var(--muted);margin-top:6px;}
+.hof-diag-k{margin-top:12px;padding-top:10px;border-top:1px dashed var(--border);font-size:12.5px;}
+.hof-diag-k > b{display:block;margin-bottom:6px;color:var(--text);}
+.hof-diag-k div{display:flex;gap:10px;padding:3px 0;flex-wrap:wrap;}
+.hof-diag-k span{font-weight:600;min-width:180px;color:var(--text);}
+.hof-diag-k em{font-style:normal;color:#B4423A;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
