@@ -633,7 +633,6 @@ i.lg.ok{background:var(--teal);} i.lg.warn{background:var(--amber);} i.lg.bad{ba
 .dp-dot{width:16px;height:16px;border-radius:5px;}
 .dp-legend{display:flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;font-size:11.5px;color:var(--muted);}
 .dp-legend-dot{width:11px;height:11px;border-radius:3px;}
-.cp-alert-banner{display:flex;align-items:center;gap:10px;background:#FEF3E8;border:1px solid #F0D5B0;color:#8A5A00;border-radius:12px;padding:12px 18px;margin-bottom:16px;font-family:'Inter',sans-serif;font-size:13.5px;}
 .cp-priority-list{display:flex;flex-direction:column;gap:8px;}
 .cp-priority-row{display:flex;align-items:center;gap:12px;padding:9px 12px;background:#FAFBFC;border-radius:10px;}
 .cp-priority-rank{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:var(--tmg);width:20px;flex-shrink:0;}
@@ -758,8 +757,6 @@ i.lg.ok{background:var(--teal);} i.lg.warn{background:var(--amber);} i.lg.bad{ba
 .sync-ok{background:var(--tmg-soft);color:var(--tmg);}
 .sync-error{background:var(--red-soft);color:var(--red);}
 .user-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);}
-button.login-btn{background:var(--tmg);color:#fff;border:none;padding:8px 14px;border-radius:7px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;}
-button.login-btn:hover{background:var(--tmg-dark);}
 button.logout-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 12px;border-radius:7px;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;}
 
 
@@ -1441,7 +1438,6 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
     <div class="side-label">Coaching</div>
       <button class="tab-btn side-link" id="tab-coachdash" data-title="Coaching Dashboard"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4V2.5h6V4M9 11h6M9 15h4"/></svg><span>Coaching Dashboard</span></button>
       <button class="side-link" id="todo-fab" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/></svg><span>To-Do's</span><span class="todo-fab-badge" id="todo-fab-badge" style="display:none;">0</span></button>
-      <button class="side-link" id="tl-open" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg><span>Teamleiter-Ansicht</span></button>
     <div class="side-label">Auswertung</div>
       <button class="tab-btn side-link" id="tab-kianalyse" data-title="KI Analyse"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7 4.7 1.8-4.7 1.8L12 16l-1.8-4.7-4.7-1.8 4.7-1.8z"/><path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z"/></svg><span>KI Analyse</span></button>
   </nav>
@@ -1473,7 +1469,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
       <div id="coachdash-subtabs" class="subtabs">
         <button class="tab-btn active" id="sub-fokus" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 17v5M9 3h6l-1 6 4 4H6l4-4z"/></svg><span>Diese Woche</span></button>
         <button class="tab-btn" id="sub-planen" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>Planen</span></button>
-        <button class="tab-btn" id="sub-verlauf" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Verlauf</span></button>
+        <button class="tab-btn" id="sub-verlauf" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><span>Coaching-Historie</span></button>
         <button class="tab-btn" id="sub-auswertung" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><span>Auswertung</span></button>
         <button class="tab-btn cd-hidden-sub" id="sub-zuordnung" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span>Team-Zuordnung</span></button>
         <span class="cd-new-wrap"><button class="cd-gear" id="cd-gear" type="button" title="Team-Zuordnung: Mitarbeiter den Führungskräften zuweisen"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></button><button class="cp-add-btn" id="cd-new-coaching" type="button"><span class="cp-add-icon">+</span> Neu ▾</button></span>
@@ -1520,10 +1516,9 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 
   <div id="view-overview" class="ov-view-outer" style="display:none;">
     <div id="ov-subtabs" class="subtabs">
-      <button class="tab-btn active" id="sub-ovziele" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><span>Mitarbeiter Ziele</span></button>
+      <button class="tab-btn active" id="sub-ovziele" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg><span>Übersicht</span></button>
       <button class="tab-btn" id="sub-ovtageswerte" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Tageswerte</span></button>
       <button class="tab-btn" id="sub-ovhochrechnung" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Hochrechnung</span></button>
-      <button class="tab-btn" id="sub-ovbilanz" type="button"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg><span>Monatsbilanz</span></button>
     </div>
     <div id="ov-ziele-container">
       <div class="toolbar">
@@ -1550,9 +1545,6 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
     <div id="ov-hochrechnung-container" style="display:none;">
       <div id="hochrechnung-capture"></div>
     </div>
-    <div id="ov-bilanz-container" style="display:none;">
-      <div id="bilanz-capture"></div>
-    </div>
   </div>
 
   <div class="site-copyright"></div>
@@ -1564,7 +1556,6 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 </script>
 
 <script>
-const STORAGE_KEY = 'trikala-portal-data';
 const TEAM_CONFIGS = {"Trikala01": {"label": "Trikala01", "project": "Mobilfunk PK", "products": ["MF", "SU", "BB", "TV", "VVM+BOJ"], "targets": {"regular": [24, 3, 4, 3, 5], "6h": [19, 2, 3, 2, 3], "helpline": [12, 2, 2, 2, 2]}, "crTarget": 7, "npsTarget": 70, "lqTarget": 78}, "Trikala06": {"label": "Trikala06", "project": "Festnetz PK", "products": ["MF", "SU", "BB", "TV", "VVM+NVM"], "targets": {"regular": [2, 16, 17, 9, 20], "6h": [1, 12, 13, 6, 15], "helpline": [1, 8, 9, 5, 10]}, "crTarget": 11, "npsTarget": 68, "lqTarget": 74}};
 const TEAM_CONFIGS_DEFAULT = JSON.parse(JSON.stringify(TEAM_CONFIGS)); // v167: Vorgabewerte (eigene Ziele stehen in state.maZiele)
 const SEED_AGENTS = [];
@@ -1612,14 +1603,13 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 221;
+const BOARD_VERSION = 222;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
 // Werden beim Laden einmalig in state.verlauf eingetragen, damit das CHT-Diagramm im
 // Monatsabschluss Verlaufsdaten anzeigen kann.
 const CHT_VERLAUF_DATA = {"30782":{"Januar":724,"Februar":731,"März":736,"April":661,"Mai":717,"Juni":807,"Juli":741},"40818":{"Januar":753,"März":783,"April":708,"Mai":760,"Juni":842,"Juli":703},"40810":{"Januar":602,"Februar":591,"März":614,"April":558,"Mai":584,"Juni":565,"Juli":580},"40838":{"Januar":723,"Februar":587,"März":620,"April":574,"Mai":632,"Juni":682,"Juli":630},"40826":{"Januar":622,"März":626,"April":596,"Mai":632,"Juni":650,"Juli":591},"40820":{"Januar":615,"Februar":633,"März":612,"April":618,"Mai":608,"Juni":634,"Juli":564},"40835":{"Januar":693,"Februar":648,"März":724,"April":630,"Mai":742,"Juni":667,"Juli":677},"40840":{"Januar":666,"Februar":621,"März":618,"April":691,"Mai":778,"Juni":749,"Juli":678},"41026":{"Januar":834,"Februar":862,"März":834,"April":791,"Mai":806,"Juni":918,"Juli":834},"41032":{"Januar":793,"Februar":703,"März":831,"April":751,"Mai":853,"Juni":882,"Juli":872},"41028":{"Januar":834,"Februar":843,"März":815,"April":843,"Mai":836,"Juni":920,"Juli":924},"41234":{"Januar":672,"Februar":642,"März":581,"April":534,"Mai":607,"Juni":679,"Juli":604},"51141":{"Januar":736,"Februar":866,"März":711,"April":733,"Juli":750},"51165":{"Januar":940,"Februar":914,"März":931,"April":944,"Mai":968,"Juni":998,"Juli":1183},"51206":{"Januar":611,"Februar":613,"März":570,"April":553,"Mai":644,"Juni":684,"Juli":603},"51205":{"Januar":534,"Februar":544,"März":552,"April":544,"Mai":599,"Juni":571,"Juli":560},"51234":{"Januar":909,"Februar":810,"März":820,"April":677,"Mai":849,"Juni":807,"Juli":767},"51235":{"Januar":816,"Februar":842,"März":825,"April":773,"Mai":859,"Juni":875,"Juli":867},"51237":{"Januar":748,"Februar":679,"März":549,"April":561,"Mai":571,"Juni":505,"Juli":482},"51291":{"Januar":521,"Februar":542,"März":451,"April":438,"Mai":457,"Juni":584,"Juli":515},"51292":{"Januar":862,"Februar":692,"März":600,"April":644,"Mai":711,"Juni":760,"Juli":859},"51298":{"Januar":782,"Februar":1020,"März":796,"April":690,"Mai":704,"Juni":834,"Juli":746},"51350":{"Januar":753,"Februar":896,"März":734,"April":728,"Mai":733,"Juni":827,"Juli":717},"51346":{"Januar":705,"Februar":701,"März":734,"April":683,"Mai":695,"Juni":803,"Juli":724},"51347":{"Januar":671,"Februar":594,"März":595,"April":604,"Mai":650,"Juni":658,"Juli":694},"51372":{"Januar":604,"Februar":612,"März":581,"April":509,"Mai":592,"Juni":674,"Juli":650},"51373":{"Januar":1044,"Februar":976,"März":1060,"April":1083,"Mai":1131,"Juni":1232,"Juli":1159},"51463":{"Januar":652,"Februar":606,"März":487,"April":570,"Mai":574,"Juni":681,"Juli":611},"51615":{"Januar":692,"Februar":707,"März":666,"April":670,"Mai":625,"Juni":671,"Juli":672},"51617":{"Januar":593,"Februar":570,"März":550,"April":509,"Mai":556,"Juni":720,"Juli":648},"51618":{"Januar":840,"Februar":698,"März":663,"April":670,"Mai":615,"Juni":716,"Juli":736},"51619":{"Januar":674,"Februar":760,"März":616,"April":635,"Mai":586,"Juni":618,"Juli":604},"51616":{"Januar":591,"Februar":502,"März":541,"April":485,"Mai":586,"Juni":635,"Juli":528},"51657":{"Januar":779,"Februar":686,"März":673,"April":667,"Mai":755,"Juni":759,"Juli":600},"51703":{"Januar":584,"Februar":523,"März":577,"April":540,"Mai":567,"Juni":599,"Juli":474},"51881":{"Mai":860,"Juni":916,"Juli":919},"51885":{"Mai":705,"Juni":573,"Juli":549},"51886":{"Mai":800,"Juni":868,"Juli":759},"41233":{"Januar":701,"Februar":680,"März":723,"Mai":954,"Juni":914,"Juli":756},"41235":{"Januar":718,"Februar":776,"März":680,"April":691,"Mai":796,"Juni":919,"Juli":703},"41236":{"Januar":865,"Februar":868,"März":849,"April":806,"Mai":831,"Juni":877,"Juli":744},"41240":{"Januar":910,"Februar":868,"März":789,"April":852,"Mai":887,"Juni":1138,"Juli":943},"41241":{"Januar":651,"März":700,"April":682,"Mai":842,"Juni":838,"Juli":706},"41243":{"Januar":773,"Februar":689,"März":782,"April":795,"Mai":904,"Juni":1082,"Juli":912},"41248":{"Januar":844,"Februar":930,"März":876,"April":979,"Mai":1005,"Juni":1128,"Juli":1045},"41254":{"Januar":696,"Februar":751,"März":743,"April":738,"Mai":747,"Juni":754,"Juli":735},"51091":{"Januar":631,"Februar":622,"März":623,"April":590,"Mai":613,"Juni":868,"Juli":596},"51166":{"Juni":1097,"Juli":973},"51239":{"Januar":782,"Februar":753,"März":848,"April":821,"Mai":973,"Juni":965,"Juli":883},"51376":{"Juni":1097,"Juli":1028},"51738":{"Januar":1268,"Februar":1004,"März":1428,"April":1259,"Mai":1313,"Juni":1551,"Juli":1193},"51399":{"Juni":1046,"Juli":973},"51807":{"März":987,"April":911,"Mai":1005,"Juni":1149,"Juli":1077},"51806":{"März":920,"April":899,"Mai":989,"Juni":1070,"Juli":991},"51805":{"März":773,"April":679,"Mai":702,"Juni":787,"Juli":634},"51906":{"Juni":1366,"Juli":1276},"51899":{"Juni":1311,"Juli":1237},"51942":{"Juli":1190},"51960":{"Juli":1134}};
-const MONATE_IDX = {Januar:1,Februar:2,März:3,April:4,Mai:5,Juni:6,Juli:7,August:8,September:9,Oktober:10,November:11,Dezember:12};
 // ============================================================
 // MITARBEITER-VERLAUF (ab v138)
 // - Verlaufs-Einträge werden fest mit der Mitarbeiter-ID verknüpft (Feld agentId). Vorher lief die
@@ -1762,7 +1752,6 @@ function liveMonthSnapshot(agent, now){
 }
 // ---- Vormonat nachträglich vervollständigen (endgültige Werte kommen oft erst Anfang des Folgemonats) ----
 function vormonatDate(now){ now = now || new Date(); return new Date(now.getFullYear(), now.getMonth() - 1, 1); }
-function vormonatKey(now){ const d = vormonatDate(now); return `${d.getFullYear()}-${VL_MONATE[d.getMonth()]}`; }
 // Monatsdaten eines Mitarbeiters zum Bearbeiten holen (legt den Monat im verknüpften Eintrag an und
 // übernimmt dabei vorhandene Werte aus älteren Einträgen, damit nichts "verschwindet").
 function verlaufMonatForEdit(agent, d){
@@ -1961,453 +1950,7 @@ function markDeleted(id){
 let currentTab = 'coachdash';
 
 
-// ============================================================
-// Microsoft Login – OAuth2 PKCE (kein externes Script nötig)
-// ============================================================
-const GRAPH_CLIENT_ID = "27f9c91d-9215-42d2-a38f-5e19bff6c9b4";
-const GRAPH_TENANT_ID = "67ffefcf-69ec-414a-9ebd-63e6c9e852b6";
-const GRAPH_FOLDER    = "Trikala-Portal";
-const GRAPH_FILE      = "trikala-portal-data.json";
-const OWNER_DRIVE_ID   = "b!LiS4-DvP5km4q6ILerTDekxNudCyz1pBrvWeXSm_vmOwaSSWuFMpQY7sUgZQWdRD"; // Ioannis' OneDrive - alle Führungskräfte greifen hierüber auf dieselben Daten zu
-const OWNER_FILE_ID    = "01KFIMVO7WJZDXQZQNUBG3UXWV2Z4ONO55"; // Direkte Item-ID der Datendatei - unabhängig vom Ordnerpfad, umgeht 403-Probleme bei Ordner-Berechtigungen
-const REDIRECT_URI = window.location.origin + '/Trikala-Portal/';
-const ADMIN_REDIRECT_URI = window.location.origin + '/Trikala-Portal/admin.html'; // Public-Client-Zugang ohne 24h-Limit, eigene Seite um Verwechslung mit der SPA-Adresse zu vermeiden
-const SCOPES          = "Files.ReadWrite User.Read offline_access";
-
-let graphToken = null;
 let syncStatus = 'idle';
-
-// ---- PKCE Helpers ----
-function base64url(buf){
-  return btoa(String.fromCharCode(...new Uint8Array(buf)))
-    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-}
-async function generatePKCE(){
-  const verifier = base64url(crypto.getRandomValues(new Uint8Array(32)));
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
-  return { verifier, challenge: base64url(digest) };
-}
-
-// ---- Sign In ----
-async function signIn(){
-  const pkce = await generatePKCE();
-  sessionStorage.setItem('pkce_verifier', pkce.verifier);
-  const params = new URLSearchParams({
-    client_id: GRAPH_CLIENT_ID,
-    response_type: 'code',
-    redirect_uri: REDIRECT_URI,
-    scope: SCOPES,
-    code_challenge: pkce.challenge,
-    code_challenge_method: 'S256',
-    response_mode: 'query'
-  });
-  window.location.href = `https://login.microsoftonline.com/${GRAPH_TENANT_ID}/oauth2/v2.0/authorize?${params}`;
-}
-
-// ---- Sign In (Admin - für "Zugang übertragen", ohne 24h-Limit) ----
-async function signInAdmin(){
-  const pkce = await generatePKCE();
-  sessionStorage.setItem('pkce_verifier_admin', pkce.verifier);
-  const params = new URLSearchParams({
-    client_id: GRAPH_CLIENT_ID,
-    response_type: 'code',
-    redirect_uri: ADMIN_REDIRECT_URI,
-    scope: SCOPES,
-    code_challenge: pkce.challenge,
-    code_challenge_method: 'S256',
-    response_mode: 'query'
-  });
-  window.location.href = `https://login.microsoftonline.com/${GRAPH_TENANT_ID}/oauth2/v2.0/authorize?${params}`;
-}
-
-// ---- Handle redirect back ----
-async function handleAuthRedirect(){
-  const params = new URLSearchParams(window.location.search);
-  const code = params.get('code');
-  if(!code) return false;
-  const isAdminFlow = params.get('admin') === '1';
-  // Clean URL
-  window.history.replaceState({}, '', window.location.pathname);
-  const verifier = sessionStorage.getItem(isAdminFlow ? 'pkce_verifier_admin' : 'pkce_verifier');
-  if(!verifier){
-    if(isAdminFlow) alert('❌ Login fehlgeschlagen: Kein PKCE-Verifier gefunden (Sitzung ggf. abgelaufen). Bitte "Einloggen" erneut versuchen.');
-    return false;
-  }
-
-  if(isAdminFlow){
-    // Für den öffentlichen Client-Zugang muss der Code-Austausch serverseitig (im Worker) passieren -
-    // Microsoft blockiert das direkt aus dem Browser für diesen Kontotyp.
-    const appToken = getKIAppToken();
-    if(!appToken){
-      alert('❌ Kein Zugangs-Passwort hinterlegt. Bitte zuerst in der KI Analyse das gemeinsame Passwort eingeben, dann erneut einloggen.');
-      return false;
-    }
-    try{
-      const resp = await fetch(KI_PROXY_URL + '/exchange-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
-        body: JSON.stringify({ code, code_verifier: verifier, redirect_uri: ADMIN_REDIRECT_URI })
-      });
-      const data = await resp.json();
-      if(resp.ok && data.success){
-        alert('✅ Zugang erfolgreich übertragen. Alle Führungskräfte können die Daten jetzt über das gemeinsame Passwort laden.');
-      } else {
-        alert('❌ Fehler: ' + (data.error?.message || resp.status));
-      }
-    } catch(e){
-      alert('❌ Fehler beim Übertragen: ' + e.message);
-    }
-    return false;
-  }
-
-  const body = new URLSearchParams({
-    client_id: GRAPH_CLIENT_ID,
-    grant_type: 'authorization_code',
-    code,
-    redirect_uri: REDIRECT_URI,
-    code_verifier: verifier,
-    scope: SCOPES
-  });
-  const resp = await fetch(`https://login.microsoftonline.com/${GRAPH_TENANT_ID}/oauth2/v2.0/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString()
-  });
-  const data = await resp.json();
-  if(data.access_token){
-    graphToken = data.access_token;
-    sessionStorage.setItem('graph_token', graphToken);
-    if(data.refresh_token) sessionStorage.setItem('refresh_token', data.refresh_token);
-    updateLoginUI(true);
-    return true;
-  }
-  return false;
-}
-
-async function refreshToken(){
-  const rt = sessionStorage.getItem('refresh_token');
-  if(!rt) return false;
-  const body = new URLSearchParams({
-    client_id: GRAPH_CLIENT_ID,
-    grant_type: 'refresh_token',
-    refresh_token: rt,
-    scope: SCOPES
-  });
-  const resp = await fetch(`https://login.microsoftonline.com/${GRAPH_TENANT_ID}/oauth2/v2.0/token`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body.toString()
-  });
-  const data = await resp.json();
-  if(data.access_token){
-    graphToken = data.access_token;
-    sessionStorage.setItem('graph_token', graphToken);
-    return true;
-  }
-  return false;
-}
-
-function updateLoginUI(loggedIn){
-  const lb = document.getElementById('login-btn');
-  const ob = document.getElementById('logout-btn');
-  if(lb) lb.style.display = loggedIn ? 'none' : '';
-  if(ob) ob.style.display = loggedIn ? '' : 'none';
-  const eb = document.getElementById('excel-sync-btn');
-  // Der Excel-Sync greift direkt auf Ioannis' persönliches OneDrive zu und schlägt bei allen
-  // anderen Führungskräften mit "403 accessDenied" fehl. Der Button wird deshalb hier NICHT
-  // pauschal beim Login gezeigt - das übernimmt fetchCurrentUser(), sobald bekannt ist, wer
-  // eingeloggt ist. Beim Logout wird er in jedem Fall ausgeblendet.
-  if(eb && !loggedIn) eb.style.display = 'none';
-  const sb = document.getElementById('setup-token-btn');
-  if(sb) sb.style.display = loggedIn ? '' : 'none';
-}
-
-async function registerMsToken(refreshTokenArg){
-  const rt = refreshTokenArg || sessionStorage.getItem('refresh_token');
-  if(!rt){
-    alert('Kein Microsoft-Zugang im Speicher gefunden. Bitte einmal ab-/anmelden und erneut versuchen.');
-    return;
-  }
-  let appToken = getKIAppToken();
-  if(!appToken){
-    const entered = prompt('Gemeinsames Zugangs-Passwort eingeben (zur Bestätigung):');
-    if(!entered) return;
-    appToken = entered.trim();
-    setKIAppToken(appToken);
-  }
-  try{
-    const resp = await fetch(KI_PROXY_URL + '/register-token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-app-token': appToken },
-      body: JSON.stringify({ refresh_token: rt })
-    });
-    if(resp.ok){
-      alert('✅ Zugang erfolgreich übertragen. Alle Führungskräfte können die Daten jetzt über das gemeinsame Passwort laden.');
-    } else {
-      const errBody = await resp.json().catch(()=>({}));
-      alert('❌ Fehler: ' + (errBody.error?.message || resp.status));
-    }
-  }catch(e){
-    alert('❌ Fehler: ' + e.message);
-  }
-}
-
-function signOut(){
-  sessionStorage.removeItem('graph_token');
-  sessionStorage.removeItem('refresh_token');
-  sessionStorage.removeItem('pkce_verifier');
-  graphToken = null;
-  updateLoginUI(false);
-  setSyncStatus('idle');
-}
-
-async function getToken(){
-  const stored = sessionStorage.getItem('graph_token');
-  if(stored){ graphToken = stored; return true; }
-  const ok = await refreshToken();
-  if(!ok){ updateLoginUI(false); setSyncStatus('idle'); }
-  return ok;
-}
-
-async function graphFetch(url, options={}){
-  if(!graphToken){ await getToken(); }
-  const resp = await fetch('https://graph.microsoft.com/v1.0' + url, {
-    ...options,
-    headers: { 'Authorization': 'Bearer ' + graphToken, 'Content-Type': 'application/json', ...(options.headers||{}) }
-  });
-  if(resp.status === 401){
-    const ok = await refreshToken();
-    if(ok) return graphFetch(url, options);
-  }
-  return resp;
-}
-
-async function loadFromSharePoint(){
-  setSyncStatus('syncing');
-  try {
-    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/items/${OWNER_FILE_ID}/content?_cb=${Date.now()}`);
-    if(resp.ok){
-      const data = await resp.json();
-      if(data && data.agents && data.agents.length){
-        state.agents = data.agents;
-        if(data.fuehrungskraefte) state.fuehrungskraefte = data.fuehrungskraefte;
-        if(data.teamziele){
-          Object.keys(data.teamziele).forEach(k=>{
-            if(state.teamziele[k]) Object.assign(state.teamziele[k], data.teamziele[k]);
-          });
-        }
-        // Migration: MA → DA in Tageswerten (nur MF-Team Trikala01)
-        state.agents.forEach(agent=>{
-          if(String(agent.team) !== 'Trikala01') return;
-          if(!agent.tageswerte) return;
-          Object.keys(agent.tageswerte).forEach(monthKey=>{
-            const month = agent.tageswerte[monthKey];
-            Object.keys(month).forEach(dayKey=>{
-              const dv = month[dayKey];
-              if(dv && dv.sales && 'MA' in dv.sales){
-                dv.sales['DA'] = dv.sales['MA'];
-                delete dv.sales['MA'];
-              }
-            });
-          });
-          if(agent.sales && 'MA' in agent.sales){
-            agent.sales['DA'] = agent.sales['MA'];
-            delete agent.sales['MA'];
-          }
-        });
-        // Ungültige Verlauf-Einträge entfernen
-        const INVALID_NAMES = ['6','Helpline','helpline','Michas','Lekaki','Manachiari','Tstisoula'];
-        // Alte Alias-Keys entfernen
-        ['Antoniou_Trikala01','Antoniou_Pia_Trikala01','Antoniou Ioannis_Trikala01','Antoniou Pia_Trikala01'].forEach(k=>{ if(state.verlauf[k]) delete state.verlauf[k]; });
-        Object.keys(state.verlauf).forEach(k=>{
-          if(INVALID_NAMES.includes(state.verlauf[k].name)) delete state.verlauf[k];
-        });
-        // Seed-Daten für alle MA sicherstellen (fehlende Monate aus Seed ergänzen)
-        Object.keys(VERLAUF_SEED).forEach(k=>{
-          if(!state.verlauf[k]){
-            state.verlauf[k] = JSON.parse(JSON.stringify(VERLAUF_SEED[k]));
-          } else {
-            // Fehlende Monate aus Seed ergänzen
-            Object.keys(VERLAUF_SEED[k].monate).forEach(m=>{
-              if(!state.verlauf[k].monate[m]){
-                state.verlauf[k].monate[m] = JSON.parse(JSON.stringify(VERLAUF_SEED[k].monate[m]));
-              } else {
-                // NPS aus Seed wenn 0 in gespeicherter Version
-                const seed = VERLAUF_SEED[k].monate[m];
-                if(seed.nps > 0 && state.verlauf[k].monate[m].nps === 0)
-                  state.verlauf[k].monate[m].nps = seed.nps;
-                if(seed.cr > 0 && state.verlauf[k].monate[m].cr === 0)
-                  state.verlauf[k].monate[m].cr = seed.cr;
-              }
-            });
-          }
-        });
-
-        if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
-        if(data.coachverlauf) Object.assign(state.coachverlauf, data.coachverlauf);
-        // (Mitarbeiter-Verlauf wird oben per lwwMergeAll() zusammengeführt)
-        if(data.monatsabschluss){
-          // Server-Stand direkt übernehmen - identisch zur aktiven Ladefunktion weiter unten.
-          // Die frühere Logik hier hat md.plan bedingungslos aus der Code-Vorlage (Seed)
-          // zurückgesetzt ("Plan IMMER aus Seed behalten") und damit gespeicherte Planmengen
-          // beim Laden immer wieder verworfen - "erreicht" war davon nie betroffen, was genau
-          // das beobachtete Verhalten erklaerte.
-          const merged = data.monatsabschluss;
-          Object.keys(state.monatsabschluss||{}).forEach(team=>{
-            if(!merged[team]) { merged[team] = state.monatsabschluss[team]; return; }
-            Object.keys(state.monatsabschluss[team]).forEach(monat=>{
-              if(!merged[team][monat]) merged[team][monat] = state.monatsabschluss[team][monat];
-            });
-          });
-          state.monatsabschluss = merged;
-        }
-        // BOJ global sicherstellen
-        Object.keys(state.monatsabschluss||{}).forEach(team=>{
-          Object.values(state.monatsabschluss[team]||{}).forEach(md=>{
-            ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && !('BOJ' in md[f])) md[f]['BOJ']=0; });
-          });
-        });
-        // Seed-Werte IMMER übernehmen (haben Vorrang über alte SharePoint-Nullwerte)
-        Object.keys(MA_SEED).forEach(team=>{
-          Object.keys(MA_SEED[team]).forEach(monat=>{
-            const seed = MA_SEED[team][monat];
-            if(!state.monatsabschluss[team]) return;
-            if(!state.monatsabschluss[team][monat]) state.monatsabschluss[team][monat] = JSON.parse(JSON.stringify(seed));
-            const md = state.monatsabschluss[team][monat];
-            // Seed-Werte übernehmen wenn Seed > 0 und gespeicherter Wert = 0
-            // NUR für Produkte die noch in md.plan vorhanden sind (User kann Produkte löschen/umbenennen)
-            const planKeys = md.plan ? Object.keys(md.plan) : [];
-            ['erreicht','cr','storno'].forEach(f=>{
-              if(seed[f]){
-                if(!md[f]) md[f] = {};
-                Object.keys(seed[f]).forEach(p=>{
-                  if(!planKeys.includes(p)) return; // Produkt wurde gelöscht/umbenannt → nicht wieder einfügen
-                  if(seed[f][p] !== 0 && (md[f][p] === 0 || md[f][p] === undefined)) md[f][p] = seed[f][p];
-                });
-              }
-            });
-            ['crZiel','crZielText'].forEach(f=>{
-              if(seed[f]) {
-                md[f] = md[f]||{};
-                Object.keys(seed[f]).forEach(p=>{
-                  if(planKeys.includes(p)) md[f][p] = md[f][p] !== undefined ? md[f][p] : seed[f][p];
-                });
-              }
-            });
-            if(!md.nps_plan && seed.nps_plan > 0) md.nps_plan = seed.nps_plan;
-            if(!md.nps_ist && seed.nps_ist > 0) md.nps_ist = seed.nps_ist;
-            if(seed.crGesamtErreicht > 0 && !md.crGesamtErreicht) md.crGesamtErreicht = seed.crGesamtErreicht;
-            if(seed.crGesamtZiel > 0 && !md.crGesamtZiel) md.crGesamtZiel = seed.crGesamtZiel;
-            // Plan: Seed füllt nur Lücken – aber nur wenn der Monat noch keine eigene Produktliste hat
-            // (d.h. md.plan leer ist). Hat der User Produkte umbenannt oder gelöscht, soll der Seed
-            // diese nicht wieder einsetzen.
-            if(seed.plan){
-              md.plan = md.plan || {};
-              const hasPlanKeys = Object.keys(md.plan).length > 0;
-              if(!hasPlanKeys){
-                // Leerer Monat: komplett aus Seed initialisieren
-                Object.keys(seed.plan).forEach(p=>{
-                  if(seed.plan[p] > 0) md.plan[p] = seed.plan[p];
-                });
-              }
-              // Wenn bereits Produkte vorhanden: nichts aus Seed hinzufügen (User-Konfiguration bleibt)
-            }
-            // BOJ: nur sicherstellen wenn BOJ noch in md.plan vorhanden ist (nicht wenn User es gelöscht hat)
-            ['plan','erreicht','cr'].forEach(f=>{ if(md[f] && md.plan && 'BOJ' in md.plan && !('BOJ' in md[f])) md[f]['BOJ']=0; });
-          });
-        });
-        // Kein automatisches Speichern direkt nach dem Laden mehr - das hat den beim Laden
-        // zurechtgebogenen Stand sofort festgeschrieben und konnte frische Eingaben überschreiben.
-        renderAll();
-        setSyncStatus('ok');
-        return;
-      }
-    }
-    await saveToSharePoint();
-    setSyncStatus('ok');
-  } catch(e){
-    console.error('SharePoint load error', e);
-    setSyncStatus('error');
-  }
-}
-
-async function saveToSharePoint(){
-  if(!graphToken){
-    const ok = await getToken();
-    if(!ok) return;
-  }
-  setSyncStatus('syncing');
-  try {
-    const body = JSON.stringify(state);
-    const resp = await graphFetch(`/drives/${OWNER_DRIVE_ID}/items/${OWNER_FILE_ID}/content`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: body
-    });
-    if(resp && resp.ok){
-      setSyncStatus('ok');
-      console.log('SharePoint gespeichert:', new Date().toLocaleTimeString());
-    } else {
-      console.error('SharePoint save failed:', resp?.status);
-      setSyncStatus('error');
-    }
-  } catch(e){
-    console.error('SharePoint save error', e);
-    setSyncStatus('error');
-  }
-}
-
-function setSyncStatus(s){
-  syncStatus = s;
-  const el = document.getElementById('sync-status');
-  if(!el) return;
-  const map = {
-    idle:    { text: 'Nicht verbunden', cls: 'sync-idle' },
-    syncing: { text: 'Speichert …',     cls: 'sync-syncing' },
-    ok:      { text: '✓ Gespeichert',   cls: 'sync-ok' },
-    error:   { text: '⚠ Sync-Fehler',  cls: 'sync-error' }
-  };
-  el.textContent = map[s].text;
-  el.className = 'sync-badge ' + map[s].cls;
-}
-
-function initMsal(){
-  // Check for stored token
-  const stored = sessionStorage.getItem('graph_token');
-  if(stored){ graphToken = stored; updateLoginUI(true); }
-
-  // Board-Daten (Cloudflare KV) sind unabhängig vom persönlichen Microsoft-Login - werden immer
-  // geladen, sobald das gemeinsame Zugangs-Passwort bekannt ist. Vorher hing das Laden fälschlich
-  // zusätzlich am Microsoft-Login (Rest aus der Zeit vor der KV-Umstellung) - blieb also ohne
-  // aktive Microsoft-Sitzung beim Neuladen komplett leer, obwohl der Speichervorgang selbst
-  // erfolgreich war.
-  if(getKIAppToken()){
-    loadFromSharePoint();
-  }
-
-  // Handle redirect - betrifft nur Microsoft-spezifische Dinge (Identität, Excel-Sync)
-  handleAuthRedirect().then(ok=>{
-    // fetchCurrentUser() zuerst (und abgewartet), damit loadFromExcel() schon weiß, ob es sich
-    // um Ioannis handelt - sonst würde der Excel-Sync auch bei ihm beim Login übersprungen,
-    // weil die Identität in dem Moment noch unbekannt wäre.
-    if(ok || graphToken){ fetchCurrentUser().then(()=>loadFromExcel()); }
-  });
-}
-
-async function graphFetch(url, options={}){
-  if(!graphToken) await getToken();
-  const resp = await fetch('https://graph.microsoft.com/v1.0' + url, {
-    ...options,
-    cache: 'no-store',
-    headers: {
-      'Authorization': 'Bearer ' + graphToken,
-      'Content-Type': 'application/json',
-      ...(options.headers||{})
-    }
-  });
-  if(resp.status === 401){ await getToken(); return graphFetch(url, options); }
-  return resp;
-}
 
 function showSyncDebug(message, isError){
   let box = document.getElementById('sync-debug-box');
@@ -2847,6 +2390,7 @@ async function loadFromSharePoint(){
           state.coachingPlan = [...(state.coachingPlan||[]), ...extra].filter(p=>!deletedSet.has(p.id));
         }
         if(data.todosByUser) Object.assign(state.todosByUser, data.todosByUser);
+        try{ todoNachLaden(); }catch(e){}
         // (Tagesziele: per lwwMergeAll() zusammengeführt)
         // "Letztes Coaching" pro Mitarbeiter anhand der echten Verlaufsdaten geraderücken
         // (behebt veraltete Werte, die vor einem früheren Fix entstanden sind)
@@ -3017,6 +2561,7 @@ function mergeServerIntoLocalForSave(serverData){
     Object.keys(serverData.todosByUser).forEach(uid=>{
       if(uid !== currentUserId) state.todosByUser[uid] = serverData.todosByUser[uid];
     });
+    try{ todoNachLaden(); }catch(e){}
   }
 
   // Mitarbeiter + Tageswerte + Monatsstand (Calls/NPS/LQ/CHT/...): zellgenau, neuere Änderung gewinnt.
@@ -3153,117 +2698,6 @@ function setSyncStatus(s){
 
 
 
-// ============================================================
-// Excel Live-Ticker Sync (Juli-Tab)
-// Spalten: A=Name, B=Calls, C=MF NG, E=SU, G=BB, I=TV, K=VVM, Q=GESAMT CR, R=NPS
-// ============================================================
-const EXCEL_FILES = {
-  "Trikala01": { path: "Trikala-Portal/MF ScozTR_ 01 Live Ticker.xlsx" },
-  "Trikala06": { path: "Trikala-Portal/FN ScozTR_06 Live Ticker.xlsx" }
-};
-
-// Einmalige Notfall-Wiederherstellung: Board-Daten liefen bis zur Umstellung auf Cloudflare KV
-// über diese OneDrive-Datei. Seit der Umstellung wird sie nicht mehr beschrieben, sollte also
-// noch den letzten echten Stand von vorher enthalten. Ergänzt nur, was aktuell leer/fehlend ist -
-// überschreibt nichts, was seit der Umstellung neu eingetragen wurde.
-async function loadFromExcel(){
-  if(!graphToken) return;
-  // Die Excel-Dateien liegen in Ioannis' persönlichem OneDrive - bei jeder anderen Führungskraft
-  // schlägt der direkte Zugriff mit "403 accessDenied" fehl. Deshalb hier komplett überspringen,
-  // wenn nicht sicher feststeht, dass Ioannis eingeloggt ist (schützt auch den automatischen
-  // 5-Minuten-Hintergrund-Sync und den Aufruf direkt nach dem Login).
-  if(currentUserName !== 'Ioannis Fasoulas') return;
-  setSyncStatus('syncing');
-  let totalUpdated = 0;
-  const excelErrors = [];
-
-  for(const [teamId, cfg] of Object.entries(EXCEL_FILES)){
-    try {
-      // Datei als Rohdatei laden (wie die JSON-Datei) statt über die Excel-Online-API,
-      // da diese bei manchen Dateien/Tenants blockiert ist ("Could not obtain a WAC access token").
-      const url = `/drives/${OWNER_DRIVE_ID}/root:/${cfg.path}:/content?_cb=${Date.now()}`;
-      const resp = await graphFetch(url);
-      if(!resp.ok){
-        const errText = await resp.text();
-        console.error(`Excel ${teamId} fehlgeschlagen:`, resp.status, errText);
-        let detail = '';
-        try{ const eb = JSON.parse(errText); detail = eb.error ? ` — ${eb.error.code}: ${eb.error.message}` : ''; }catch(e){}
-        excelErrors.push(`${teamId}: HTTP ${resp.status}${detail}`);
-        continue;
-      }
-      const arrayBuffer = await resp.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      if(!sheetName){
-        excelErrors.push(`${teamId}: Kein Tabellenblatt in der Datei gefunden`);
-        continue;
-      }
-      const sheet = workbook.Sheets[sheetName];
-      // Bereich A5:S80 als Zeilen-Array auslesen (gleiche Spaltenzuordnung wie bisher)
-      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, range: 'A5:S80', defval: '' });
-
-      rows.forEach(row => {
-        const name = (row[0] || '').toString().trim();
-        if(!name) return;
-        const agent = state.agents.find(a =>
-          a.name.trim().toLowerCase() === name.toLowerCase() &&
-          String(a.team) === String(teamId)
-        );
-        if(!agent) return;
-        const cellVal = v => (v !== null && v !== undefined && v !== '') ? (parseFloat(v) || 0) : null;
-        agent.calls = cellVal(row[1]);
-        agent.sales['MF'] = cellVal(row[2]);
-        agent.sales['SU'] = cellVal(row[4]);
-        agent.sales['BB'] = cellVal(row[6]);
-        agent.sales['TV'] = cellVal(row[8]);
-        const vvmKey = agent.team === 'Trikala06' ? 'VVM+NVM' : 'VVM+BOJ';
-        if(agent.team === 'Trikala06'){
-          const vvmVal = cellVal(row[10]);
-          const nvmVal = cellVal(row[12]);
-          agent.sales[vvmKey] = (vvmVal === null && nvmVal === null) ? null : (vvmVal||0) + (nvmVal||0);
-        } else {
-          agent.sales[vvmKey] = cellVal(row[10]);
-        }
-        agent.nps = cellVal(row[17]);
-        agent.lq = cellVal(row[18]);
-        window.__npsDebug = window.__npsDebug || [];
-        window.__npsDebug.push({ name: agent.name, team: agent.team, rawNps: row[17], rawLq: row[18], setNps: agent.nps, setLq: agent.lq });
-        totalUpdated++;
-      });
-    } catch(e){
-      console.error(`Excel ${teamId} Fehler:`, e);
-    }
-  }
-
-  if(window.__npsDebug){
-    const problem = window.__npsDebug.filter(d =>
-      ((d.rawNps !== undefined && d.rawNps !== null && d.rawNps !== '') && d.setNps === null) ||
-      ((d.rawLq !== undefined && d.rawLq !== null && d.rawLq !== '') && d.setLq === null)
-    );
-    if(problem.length){
-      showSyncDebug('🔍 NPS/LQ-Diagnose (Wert vorhanden, aber nicht übernommen): ' + problem.map(p=>`${p.name} (${p.team}): roh-NPS=${JSON.stringify(p.rawNps)} roh-LQ=${JSON.stringify(p.rawLq)}`).join(' | '), true);
-    }
-    window.__npsDebug = [];
-  }
-
-  if(totalUpdated > 0){
-    renderAll();
-    scheduleSave();
-    setSyncStatus('ok');
-    const now = new Date().toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-    const lbl = document.getElementById('excel-sync-label');
-    if(lbl) lbl.textContent = `Excel: ${totalUpdated} MA · ${now}`;
-    if(excelErrors.length){
-      showSyncDebug(`⚠️ Excel teilweise aktualisiert (${totalUpdated} MA), aber Fehler bei: ${excelErrors.join(' | ')}`, true);
-    }
-  } else {
-    setSyncStatus('error');
-    showSyncDebug(`❌ Excel-Aktualisierung fehlgeschlagen. ${excelErrors.join(' | ') || 'Keine passenden Mitarbeiter gefunden.'}`, true);
-  }
-}
-
-// Excel-Sync wird nicht mehr benötigt (Trikala Portal nutzt Tageswerte statt der Excel-Datei) -
-// automatischer 5-Minuten-Hintergrundlauf entfernt.
 // Gemeinsame Board-Daten (Mitarbeiter, Coachings, Ziele, ...) alle 2 Minuten im Hintergrund neu laden,
 // damit Änderungen anderer Führungskräfte automatisch sichtbar werden, ohne dass man neu laden muss.
 // Wird übersprungen, während gerade ein Coaching-Formular offen ist, um laufende Eingaben nicht zu verlieren.
@@ -3610,20 +3044,6 @@ ${JSON.stringify(payload, null, 2)}`;
   }
 }
 
-function numField(labelText, value, onChange, step){
-  const wrap = document.createElement('div');
-  wrap.className = 'metric-field';
-  const label = document.createElement('label');
-  label.textContent = labelText;
-  const input = document.createElement('input');
-  input.type = 'text';
-  input.inputMode = step ? 'decimal' : 'numeric';
-  const parsed = parseFloat(value) || 0;
-  input.value = step ? parsed.toFixed(2) : Math.round(parsed).toString();
-  input.addEventListener('change', e=>{ onChange(parseFloat(e.target.value.replace(',','.'))||0); scheduleSave(); renderAll(); });
-  wrap.appendChild(label); wrap.appendChild(input);
-  return wrap;
-}
 
 function switchTab(tab){
   currentTab = tab;
@@ -3704,72 +3124,6 @@ document.getElementById('cd-gear').addEventListener('click', ()=>{ initCoachDash
 // Sub-Tab Steuerung für Mitarbeiter Ziele (Mitarbeiter Ziele / Tageswerte)
 
 // =====================================================================
-// v209: Die Giagia spricht den Spruch – Figur mit Sprechblase, damit der Spruch sofort ins Auge fällt
-// v210: Giagia lebendiger – drei Stimmungen (jubel / zwinker / mutig), im Board animiert
-// (winkt mit dem Kochlöffel, blinzelt, wippt). Auf dem gespeicherten Bild steht sie still.
-function giagiaSvg(mood){
-  mood = mood || 'zwinker';
-  const SK = '#F4C9A6', DR = '#2B2B33';
-  const star = (x, y, r, d) => `<path class="gg-spark" style="animation-delay:${d}s" d="M${x} ${y - r} Q${x} ${y} ${x + r} ${y} Q${x} ${y} ${x} ${y + r} Q${x} ${y} ${x - r} ${y} Q${x} ${y} ${x} ${y - r} Z" fill="#FFC23D"/>`;
-  const augen = {
-    jubel:   `<path d="M45.5 58.8 Q48.5 55.4 51.5 58.8 M60.5 58.8 Q63.5 55.4 66.5 58.8" fill="none" stroke="#2A1C14" stroke-width="1.7" stroke-linecap="round"/>`,
-    zwinker: `<circle cx="48.5" cy="58.3" r="2.2" fill="#2A1C14"/><circle cx="49.3" cy="57.5" r=".75" fill="#fff"/><path d="M60.5 58.2 Q63.5 60.8 66.5 58.2" fill="none" stroke="#2A1C14" stroke-width="1.7" stroke-linecap="round"/>`,
-    mutig:   `<circle cx="48.5" cy="58.5" r="2.2" fill="#2A1C14"/><circle cx="49.3" cy="57.7" r=".75" fill="#fff"/><circle cx="63.5" cy="58.5" r="2.2" fill="#2A1C14"/><circle cx="64.3" cy="57.7" r=".75" fill="#fff"/>`
-  }[mood];
-  const brauen = mood === 'mutig'
-    ? `<path d="M43 48.6 Q47.5 49.4 51.5 51.4 M60.5 51.4 Q64.5 49.4 69 48.6" fill="none" stroke="#8E8E98" stroke-width="1.9" stroke-linecap="round"/>`
-    : `<path d="M43 50.2 Q47.5 46.8 51.2 49.4 M60.8 49.4 Q64.5 46.8 69 50.2" fill="none" stroke="#8E8E98" stroke-width="1.8" stroke-linecap="round"/>`;
-  const mund = {
-    jubel:   `<path d="M48.2 68.6 Q56 80.5 63.8 68.6 Z" fill="#7A2230"/><path d="M50.2 69.2 L61.8 69.2 L61 71 L51 71 Z" fill="#fff"/><path d="M51.8 75 Q56 72.6 60.2 75 Q56 78.4 51.8 75 Z" fill="#E86A7A"/>`,
-    zwinker: `<path d="M48.6 69.6 Q55.5 76.4 63.4 68.4" fill="none" stroke="#8A3B3B" stroke-width="2" stroke-linecap="round"/><path d="M62.4 67.6 L64.6 69.4" stroke="#8A3B3B" stroke-width="1.6" stroke-linecap="round"/>`,
-    mutig:   `<path d="M48.6 69.2 Q56 77 63.4 69.2 Z" fill="#fff" stroke="#8A3B3B" stroke-width="1.7" stroke-linejoin="round"/><path d="M50 70.6 L62 70.6" stroke="#E5D6CF" stroke-width="1"/>`
-  }[mood];
-  const linkerArm = {
-    jubel:   `<g class="gg-arm2"><path d="M31 97 Q17 90 15 71" fill="none" stroke="${DR}" stroke-width="10" stroke-linecap="round"/><circle cx="15" cy="68" r="5.8" fill="${SK}"/></g>`,
-    zwinker: `<path d="M31 97 Q16 102 19 86" fill="none" stroke="${DR}" stroke-width="10" stroke-linecap="round"/><ellipse cx="19.5" cy="76.5" rx="2.4" ry="4.4" fill="${SK}"/><circle cx="19.5" cy="83" r="5.8" fill="${SK}"/><path d="M15.5 82 L23 82 M15.8 85 L22.8 85" stroke="#D9A786" stroke-width="1"/>`,
-    mutig:   `<g class="gg-arm2"><path d="M31 97 Q14 99 17 81" fill="none" stroke="${DR}" stroke-width="10" stroke-linecap="round"/><rect x="11.5" y="72" width="12" height="11" rx="4.5" fill="${SK}"/><path d="M12.5 76 L22.5 76 M12.5 79.4 L22.5 79.4" stroke="#D9A786" stroke-width="1"/></g>`
-  }[mood];
-  const funkeln = mood === 'jubel' ? star(10, 44, 5, 0) + star(28, 13, 4, .5) + star(100, 10, 4.5, 1) + star(116, 60, 3.5, .8)
-               : mood === 'zwinker' ? star(98, 12, 4, 0) + star(14, 50, 3.5, .7) : star(112, 14, 3.5, .3);
-  return `<svg class="gg-fig gg-${mood}" viewBox="0 0 120 132" aria-hidden="true">
-  <ellipse cx="56" cy="128.5" rx="34" ry="3.5" fill="rgba(60,0,35,.16)"/>
-  ${funkeln}
-  <g class="gg-body">
-    <path d="M22 131 Q22 93 56 87 Q90 93 90 131 Z" fill="${DR}"/>
-    <path d="M30 128 Q31 102 47 92" fill="none" stroke="#474752" stroke-width="2.2" stroke-linecap="round"/>
-    <path d="M40 131 Q41 105 56 101 Q71 105 72 131 Z" fill="#F6EEE3"/>
-    <path d="M44 104 Q56 107.5 68 104" fill="none" stroke="#E2D2BC" stroke-width="2"/>
-    <path d="M42.5 121 l3.4 -3.4 l3.4 3.4 l3.4 -3.4 l3.4 3.4 l3.4 -3.4 l3.4 3.4 l3.4 -3.4 l3.4 3.4" fill="none" stroke="#E20074" stroke-width="1.7" stroke-linejoin="round"/>
-    <circle cx="49" cy="112" r="1.5" fill="#0E7C7B"/><circle cx="56" cy="112" r="1.5" fill="#E20074"/><circle cx="63" cy="112" r="1.5" fill="#0E7C7B"/>
-    ${linkerArm}
-    <g class="gg-arm">
-      <path d="M81 97 Q96 91 99 73" fill="none" stroke="${DR}" stroke-width="10" stroke-linecap="round"/>
-      <line x1="99" y1="69" x2="106" y2="39" stroke="#B07A44" stroke-width="3.8" stroke-linecap="round"/>
-      <ellipse cx="107.6" cy="32.5" rx="5.2" ry="7.6" fill="#B07A44" transform="rotate(14 107.6 32.5)"/>
-      <ellipse cx="106.4" cy="31" rx="2" ry="3.4" fill="#C99462" transform="rotate(14 106.4 31)"/>
-      <circle cx="99" cy="70" r="5.8" fill="${SK}"/>
-      <path d="M115 21 q5.5 6 3.6 14 M118.5 44 q3.5 3 3.5 8" fill="none" stroke="#E20074" stroke-width="2.2" stroke-linecap="round" opacity=".85"/>
-    </g>
-  </g>
-  <g class="gg-head" transform="rotate(-5 56 86)">
-    <path d="M30 62 Q27 23 56 22 Q85 23 82 62 Q82 82 64 86 L56 88 L48 86 Q30 82 30 62 Z" fill="#1F1F26"/>
-    <path d="M37 35 Q56 26 75 35 M33 52 Q35 40 41 34" fill="none" stroke="#3B3B47" stroke-width="1.7" stroke-linecap="round"/>
-    <ellipse cx="56" cy="60" rx="17.5" ry="19.5" fill="${SK}"/>
-    <path d="M38.5 50 Q46 37.5 56 40 Q66 37.5 73.5 50 Q66 44 56 45 Q46 44 38.5 50 Z" fill="#D2D2D9"/>
-    <circle cx="39.4" cy="69" r="2.5" fill="#E8B64C"/><circle cx="72.6" cy="69" r="2.5" fill="#E8B64C"/>
-    <circle cx="44.6" cy="66.6" r="3.8" fill="#F29AA8" opacity=".7"/><circle cx="67.4" cy="66.6" r="3.8" fill="#F29AA8" opacity=".7"/>
-    ${brauen}
-    <g class="gg-eyes">${augen}</g>
-    <circle cx="48.5" cy="58" r="6.1" fill="rgba(255,255,255,.28)" stroke="#5A4632" stroke-width="1.6"/>
-    <circle cx="63.5" cy="58" r="6.1" fill="rgba(255,255,255,.28)" stroke="#5A4632" stroke-width="1.6"/>
-    <path d="M54.6 57.6 L57.4 57.6" stroke="#5A4632" stroke-width="1.6"/>
-    <path d="M56 61 Q58.2 64.6 55.4 65.6" fill="none" stroke="#C99A7C" stroke-width="1.4" stroke-linecap="round"/>
-    ${mund}
-    <circle cx="56" cy="88" r="3.9" fill="#1F1F26"/>
-    <path d="M56 89 L50.5 97.5 M56 89 L61.5 97.5" stroke="#1F1F26" stroke-width="3.2" stroke-linecap="round"/>
-  </g>
-</svg>`;
-}
 // v211: echtes Foto der Giagia (Pexels, frei nutzbar) statt Zeichnung
 const GIAGIA_FOTO = 'data:image/jpeg;base64,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';
 function hrSpruchHtml(text, mood){
@@ -3779,658 +3133,10 @@ function hrSpruchHtml(text, mood){
 }
 // Beim Bild-Export Animationen anhalten (sonst landet ein Zwischenbild im PNG)
 function ggStill(doc){ try{ const st = doc.createElement('style'); st.textContent = '*,*::before,*::after{animation:none!important;transition:none!important}'; doc.head.appendChild(st); }catch(e){} }
-// =====================================================================
-// v205: FRÜHWARNSYSTEM
-// Erkennt früh, wenn ein Mitarbeiter abrutscht – bevor der Monat gelaufen ist.
-// =====================================================================
-function fwFmt(n){ return (Math.round(n * 10) / 10).toLocaleString('de-DE', { maximumFractionDigits:1 }); }
-function fwWarnungen(agent, now, hrRow){
-  now = now || new Date();
-  const cfg = TEAM_CONFIGS[agent.team];
-  if(!cfg || agent.category === 'schulung' || agent.category === 'work') return [];
-  const w = [];
-  // 1) Abschlüsse der letzten 3 Arbeitstage gegenüber dem eigenen Schnitt des Monats
-  const tw = (agent.tageswerte && agent.tageswerte[twMonthKey(now)]) || {};
-  const tage = Object.keys(tw).map(Number).filter(d => d < now.getDate()).sort((a, b) => a - b).map(d=>{
-    const s = (tw[d] && tw[d].sales) || {};
-    if(!cfg.products.some(p => typeof s[p] === 'number')) return null;
-    return cfg.products.reduce((x, p) => x + (+s[p] || 0), 0);
-  }).filter(v => v !== null);
-  if(tage.length >= 6){
-    const letzte = tage.slice(-3), davor = tage.slice(0, -3);
-    const avgV = davor.reduce((a, b) => a + b, 0) / davor.length;
-    const avgL = letzte.reduce((a, b) => a + b, 0) / letzte.length;
-    if(avgV >= 1 && avgL === 0) w.push({ key:'stk0', stufe:'rot', text:'Keine Abschlüsse an den letzten 3 Arbeitstagen', detail:`sonst Ø ${fwFmt(avgV)} pro Tag` });
-    else if(avgV >= 1 && avgL < avgV * 0.5) w.push({ key:'stk', stufe:'gelb', text:'Abschlüsse eingebrochen', detail:`letzte 3 Tage Ø ${fwFmt(avgL)} statt ${fwFmt(avgV)}` });
-  }
-  // 2) NPS: deutlich unter Vormonat oder weit unter Ziel
-  const nps = fkCurVal(agent, 'nps', now);
-  if(nps !== null){
-    const pm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const vm = agentVerlaufMonat(agent, pm.getFullYear(), VL_MONATE[pm.getMonth()]);
-    const vNps = vm && typeof vm.nps === 'number' && vm.nps !== 0 ? vm.nps : null;
-    const ziel = cfg.npsTarget || 0;
-    if(vNps !== null && nps <= vNps - 5) w.push({ key:'nps', stufe: nps <= vNps - 10 ? 'rot' : 'gelb', text:'NPS gefallen', detail:`${fwFmt(vNps)} % → ${fwFmt(nps)} %` });
-    else if(ziel && nps < ziel - 10) w.push({ key:'npsz', stufe:'rot', text:'NPS weit unter Ziel', detail:`${fwFmt(nps)} % (Ziel ${ziel} %)` });
-  }
-  // 3) CR unter der roten Schwelle (ab 150 Calls aussagekräftig)
-  const calls = fkCurVal(agent, 'calls', now) || 0;
-  if(calls >= 150){
-    const cr = totalCr(agent), rot = agent.team === 'Trikala01' ? 4 : 7;
-    if(cr < rot) w.push({ key:'cr', stufe:'rot', text:`CR unter ${rot} %`, detail:`aktuell ${fwFmt(cr)} %` });
-  }
-  // 4) Hochrechnung: ab Monatsmitte kaum ein Produkt auf Kurs
-  if(hrRow && hrRow.total >= 3 && now.getDate() >= 12 && hrRow.onTrack / hrRow.total <= 0.25)
-    w.push({ key:'hr', stufe:'gelb', text:'Kaum ein Produkt auf Kurs', detail:`${hrRow.onTrack} von ${hrRow.total} laut Hochrechnung` });
-  // 5) Zusatzinfo: lange kein Coaching (nur zusammen mit anderen Warnungen)
-  if(w.length){
-    const d = fkParseDe(agent.coachingDatum);
-    const tageOhne = d ? Math.floor((now - d) / 86400000) : null;
-    if(tageOhne === null || tageOhne > 21) w.push({ key:'coach', stufe:'info', text: tageOhne === null ? 'Noch kein Coaching erfasst' : `Seit ${tageOhne} Tagen kein Coaching`, detail:'' });
-  }
-  return w;
-}
-function fwHrZeilen(now){
-  const map = {};
-  Object.keys(TEAM_CONFIGS).forEach(teamId=>{
-    const cfg = TEAM_CONFIGS[teamId];
-    const ags = state.agents.filter(a => String(a.team) === String(teamId) && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
-    if(!ags.length) return;
-    let info; try{ info = hrWorkdayInfo(ags, now); }catch(e){ return; }
-    if(!info || !info.hasData || !info.elapsed) return;
-    const anteil = hrAnteilArbeitstage(info, now);
-    ags.forEach(a => { try{ map[a.id] = hrBerechne(a, cfg, info, anteil); }catch(e){} });
-  });
-  return map;
-}
-function fwAlle(filterFn){
-  const now = new Date();
-  const hr = fwHrZeilen(now);
-  const gew = { rot:3, gelb:2, info:0 };
-  return state.agents.filter(a => a.name && a.name.trim() && (!filterFn || filterFn(a)))
-    .map(a => { const w = fwWarnungen(a, now, hr[a.id]); return { agent:a, w, score: w.reduce((s, x) => s + gew[x.stufe], 0) }; })
-    .filter(x => x.w.some(y => y.stufe !== 'info'))
-    .sort((a, b) => b.score - a.score || String(a.agent.name).localeCompare(String(b.agent.name), 'de'));
-}
-function fwSignatur(x){ return x.w.filter(y => y.stufe !== 'info').map(y => y.key).sort().join(','); }
-function fwIstQuittiert(x){
-  try{ const v = JSON.parse(localStorage.getItem('fw-ok-' + x.agent.id) || 'null'); return v && v.sig === fwSignatur(x) && (Date.now() - v.ts) < 7 * 86400000; }catch(e){ return false; }
-}
-function fwSection(){
-  const lf = fkGetLeaderFilter();
-  const liste = fwAlle(a => fkMatchesLeader(a, lf) && (fkTeamFilter === 'alle' || String(a.team) === fkTeamFilter));
-  const offen = liste.filter(x => !fwIstQuittiert(x));
-  const sec = document.createElement('div');
-  sec.className = 'fk-section fw-section';
-  sec.innerHTML = `<div class="fk-sec-title">⚠️ Frühwarnungen <span>${offen.length}</span></div>
-    <div class="fk-sub">Mitarbeiter, bei denen es gerade abwärts geht – erkannt aus Tageswerten, NPS, CR und Hochrechnung. „Gesehen“ blendet eine Warnung für 7 Tage aus, bis sich etwas ändert.</div>`;
-  if(!offen.length){
-    sec.innerHTML += `<div class="fk-empty">${liste.length ? 'Alle Warnungen sind gesehen. ' : ''}Aktuell rutscht niemand ab – sehr gut!</div>`;
-    return sec;
-  }
-  const grid = document.createElement('div'); grid.className = 'fw-grid';
-  offen.forEach(x=>{
-    const c = document.createElement('div');
-    c.className = 'fw-card fw-' + (x.w.some(y => y.stufe === 'rot') ? 'rot' : 'gelb');
-    c.innerHTML = `<div class="fw-head"><button type="button" class="cd-tl-name" data-akte="${x.agent.id}">${kiEsc(x.agent.name)}</button><span class="fw-team">${kiEsc((TEAM_CONFIGS[x.agent.team] || {}).project || '')}</span></div>
-      <ul class="fw-list">${x.w.map(y => `<li class="fw-${y.stufe}"><b>${kiEsc(y.text)}</b>${y.detail ? `<span>${kiEsc(y.detail)}</span>` : ''}</li>`).join('')}</ul>
-      <div class="fw-actions"><button type="button" class="fk-btn fw-akte">Akte öffnen</button><button type="button" class="fk-btn fw-ok">Gesehen</button></div>`;
-    c.querySelector('.fw-akte').onclick = () => openAgentAkte(x.agent.id);
-    c.querySelector('.fw-ok').onclick = () => { try{ localStorage.setItem('fw-ok-' + x.agent.id, JSON.stringify({ sig: fwSignatur(x), ts: Date.now() })); }catch(e){} renderWoche(); };
-    grid.appendChild(c);
-  });
-  sec.appendChild(grid);
-  return sec;
-}
-
-// =====================================================================
-// v205: MONATSBILANZ – persönliche Karte zum Monatsende
-// =====================================================================
-const MB_SPRUECHE = {
-  top: [
-    'Monat abgeschlossen wie ein Profi: alle Ziele im Sack, Deckel drauf, Schleife drum.',
-    'Du hast diesen Monat so abgeräumt, dass die Ziele für nächsten Monat schon Angst haben.',
-    'Monat gemeistert! Wäre das ein Film, liefe jetzt der Abspann mit Standing Ovations.',
-    'Zielerfüllung deluxe. Die Hall of Fame poliert schon deinen Rahmen.',
-    'So sieht ein Monat aus, den man einrahmen und ins Wohnzimmer hängen sollte.',
-    'Alles erreicht – du hast den Monat nicht bestanden, du hast ihn dominiert.',
-    'Wenn Monate Noten bekämen, hätte dieser eine 1 mit Sternchen. Und Smiley.',
-    'Glückwunsch! Selbst deine Giagia hätte nichts zu meckern. Und das will was heißen.',
-    'Ziele erreicht, Kunden happy, Headset glücklich. Der perfekte Monat.',
-    'Die Statistik hat deinen Monat gesehen und um ein Autogramm gebeten.',
-    'Ein Monat wie ein frischer Frappé: kalt, stark und genau richtig.',
-    'Du hast mehr abgeräumt als ein Kellner nach einer griechischen Hochzeit.',
-    'Monatsziel? Erledigt. Bonusrunde? Auch erledigt. Du bist nicht zu stoppen.',
-    'So geht das! Dieser Monat kommt in deine persönliche Best-of-Sammlung.'
-  ],
-  gut: [
-    'Starker Monat! Nur ein kleines Stück fehlte zur Perfektion – nächsten Monat holst du es dir.',
-    'Fast alles geschafft – das war ein Monat mit ordentlich Wumms.',
-    'Richtig gut gelaufen! Das letzte Prozent hebst du dir wohl für den Spannungsbogen auf.',
-    'Ein Monat zum Stolzsein. Mit einer Prise Luft nach oben – für die Fortsetzung.',
-    'Sehr solide! Wenn das ein Gyros war, fehlte nur noch ein Klecks Tzatziki.',
-    'Knapp an der Perfektion vorbei – aber knapp vorbei ist auch voll gut.',
-    'Das war stark. Der nächste Monat darf sich schon mal warm anziehen.',
-    'Gute Arbeit! Die Ziele haben gezittert – nur eins konnte sich noch retten.',
-    'Fast die volle Punktzahl. Der Rest ist nur noch Formsache.',
-    'Ein Monat, auf den man aufbauen kann. Am besten gleich mit Turbo.',
-    'So nah dran! Der nächste Monat wird dein Meisterstück.',
-    'Klasse Monat! Du hast mehr erreicht, als die meisten Kaffeemaschinen in ihrem ganzen Leben.',
-    'Daumen hoch! Das war fast ein Hattrick – nächsten Monat schießt du das dritte Tor.',
-    'Ein richtig guter Monat. Und das Beste: Da geht noch was.'
-  ],
-  mittel: [
-    'Ein solider Monat mit Luft nach oben – und Luft ist bekanntlich gratis.',
-    'Halbe Miete eingefahren. Nächsten Monat holen wir den Rest – mit Zinsen.',
-    'Es lief nicht alles rund, aber vieles. Daraus bauen wir den nächsten Erfolg.',
-    'Der Monat war wie ein Souvlaki ohne Pita – gut, aber da fehlt noch was.',
-    'Ordentlich! Jetzt noch ein paar Schrauben drehen, und die Maschine schnurrt.',
-    'Die Basis steht. Nächsten Monat setzen wir das Dach drauf.',
-    'Mittelfeld ist ein guter Startplatz für den Angriff nach vorne.',
-    'Nicht schlecht, Herr Specht! Und nächsten Monat noch besser.',
-    'Der Motor läuft – nächsten Monat schalten wir einen Gang höher.',
-    'Ein Monat mit Lernkurve. Und Lernkurven zeigen bekanntlich nach oben.',
-    'Halb voll, nicht halb leer – und das Glas wird nächsten Monat aufgefüllt.',
-    'Ein paar Ziele haben sich gedrückt. Nächsten Monat erwischen wir sie.',
-    'Solide gespielt – jetzt fehlen nur noch die Tore in der Nachspielzeit.',
-    'Das war okay. Und „okay“ ist nur der Anfang von „großartig“.'
-  ],
-  schwach: [
-    'Dieser Monat war das Aufwärmprogramm. Der nächste ist das Hauptprogramm.',
-    'Jeder Champion hatte mal einen schwierigen Monat. Das hier ist deine Comeback-Vorlage.',
-    'Neuer Monat, neues Glück – eine weiße Weste wartet schon auf dich.',
-    'Abhaken, Frappé holen, neu starten. Der nächste Monat gehört dir.',
-    'Auch Rocky lag mal am Boden. Du weißt, wie die Geschichte weitergeht.',
-    'Das war der Anlauf. Jetzt kommt der Sprung.',
-    'Von hier aus geht es nur nach oben – und wir sind beim Aufstieg dabei.',
-    'Kein Grund zur Sorge: Auch die Meteora-Felsen hat niemand an einem Tag erklommen.',
-    'Dieser Monat ist Geschichte. Der nächste wird eine Erfolgsgeschichte.',
-    'Die beste Zeit für ein Comeback? Genau jetzt.',
-    'Reset gedrückt, Headset auf – Runde zwei beginnt.',
-    'Ein Monat zum Lernen, der nächste zum Glänzen.',
-    'Plot-Twist im nächsten Monat? Wir haben da so eine Ahnung …',
-    'Kopf hoch! Die nächsten Ziele wissen noch nicht, wer gleich auf sie zukommt.'
-  ]
-};
-const MB_SPRUECHE_ALLG = [
-  'Danke für deinen Einsatz – jeder Call zählt, auch die, die in keiner Statistik stehen.',
-  'Ein Monat voller Gespräche – und hinter jedem steckt ein Mensch, dem du geholfen hast.',
-  'Merke: Erfolg ist die Summe kleiner Abschlüsse, die man jeden Tag macht.',
-  'Neuer Monat, neue Chancen – das Headset ist schon geladen.',
-  'Fun Fact: Wer seine Zahlen anschaut, verbessert sie. Du bist also schon auf dem Weg.',
-  'Jeder Monat ist ein neues Kapitel. Mach das nächste zu deinem Lieblingskapitel.',
-  'Deine Stimme hat diesen Monat vielen Kunden den Tag gerettet.',
-  'Hinter jeder Zahl steckt ein Gespräch – und du hast viele gute geführt.',
-  'Ziele kommen und gehen, gute Laune bleibt. Nimm sie mit in den neuen Monat.',
-  'Der beste Monat ist immer der nächste. Also: Auf geht’s!',
-  'Du bist Teil eines starken Teams – und das Team ist stark, weil du dabei bist.',
-  'Ein Abschluss am Morgen vertreibt Kummer und Sorgen. Auch im neuen Monat.',
-  'Kunden erinnern sich nicht an Zahlen, sondern daran, wie sich das Gespräch angefühlt hat.',
-  'Monatsbilanz gecheckt? Sehr gut – Wissen ist die halbe Miete.',
-  'Fokus, Freundlichkeit, Frage nach dem Abschluss – die drei F für den nächsten Monat.',
-  'Jedes Nein bringt dich einem Ja näher. Der neue Monat hat viele Jas für dich.',
-  'Gute Gespräche sind wie Pizza: Selbst die mittelmäßigen sind noch ziemlich gut.',
-  'Die nächste Bestmarke wartet schon. Sie ist nur noch nicht informiert.',
-  'Kleiner Reminder: Lächeln hört man durchs Telefon. Auch im neuen Monat.',
-  'Ein neuer Monat ist wie ein frisch geladener Akku: 100 % Potenzial.',
-  'Wer mit Herz telefoniert, hat am Ende die Zahlen auf seiner Seite.',
-  'Dein Headset freut sich schon auf den nächsten Monat. Ehrlich.',
-  'Rückblick erledigt, Blick nach vorn: Der neue Monat ist ein leeres Blatt.',
-  'Mach dir einen Frappé und plan deinen nächsten großen Monat.'
-];
-let mbMonatOffset = -1;   // Standard: Vormonat (Endstand)
-function mbYM(offset){ const n = new Date(); const d = new Date(n.getFullYear(), n.getMonth() + offset, 1); return { y: d.getFullYear(), m: d.getMonth() }; }
-function mbDaten(agent, y, m){
-  const now = new Date();
-  const istAkt = y === now.getFullYear() && m === now.getMonth();
-  const ym = `${y}-${String(m + 1).padStart(2, '0')}`;
-  return withMonatsZiele(ym, ()=>{
-    const cfg = TEAM_CONFIGS[agent.team]; if(!cfg) return null;
-    const targets = agentTargets(agent);
-    let sales, calls, nps, cr;
-    if(istAkt){
-      sales = agent.sales || {}; calls = fkCurVal(agent, 'calls', now) || 0; nps = fkCurVal(agent, 'nps', now);
-      cr = calls ? totalCr(agent) : null;
-    } else {
-      const md = agentVerlaufMonat(agent, y, VL_MONATE[m]);
-      if(!md) return null;
-      sales = md.sales || {}; calls = +md.calls || 0;
-      nps = (typeof md.nps === 'number' && md.nps !== 0) ? md.nps : null;
-      const stk = crProdukte(cfg).reduce((s, p) => s + (+sales[p] || 0), 0);
-      cr = (+md.cr > 0) ? +md.cr : (calls ? stk / calls * 100 : null);
-    }
-    const prods = displayOrderProducts(cfg.products.slice(), agent.team);
-    const zeilen = prods.map(p => { const i = cfg.products.indexOf(p); return { p, label: productLabel(p, agent.team), ist: +sales[p] || 0, ziel: targets[i] || 0 }; });
-    const mitZiel = zeilen.filter(z => z.ziel > 0);
-    const sumIst = mitZiel.reduce((s, z) => s + z.ist, 0), sumZiel = mitZiel.reduce((s, z) => s + z.ziel, 0);
-    return { agent, zeilen, erreicht: mitZiel.filter(z => z.ist >= z.ziel).length, total: mitZiel.length,
-      quote: sumZiel ? sumIst / sumZiel : null, sumIst, cr, nps, calls, crZiel: cfg.crTarget, npsZiel: cfg.npsTarget,
-      hatDaten: sumIst > 0 || calls > 0 || nps !== null };
-  });
-}
-function mbStufe(d){ if(!d || d.quote === null) return null; return (d.total && d.erreicht === d.total) || d.quote >= 1 ? 'top' : d.quote >= 0.85 ? 'gut' : d.quote >= 0.6 ? 'mittel' : 'schwach'; }
-// Berechnet für alle Mitarbeiter des Standorts Bilanz, Vormonat, Abzeichen und einen eindeutigen Spruch
-function mbAlle(y, m){
-  const pm = new Date(y, m - 1, 1);
-  const out = [];
-  Object.keys(TEAM_CONFIGS).forEach(teamId=>{
-    const ags = state.agents.filter(a => String(a.team) === String(teamId) && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
-    const rows = ags.map(a => ({ d: mbDaten(a, y, m), v: mbDaten(a, pm.getFullYear(), pm.getMonth()) })).filter(r => r.d && r.d.hatDaten);
-    // Abzeichen je Team
-    const best = (fn, ok) => { let b = null; rows.forEach(r => { const v = fn(r); if(v === null || v === undefined || (ok && !ok(r))) return; if(!b || v > b.v) b = { r, v }; }); return b; };
-    const nr1 = best(r => r.d.quote);
-    const npsHeld = best(r => r.d.nps, r => r.d.nps !== null && r.d.nps >= r.d.npsZiel);
-    const crChamp = best(r => r.d.cr, r => r.d.calls >= 100 && r.d.cr !== null && r.d.cr >= r.d.crZiel);
-    const comeback = best(r => (r.v && r.v.quote !== null && r.d.quote !== null) ? r.d.quote - r.v.quote : null, r => r.v && r.v.quote !== null && r.d.quote - r.v.quote >= 0.15);
-    rows.forEach(r=>{
-      const b = [];
-      const alles = r.d.total && r.d.erreicht === r.d.total;
-      if(nr1 && nr1.r === r && r.d.quote > 0) b.push({ ic:'trophy', t:'Nr. 1 im Team', st:'gold' });
-      if(alles && r.v && r.v.total && r.v.erreicht === r.v.total) b.push({ ic:'flame', t:'Serie: 2 Monate alles erreicht', st:'gold' });
-      else if(alles) b.push({ ic:'award', t:'Alle Ziele erreicht', st:'gold' });
-      if(comeback && comeback.r === r) b.push({ ic:'zap', t:'Comeback des Monats', st:'tmg' });
-      else if(r.v && r.v.quote !== null && r.d.quote !== null && r.d.quote - r.v.quote >= 0.10) b.push({ ic:'trend', t:'Aufsteiger', st:'teal' });
-      if(npsHeld && npsHeld.r === r) b.push({ ic:'star', t:'NPS-Held', st:'tmg' });
-      else if(r.d.nps !== null && r.d.nps >= r.d.npsZiel) b.push({ ic:'chat', t:'NPS im Ziel', st:'teal' });
-      if(crChamp && crChamp.r === r) b.push({ ic:'target', t:'CR-Champion', st:'tmg' });
-      out.push({ teamId, d: r.d, v: r.v, badges: b });
-    });
-  });
-  // Eindeutige Sprüche über den ganzen Standort (pro Monat fest)
-  const seed = y * 12 + m;
-  const hash = s => { let h = 2166136261; for(const ch of String(s)) h = Math.imul(h ^ ch.codePointAt(0), 16777619) >>> 0; return h; };
-  const benutzt = new Set(), alle = Object.values(MB_SPRUECHE).flat();
-  const nimm = (pools, h) => { for(const pool of pools){ if(!pool || !pool.length) continue; const st = (h + seed) % pool.length; for(let j = 0; j < pool.length; j++){ const t = pool[(st + j) % pool.length]; if(!benutzt.has(t)){ benutzt.add(t); return t; } } } return MB_SPRUECHE_ALLG[h % MB_SPRUECHE_ALLG.length]; };
-  const monatsEnde = new Date(y, m + 1, 0);
-  out.map(x => ({ x, s: mbStufe(x.d) || 'mittel', neu: istNeuImTeam(x.d.agent, monatsEnde), h: hash(x.d.agent.id + '|' + seed) }))
-    .sort((a, b) => (a.s < b.s ? -1 : a.s > b.s ? 1 : 0) || a.h - b.h)
-    .forEach(o => {
-      o.x.neu = o.neu;
-      o.x.spruch = o.neu
-        ? nimm([HR_NEU[(o.s === 'top' || o.s === 'gut') ? 'gut' : 'lernen'], HR_NEU.gut, HR_NEU.lernen, MB_SPRUECHE_ALLG], o.h)
-        : nimm([MB_SPRUECHE[o.s], MB_SPRUECHE_ALLG, alle], o.h);
-    });
-  return out;
-}
-function mbDelta(a, b, dec){ if(a === null || a === undefined || b === null || b === undefined) return ''; const d = a - b; if(Math.abs(d) < (dec ? 0.05 : 0.5)) return '<span class="mbd mbd-eq">±0</span>'; const t = dec ? fwFmt(Math.abs(d)) : Math.round(Math.abs(d)); return `<span class="mbd ${d > 0 ? 'mbd-up' : 'mbd-down'}">${d > 0 ? '▲' : '▼'} ${t}</span>`; }
-function mbKarteHtml(x, monatName, vmName){
-  const d = x.d, v = x.v;
-  const f1 = n => n.toLocaleString('de-DE', { minimumFractionDigits:1, maximumFractionDigits:1 });
-  const q = d.quote === null ? null : Math.round(d.quote * 100);
-  const qv = v && v.quote !== null ? Math.round(v.quote * 100) : null;
-  const st = d.quote === null ? 'none' : d.quote >= 1 ? 'ok' : d.quote >= 0.85 ? 'warn' : 'bad';
-  const col = { ok:'#0E7C7B', warn:'#C2792B', bad:'#B4423A', none:'#8A93A0' }[st];
-  const R = 34, U = 2 * Math.PI * R, fr = Math.min(1, d.quote || 0);
-  const ring = `<svg viewBox="0 0 84 84" width="84" height="84" aria-hidden="true"><circle cx="42" cy="42" r="${R}" fill="none" stroke="#EEE7EB" stroke-width="9"/><circle cx="42" cy="42" r="${R}" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(U * fr).toFixed(1)} ${U.toFixed(1)}" transform="rotate(-90 42 42)"/></svg>`;
-  const badges = x.badges.length
-    ? x.badges.map(b => `<span class="mb-badge mb-${b.st}">${cdIconSvg(b.ic)}${kiEsc(b.t)}</span>`).join('')
-    : '<span class="mb-badge mb-none">Nächsten Monat holst du dir dein erstes Abzeichen!</span>';
-  const vMap = {}; if(v) v.zeilen.forEach(z => vMap[z.p] = z.ist);
-  const zeilen = d.zeilen.map(z=>{
-    const ok = z.ziel > 0 && z.ist >= z.ziel;
-    const w = z.ziel > 0 ? Math.min(100, z.ist / z.ziel * 100) : 0;
-    const zst = z.ziel <= 0 ? 'none' : ok ? 'ok' : z.ist >= z.ziel * 0.85 ? 'warn' : 'bad';
-    const tag = z.ziel <= 0 ? '<div class="hrk-tag">kein Ziel</div>' : ok ? '<div class="hrk-tag t-ok t-done">✓ erreicht</div>' : `<div class="hrk-tag t-${zst}"><b>−${Math.round(z.ziel - z.ist)}</b><span>zum Ziel</span></div>`;
-    return `<div class="hrk-row st-${zst}${ok ? ' is-done' : ''}"><div class="hrk-p">${kiEsc(z.label)}</div><div class="hrk-mid"><div class="hrk-ist"><b>${Math.round(z.ist)}</b>${z.ziel > 0 ? ` von ${z.ziel}` : ''}</div>${z.ziel > 0 ? `<div class="hrk-bar"><i class="b-ist" style="width:${w}%"></i></div>` : ''}${vMap[z.p] !== undefined ? `<div class="hrk-prog">${vmName}: <b>${Math.round(vMap[z.p])}</b> ${mbDelta(z.ist, vMap[z.p])}</div>` : ''}</div>${tag}</div>`;
-  }).join('');
-  const kpi = (lbl, val, ziel, vVal)=>{
-    if(val === null || val === undefined) return `<div class="hrk-row hrk-nps st-none"><div class="hrk-p">${lbl}</div><div class="hrk-mid"><div class="hrk-nums">kein Wert</div></div><div class="hrk-tag">–</div></div>`;
-    const ok = !ziel || val >= ziel, s = ok ? 'ok' : (lbl === 'CR' ? val >= ziel * 0.85 : val >= ziel - 5) ? 'warn' : 'bad';
-    const w = ziel ? Math.max(0, Math.min(100, val / ziel * 100)) : 100;
-    return `<div class="hrk-row hrk-nps st-${s}"><div class="hrk-p">${lbl}</div><div class="hrk-mid"><div class="hrk-ist"><b>${f1(val)} %</b>${ziel ? ` von ${f1(ziel)} %` : ''}</div><div class="hrk-bar"><i class="b-ist" style="width:${w}%"></i></div>${vVal !== null && vVal !== undefined ? `<div class="hrk-prog">${vmName}: <b>${f1(vVal)} %</b> ${mbDelta(val, vVal, true)}</div>` : ''}</div>${ok ? '<div class="hrk-tag t-ok">✓ im Ziel</div>' : `<div class="hrk-tag t-${s}"><b>−${f1(ziel - val)}</b><span>Punkte</span></div>`}</div>`;
-  };
-  return `<div class="hrk hrb">
-    <div class="hrk-head hrb-head"><div class="hrk-eyebrow">Deine Monatsbilanz · ${kiEsc(monatName)}</div>
-      <div class="hrk-name">${kiEsc(d.agent.name)}</div>
-      <div class="hrk-meta">${x.neu ? '<span class="hrk-neu">Neu im Team</span> ' : ''}${kiEsc((TEAM_CONFIGS[d.agent.team] || {}).project || '')} · Endstand des Monats</div></div>
-    ${hrSpruchHtml(kiEsc(x.spruch || ''), { top:'jubel', gut:'jubel', mittel:'zwinker', schwach:'mutig' }[mbStufe(d)] || 'zwinker')}
-    <div class="hrb-hero"><div class="hrk-ring hrb-ring">${ring}<span>${q === null ? '–' : q + '%'}</span></div>
-      <div><div class="hrk-sum1">Zielerfüllung <b>${q === null ? '–' : q + ' %'}</b></div>
-      <div class="hrb-sub">${d.erreicht} von ${d.total} Produkten erreicht${qv !== null ? ` · ${vmName}: ${qv} % ${mbDelta(q, qv)}` : ''}</div></div></div>
-    <div class="hrb-badges">${badges}</div>
-    <div class="hrk-list">${zeilen}<div class="hrk-sep">CR & Qualität</div>${kpi('CR', d.cr, d.crZiel, v ? v.cr : null)}${kpi('NPS', d.nps, d.npsZiel, v ? v.nps : null)}</div>
-    <div class="hrk-foot">▲/▼ = Veränderung zum ${kiEsc(vmName)}. Abzeichen gibt es für die besten Werte im Team, alle erreichten Ziele und große Sprünge nach vorn.</div>
-  </div>`;
-}
-function renderMonatsbilanz(){
-  const host = document.getElementById('bilanz-capture');
-  if(!host) return;
-  host.innerHTML = '';
-  const { y, m } = mbYM(mbMonatOffset);
-  const monatName = `${VL_MONATE[m]} ${y}`;
-  const pm = new Date(y, m - 1, 1), vmName = VL_MONATE[pm.getMonth()];
-  const intro = document.createElement('div');
-  intro.className = 'hr-intro hr2-intro';
-  intro.innerHTML = `<div><div class="hr-title">Monatsbilanz ${monatName}</div><div class="hr-sub">Persönliche Endstand-Karte für jeden Mitarbeiter – mit Vormonatsvergleich, Abzeichen und Spruch. Auf einen Namen klicken für die Karte.</div></div>`;
-  host.appendChild(intro);
-  const bar = document.createElement('div'); bar.className = 'hr2-toolbar';
-  const seg = document.createElement('div'); seg.className = 'hr2-seg';
-  seg.innerHTML = '<span>Monat</span>';
-  [-2, -1, 0].forEach(o=>{ const t = mbYM(o); const b = document.createElement('button'); b.type = 'button'; b.className = mbMonatOffset === o ? 'on' : ''; b.textContent = VL_MONATE[t.m] + (o === 0 ? ' (laufend)' : ''); b.onclick = () => { mbMonatOffset = o; renderMonatsbilanz(); }; seg.appendChild(b); });
-  bar.appendChild(seg);
-  const lf = fkGetLeaderFilter();
-  bar.appendChild(buildLeaderFilter(() => renderMonatsbilanz()));
-  host.appendChild(bar);
-  const alle = mbAlle(y, m);
-  let any = false;
-  Object.keys(TEAM_CONFIGS).forEach(teamId=>{
-    const cfg = TEAM_CONFIGS[teamId];
-    const order = state.agents.map(a => a.id);
-    const liste = alle.filter(x => x.teamId === teamId && fkMatchesLeader(x.d.agent, fkGetLeaderFilter())).sort((a, b) => order.indexOf(a.d.agent.id) - order.indexOf(b.d.agent.id));
-    if(!liste.length) return;
-    any = true;
-    const block = document.createElement('div'); block.className = 'hr-team hr2-team';
-    block.innerHTML = `<div class="hr-team-head hr2-head"><div><div class="hr2-h1">Monatsbilanz ${monatName}</div><div class="hr2-h2">${kiEsc(cfg.label)} — ${kiEsc(cfg.project)}</div></div>
-      <div class="hr2-headr"><span class="hr-days">${liste.length} Mitarbeiter</span><button type="button" class="hr2-exp hr2-all">Alle Karten speichern</button></div></div>`;
-    const grid = document.createElement('div'); grid.className = 'mb-grid';
-    liste.forEach((x, i)=>{
-      const q = x.d.quote === null ? null : Math.round(x.d.quote * 100);
-      const st = x.d.quote === null ? 'none' : x.d.quote >= 1 ? 'ok' : x.d.quote >= 0.85 ? 'warn' : 'bad';
-      const t = document.createElement('button'); t.type = 'button'; t.className = 'mb-tile st-' + st;
-      t.innerHTML = `${cdAvatar(x.d.agent.name)}<span class="mb-tile-t"><b>${kiEsc(x.d.agent.name)}</b><span>${x.d.erreicht}/${x.d.total} erreicht${x.badges.length ? ' · ' + x.badges.length + ' Abzeichen' : ''}</span></span><span class="mb-tile-q">${q === null ? '–' : q + '%'}</span>`;
-      t.onclick = () => openMbKarte(liste, i, monatName, vmName);
-      grid.appendChild(t);
-    });
-    block.appendChild(grid);
-    block.querySelector('.hr2-all').onclick = e => kartenSammelExport(liste, x => mbKarteHtml(x, monatName, vmName), x => `Monatsbilanz_${hrDateiTeil(x.d.agent.name)}_${VL_MONATE[m]}-${y}.png`, `Monatsbilanz_${hrDateiTeil(cfg.label)}_${VL_MONATE[m]}-${y}`, e.currentTarget);
-    host.appendChild(block);
-  });
-  if(!any) host.appendChild(emptyStateEl('Keine Daten für ' + monatName, 'Für diesen Monat sind im Mitarbeiter Verlauf noch keine Werte gespeichert.'));
-}
-function openMbKarte(liste, start, monatName, vmName){
-  let idx = start;
-  const ov = document.createElement('div'); ov.className = 'chart-overlay cd-modal-overlay hrk-ov';
-  const box = document.createElement('div'); box.className = 'hrk-box';
-  ov.appendChild(box); document.body.appendChild(ov);
-  const close = () => { ov.remove(); document.removeEventListener('keydown', onKey); };
-  const onKey = e => { if(e.key === 'Escape') close(); else if(e.key === 'ArrowLeft' && idx > 0){ idx--; render(); } else if(e.key === 'ArrowRight' && idx < liste.length - 1){ idx++; render(); } };
-  document.addEventListener('keydown', onKey);
-  ov.addEventListener('mousedown', e => { if(e.target === ov) close(); });
-  function render(){
-    const x = liste[idx];
-    box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
-      <div class="hrk-nav"><button type="button" class="hrk-prev" ${idx === 0 ? 'disabled' : ''}>‹ Vorheriger</button><span>${idx + 1} von ${liste.length}</span><button type="button" class="hrk-next" ${idx === liste.length - 1 ? 'disabled' : ''}>Nächster ›</button></div>
-      ${mbKarteHtml(x, monatName, vmName).replace('<div class="hrk hrb">', '<div class="hrk hrb" id="hrk-capture">')}
-      <div class="hrk-actions"><button type="button" class="btn-secondary hrk-copy">Bild kopieren</button><button type="button" class="primary hrk-save">Als Bild speichern</button></div>`;
-    box.querySelector('.cd-modal-x').onclick = close;
-    box.querySelector('.hrk-prev').onclick = () => { if(idx > 0){ idx--; render(); } };
-    box.querySelector('.hrk-next').onclick = () => { if(idx < liste.length - 1){ idx++; render(); } };
-    const fname = `Monatsbilanz_${hrDateiTeil(x.d.agent.name)}_${monatName.replace(' ', '-')}.png`;
-    const cap = box.querySelector('#hrk-capture');
-    box.querySelector('.hrk-save').onclick = () => hrExport(cap, fname, false);
-    box.querySelector('.hrk-copy').onclick = () => hrExport(cap, fname, true);
-  }
-  render();
-}
-// Allgemeiner Sammel-Export für Karten (Ordner in Chrome/Edge, sonst ZIP)
-async function kartenSammelExport(items, htmlFn, nameFn, ordnerName, btn){
-  if(!items.length) return;
-  if(typeof html2canvas !== 'function'){ if(window.fxToast) fxToast('Bild-Export nicht verfügbar'); return; }
-  let ordner = null, zip = null;
-  if(window.showDirectoryPicker){
-    try{ const basis = await window.showDirectoryPicker({ id:'karten', mode:'readwrite' }); ordner = await basis.getDirectoryHandle(ordnerName, { create:true }); }
-    catch(e){ if(e && e.name === 'AbortError') return; ordner = null; }
-  }
-  if(!ordner){ try{ const JZ = await hrLadeJSZip(); zip = new JZ(); }catch(e){ if(window.fxToast) fxToast('ZIP-Funktion konnte nicht geladen werden – bitte Internet prüfen'); return; } }
-  if(btn) btn.disabled = true;
-  const prog = document.createElement('div');
-  prog.className = 'chart-overlay cd-modal-overlay hrk-prog-ov';
-  prog.innerHTML = `<div class="hrk-prog-box"><div class="hrk-prog-t">Karten werden erstellt …</div><div class="hrk-prog-bar"><i></i></div><div class="hrk-prog-n">0 von ${items.length}</div></div>`;
-  document.body.appendChild(prog);
-  const host = document.createElement('div');
-  host.style.cssText = 'position:fixed;left:-10000px;top:0;width:448px;pointer-events:none;';
-  document.body.appendChild(host);
-  let ok = 0;
-  try{
-    for(const it of items){
-      host.innerHTML = htmlFn(it);
-      await new Promise(res => requestAnimationFrame(() => requestAnimationFrame(res)));
-      const canvas = await html2canvas(host.firstElementChild, { backgroundColor:'#FFFFFF', scale:2, onclone: ggStill });
-      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
-      const fname = nameFn(it);
-      if(ordner){ const fh = await ordner.getFileHandle(fname, { create:true }); const w = await fh.createWritable(); await w.write(blob); await w.close(); }
-      else zip.file(fname, blob);
-      ok++;
-      prog.querySelector('.hrk-prog-bar i').style.width = Math.round(ok / items.length * 100) + '%';
-      prog.querySelector('.hrk-prog-n').textContent = `${ok} von ${items.length}`;
-    }
-    if(zip){
-      prog.querySelector('.hrk-prog-t').textContent = 'ZIP-Datei wird gepackt …';
-      const zb = await zip.generateAsync({ type:'blob' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(zb); a.download = ordnerName + '.zip';
-      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-    }
-    if(window.fxToast) fxToast(ordner ? `${ok} Karten im Ordner „${ordnerName}“ gespeichert` : `${ok} Karten als ZIP gespeichert`);
-  }catch(e){ console.error(e); if(window.fxToast) fxToast(`Fehler nach ${ok} Karten – bitte erneut versuchen`); }
-  finally{ host.remove(); prog.remove(); if(btn) btn.disabled = false; }
-}
-
-// =====================================================================
-// v205: STANDORT-BERICHT für die Geschäftsführung (druckbar / als PDF)
-// =====================================================================
-function sbTeamWerte(key, monat){
-  const md = state.monatsabschluss && state.monatsabschluss[key] && state.monatsabschluss[key][monat];
-  if(!md) return null;
-  const num = v => { const n = parseFloat(String(v ?? '').replace(',', '.')); return isNaN(n) ? 0 : n; };
-  const ohne = k => key === 'mf' ? k !== 'NA' : (k !== 'BOJ' && k !== 'NA');
-  const plan = Object.entries(md.plan || {}).filter(([k]) => ohne(k)).reduce((s, [, v]) => s + num(v), 0);
-  const err = Object.entries(md.erreicht || {}).filter(([k]) => ohne(k)).reduce((s, [, v]) => s + num(v), 0);
-  const cr = num(md.crGesamtErreicht) || Object.entries(md.cr || {}).filter(([k]) => k !== 'BOJ').reduce((s, [, v]) => s + num(v), 0);
-  return { md, plan, err, quote: plan ? err / plan : null, cr, nps: num(md.nps_ist) || null, npsZiel: num(md.nps_plan) || null, cht: num(md.cht) || null, wht: num(md.wht) || null, calls: num(md.calls) || null };
-}
-function sbMiniChart(labels, series, opt){
-  const W = 330, H = opt.h || 150, pad = { l:34, r:10, t:22, b:24 }, cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
-  const vals = series.flatMap(s => s.values.filter(v => v > 0));
-  let max = Math.max(opt.min || 1, ...vals) * 1.15; { const st = Math.pow(10, Math.floor(Math.log10(max))); max = Math.ceil(max / st * 2) / 2 * st; }
-  const x = i => pad.l + (labels.length > 1 ? i / (labels.length - 1) * cw : cw / 2), y = v => pad.t + ch - v / max * ch;
-  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">`;
-  [0, .5, 1].forEach(f => { const yy = pad.t + ch - f * ch; s += `<line x1="${pad.l}" x2="${W - pad.r}" y1="${yy}" y2="${yy}" stroke="#E6E9EF" ${f ? 'stroke-dasharray="2 3"' : ''}/><text x="${pad.l - 5}" y="${yy + 3}" font-size="8.5" text-anchor="end" fill="#8A93A0">${opt.fmt(max * f)}</text>`; });
-  labels.forEach((l, i) => { s += `<text x="${x(i)}" y="${H - 8}" font-size="8.5" text-anchor="middle" fill="#8A93A0">${l.slice(0, 3)}</text>`; });
-  series.forEach((se, k)=>{
-    const pts = se.values.map((v, i) => v > 0 ? [x(i), y(v), v] : null).filter(Boolean);
-    if(!pts.length) return;
-    s += `<path d="${pts.map((p, j) => (j ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('')}" fill="none" stroke="${se.color}" stroke-width="2"/>`;
-    pts.forEach(p => { s += `<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="${se.color}"/><text x="${p[0]}" y="${p[1] + (k ? 11 : -5)}" font-size="8" text-anchor="middle" fill="${se.color}" font-weight="700">${opt.fmt(p[2])}</text>`; });
-  });
-  let lx = pad.l; series.forEach(se => { s += `<rect x="${lx}" y="4" width="8" height="8" rx="2" fill="${se.color}"/><text x="${lx + 11}" y="11" font-size="9" fill="#3C4855" font-weight="600">${se.label}</text>`; lx += se.label.length * 6 + 26; });
-  return s + '</svg>';
-}
-function sbBerichtHtml(mIdx, jahr, kommentar){
-  const monat = VL_MONATE[mIdx], vm = VL_MONATE[(mIdx + 11) % 12];
-  const f1 = n => n === null || n === undefined ? '–' : n.toLocaleString('de-DE', { minimumFractionDigits:1, maximumFractionDigits:1 });
-  const f0 = n => n === null || n === undefined ? '–' : Math.round(n).toLocaleString('de-DE');
-  const pc = n => n === null || n === undefined ? '–' : Math.round(n * 100) + ' %';
-  const dlt = (a, b, dec, invers) => { if(a === null || b === null || a === undefined || b === undefined) return ''; const d = a - b; if(Math.abs(d) < (dec ? 0.05 : 0.5)) return '<span class="d eq">±0</span>'; const gut = invers ? d < 0 : d > 0; return `<span class="d ${gut ? 'up' : 'down'}">${d > 0 ? '▲' : '▼'} ${dec ? f1(Math.abs(d)) : f0(Math.abs(d))}</span>`; };
-  const teams = [['mf', 'Trikala01', 'Mobilfunk PK', '#E20074'], ['fn', 'Trikala06', 'Festnetz PK', '#3B6FA0']];
-  const bil = mbAlle(jahr, mIdx);
-  const verlaufMonate = VL_MONATE.slice(Math.max(0, mIdx - 5), mIdx + 1);
-  const crZielVon = (md, p) => { const z = parseFloat((md.crZiel || {})[p]); if(z > 0) return z; const t = String((md.crZielText || {})[p] || '').match(/[\d]+(?:[.,]\d+)?/); return t ? parseFloat(t[0].replace(',', '.')) : 0; };
-  let teamHtml = '';
-  teams.forEach(([key, teamId, name, farbe])=>{
-    const w = sbTeamWerte(key, monat); if(!w) return;
-    const v = sbTeamWerte(key, vm);
-    const cfg = TEAM_CONFIGS[teamId] || {};
-    const LBL = key === 'mf' ? { BOJ:'HV', VVM:'Avia' } : {};
-    const prods = Object.keys(Object.assign({}, w.md.plan, w.md.erreicht)).filter(p => p !== 'NA' && ((+w.md.plan?.[p] || 0) > 0 || (+w.md.erreicht?.[p] || 0) > 0));
-    const order = w.md._prodOrder || [];
-    prods.sort((a, b) => (order.indexOf(a) < 0 ? 99 : order.indexOf(a)) - (order.indexOf(b) < 0 ? 99 : order.indexOf(b)));
-    const rows = prods.map(p=>{
-      const pl = +w.md.plan?.[p] || 0, er = +w.md.erreicht?.[p] || 0, cr = +w.md.cr?.[p] || 0, cz = crZielVon(w.md, p), sto = +w.md.storno?.[p] || 0;
-      const vEr = v ? (+v.md.erreicht?.[p] || 0) : null;
-      return `<tr><td><b>${LBL[p] || p}</b></td><td>${f0(pl)}</td><td>${f0(er)} ${dlt(er, vEr)}</td><td class="${pl && er >= pl ? 'ok' : pl ? 'bad' : ''}">${pl ? pc(er / pl) : '–'}</td><td class="${cz && cr ? (cr >= cz ? 'ok' : 'bad') : ''}">${cr ? f1(cr) + ' %' : '–'}</td><td>${cz ? f1(cz) + ' %' : '–'}</td><td>${sto ? f1(sto) + ' %' : '–'}</td></tr>`;
-    }).join('');
-    const top = bil.filter(x => x.teamId === teamId && x.d.quote !== null).sort((a, b) => b.d.quote - a.d.quote).slice(0, 5);
-    const alleZiele = bil.filter(x => x.teamId === teamId && x.d.total && x.d.erreicht === x.d.total).length;
-    const anzahl = bil.filter(x => x.teamId === teamId).length;
-    const vMon = verlaufMonate.map(mn => sbTeamWerte(key, mn));
-    const tile = (lbl, val, sub, cls) => `<div class="tile ${cls || ''}"><span>${lbl}</span><b>${val}</b>${sub ? `<em>${sub}</em>` : ''}</div>`;
-    teamHtml += `<section class="team" style="--tc:${farbe}">
-      <h2>${name} <small>${teamId}</small></h2>
-      <div class="tiles ${key === 'mf' ? 'n6' : 'n5'}">
-        ${tile('Erreicht / Plan', `${f0(w.err)} / ${f0(w.plan)}`, `Erfüllung ${pc(w.quote)} ${v ? dlt(w.quote !== null ? w.quote * 100 : null, v.quote !== null ? v.quote * 100 : null) : ''}`, w.quote !== null ? (w.quote >= 1 ? 'ok' : 'bad') : '')}
-        ${tile('CR gesamt', f1(w.cr) + ' %', `Ziel ${f1(cfg.crTarget)} % ${v ? dlt(w.cr, v.cr, true) : ''}`, w.cr >= (cfg.crTarget || 0) ? 'ok' : 'bad')}
-        ${tile('NPS', w.nps !== null ? f1(w.nps) + ' %' : '–', `${w.npsZiel ? 'Ziel ' + f1(w.npsZiel) + ' % ' : ''}${v ? dlt(w.nps, v.nps, true) : ''}`, w.nps !== null && w.npsZiel ? (w.nps >= w.npsZiel ? 'ok' : 'bad') : '')}
-        ${tile('Calls', f0(w.calls), v ? dlt(w.calls, v.calls) : '')}
-        ${tile('CHT', w.cht ? f0(w.cht) + ' s' : '–', v ? dlt(w.cht, v.cht, false, true) : '')}
-        ${key === 'mf' ? tile('WHT', w.wht ? f0(w.wht) + ' s' : '–', v ? dlt(w.wht, v.wht, false, true) : '') : ''}
-      </div>
-      <div class="tw"><table><thead><tr><th>Produkt</th><th>Plan</th><th>Erreicht</th><th>Erfüllung</th><th>CR</th><th>CR-Ziel</th><th>Storno</th></tr></thead><tbody>${rows}</tbody></table></div>
-      <div class="two">
-        <div class="box"><h3>Verlauf CR &amp; NPS</h3>${sbMiniChart(verlaufMonate, [{ label:'CR gesamt %', color: farbe, values: vMon.map(x => x ? x.cr : 0) }], { h: 118, fmt: n => n.toFixed(1).replace('.', ','), min: 1 })}${sbMiniChart(verlaufMonate, [{ label:'NPS %', color:'#5B6FA6', values: vMon.map(x => x && x.nps ? x.nps : 0) }], { h: 118, fmt: n => Math.round(n), min: 10 })}</div>
-        <div class="box"><h3>Top 5 nach Zielerfüllung</h3>${top.length ? `<ol>${top.map(x => `<li><span>${kiEsc(x.d.agent.name)}</span><b>${pc(x.d.quote)}</b></li>`).join('')}</ol>` : '<p class="muted">Keine Mitarbeiterwerte für diesen Monat.</p>'}
-          ${anzahl ? `<p class="muted">${alleZiele} von ${anzahl} Mitarbeitern haben alle Ziele erreicht.</p>` : ''}</div>
-      </div>
-    </section>`;
-  });
-  // Coaching-Aktivität im Monat
-  let coachings = 0; const gecoacht = new Set(), themen = {}; let perfSum = 0, perfN = 0;
-  Object.keys(state.coachverlauf || {}).forEach(k=>{
-    (state.coachverlauf[k].eintraege || []).forEach(e=>{
-      const d = fkParseDe(e.datum); if(!d || d.getMonth() !== mIdx || d.getFullYear() !== jahr) return;
-      coachings++; gecoacht.add(k); if(e.thema) themen[e.thema] = (themen[e.thema] || 0) + 1;
-      if(typeof e.performance === 'number'){ perfSum += e.performance; perfN++; }
-    });
-  });
-  const themenTxt = Object.entries(themen).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([t, n]) => `${kiEsc(t)} (${n})`).join(', ');
-  const coach = (()=>{ try{ return localStorage.getItem('coach-name') || ''; }catch(e){ return ''; } })();
-  const heute = new Date().toLocaleDateString('de-DE', { day:'2-digit', month:'2-digit', year:'numeric' });
-  return `<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Standort-Bericht Trikala – ${monat} ${jahr}</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap">
-<style>
-*{box-sizing:border-box}body{margin:0;background:#EEF0F4;font-family:Inter,system-ui,sans-serif;color:#1B1F24;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.page{max-width:900px;margin:24px auto;background:#fff;border-radius:14px;box-shadow:0 10px 40px -20px rgba(0,0,0,.3);overflow:hidden}
-.bar{position:sticky;top:0;display:flex;justify-content:center;gap:10px;padding:12px;background:#1B1F24;z-index:5}
-.bar button{font:600 14px Inter,sans-serif;border:0;border-radius:999px;padding:10px 20px;cursor:pointer}.bar .p{background:#E20074;color:#fff}.bar .c{background:#fff;color:#1B1F24}
-header{background:linear-gradient(135deg,#E20074,#A1005A);color:#fff;padding:30px 36px}
-header .e{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.85}header h1{font-family:'Space Grotesk',sans-serif;font-size:30px;margin:6px 0 4px}header p{margin:0;opacity:.9;font-size:13px}
-main{padding:26px 36px 30px}.kom{border-left:4px solid #E20074;background:#FFF4FA;border-radius:0 10px 10px 0;padding:14px 18px;margin-bottom:22px;white-space:pre-wrap;font-size:13.5px;line-height:1.55}
-.kom b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#A1005A;margin-bottom:4px}
-.team{border-top:4px solid var(--tc);padding-top:14px;margin-bottom:26px;break-inside:avoid-page}
-h2{font-family:'Space Grotesk',sans-serif;font-size:21px;margin:0 0 12px;color:var(--tc)}h2 small{font:500 12px Inter,sans-serif;color:#8A93A0;margin-left:6px}
-h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#6B7280;margin:0 0 8px}
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}.tiles.n5{grid-template-columns:repeat(5,1fr)}.tiles.n5 .tile b{font-size:18px}
-.tile{border:1px solid #E6E9EF;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}.tile span{font-size:11px;color:#6B7280;font-weight:600}.tile b{font-family:'Space Grotesk',sans-serif;font-size:20px}.tile em{font-style:normal;font-size:11.5px;color:#6B7280}
-.tile.ok{background:#F1F8F7;border-color:#BFE0DB}.tile.ok b{color:#0E7C7B}.tile.bad{background:#FDF5F4;border-color:#F1CFCB}.tile.bad b{color:#B4423A}
-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:14px;font-variant-numeric:tabular-nums}th{text-align:left;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#6B7280;border-bottom:2px solid #E6E9EF;padding:6px 8px}
-td{padding:7px 8px;border-bottom:1px solid #F0F1F4}.tw{overflow-x:auto;margin-bottom:14px}.tw table{margin:0;min-width:560px}td,th{white-space:nowrap}td.ok{color:#0E7C7B;font-weight:700}td.bad{color:#B4423A;font-weight:700}
-.d{font-size:10.5px;font-weight:700;margin-left:3px}.d.up{color:#0E7C7B}.d.down{color:#B4423A}.d.eq{color:#8A93A0}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.box{border:1px solid #E6E9EF;border-radius:12px;padding:12px 14px}
-ol{margin:0;padding-left:20px;font-size:13px}ol li{padding:3px 0}ol li span{display:inline-block;min-width:70%}ol li b{color:#0E7C7B}
-.muted{color:#6B7280;font-size:12px;margin:8px 0 0}.coach{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-footer{padding:14px 36px 22px;font-size:11px;color:#8A93A0;border-top:1px solid #F0F1F4}
-@media print{body{background:#fff}.bar{display:none}.page{margin:0;box-shadow:none;border-radius:0;max-width:none}@page{size:A4;margin:12mm}}
-@media (max-width:640px){header,main,footer{padding-left:16px;padding-right:16px}.tiles,.tiles.n5{grid-template-columns:repeat(2,1fr)}.two,.coach{grid-template-columns:1fr}}
-</style></head><body>
-<div class="bar"><button class="p" onclick="window.print()">Drucken / als PDF speichern</button><button class="c" onclick="window.close()">Schließen</button></div>
-<div class="page">
-<header><div class="e">Standort-Bericht</div><h1>Trikala · ${monat} ${jahr}</h1><p>Inbound Privatkunden · erstellt am ${heute}${coach ? ' von ' + kiEsc(coach) : ''} · Vergleich zum ${vm}</p></header>
-<main>
-${kommentar ? `<div class="kom"><b>Einschätzung des Salescoaches</b>${kiEsc(kommentar)}</div>` : ''}
-${teamHtml || '<p>Für diesen Monat ist kein Monatsabschluss erfasst.</p>'}
-<section class="team" style="--tc:#0E7C7B"><h2>Coaching-Aktivität</h2>
-  <div class="coach">
-    <div class="tile"><span>Coachings</span><b>${coachings}</b></div>
-    <div class="tile"><span>Gecoachte Mitarbeiter</span><b>${gecoacht.size}</b></div>
-    <div class="tile"><span>Ø Performance-Note</span><b>${perfN ? f1(perfSum / perfN) : '–'}</b><em>von 10</em></div>
-    <div class="tile"><span>Häufigste Themen</span><em style="font-size:12.5px;color:#1B1F24">${themenTxt || '–'}</em></div>
-  </div>
-</section>
-</main>
-<footer>Quelle: Standort-Portal Trikala (Monatsabschluss, Mitarbeiter Verlauf, Coaching Dashboard). ▲/▼ = Veränderung zum Vormonat; bei CHT/WHT gilt ein Rückgang als Verbesserung.</footer>
-</div></body></html>`;
-}
-function openStandortBericht(){
-  const jetzt = new Date();
-  const verfuegbar = VL_MONATE.map((m, i) => ({ m, i })).filter(o => (state.monatsabschluss?.mf?.[o.m] || state.monatsabschluss?.fn?.[o.m]) && o.i <= jetzt.getMonth());
-  const ov = document.createElement('div'); ov.className = 'chart-overlay cd-modal-overlay';
-  const box = document.createElement('div'); box.className = 'cd-modal sb-modal';
-  const vorwahl = verfuegbar.length ? (verfuegbar.find(o => o.i === jetzt.getMonth() - 1) || verfuegbar[verfuegbar.length - 1]).i : jetzt.getMonth();
-  box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
-    <div class="be-title">Standort-Bericht erstellen</div>
-    <div class="be-hint">Ein fertiger Bericht für die Geschäftsführung: Kennzahlen beider Teams, Vormonatsvergleich, Verlauf, Top-Mitarbeiter und Coaching-Aktivität. Er öffnet sich in einem neuen Fenster und lässt sich dort als PDF speichern.</div>
-    <label class="sb-l">Monat</label>
-    <select class="cp-form-select sb-monat">${verfuegbar.map(o => `<option value="${o.i}" ${o.i === vorwahl ? 'selected' : ''}>${o.m} ${jetzt.getFullYear()}</option>`).join('') || '<option>Kein Monatsabschluss vorhanden</option>'}</select>
-    <label class="sb-l">Deine Einschätzung (optional)</label>
-    <textarea class="cp-form-textarea sb-kom" rows="5" placeholder="z.B. Highlights, Gründe für Abweichungen, Maßnahmen für den nächsten Monat"></textarea>
-    <div class="be-foot"><span style="flex:1"></span><button type="button" class="be-btn be-cancel">Abbrechen</button><button type="button" class="be-btn be-save" ${verfuegbar.length ? '' : 'disabled'}>Bericht öffnen</button></div>`;
-  ov.appendChild(box); document.body.appendChild(ov);
-  const close = () => ov.remove();
-  box.querySelector('.cd-modal-x').onclick = close; box.querySelector('.be-cancel').onclick = close;
-  ov.addEventListener('mousedown', e => { if(e.target === ov) close(); });
-  box.querySelector('.be-save').onclick = ()=>{
-    const i = parseInt(box.querySelector('.sb-monat').value);
-    const html = sbBerichtHtml(i, jetzt.getFullYear(), box.querySelector('.sb-kom').value.trim());
-    const win = window.open('', '_blank');
-    if(!win){ if(window.fxToast) fxToast('Bitte Pop-ups für das Board erlauben'); return; }
-    win.document.open(); win.document.write(html); win.document.close();
-    close();
-  };
-}
-
-// =====================================================================
-// v205: TEAMLEITER-ANSICHT (fürs Handy)
-// =====================================================================
-function openTlView(){
-  let v = document.getElementById('tl-view');
-  if(!v){ v = document.createElement('div'); v.id = 'tl-view'; v.setAttribute('role', 'dialog'); v.setAttribute('aria-label', 'Teamleiter-Ansicht'); document.body.appendChild(v); }
-  document.body.classList.add('tl-offen');
-  renderTlView();
-}
-function closeTlView(){ const v = document.getElementById('tl-view'); if(v) v.remove(); document.body.classList.remove('tl-offen'); }
-function renderTlView(){
-  const v = document.getElementById('tl-view'); if(!v) return;
-  const now = new Date();
-  let leader = 'alle'; try{ leader = localStorage.getItem('tl-leader') || fkGetLeaderFilter() || 'alle'; }catch(e){}
-  const leaders = fkAllLeaders();
-  if(leader !== 'alle' && !leaders.some(l => l.name === leader)) leader = 'alle';
-  const iso = fkIsoDate(now), mk = twMonthKey(now), tag = String(now.getDate());
-  const hr = fwHrZeilen(now);
-  const ags = state.agents.filter(a => a.name && a.name.trim() && a.category !== 'schulung' && fkMatchesLeader(a, leader));
-  let heuteSumme = 0, tzOk = 0, tzAlle = 0, warnN = 0;
-  const karten = ags.map(a=>{
-    const cfg = TEAM_CONFIGS[a.team]; if(!cfg) return '';
-    const s = (a.tageswerte && a.tageswerte[mk] && a.tageswerte[mk][tag] && a.tageswerte[mk][tag].sales) || {};
-    const prods = displayOrderProducts([...cfg.products, ...teamExtraProducts(a.team)], a.team);
-    const heute = prods.filter(p => +s[p] > 0).map(p => `${kiEsc(productLabel(p, a.team))} <b>${s[p]}</b>`);
-    heuteSumme += cfg.products.reduce((x, p) => x + (+s[p] || 0), 0);
-    const tz = (state.tagesziele || []).find(z => z.agentId === a.id && z.datum === iso);
-    let tzHtml = '';
-    if(tz){
-      const ps = Object.keys(tz.produkte || {}).filter(p => +tz.produkte[p] > 0);
-      const erreicht = ps.filter(p => (+s[p] || 0) >= +tz.produkte[p]).length;
-      tzAlle++; if(ps.length && erreicht === ps.length) tzOk++;
-      tzHtml = `<div class="tl-tz">${cdIconSvg('target')}<span>Tagesziel: ${ps.map(p => { const ist = +s[p] || 0, z = +tz.produkte[p]; return `<em class="${ist >= z ? 'ok' : ''}">${kiEsc(productLabel(p, a.team))} ${ist}/${z}</em>`; }).join(' ')}</span></div>`;
-    }
-    const r = hr[a.id];
-    const pill = r && r.total ? `<span class="tl-pill st-${hrSumStatus(r)}">${r.onTrack}/${r.total} auf Kurs</span>` : '';
-    const w = fwWarnungen(a, now, r).filter(x => x.stufe !== 'info');
-    if(w.length) warnN++;
-    const wHtml = w.length ? `<div class="tl-warn">${w.map(x => `<span class="fw-chip fw-${x.stufe}">${kiEsc(x.text)}</span>`).join('')}</div>` : '';
-    const monat = r ? prods.filter(p => r.cells[p] && r.cells[p].ziel > 0).map(p => { const c = r.cells[p]; return `<div class="tl-m st-${c.ist >= c.ziel ? 'ok' : c.st}"><span>${kiEsc(productLabel(p, a.team))}</span><b>${Math.round(c.ist)}<small>/${c.ziel}</small></b></div>`; }).join('') : '';
-    const nps = fkCurVal(a, 'nps', now), calls = fkCurVal(a, 'calls', now);
-    return `<details class="tl-card${w.length ? ' tl-hat-warn' : ''}"><summary>${cdAvatar(a.name)}<div class="tl-who"><b>${kiEsc(a.name)}</b><span>${heute.length ? 'Heute: ' + heute.join(' · ') : 'Heute noch nichts erfasst'}</span></div>${pill}</summary>
-      ${tzHtml}${wHtml}
-      <div class="tl-month">${monat}</div>
-      <div class="tl-kpi"><span>CR <b>${calls ? fwFmt(totalCr(a)) + ' %' : '–'}</b></span><span>NPS <b>${nps !== null ? fwFmt(nps) + ' %' : '–'}</b></span><span>Calls <b>${calls ? Math.round(calls) : '–'}</b></span></div>
-      <button type="button" class="tl-akte" data-id="${a.id}">Akte öffnen</button></details>`;
-  }).join('');
-  v.innerHTML = `<div class="tl-top"><div><div class="tl-eye">Teamleiter-Ansicht</div><div class="tl-title">Mein Team heute</div><div class="tl-date">${now.toLocaleDateString('de-DE', { weekday:'long', day:'2-digit', month:'long' })}</div></div><button type="button" class="tl-x" aria-label="Schließen">×</button></div>
-    <div class="tl-body">
-      <label class="tl-sel"><span>Team von</span><select>${['alle'].concat(leaders.map(l => l.name)).map(n => `<option value="${kiEsc(n)}" ${n === leader ? 'selected' : ''}>${n === 'alle' ? 'Alle Mitarbeiter' : kiEsc(n)}</option>`).join('')}</select></label>
-      <div class="tl-sum"><div><b>${heuteSumme}</b><span>Abschlüsse heute</span></div><div><b>${tzAlle ? tzOk + '/' + tzAlle : '–'}</b><span>Tagesziele erreicht</span></div><div class="${warnN ? 'w' : ''}"><b>${warnN}</b><span>Warnungen</span></div></div>
-      <div class="tl-list">${karten || '<div class="fk-empty">Keine Mitarbeiter für diese Auswahl.</div>'}</div>
-      <div class="tl-hint">Tippe auf einen Mitarbeiter für Monatsstand, CR und NPS. Werte erfasst du wie gewohnt in den Tageswerten.</div>
-    </div>`;
-  v.querySelector('.tl-x').onclick = closeTlView;
-  v.querySelector('.tl-sel select').onchange = e => { try{ localStorage.setItem('tl-leader', e.target.value); }catch(x){} renderTlView(); };
-  v.querySelectorAll('.tl-akte').forEach(b => b.onclick = () => openAgentAkte(b.dataset.id));
-}
-
 const OVERVIEW_SUBS = {
   ziele:      { btn: 'sub-ovziele',      container: 'ov-ziele-container',      render: ()=>renderOverview() },
   tageswerte: { btn: 'sub-ovtageswerte', container: 'ov-tageswerte-container', render: ()=>renderTageswerte() },
-  hochrechnung: { btn: 'sub-ovhochrechnung', container: 'ov-hochrechnung-container', render: ()=>renderHochrechnung() },
-  bilanz:     { btn: 'sub-ovbilanz',     container: 'ov-bilanz-container',     render: ()=>renderMonatsbilanz() }
+  hochrechnung: { btn: 'sub-ovhochrechnung', container: 'ov-hochrechnung-container', render: ()=>renderHochrechnung() }
 };
 function switchOverviewSub(sub){
   Object.keys(OVERVIEW_SUBS).forEach(key=>{
@@ -5065,15 +3771,6 @@ function hofProdukte(team, kat){
   }
   return { prods: cfg.products, targets: agentTargets({ team, category: kat || 'regular' }) };
 }
-function hofKriterienText(){
-  const ym = maYm(new Date());
-  const teil = id => { const c = TEAM_CONFIGS[id]; if(!c) return '';
-    const r = hofRegeln(id, ym);
-    const pr = (r.produkte || []).filter(x => x.zaehlt && (x.ziele.regular || 0) > 0);
-    const n = pr.length, brauch = Math.max(1, n - (r.verfehlt || 0));
-    return `<strong>${c.label === 'Trikala01' ? 'MF' : 'FN'}:</strong> NPS ≥ ${r.nps} % · CR ≥ ${r.cr} % · ${r.lqAktiv === false ? 'LQ zählt nicht' : 'LQ ≥ ' + r.lq + ' %'} · ${brauch} von ${n} Produkten: ` + pr.map(x => `${productLabel(x.key, id)} ${x.ziele.regular || 0}`).join(', ') + (r.eigen ? ' <em class="hof-eigen">eigene Ziele</em>' : ''); };
-  return `<strong>Alle Bedingungen müssen erfüllt sein</strong> (CR und LQ nur, sobald eingetragen)<br>${teil('Trikala01')}<br>${teil('Trikala06')}<br><span style="opacity:.75">Produktziele für Standard-Mitarbeiter; andere Kategorien haben eigene Werte (siehe „Ziele bearbeiten“).</span>`;
-}
 // v220: Editor für die Ziele der Hall of Fame
 function openHofZieleEditor(){
   const ym = maYm(new Date());
@@ -5162,34 +3859,6 @@ function renderHallOfFame(){
     'Juli':'07','August':'08','September':'09','Oktober':'10','November':'11','Dezember':'12'
   };
 
-  // Verlaufs-Eintrag eines Mitarbeiters finden. Im Verlauf sind viele Mitarbeiter nur mit Nachnamen
-  // gespeichert (z.B. "Rizou" statt "Rizou Maria") - deshalb wie im Reiter "Mitarbeiter Verlauf"
-  // unscharf abgleichen: exakter Schlüssel → exakter Name → Vor-/Nachname passt.
-  function findVerlauf(agent){
-    const vlAll = state.verlauf || {};
-    if(vlAll[agent.name + '_' + agent.team]) return vlAll[agent.name + '_' + agent.team];
-    const sameTeam = Object.values(vlAll).filter(v => v && v.team === agent.team && v.monate);
-    const exact = sameTeam.find(v => v.name === agent.name);
-    if(exact) return exact;
-    const fuzzy = sameTeam.filter(v => v.name && (
-      agent.name.startsWith(v.name + ' ') || agent.name.endsWith(' ' + v.name) ||
-      v.name.startsWith(agent.name + ' ') || v.name.endsWith(' ' + agent.name)
-    ));
-    if(fuzzy.length === 1) return fuzzy[0];
-    if(fuzzy.length > 1){
-      // mehrere Treffer (gleicher Nachname) → den mit den meisten Monatsdaten nehmen
-      return fuzzy.sort((a,b)=>Object.keys(b.monate).length - Object.keys(a.monate).length)[0];
-    }
-    return null;
-  }
-  // Monatsdaten aus dem Verlauf holen - Schlüssel kann "2026-Oktober" oder (ältere Einträge) nur "Oktober" sein.
-  function verlaufMonat(vl, monatKey){
-    if(!vl || !vl.monate) return null;
-    if(vl.monate[monatKey]) return vl.monate[monatKey];
-    const [j, m] = monatKey.split('-');
-    if(j === '2026' && vl.monate[m]) return vl.monate[m];
-    return null;
-  }
   // Produktsummen eines Monats aus den Tageswerten (falls dort erfasst)
   function salesAusTageswerten(agent, monatKey){
     const [mkJahr, mkMonat] = monatKey.split('-');
@@ -5417,88 +4086,6 @@ function setKIAppToken(token){
   else localStorage.removeItem('ki_app_token');
 }
 
-function buildKIContext(){
-  // Kompakte Datensammlung für Claude
-  const ctx = { teams: {} };
-
-  Object.keys(TEAM_CONFIGS).forEach(teamId=>{
-    const cfg = TEAM_CONFIGS[teamId];
-    const agents = state.agents.filter(a=>a.team===teamId);
-    const teamCtx = {
-      name: cfg.label + ' — ' + cfg.project,
-      ziele: { cr: cfg.crTarget, nps: cfg.npsTarget, lq: cfg.lqTarget },
-      mitarbeiter: agents.map(a=>{
-        const cv = state.coachverlauf[a.id];
-        const coachingHistorie = ((cv && cv.eintraege) || []).slice(0, 8).map(e=>({
-          datum: e.datum,
-          thema: e.thema || null,
-          stil: e.stil || null,
-          tcap_id: e.tcapId || null,
-          dauer_min: e.dauer || null,
-          performance_note: (e.performance !== undefined && e.performance !== null) ? e.performance + '/10' : null,
-          notiz: e.text || null,
-          leitfaden_checkliste: e.checkliste || null,
-          coach: e.coach || null
-        }));
-        const verlaufEntry = Object.values(state.verlauf).find(v => v.name === a.name && v.team === teamId);
-        const monatsverlauf = verlaufEntry ? Object.keys(verlaufEntry.monate).map(m=>({
-          monat: m,
-          cr: verlaufEntry.monate[m].cr,
-          nps: verlaufEntry.monate[m].nps,
-          lq: verlaufEntry.monate[m].lq,
-          calls: verlaufEntry.monate[m].calls,
-          stueckzahl: Object.values(verlaufEntry.monate[m].sales||{}).reduce((s,v)=>s+v,0),
-          sales: verlaufEntry.monate[m].sales
-        })) : [];
-        return {
-          name: a.name,
-          kategorie: CATEGORY_LABELS[a.category]||a.category,
-          calls: a.calls,
-          nps: a.nps,
-          lq: a.lq,
-          cr: parseFloat(totalCr(a).toFixed(2)),
-          sales: a.sales,
-          letztes_coaching: a.coachingDatum || 'nie',
-          coaching_historie: coachingHistorie,
-          monatsverlauf_alle_monate: monatsverlauf
-        };
-      }),
-      monatsabschluss: {}
-    };
-
-    // Monatsabschluss-Daten für ALLE vorhandenen Monate (nicht nur den aktuellen)
-    const maData = state.monatsabschluss[teamId==='Trikala01'?'mf':'fn'] || {};
-    Object.keys(maData).forEach(m=>{
-      const md = maData[m];
-      if(md){
-        teamCtx.monatsabschluss[m] = {
-          cr_gesamt: md.crGesamtErreicht,
-          cr_ziel: md.crGesamtZiel,
-          nps_ist: md.nps_ist,
-          nps_plan: md.nps_plan
-        };
-      }
-    });
-
-    // Team Ziele (Soll/Ist, CR-Stand)
-    const tz = state.teamziele[teamId==='Trikala01'?'mf':'fn'];
-    if(tz){
-      teamCtx.team_ziele_aktuell = {
-        monat: tz.monat,
-        nps_ziel: tz.nps,
-        cr_gestern: tz.crGestern,
-        cr_monat: tz.crMonat,
-        cr_ziel: tz.crZiel,
-        produkte_soll: tz.soll,
-        produkte_ist: tz.ist
-      };
-    }
-
-    ctx.teams[teamId] = teamCtx;
-  });
-
-  return ctx;
-}
 
 function renderKIAnalyse(){
   const container = document.getElementById('kianalyse-container');
@@ -5613,67 +4200,6 @@ function renderKIAnalyse(){
   // Bestehende History anzeigen
   kiHistory.forEach(msg=>addMsgBubble(msg.role, msg.content, historyEl));
 
-  function renderMarkdown(text){
-    const lines = text.split('\n');
-    let html = '';
-    let i = 0;
-    let inList = false;
-    while(i < lines.length){
-      const line = lines[i];
-
-      // Tabelle erkennen
-      if(/^\s*\|.*\|\s*$/.test(line)){
-        const tableLines = [];
-        while(i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])){
-          tableLines.push(lines[i]);
-          i++;
-        }
-        const rows = tableLines
-          .filter(l => !/^\s*\|[\s:|-]+\|\s*$/.test(l)) // Trennzeile |---|---| rauswerfen
-          .map(l => l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()));
-        if(rows.length){
-          html += '<table class="ki-table"><thead><tr>' +
-            rows[0].map(c=>`<th>${inlineMd(c)}</th>`).join('') +
-            '</tr></thead><tbody>' +
-            rows.slice(1).map(r=>'<tr>' + r.map(c=>`<td>${inlineMd(c)}</td>`).join('') + '</tr>').join('') +
-            '</tbody></table>';
-        }
-        continue;
-      }
-
-      // Überschriften
-      let m;
-      if((m = /^###\s+(.*)/.exec(line))){ html += `<h4 class="ki-h">${inlineMd(m[1])}</h4>`; i++; continue; }
-      if((m = /^##\s+(.*)/.exec(line))){ html += `<h3 class="ki-h">${inlineMd(m[1])}</h3>`; i++; continue; }
-      if((m = /^#\s+(.*)/.exec(line))){ html += `<h2 class="ki-h">${inlineMd(m[1])}</h2>`; i++; continue; }
-
-      // Horizontale Linie
-      if(/^\s*---+\s*$/.test(line)){ html += '<hr class="ki-hr">'; i++; continue; }
-
-      // Listenpunkte
-      if((m = /^\s*[-*]\s+(.*)/.exec(line))){
-        if(!inList){ html += '<ul class="ki-list">'; inList = true; }
-        html += `<li>${inlineMd(m[1])}</li>`;
-        i++;
-        continue;
-      }
-      if(inList){ html += '</ul>'; inList = false; }
-
-      // Leerzeile
-      if(line.trim() === ''){ html += '<div class="ki-gap"></div>'; i++; continue; }
-
-      // Normaler Absatz
-      html += `<p class="ki-p">${inlineMd(line)}</p>`;
-      i++;
-    }
-    if(inList) html += '</ul>';
-    return html;
-  }
-  function inlineMd(s){
-    return s
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>');
-  }
 
   function addMsgBubble(role, text, parent){
     const el = document.createElement('div');
@@ -6400,34 +4926,6 @@ const COACH_STYLES = ['Side-by-Side', 'TCAP'];
 let CHECKLIST_ITEMS = ['Begrüßung','Positive Einstellung','Anliegen wiederholt','Legitimierung','Anker','PKA','KEK','Magenta App','Bestandscheck','Angebot','Anliegen gelöst Frage','Zusammenfassung','KZB'];
 let cpPrefill = null;
 
-function buildChecklistRow(label, checklistState){
-  const row = document.createElement('div');
-  row.className = 'cf-check-row';
-  const lbl = document.createElement('span');
-  lbl.className = 'cf-check-label';
-  lbl.textContent = label;
-  const btnOk = document.createElement('button');
-  btnOk.type = 'button'; btnOk.className = 'cf-check-btn cf-check-ok'; btnOk.innerHTML = '✓'; btnOk.title = 'Erfüllt';
-  const btnNok = document.createElement('button');
-  btnNok.type = 'button'; btnNok.className = 'cf-check-btn cf-check-nok'; btnNok.innerHTML = '✕'; btnNok.title = 'Nicht erfüllt';
-  const btnNa = document.createElement('button');
-  btnNa.type = 'button'; btnNa.className = 'cf-check-btn cf-check-na'; btnNa.innerHTML = '?'; btnNa.title = 'Nicht bewertet';
-
-  function refresh(){
-    [btnOk,btnNok,btnNa].forEach(b=>b.classList.remove('active'));
-    const v = checklistState[label];
-    if(v==='ok') btnOk.classList.add('active');
-    else if(v==='nok') btnNok.classList.add('active');
-    else if(v==='na') btnNa.classList.add('active');
-  }
-  btnOk.addEventListener('click', ()=>{ checklistState[label] = checklistState[label]==='ok' ? null : 'ok'; refresh(); });
-  btnNok.addEventListener('click', ()=>{ checklistState[label] = checklistState[label]==='nok' ? null : 'nok'; refresh(); });
-  btnNa.addEventListener('click', ()=>{ checklistState[label] = checklistState[label]==='na' ? null : 'na'; refresh(); });
-  refresh();
-
-  row.appendChild(lbl); row.appendChild(btnOk); row.appendChild(btnNok); row.appendChild(btnNa);
-  return row;
-}
 
 function buildQuickPlanForm(defaultAgentId){
   const box = document.createElement('div');
@@ -7529,13 +6027,28 @@ function cdKpiStrip(planCount, ueber){
   return el;
 }
 
+// v222: Abschlüsse der letzten 3 abgeschlossenen Arbeitstage gegenüber dem eigenen Monatsschnitt
+function wcEinbruch(agent, now, cfg){
+  const tw = (agent.tageswerte && agent.tageswerte[twMonthKey(now)]) || {};
+  const tage = Object.keys(tw).map(Number).filter(d => d < now.getDate()).sort((a, b) => a - b).map(d=>{
+    const sl = (tw[d] && tw[d].sales) || {};
+    if(!cfg.products.some(p => typeof sl[p] === 'number')) return null;
+    return cfg.products.reduce((x, p) => x + (+sl[p] || 0), 0);
+  }).filter(v => v !== null);
+  if(tage.length < 6) return null;
+  const letzte = tage.slice(-3), davor = tage.slice(0, -3);
+  const avgV = davor.reduce((a, b) => a + b, 0) / davor.length, avgL = letzte.reduce((a, b) => a + b, 0) / 3;
+  if(avgV < 1) return null;
+  if(avgL === 0) return { cls:'bad', text:`Keine Abschlüsse an den letzten 3 Arbeitstagen (sonst Ø ${fkNum(avgV)}/Tag)` };
+  if(avgL < avgV * 0.5) return { cls:'warn', text:`Abschlüsse eingebrochen: letzte 3 Tage Ø ${fkNum(avgL)} statt ${fkNum(avgV)}` };
+  return null;
+}
 function renderWoche(){
   renderFokus();
   const container = document.getElementById('fokus-container');
   if(!container) return;
   const head = container.querySelector('.fk-head');
   const wrap = document.createElement('div');
-  const banner = buildAlertBanner(); if(banner) wrap.appendChild(banner);
   const today = new Date(); today.setHours(0,0,0,0);
   const in7 = new Date(today.getTime() + 7*86400000);
   const lf = fkGetLeaderFilter();
@@ -7548,7 +6061,6 @@ function renderWoche(){
   const sec = document.createElement('div'); sec.className = 'fk-section';
   const ueber = plan.filter(p => new Date(p.datum) < today).length;
   try{ wrap.insertBefore(cdKpiStrip(plan.length, ueber), wrap.firstChild); }catch(e){ console.warn('Kennzahlen', e); }
-  try{ const fw = fwSection(); wrap.insertBefore(fw, wrap.firstChild ? wrap.firstChild.nextSibling : null); }catch(e){ console.warn('Frühwarnungen', e); }
   sec.innerHTML = `<div class="fk-sec-title">📅 Termine diese Woche <span>${plan.length}</span>${ueber ? ` <em class="cd-overdue">${ueber} überfällig</em>` : ''}</div>`;
   if(!plan.length){
     sec.innerHTML += `<div class="fk-empty">Keine Coachings für die nächsten 7 Tage geplant. Planen kannst du im Reiter <b>Planen</b>.</div>`;
@@ -7687,111 +6199,6 @@ function renderCdVerlauf(){
   container.appendChild(hint);
 }
 
-function buildAlertBanner(){
-  const now = new Date();
-  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
-  let noCoachingCount = 0;
-  let fallingCrCount = 0;
-  const MONATE_ORDER = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-  const aktuellerMonatName = now.toLocaleString('de-DE', {month:'long'});
-
-  allAgents.forEach(a=>{
-    let daysSince = null;
-    if(a.coachingDatum){
-      const parts = a.coachingDatum.split('.');
-      if(parts.length===3){
-        const dt = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-        if(!isNaN(dt)) daysSince = Math.floor((now-dt)/(1000*60*60*24));
-      }
-    }
-    const laengereZeitOhne = (daysSince===null || daysSince>14);
-    if(laengereZeitOhne) noCoachingCount++;
-
-    if(laengereZeitOhne){
-      const vlEntry = Object.values(state.verlauf).find(v=>v.name===a.name && v.team===a.team);
-      if(vlEntry && vlEntry.monate){
-        const monKeys = Object.keys(vlEntry.monate).filter(k=>k.split('-')[1]!==aktuellerMonatName).sort((x,y)=>{
-          const [ya,ma]=x.split('-'); const [yb,mb]=y.split('-');
-          if(ya!==yb) return ya.localeCompare(yb);
-          return MONATE_ORDER.indexOf(ma)-MONATE_ORDER.indexOf(mb);
-        });
-        const ref = monKeys[monKeys.length-1];
-        if(ref){
-          const davor = vlEntry.monate[ref].cr || 0;
-          const jetzt = totalCr(a);
-          if(davor>0 && (jetzt-davor) < -0.5) fallingCrCount++;
-        }
-      }
-    }
-  });
-
-  if(noCoachingCount===0) return null;
-  const banner = document.createElement('div');
-  banner.className = 'cp-alert-banner';
-  banner.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M10.3 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.7 3.86a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
-    <span><strong>${noCoachingCount} Mitarbeiter</strong> seit über 14 Tagen ohne Coaching${fallingCrCount>0 ? ` — bei <strong>${fallingCrCount}</strong> davon fällt aktuell die CR` : ''}.</span>`;
-  return banner;
-}
-
-// ===== Automatische Prioritätenliste: Wen zuerst coachen =====
-function buildPriorityList(){
-  const now = new Date();
-  const allAgents = state.agents.filter(a=>a.name.trim()!=='');
-  const scored = allAgents.map(a=>{
-    const cfg = TEAM_CONFIGS[a.team];
-    const cr = totalCr(a);
-    const crGap = Math.max(0, (cfg?.crTarget||0) - cr);
-    let daysSince = 999;
-    if(a.coachingDatum){
-      const parts = a.coachingDatum.split('.');
-      if(parts.length===3){
-        const dt = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-        if(!isNaN(dt)) daysSince = Math.floor((now-dt)/(1000*60*60*24));
-      }
-    }
-    const cv = Object.values(state.coachverlauf).find(v=>v.name===a.name && v.team===a.team);
-    let weaknessCount = 0;
-    if(cv && cv.eintraege){
-      const nokCount = {};
-      cv.eintraege.forEach(e=>{
-        if(!e.checkliste) return;
-        Object.keys(e.checkliste).forEach(k=>{ if(e.checkliste[k]==='nok') nokCount[k]=(nokCount[k]||0)+1; });
-      });
-      weaknessCount = Object.values(nokCount).filter(n=>n>=2).length;
-    }
-    const score = crGap*3 + Math.min(daysSince,60)*0.5 + weaknessCount*4;
-    return { agent:a, crGap, daysSince, weaknessCount, score, cfg };
-  }).filter(x=>x.score > 0.5);
-
-  scored.sort((x,y)=>y.score-x.score);
-  const top5 = scored.slice(0,5);
-
-  const wrap = document.createElement('div');
-  wrap.className = 'cp-chart-card';
-  wrap.style.marginTop = '16px';
-  let html = `<div class="cp-chart-title">🎯 Wen zuerst coachen — Top 5 mit größtem Hebel</div>`;
-  if(!top5.length){
-    html += `<div class="empty">Aktuell kein dringender Handlungsbedarf erkennbar.</div>`;
-  } else {
-    html += `<div class="cp-priority-list">`;
-    top5.forEach((x,i)=>{
-      const reasons = [];
-      if(x.crGap>0.5) reasons.push(`CR ${x.crGap.toFixed(1)} Pkt. unter Ziel`);
-      if(x.daysSince>=999) reasons.push('noch nie gecoacht');
-      else if(x.daysSince>14) reasons.push(`${x.daysSince} Tage ohne Coaching`);
-      if(x.weaknessCount>0) reasons.push(`${x.weaknessCount} wiederkehrende Schwachstelle${x.weaknessCount>1?'n':''}`);
-      html += `<div class="cp-priority-row">
-        <span class="cp-priority-rank">${i+1}</span>
-        <span class="cp-priority-name">${x.agent.name}</span>
-        <span class="cp-priority-team">${x.cfg?.label||x.agent.team}</span>
-        <span class="cp-priority-reasons">${reasons.join(' · ')}</span>
-      </div>`;
-    });
-    html += `</div>`;
-  }
-  wrap.innerHTML = html;
-  return wrap;
-}
 
 // ===== Coaching-Wirksamkeit: CR vor dem ersten Coaching vs. heute =====
 function buildEffectivenessSection(){
@@ -8093,103 +6500,6 @@ function buildStornoDeltaList(stornoHistory, stornoCurrent, cols){
   return wrap;
 }
 
-function drawStornoTrendChart(cnv, stornoHistory, stornoCurrent, cols){
-  const ctx = cnv.getContext('2d');
-  const dprC = window.devicePixelRatio||1;
-  const w = cnv.offsetWidth || 600;
-  const h = 220;
-  cnv.width = w*dprC; cnv.height = h*dprC; cnv.style.width=w+'px'; cnv.style.height=h+'px';
-  ctx.scale(dprC,dprC);
-  ctx.clearRect(0,0,w,h);
-
-  const heute = new Date().toLocaleDateString('de-DE');
-  const parseDatum = (s) => { const parts = s.split('.'); return new Date(`${parts[2]}-${parts[1]}-${parts[0]}`); };
-
-  const series = {};
-  const allDatesSet = new Set();
-  cols.forEach(p=>{
-    const hist = (stornoHistory[p]||[]).slice();
-    const pts = hist.map(hh=>({datum:hh.datum, wert:hh.wert}));
-    pts.push({datum: heute, wert: stornoCurrent[p]||0});
-    pts.sort((a,b)=>parseDatum(a.datum)-parseDatum(b.datum));
-    series[p] = pts;
-    pts.forEach(pt=>allDatesSet.add(pt.datum));
-  });
-  const dateList = Array.from(allDatesSet).sort((a,b)=>parseDatum(a)-parseDatum(b));
-
-  if(dateList.length < 2){
-    ctx.fillStyle = '#94A3B8';
-    ctx.font = '12px Inter';
-    ctx.textAlign = 'center';
-    ctx.fillText('Noch nicht genug Verlaufsdaten (mind. 2 unterschiedliche Tage nötig)', w/2, h/2);
-    return;
-  }
-
-  const palette = ['#E20074','#3B6FA0','#0E7C7B','#C2792B','#7C5CBF','#B4423A'];
-  const pad = {l:42, r:112, t:16, b:26};
-  const chartW = w - pad.l - pad.r;
-  const chartH = h - pad.t - pad.b;
-
-  function valueAt(p, dateStr){
-    const pts = series[p];
-    let val = pts[0].wert;
-    for(const pt of pts){ if(parseDatum(pt.datum) <= parseDatum(dateStr)) val = pt.wert; else break; }
-    return val;
-  }
-
-  const allVals = [];
-  cols.forEach(p=> dateList.forEach(d=> allVals.push(valueAt(p,d))));
-  const maxVal = Math.max(...allVals, 5) * 1.15;
-
-  ctx.strokeStyle = '#F0F0F2';
-  ctx.fillStyle = '#94A3B8';
-  ctx.font = '9px Inter';
-  ctx.textAlign = 'right';
-  for(let i=0;i<=4;i++){
-    const val = (maxVal*i/4);
-    const y = pad.t + chartH - (i/4)*chartH;
-    ctx.fillText(val.toFixed(0)+'%', pad.l-6, y+3);
-    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+chartW,y); ctx.stroke();
-  }
-
-  cols.forEach((p,pi)=>{
-    const color = palette[pi % palette.length];
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    dateList.forEach((d,i)=>{
-      const x = pad.l + (i/(dateList.length-1))*chartW;
-      const v = valueAt(p,d);
-      const y = pad.t + chartH - (v/maxVal)*chartH;
-      i===0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
-    });
-    ctx.stroke();
-    const lastV = valueAt(p, dateList[dateList.length-1]);
-    const lastY = pad.t + chartH - (lastV/maxVal)*chartH;
-    ctx.fillStyle = color;
-    ctx.beginPath(); ctx.arc(pad.l+chartW, lastY, 3, 0, Math.PI*2); ctx.fill();
-  });
-
-  ctx.fillStyle = '#64748B';
-  ctx.font = '9px Inter';
-  ctx.textAlign = 'center';
-  const showIdx = dateList.length <= 6 ? dateList.map((_,i)=>i) : [0, Math.floor(dateList.length/2), dateList.length-1];
-  showIdx.forEach(i=>{
-    const x = pad.l + (i/(dateList.length-1))*chartW;
-    ctx.fillText(dateList[i], x, h-6);
-  });
-
-  ctx.textAlign = 'left';
-  ctx.font = 'bold 10px Inter';
-  cols.forEach((p,pi)=>{
-    const color = palette[pi % palette.length];
-    const y = pad.t + pi*16;
-    ctx.fillStyle = color;
-    ctx.fillRect(pad.l+chartW+10, y, 10, 10);
-    ctx.fillStyle = '#1C2733';
-    ctx.fillText(p, pad.l+chartW+24, y+9);
-  });
-}
 
 
 // ===== Mitarbeiter-Verlauf: Diagramme als SVG (v155) – passen sich der Kastenbreite an, Werte an jedem Monat =====
@@ -8504,92 +6814,6 @@ function vlVerwaistSection(){
 let vlSelectedAgent = {};
 
 
-function saveMonatSnapshot(){
-  const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-  const now = new Date();
-  const aktuellerMonat = now.toLocaleString('de-DE', {month:'long'});
-  const jahr = now.getFullYear();
-
-  // Overlay mit Monats-Auswahl
-  const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;display:flex;align-items:center;justify-content:center;';
-
-  const popup = document.createElement('div');
-  popup.style.cssText = 'background:#fff;border-radius:20px;padding:28px;min-width:300px;box-shadow:0 20px 60px rgba(0,0,0,0.3);';
-
-  popup.innerHTML = `<div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:18px;margin-bottom:16px;">📸 Monat speichern</div>
-    <div style="font-family:'Inter',sans-serif;font-size:13px;color:#64748B;margin-bottom:16px;">Für welchen Monat sollen die aktuellen Übersichts-Daten gespeichert werden?</div>`;
-
-  const selWrap = document.createElement('div');
-  selWrap.style.cssText = 'display:flex;gap:10px;margin-bottom:20px;';
-
-  const monatSel = document.createElement('select');
-  monatSel.style.cssText = 'flex:1;padding:10px;border-radius:8px;border:1px solid #E0E0E0;font-family:"Inter",sans-serif;font-size:14px;outline:none;';
-  MONATE.forEach(m => {
-    const opt = document.createElement('option');
-    opt.value = m;
-    opt.textContent = m;
-    if(m === aktuellerMonat) opt.selected = true;
-    monatSel.appendChild(opt);
-  });
-
-  const jahrSel = document.createElement('select');
-  jahrSel.style.cssText = 'width:100px;padding:10px;border-radius:8px;border:1px solid #E0E0E0;font-family:"Inter",sans-serif;font-size:14px;outline:none;';
-  [jahr-1, jahr, jahr+1].forEach(j => {
-    const opt = document.createElement('option');
-    opt.value = j;
-    opt.textContent = j;
-    if(j === jahr) opt.selected = true;
-    jahrSel.appendChild(opt);
-  });
-
-  selWrap.appendChild(monatSel);
-  selWrap.appendChild(jahrSel);
-  popup.appendChild(selWrap);
-
-  const btnWrap = document.createElement('div');
-  btnWrap.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
-
-  const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = 'Abbrechen';
-  cancelBtn.style.cssText = 'padding:9px 18px;border-radius:8px;border:1px solid #E0E0E0;background:#fff;font-family:"Inter",sans-serif;font-weight:600;font-size:13px;cursor:pointer;';
-  cancelBtn.addEventListener('click', ()=>overlay.remove());
-
-  const saveBtn = document.createElement('button');
-  saveBtn.textContent = '✓ Speichern';
-  saveBtn.style.cssText = 'padding:9px 18px;border-radius:8px;border:none;background:var(--tmg);color:#fff;font-family:"Inter",sans-serif;font-weight:600;font-size:13px;cursor:pointer;';
-  saveBtn.addEventListener('click', ()=>{
-    const gewaehlterMonat = monatSel.value;
-    const gewaehlterJahr = jahrSel.value;
-    const periode = `${gewaehlterJahr}-${gewaehlterMonat}`;
-
-    if(!state.verlauf) state.verlauf = {};
-    state.agents.forEach(agent => {
-      if(!agent.name.trim()) return;
-      // In den fest verknüpften Verlaufs-Eintrag des Mitarbeiters schreiben (nicht per Name)
-      const vlEntry = verlaufTargetEntry(agent);
-      vlEntry.monate[periode] = {
-        sales: JSON.parse(JSON.stringify(agent.sales)),
-        calls: agent.calls,
-        cht: agent.cht,
-        nps: agent.nps,
-        lq: agent.lq,
-        cr: totalCr(agent)
-      };
-    });
-    scheduleSave();
-    overlay.remove();
-    alert(`✓ Snapshot für ${gewaehlterMonat} ${gewaehlterJahr} gespeichert!`);
-    renderVerlauf();
-  });
-
-  btnWrap.appendChild(cancelBtn);
-  btnWrap.appendChild(saveBtn);
-  popup.appendChild(btnWrap);
-  overlay.appendChild(popup);
-  overlay.addEventListener('click', e=>{ if(e.target===overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
-}
 
 function renderVerlauf(){
   const container = document.getElementById('verlauf-container');
@@ -8843,9 +7067,6 @@ function renderVerlauf(){
         a:{ label:'CHT', values: chtValues.map(v=>v||0), col: chtCol },
         b:{ label:'WHT', values: whtValues.map(v=>v||0), col: v => whtOk(v) ? 'var(--good)' : 'var(--bad)' },
         hinweis: 'Sekunden' }));
-    }
-    function drawWHTChart(el, monate, whtValues){
-      vlRender(el, (w,h)=>vlBarSVG(w, h, { monate, values: whtValues.map(v=>v||0), colorFn: v => whtOk(v) ? 'var(--good)' : 'var(--bad)' }));
     }
 
     // Charts zeichnen
@@ -9141,12 +7362,6 @@ function renderMonatsabschluss(){
   const container = document.getElementById('monatsabschluss-container');
   container.innerHTML = '';
   const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-
-  const sbBar = document.createElement('div');
-  sbBar.className = 'sb-bar';
-  sbBar.innerHTML = `<div><b>Standort-Bericht</b><span>Fertiger Monatsbericht beider Teams für die Geschäftsführung – druckbar oder als PDF.</span></div><button type="button" class="primary sb-open">Bericht erstellen</button>`;
-  sbBar.querySelector('.sb-open').onclick = openStandortBericht;
-  container.appendChild(sbBar);
 
   // ===== VERLAUFS-DIAGRAMME =====
   const chartsWrap = document.createElement('div');
@@ -10012,17 +8227,6 @@ function renderTeamZiele(){
     return td;
   }
 
-  function crStuffeStyle(val, tz){
-    const v = parseFloat(val)||0;
-    // Stufe 3 (höchste) - nur MF
-    if(tz.crZiel3 && parseFloat(Object.values(tz.crZiel3)[0]||0) > 0 && v >= parseFloat(Object.values(tz.crZiel3)[0]||0)) return 'background:var(--st3-bg);color:var(--st3-fg);';
-    // Stufe 2
-    if(tz.crZiel2 && v >= parseFloat(Object.values(tz.crZiel2)[0]||0)) return 'background:var(--st2-bg);color:var(--st2-fg);';
-    // Stufe 1
-    if(tz.crZiel1 && v >= parseFloat(Object.values(tz.crZiel1)[0]||0)) return 'background:var(--st1-bg);color:var(--st1-fg);';
-    // Unter Stufe 1
-    return 'background:var(--st0-bg);color:var(--st0-fg);';
-  }
 
   function crStuffeProd(p, val, tz){
     const v = parseFloat(val)||0;
@@ -10037,15 +8241,6 @@ function renderTeamZiele(){
     return 'background:var(--st0-bg);color:var(--st0-fg);';
   }
 
-  function addRow(t, rowCls, labelTxt, leftCells, prodCells){
-    const tr = document.createElement('tr');
-    tr.className = rowCls;
-    tr.appendChild(cell(labelTxt, 'tz-label'));
-    leftCells.forEach(c => tr.appendChild(c));
-    prodCells.forEach(c => tr.appendChild(c));
-    t.appendChild(tr);
-    return tr;
-  }
 
   const heute = new Date().toLocaleDateString('de-DE');
 
@@ -12443,12 +10638,18 @@ function renderFokus(){
       if(nps !== null && nps < cfg.npsTarget){ reasons.push({ cls: nps < cfg.npsTarget - 8 ? 'bad' : 'warn', text: `NPS ${fkNum(nps)} % (Ziel ${cfg.npsTarget} %)` }); score += (cfg.npsTarget - nps) * 1.5; }
       const prevNps = (agentVerlaufMonat(agent, prevD.getFullYear(), VL_MONATE[prevD.getMonth()]) || {}).nps;
       if(nps !== null && prevNps > 0 && prevNps - nps >= 5){ reasons.push({ cls: 'warn', text: `NPS gefallen: ${fkNum(prevNps)} → ${fkNum(nps)} %` }); score += 10; }
+      // v222: aus dem früheren Frühwarnsystem übernommen – Einbruch der letzten 3 Arbeitstage und CR unter der roten Schwelle
+      const eb = wcEinbruch(agent, now, cfg);
+      if(eb){ reasons.push(eb); score += eb.cls === 'bad' ? 22 : 12; }
+      const callsJetzt = fkCurVal(agent, 'calls', now) || 0;
+      if(callsJetzt >= 150){ const crJ = totalCr(agent), rot = agent.team === 'Trikala01' ? 4 : 7;
+        if(crJ < rot){ reasons.push({ cls:'bad', text:`CR ${fkNum(crJ)} % – unter ${rot} %` }); score += 18; } }
       if(lq !== null && cfg.lqTarget && lq < cfg.lqTarget){ reasons.push({ cls: 'warn', text: `LQ ${fkNum(lq)} % (Ziel ${cfg.lqTarget} %)` }); score += (cfg.lqTarget - lq) * 1.2; }
     }
     const last = fkParseDe(agent.coachingDatum);
     const daysSince = last ? Math.round((new Date(todayIso) - new Date(fkIsoDate(last))) / 86400000) : null;
     if(daysSince === null){ reasons.push({ cls: 'info', text: 'Noch kein Coaching erfasst' }); score += 8; }
-    else if(daysSince > 30){ reasons.push({ cls: 'info', text: `Letztes Coaching vor ${daysSince} Tagen` }); score += Math.min(20, 6 + (daysSince - 30) / 3); }
+    else if(daysSince > 14){ reasons.push({ cls: 'info', text: `Letztes Coaching vor ${daysSince} Tagen` }); score += Math.min(20, 6 + (daysSince - 14) / 3); }
     const notes = [];
     if(planned[agent.id]){ notes.push(`📅 Coaching geplant am ${fkFmt(fkParseDe(planned[agent.id]))}`); score *= 0.5; }
     if(leaderFilter === 'alle' && agent.fuehrungskraft) notes.unshift('👤 ' + agent.fuehrungskraft);
@@ -12525,9 +10726,6 @@ function renderFokus(){
   });
   sec3.appendChild(lobWrap);
   container.appendChild(sec3);
-
-  // ---------- Team-Analyse 5-Finger-Pitch ----------
-  container.appendChild(buildFingerTeamAnalyse(fkTeamFilter, a => fkMatchesLeader(a, leaderFilter)));
 
   // ---------- 4) Laufende Vereinbarungen ----------
   const laufend = alleV.filter(v => !v.review && v.pruef && fkIsoDate(v.pruef) > todayIso).sort((a,b)=>a.pruef - b.pruef);
@@ -14403,44 +12601,7 @@ function renderOverviewInner(){
   container.appendChild(foot);
 }
 
-// Pylon-Nummern (und, falls in derselben Datei enthalten, CHT) aus einer Helpsense-CSV importieren
-// und automatisch den bestehenden Mitarbeitern zuordnen (nach Nachnamen, mit Vornamens-Initiale
-// zur Unterscheidung bei gleichen Nachnamen, z.B. "Antoniou I.").
-function parsePylonCsv(text){
-  const rows = text.split(/\r?\n/).map(r=>r.trim()).filter(r=>r && r !== ';;');
-  const entries = [];
-  rows.forEach(row=>{
-    const parts = row.split(';').map(p=>p.trim());
-    if(parts.length < 2) return;
-    if(parts[0].toLowerCase() === 'fullname') return; // Kopfzeile überspringen
-    const fullname = parts[0];
-    const pylon = parts[1];
-    const cht = parts[2];
-    if(!fullname || !pylon || !/^\d+$/.test(pylon)) return;
-    const nameParts = fullname.split(' ').filter(Boolean);
-    if(nameParts.length < 2) return;
-    const lastName = nameParts[nameParts.length - 1];
-    const firstName = nameParts.slice(0, -1).join(' ');
-    entries.push({ fullname, lastName, firstInitial: firstName.charAt(0).toUpperCase(), pylon, cht: (cht && /^\d+$/.test(cht)) ? cht : null });
-  });
-  return entries;
-}
 
-function matchPylonEntry(agentName, entries){
-  // Board-Namen sind entweder nur der Nachname ("Mitsiou") oder bei Dopplungen
-  // "Nachname Vorname-Initiale." (z.B. "Antoniou I.")
-  const m = agentName.match(/^(.+?)\s+([A-ZÄÖÜ])\.?$/);
-  const baseLast = (m ? m[1] : agentName).trim();
-  const initial = m ? m[2] : null;
-  const candidates = entries.filter(e=>e.lastName.toLowerCase() === baseLast.toLowerCase());
-  if(!candidates.length) return null;
-  if(candidates.length === 1) return candidates[0];
-  if(initial){
-    const exact = candidates.find(e=>e.firstInitial === initial);
-    if(exact) return exact;
-  }
-  return null; // mehrdeutig, nicht automatisch zuordnen
-}
 
 document.getElementById('add-agent-btn').addEventListener('click', ()=>{
   const overlay = document.createElement('div');
@@ -14506,7 +12667,7 @@ document.getElementById('export-png-btn').addEventListener('click', async ()=>{
 
 loadState();
 
-// ===== To-Do's Pop-up (persönlich, an den Microsoft-Login gebunden) =====
+// ===== To-Do's Pop-up (persönlich – v222: an den Coach-Namen gebunden, über die normale Speicherung synchronisiert) =====
 let personalTodos = [];
 let currentUserId = null;
 let currentUserName = null;
@@ -14524,43 +12685,29 @@ function getCoachName(){
   return 'Unbekannt';
 }
 
-async function fetchCurrentUser(){
-  try{
-    const resp = await graphFetch('/me?$select=mail,userPrincipalName,displayName,id');
-    if(resp && resp.ok){
-      const data = await resp.json();
-      currentUserId = (data.mail || data.userPrincipalName || data.id || '').toLowerCase();
-      currentUserName = data.displayName || '';
-      const nameEl = document.getElementById('logged-in-name');
-      if(nameEl){
-        nameEl.textContent = currentUserName ? ('Angemeldet als ' + currentUserName) : '';
-        nameEl.style.display = currentUserName ? '' : 'none';
-      }
-      // Excel-Sync greift direkt auf Ioannis' persönliches OneDrive zu und funktioniert deshalb
-      // nur bei ihm - bei allen anderen Führungskräften kommt sonst ein 403 accessDenied.
-      // Button daher nur zeigen, wenn wirklich Ioannis eingeloggt ist.
-      const eb = document.getElementById('excel-sync-btn');
-      if(eb) eb.style.display = (currentUserName === 'Ioannis Fasoulas') ? '' : 'none';
-      // Falls vorher lokal (ohne Login) Einträge gesammelt wurden, einmalig übernehmen
-      if(currentUserId){
-        const local = JSON.parse(localStorage.getItem('personal_todos')||'[]');
-        if(local.length && !(state.todosByUser[currentUserId] && state.todosByUser[currentUserId].length)){
-          state.todosByUser[currentUserId] = local;
-          localStorage.removeItem('personal_todos');
-          scheduleSave();
-        }
-      }
-      loadTodos();
-      updateTodoFabBadge();
-      updateTodoTicker();
-      const overlay = document.getElementById('todo-modal-overlay');
-      if(overlay) renderTodoBody();
-    } else if(resp) {
-      console.warn('fetchCurrentUser fehlgeschlagen:', resp.status);
-    }
-  }catch(e){ console.warn('fetchCurrentUser Fehler:', e.message); }
+// v222: Schlüssel der eigenen To-Do-Liste = gespeicherter Coach-Name
+function todoKey(){
+  let n = ''; try{ n = localStorage.getItem('coach_display_name') || ''; }catch(e){}
+  n = n.trim().toLowerCase();
+  return n ? 'coach:' + n : null;
 }
-
+// Nach jedem Laden vom Server (und beim Start) die eigene Liste neu verknüpfen;
+// Einträge, die bisher nur auf diesem Gerät lagen, einmalig übernehmen
+function todoNachLaden(){
+  currentUserId = todoKey();
+  if(currentUserId){
+    if(!Array.isArray(state.todosByUser[currentUserId])) state.todosByUser[currentUserId] = [];
+    let lokal = []; try{ lokal = JSON.parse(localStorage.getItem('personal_todos') || '[]'); }catch(e){}
+    if(lokal.length){
+      const liste = state.todosByUser[currentUserId];
+      lokal.forEach(t => { if(t && !liste.some(x => (x.id && x.id === t.id) || (x.text === t.text && x.datum === t.datum))) liste.push(t); });
+      try{ localStorage.removeItem('personal_todos'); }catch(e){}
+      scheduleSave();
+    }
+  }
+  loadTodos();
+  try{ updateTodoFabBadge(); updateTodoTicker(); if(document.getElementById('todo-modal-overlay')) renderTodoBody(); }catch(e){}
+}
 function loadTodos(){
   if(currentUserId){
     personalTodos = state.todosByUser[currentUserId] || (state.todosByUser[currentUserId] = []);
@@ -14618,7 +12765,10 @@ function renderTodoBody(){
   if(!currentUserId){
     const hint = document.createElement('div');
     hint.style.cssText = 'font-family:"Inter",sans-serif;font-size:11.5px;color:var(--muted);background:#FEF3E8;border-radius:8px;padding:8px 10px;margin-bottom:12px;';
-    hint.textContent = '⚠️ Nicht mit Microsoft angemeldet — diese Liste bleibt vorerst nur lokal auf diesem Gerät. Melde dich an, damit sie geräteübergreifend synchronisiert wird.';
+    hint.textContent = 'Ohne deinen Namen bleibt diese Liste nur auf diesem Gerät. ';
+    const nb = document.createElement('button'); nb.type = 'button'; nb.className = 'fk-btn'; nb.textContent = 'Namen eintragen';
+    nb.onclick = () => { getCoachName(); todoNachLaden(); };
+    hint.appendChild(nb);
     body.appendChild(hint);
   }
 
@@ -14740,12 +12890,9 @@ function closeTodoModal(){
   if(overlay) overlay.remove();
 }
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeTodoModal(); });
-loadTodos();
-updateTodoFabBadge();
+todoNachLaden();
 updateTodoTicker();
 document.getElementById('todo-fab').addEventListener('click', openTodoModal);
-document.getElementById('tl-open').addEventListener('click', openTlView);
-document.addEventListener('keydown', e => { if(e.key === 'Escape' && document.getElementById('tl-view') && !document.querySelector('.cd-modal-overlay')) closeTlView(); });
 
 // Service Worker registrieren (macht die Seite als App installierbar)
 if('serviceWorker' in navigator){
@@ -14891,11 +13038,6 @@ if('serviceWorker' in navigator){
   };
 
   /* 04 + 10 Kopfleiste: Ring + Heatmap, aus den sichtbaren Karten berechnet */
-  function ringHTML(pct){
-    var col = pct>=80 ? 'var(--teal)' : pct>=50 ? 'var(--amber)' : 'var(--red)';
-    return '<div class="fx-ring" style="background:conic-gradient('+col+' '+(pct*3.6)+'deg,#EDEFF2 0deg)">'+
-      '<div class="fx-ring-in"><div class="fx-ring-val">'+pct+'%</div><div class="fx-cap">im Ziel</div></div></div>';
-  }
   function stacks(){
     document.querySelectorAll('.team-block').forEach(function(b){
       b.classList.toggle('fx-stacked', b.querySelectorAll('.card').length > 0);
@@ -15088,7 +13230,6 @@ html[data-fx-theme="dark"] .tw-daytab{background-color:var(--panel);}
 html[data-fx-theme="dark"] .tw-hint{background-color:#212B36;}
 html[data-fx-theme="dark"] .dp-widget{background-color:#3E192D;background-image:none;}
 html[data-fx-theme="dark"] .dp-gauge-inner{background-color:var(--panel);}
-html[data-fx-theme="dark"] .cp-alert-banner{background-color:#3E2B19;color:#F0D094;border-color:var(--border);}
 html[data-fx-theme="dark"] .cp-priority-row{background-color:#212B36;}
 html[data-fx-theme="dark"] .cp-eff-row{background-color:#212B36;}
 html[data-fx-theme="dark"] .cp-co-bar-track{background-color:#202B37;}
@@ -16157,7 +14298,6 @@ button.cd-kpi{cursor:pointer;} button.cd-kpi:hover{box-shadow:var(--cd-shadow-h)
 #view-coachdash .cp-plan-row{padding:16px 18px;}
 #view-coachdash .cp-plan-row-name{font-size:16px;}
 #view-coachdash .cp-plan-list{display:flex;flex-direction:column;gap:10px;}
-#view-coachdash .cp-alert-banner{border-radius:14px;padding:14px 18px;font-size:14px;}
 #view-coachdash .fk-sec-title{font-size:18px;margin:26px 0 12px;}
 #view-coachdash .fk-sec-title span{font-size:12px;font-weight:700;background:var(--cd-soft);border:1px solid var(--cd-line);}
 #view-coachdash .cp-list-title{font-size:18px;display:flex;align-items:center;margin:26px 0 12px;}
@@ -16307,99 +14447,6 @@ html[data-fx-theme="dark"] .sh3-tag rect{fill:#1C2733;} html[data-fx-theme="dark
 .hrk-sum1{font-size:15.5px;}
 @media (max-width:480px){ .hrk-spruch{margin:-14px 10px 4px;padding:14px 14px 14px 44px;} .hrk-q{font-size:46px;left:11px;} .hrk-spruch-t{font-size:15px;} }
 
-/* ===== v205 Frühwarnsystem ===== */
-.fw-section .fk-sec-title span{background:var(--red,#B4423A);color:#fff;}
-.fw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:10px;}
-.fw-card{border:1px solid var(--border);border-left:4px solid #C2792B;border-radius:12px;padding:12px 14px;background:var(--panel,#fff);display:flex;flex-direction:column;gap:8px;min-width:0;}
-.fw-card.fw-rot{border-left-color:#B4423A;}
-.fw-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
-.fw-team{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap;}
-.fw-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;}
-.fw-list li{display:flex;flex-direction:column;font-size:12.5px;padding-left:14px;position:relative;line-height:1.35;}
-.fw-list li::before{content:'';position:absolute;left:0;top:5px;width:7px;height:7px;border-radius:50%;background:#C2792B;}
-.fw-list li.fw-rot::before{background:#B4423A;}
-.fw-list li.fw-info::before{background:var(--muted);}
-.fw-list li.fw-info{color:var(--muted);}
-.fw-list li span{color:var(--muted);font-size:11.5px;}
-.fw-actions{display:flex;gap:6px;margin-top:auto;}
-.fw-chip{display:inline-block;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;background:#FBF0E2;color:#8A5410;}
-.fw-chip.fw-rot{background:#FBE9E7;color:#9A2F27;}
-/* ===== v205 Monatsbilanz ===== */
-.mb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;padding:16px;}
-.mb-tile{display:flex;align-items:center;gap:10px;border:1px solid var(--border);background:var(--panel,#fff);border-radius:12px;padding:10px 12px;cursor:pointer;text-align:left;font-family:'Inter',sans-serif;color:var(--text);min-width:0;transition:border-color .15s,transform .15s;}
-.mb-tile:hover{border-color:var(--tmg);transform:translateY(-1px);}
-.mb-tile-t{display:flex;flex-direction:column;min-width:0;flex:1;}
-.mb-tile-t b{font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.mb-tile-t span{font-size:11.5px;color:var(--muted);}
-.mb-tile-q{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;font-variant-numeric:tabular-nums;}
-.mb-tile.st-ok .mb-tile-q{color:#0E7C7B;}.mb-tile.st-warn .mb-tile-q{color:#C2792B;}.mb-tile.st-bad .mb-tile-q{color:#B4423A;}
-.hrb-hero{display:flex;align-items:center;gap:14px;padding:14px 20px 4px;}
-.hrb-ring{width:84px;height:84px;}
-.hrb-sub{font-size:12px;color:#5B6470;margin-top:3px;line-height:1.4;}
-.hrb-badges{display:flex;flex-wrap:wrap;gap:6px;padding:10px 20px 4px;}
-.mb-badge{display:inline-flex;align-items:center;gap:5px;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:700;padding:5px 10px;border-radius:999px;background:#F1F3F6;color:#3C4855;}
-.mb-badge svg,.mb-badge .cd-ic{width:13px;height:13px;flex:0 0 auto;}
-.mb-gold{background:#FFF3D6;color:#8A5A00;}
-.mb-tmg{background:#FDE7F2;color:#A1005A;}
-.mb-teal{background:#E3F2F0;color:#0B5F5E;}
-.mb-none{font-weight:500;color:#6B7280;}
-.mbd{font-size:10.5px;font-weight:700;margin-left:2px;white-space:nowrap;}
-.mbd-up{color:#0E7C7B;}.mbd-down{color:#B4423A;}.mbd-eq{color:#8A93A0;}
-/* ===== v205 Standort-Bericht ===== */
-.sb-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border:1px solid var(--border);background:linear-gradient(135deg,var(--tmg-soft,#FDE7F2),var(--panel,#fff) 70%);border-radius:14px;padding:14px 18px;margin-bottom:18px;}
-.sb-bar > div{display:flex;flex-direction:column;gap:2px;min-width:0;}
-.sb-bar b{font-family:'Space Grotesk',sans-serif;font-size:16px;color:var(--text);}
-.sb-bar span{font-size:12.5px;color:var(--muted);}
-.sb-modal{width:min(540px,100%)!important;display:flex;flex-direction:column;gap:6px;}
-.sb-l{font-size:12px;font-weight:700;color:var(--muted);margin-top:8px;}
-/* ===== v205 Teamleiter-Ansicht ===== */
-body.tl-offen{overflow:hidden;}
-#tl-view{position:fixed;inset:0;z-index:9000;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;font-family:'Inter',sans-serif;color:var(--text);}
-.tl-top{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:calc(16px + env(safe-area-inset-top,0px)) 18px 16px;background:linear-gradient(135deg,#E20074,#A1005A);color:#fff;}
-.tl-eye{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.85;}
-.tl-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-top:2px;}
-.tl-date{font-size:12.5px;opacity:.9;}
-.tl-x{background:rgba(255,255,255,.18);border:0;color:#fff;width:40px;height:40px;border-radius:50%;font-size:24px;line-height:1;cursor:pointer;flex:0 0 auto;}
-.tl-body{max-width:640px;margin:0 auto;padding:14px 16px calc(28px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;}
-.tl-sel{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--muted);}
-.tl-sel select{flex:1;min-width:0;font:600 15px 'Inter',sans-serif;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--panel,#fff);color:var(--text);}
-.tl-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.tl-sum > div{background:var(--panel,#fff);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;align-items:center;text-align:center;}
-.tl-sum b{font-family:'Space Grotesk',sans-serif;font-size:22px;font-variant-numeric:tabular-nums;}
-.tl-sum span{font-size:11px;color:var(--muted);line-height:1.25;}
-.tl-sum .w b{color:#B4423A;}
-.tl-list{display:flex;flex-direction:column;gap:8px;}
-.tl-card{background:var(--panel,#fff);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-.tl-card.tl-hat-warn{border-left:4px solid #B4423A;}
-.tl-card summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;min-height:56px;}
-.tl-card summary::-webkit-details-marker{display:none;}
-.tl-who{flex:1;min-width:0;display:flex;flex-direction:column;}
-.tl-who b{font-size:14.5px;}
-.tl-who span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;}
-.tl-who span b{font-size:12px;color:var(--text);}
-.tl-pill{font-size:11px;font-weight:700;padding:4px 9px;border-radius:999px;white-space:nowrap;background:#E3F2F0;color:#0B5F5E;}
-.tl-pill.st-warn{background:#FBF0E2;color:#8A5410;}.tl-pill.st-bad{background:#FBE9E7;color:#9A2F27;}
-.tl-card[open] summary{border-bottom:1px solid var(--border);}
-.tl-tz{display:flex;gap:8px;align-items:flex-start;padding:10px 14px 0;font-size:12.5px;}
-.tl-tz svg,.tl-tz .cd-ic{width:15px;height:15px;flex:0 0 auto;color:var(--tmg);margin-top:1px;}
-.tl-tz em{font-style:normal;font-weight:700;margin-right:6px;color:#B4423A;}
-.tl-tz em.ok{color:#0E7C7B;}
-.tl-warn{display:flex;flex-wrap:wrap;gap:5px;padding:10px 14px 0;}
-.tl-month{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:6px;padding:10px 14px 0;}
-.tl-m{border-radius:10px;padding:7px 9px;background:var(--bg);display:flex;flex-direction:column;}
-.tl-m span{font-size:11px;color:var(--muted);font-weight:600;}
-.tl-m b{font-family:'Space Grotesk',sans-serif;font-size:17px;font-variant-numeric:tabular-nums;}
-.tl-m b small{font-size:11px;color:var(--muted);font-weight:500;}
-.tl-m.st-ok b{color:#0E7C7B;}.tl-m.st-warn b{color:#C2792B;}.tl-m.st-bad b{color:#B4423A;}
-.tl-kpi{display:flex;gap:14px;flex-wrap:wrap;padding:10px 14px 0;font-size:12.5px;color:var(--muted);}
-.tl-kpi b{color:var(--text);}
-.tl-akte{margin:12px 14px 14px;width:calc(100% - 28px);padding:11px;border-radius:10px;border:1px solid var(--tmg);background:transparent;color:var(--tmg);font:700 13.5px 'Inter',sans-serif;cursor:pointer;}
-.tl-hint{font-size:11.5px;color:var(--muted);text-align:center;padding:4px 10px;}
-html[data-fx-theme="dark"] .fw-chip{background:rgba(194,121,43,.2);color:#F0C48A;}
-html[data-fx-theme="dark"] .fw-chip.fw-rot{background:rgba(180,66,58,.25);color:#F3AAA3;}
-html[data-fx-theme="dark"] .tl-pill{background:rgba(14,124,123,.25);color:#8FD8D2;}
-html[data-fx-theme="dark"] .tl-pill.st-warn{background:rgba(194,121,43,.2);color:#F0C48A;}
-html[data-fx-theme="dark"] .tl-pill.st-bad{background:rgba(180,66,58,.25);color:#F3AAA3;}
 
 
 .hrk-neu{display:inline-block;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:1px 8px;font-weight:700;font-size:11px;margin-right:4px;}
@@ -16414,23 +14461,10 @@ html[data-fx-theme="dark"] .tl-pill.st-bad{background:rgba(180,66,58,.25);color:
 .hrk-spruch.gg .hrk-spruch-t{font-size:17px;line-height:1.42;font-weight:700;color:#3A0A26;}
 @media (max-width:480px){ .hrk-spruch.gg{margin:-14px 10px 6px;gap:12px;} .gg-figwrap,.gg-fig{width:76px;height:92px;flex-basis:76px;} .hrk-spruch.gg .hrk-spruch-t{font-size:15.5px;} }
 
-/* v210: Giagia lebendig */
-.gg-fig{overflow:visible;}
-.gg-anim .gg-fig{animation:ggBob 2.6s ease-in-out infinite;}
-.gg-anim .gg-arm{transform-box:view-box;transform-origin:81px 97px;animation:ggWave 1.5s ease-in-out infinite;}
-.gg-anim .gg-arm2{transform-box:view-box;transform-origin:31px 97px;animation:ggWave2 1.5s ease-in-out infinite;}
-.gg-anim .gg-head{transform-box:view-box;transform-origin:56px 86px;animation:ggTilt 3.4s ease-in-out infinite;}
-.gg-anim .gg-eyes{transform-box:view-box;transform-origin:56px 58px;animation:ggBlink 4.6s infinite;}
-.gg-anim .gg-spark{transform-box:fill-box;transform-origin:center;animation:ggSpark 1.8s ease-in-out infinite;}
+/* Sprechblase ploppt beim Öffnen auf */
 .gg-anim .gg-bubble{transform-origin:0 100%;animation:ggPop .55s cubic-bezier(.2,1.5,.4,1) both;}
-@keyframes ggBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-@keyframes ggWave{0%,100%{transform:rotate(0)}50%{transform:rotate(-16deg)}}
-@keyframes ggWave2{0%,100%{transform:rotate(0)}50%{transform:rotate(14deg)}}
-@keyframes ggTilt{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(3deg)}}
-@keyframes ggBlink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
-@keyframes ggSpark{0%,100%{transform:scale(.6);opacity:.5}50%{transform:scale(1.15);opacity:1}}
 @keyframes ggPop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
-@media (prefers-reduced-motion: reduce){ .gg-anim *, .gg-anim{animation:none!important;} }
+@media (prefers-reduced-motion: reduce){ .gg-anim .gg-bubble{animation:none!important;} }
 
 /* v211: Giagia als Foto */
 .gg-foto .gg-figwrap{flex:0 0 124px;width:124px;height:124px;margin-bottom:6px;padding:3px;background:#fff;border:3px solid #E20074;border-radius:20px;box-sizing:border-box;}
