@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 213;
+const BOARD_VERSION = 214;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -6080,7 +6080,7 @@ function renderCoachVerlauf(){
         const checkWrap = document.createElement('div');
         checkWrap.className = 'cv-checklist-mini';
         CHECKLIST_ITEMS.forEach(item=>{
-          const v = entry.checkliste[item];
+          const v = ckWert(entry.checkliste, item);
           if(!v) return;
           const chip = document.createElement('span');
           chip.className = 'cv-check-chip ' + v;
@@ -6164,7 +6164,7 @@ function computeCoachStats(){
       themen[th]++;
       if(e.checkliste){
         CHECKLIST_ITEMS.forEach(item=>{
-          const v = e.checkliste[item];
+          const v = ckWert(e.checkliste, item);
           if(v === 'ok') checklistStats[item].ok++;
           else if(v === 'nok') checklistStats[item].nok++;
           else if(v === 'na') checklistStats[item].na++;
@@ -6284,7 +6284,7 @@ function labeledField(label, el){
 }
 
 const COACH_STYLES = ['Side-by-Side', 'TCAP'];
-let CHECKLIST_ITEMS = ['Begrüßung','Positive Einstellung','Anliegen wiederholt','Legitimierung','Anker','PKA','Ansprache App','KEK','Bestandscheck','Angebot','Anliegen gelöst Frage','Zusammenfassung','KZB'];
+let CHECKLIST_ITEMS = ['Begrüßung','Positive Einstellung','Anliegen wiederholt','Legitimierung','Anker','PKA','KEK','Magenta App','Bestandscheck','Angebot','Anliegen gelöst Frage','Zusammenfassung','KZB'];
 let cpPrefill = null;
 
 function buildChecklistRow(label, checklistState){
@@ -7167,7 +7167,7 @@ function buildCoachingRecordForm(prefill){
         oben = card(t, g.els, 'cf2-oben'); return;
       }
       const txt = g.title.textContent;
-      if(/Angaben zum Call|Beobachtung/.test(txt)) main.appendChild(card(g.title, g.els));
+      if(/Angaben zum Call|Beobachtung|Ergebnis des Calls/.test(txt)) main.appendChild(card(g.title, g.els));
       else if(/Auswertung|Selbsteinsch|Feedback/.test(txt)) side.appendChild(card(g.title, g.els, 'cf2-sidecard'));
       else unten.appendChild(card(g.title, g.els));
     });
@@ -12468,7 +12468,7 @@ const FINGER_MODEL = [
     anchors:[
       { id:'a1', text:'Hört aktiv zu und gibt das Anliegen in eigenen Worten wieder' },
       { id:'m1', text:'Stellt mindestens zwei offene Fragen zu Nutzung oder Umfeld (Haushalt, Geräte, Verträge)' },
-      { id:'m2', text:'Nutzt Bestandscheck/KEK, um Chancen zu erkennen' },
+      { id:'m2', text:'Nutzt den Bestandscheck, um Chancen zu erkennen' },
       { id:'m3', text:'Fasst den Bedarf des Kunden kurz zusammen' } ],
     staerke:'Ermittelt den Bedarf gründlich',
     frage:'Was hättest du über den Kunden noch wissen wollen?',
@@ -12535,8 +12535,9 @@ let GESPRAECH_PHASEN = [
   { key:'anliegen',   name:'Anliegen aufnehmen',            pflicht:['Anliegen wiederholt'], ids:['a1'] },
   { key:'legi',       name:'Legitimierung',                 pflicht:['Legitimierung'], ids:[] },
   { key:'anker',      name:'Anker setzen', neu:true, hint:'nach der Legitimierung, bevor das Anliegen bearbeitet wird', pflicht:['Anker'], ids:['an1'] },
-  { key:'bearbeiten', name:'Anliegen bearbeiten · PKA · App', pflicht:['PKA','Ansprache App'], ids:['z2'] },
-  { key:'bedarf',     name:'Bedarf & Bestand',              pflicht:['KEK','Bestandscheck'], ids:['m1','m2','m3'] },
+  { key:'checks',     name:'PKA · KEK · Magenta App', hint:'PKA = alle Stammdaten abgleichen · KEK = Infokanal · Magenta App: prüfen, ob der Kunde sie nutzt – sonst Link zur Installation schicken', pflicht:['PKA','KEK','Magenta App'], ids:[] },
+  { key:'bearbeiten', name:'Anliegen bearbeiten',           pflicht:[], ids:['z2'] },
+  { key:'bedarf',     name:'Bedarf & Bestand',              pflicht:['Bestandscheck'], ids:['m1','m2','m3'] },
   { key:'angebot',    name:'Überleitung & Angebot',         pflicht:['Angebot'], ids:['d1','z3','z1','r2','r1','r3'] },
   { key:'abschluss',  name:'Abschluss & Einwände',          pflicht:[], ids:['k1','k2','d3','k3'] },
   { key:'ende',       name:'Gesprächsende',                 pflicht:['Anliegen gelöst Frage','Zusammenfassung','KZB'], ids:['g1'] }
@@ -12556,10 +12557,30 @@ const BOGEN_DEFAULT_JSON = JSON.stringify({
     punkte: p.ids.map(id => { const f = fingerVonAnker(id), a = ankerVonId(id); return { id, text:a.text, finger:f.key, vereinbarung:a.vereinbarung || '' }; }) })),
   archiv: [], anliegen: CALL_ANLIEGEN_DEFAULT.slice()
 });
+// v214: PKA, KEK und Magenta App bilden eine eigene Phase (Nr. 5) – sie gehören nicht zum Anliegen.
+// Ein bereits angepasster und gespeicherter Bogen wird beim Laden genauso umgestellt.
+function bogenMigrieren214(c){
+  if(c.v214) return c;
+  const CH = ['PKA','KEK','Magenta App'];
+  c.phasen.forEach(p => { p.pflicht = (p.pflicht || []).map(x => x === 'Ansprache App' ? 'Magenta App' : x); });
+  if(!c.phasen.some(p => p.key === 'checks')){
+    c.phasen.forEach(p => { p.pflicht = p.pflicht.filter(x => !CH.includes(x)); });
+    let i = c.phasen.findIndex(p => p.key === 'bearbeiten');
+    if(i < 0){ i = c.phasen.findIndex(p => p.key === 'anker'); i = i < 0 ? Math.min(4, c.phasen.length) : i + 1; }
+    c.phasen.splice(i, 0, { key:'checks', name:'PKA · KEK · Magenta App', hint:'PKA = alle Stammdaten abgleichen · KEK = Infokanal · Magenta App: prüfen, ob der Kunde sie nutzt – sonst Link zur Installation schicken', neu:false, pflicht:CH.slice(), punkte:[] });
+  }
+  const b = c.phasen.find(p => p.key === 'bearbeiten');
+  if(b && b.name === 'Anliegen bearbeiten · PKA · App') b.name = 'Anliegen bearbeiten';
+  c.phasen.forEach(p => (p.punkte || []).forEach(x => { if(x && x.id === 'm2' && x.text === 'Nutzt Bestandscheck/KEK, um Chancen zu erkennen') x.text = 'Nutzt den Bestandscheck, um Chancen zu erkennen'; }));
+  c.v214 = true;
+  return c;
+}
+// Alte Coachings haben den Leitfaden-Schritt noch als „Ansprache App“ gespeichert
+function ckWert(cl, item){ if(!cl) return undefined; const v = cl[item]; return (v === undefined && item === 'Magenta App') ? cl['Ansprache App'] : v; }
 function coachBogenCfg(){
   try{
     const raw = state && state.coachBogen && state.coachBogen.cfg;
-    if(raw){ const c = JSON.parse(raw); if(c && Array.isArray(c.phasen) && c.phasen.length) return c; }
+    if(raw){ const c = JSON.parse(raw); if(c && Array.isArray(c.phasen) && c.phasen.length) return bogenMigrieren214(c); }
   }catch(e){}
   return JSON.parse(BOGEN_DEFAULT_JSON);
 }
@@ -12741,15 +12762,21 @@ function buildFingerSection(state0, onSuggestVereinbarung){
       w1.appendChild(b);
     });
     r1.appendChild(w1); callBox.appendChild(r1);
+  };
+  // v214: Ergebnis steht am Ende – nach der Beobachtung im 5-Finger-Pitch
+  const ergBox = document.createElement('div');
+  ergBox.className = 'gp-call gp-ergebnis';
+  const renderErgebnis = ()=>{
+    ergBox.innerHTML = '';
     const r2 = document.createElement('div'); r2.className = 'gp-call-row';
     r2.innerHTML = '<span class="gp-call-l">Ergebnis</span>';
     const w2 = document.createElement('div'); w2.className = 'gp-pills';
     [['ja','Abschluss'],['nein','Kein Abschluss']].forEach(([v, t])=>{
       const b = document.createElement('button'); b.type = 'button'; b.className = 'gp-pill gp-pill-' + v + (call.abschluss === v ? ' on' : ''); b.textContent = t;
-      b.onclick = () => { call.abschluss = call.abschluss === v ? '' : v; renderCall(); };
+      b.onclick = () => { call.abschluss = call.abschluss === v ? '' : v; renderErgebnis(); };
       w2.appendChild(b);
     });
-    r2.appendChild(w2); callBox.appendChild(r2);
+    r2.appendChild(w2); ergBox.appendChild(r2);
     if(call.abschluss === 'ja'){
       const team = state0.getTeam ? state0.getTeam() : null;
       const cfg = team && TEAM_CONFIGS[team];
@@ -12761,15 +12788,15 @@ function buildFingerSection(state0, onSuggestVereinbarung){
           const lbl = productLabel(p, team);
           const on = call.produkte.includes(lbl);
           const b = document.createElement('button'); b.type = 'button'; b.className = 'gp-pill' + (on ? ' on' : ''); b.textContent = lbl;
-          b.onclick = () => { if(on) call.produkte = call.produkte.filter(x => x !== lbl); else call.produkte.push(lbl); renderCall(); };
+          b.onclick = () => { if(on) call.produkte = call.produkte.filter(x => x !== lbl); else call.produkte.push(lbl); renderErgebnis(); };
           w3.appendChild(b);
         });
-        r3.appendChild(w3); callBox.appendChild(r3);
+        r3.appendChild(w3); ergBox.appendChild(r3);
       }
     }
   };
-  renderCall();
-  wrap._refreshCall = ()=>{ call.produkte = []; renderCall(); };
+  renderCall(); renderErgebnis();
+  wrap._refreshCall = ()=>{ call.produkte = []; renderErgebnis(); };
   wrap.appendChild(callBox);
 
   const title = document.createElement('div');
@@ -12907,6 +12934,11 @@ function buildFingerSection(state0, onSuggestVereinbarung){
     list.appendChild(box);
   });
   wrap.appendChild(list);
+  const eTitle = document.createElement('div');
+  eTitle.className = 'cf-section-title';
+  eTitle.textContent = '🏁 Ergebnis des Calls';
+  wrap.appendChild(eTitle);
+  wrap.appendChild(ergBox);
 
   const aTitle = document.createElement('div');
   aTitle.className = 'cf-section-title';
