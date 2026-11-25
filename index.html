@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 217;
+const BOARD_VERSION = 218;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -5022,10 +5022,15 @@ function renderCoaching(){
 }
 
 // v217: Kriterien-Text aus den aktuell gültigen Zielen (nicht mehr fest eingetippt)
+// v218: Im MF-Team zählen HV und DA für die Hall of Fame nicht
+function hofZaehlt(team, p){
+  if(String(team) !== 'Trikala01') return true;
+  return !(p === 'VVM+BOJ' || p === 'DA' || ['HV','DA'].includes(productLabel(p, team)));
+}
 function hofKriterienText(){
   const teil = id => { const c = TEAM_CONFIGS[id]; if(!c) return '';
     const t = c.targets.regular || [];
-    return `<strong>${c.label === 'Trikala01' ? 'MF' : 'FN'}:</strong> NPS ≥ ${c.npsTarget} % · CR ≥ ${c.crTarget} % · LQ ≥ ${c.lqTarget} % · ` + c.products.map((p, i) => `${productLabel(p, id)} ${t[i]}`).join(', '); };
+    return `<strong>${c.label === 'Trikala01' ? 'MF' : 'FN'}:</strong> NPS ≥ ${c.npsTarget} % · CR ≥ ${c.crTarget} % · LQ ≥ ${c.lqTarget} % · ` + c.products.map((p, i) => hofZaehlt(id, p) ? `${productLabel(p, id)} ${t[i]}` : '').filter(Boolean).join(', ') + (id === 'Trikala01' ? ' (HV und DA zählen nicht)' : ''); };
   return `<strong>Alle Bedingungen müssen erfüllt sein:</strong> NPS ≥ Ziel + CR ≥ Ziel + LQ ≥ Ziel (sobald eingetragen) + alle Produkte bis auf eines ≥ Ziel<br>${teil('Trikala01')}<br>${teil('Trikala06')}<br><span style="opacity:.75">Produktziele gelten für Standard-Mitarbeiter; 6-Stündler und Helpline haben eigene Ziele.</span>`;
 }
 function renderHallOfFame(){
@@ -5152,7 +5157,7 @@ function renderHallOfFame(){
     const targets = agentTargets({team: agent.team, category: agent.category || 'regular'});
     let goalsHit = 0, goalsTotal = 0; const fehlt = [];
     cfg.products.forEach((p, k) => {
-      if(!(targets[k] > 0)) return;
+      if(!(targets[k] > 0) || !hofZaehlt(agent.team, p)) return;
       goalsTotal++;
       const val = (md.sales && md.sales[p]) || 0;
       if(val >= targets[k]) goalsHit++; else fehlt.push(`${productLabel(p, agent.team)} ${Math.round(val)}/${targets[k]}`);
