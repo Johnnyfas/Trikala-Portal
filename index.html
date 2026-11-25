@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 214;
+const BOARD_VERSION = 215;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -3560,11 +3560,11 @@ async function generateTeamKiSummaries(teamId, cfg, teamAgents, btn){
         return db.localeCompare(da);
       })
       .slice(0,6)
-      .map(e=>({ datum: e.datum, notiz: e.text }));
+      .map(e=>{ const o = { datum: e.datum, notiz: e.text }; const anl = [e.callAnliegen, e.callAnliegenText].filter(Boolean).join(': '); if(anl) o.anliegen_im_call = anl; return o; });
     return { name: agent.name, coaching_notizen: notizen };
   });
 
-  const systemPrompt = `Du bist Assistent eines Salescoaches bei der Telekom (Inbound Mobilfunk/Festnetz Privatkunden). Für jeden Mitarbeiter unten bekommst du seine letzten Coaching-Notizen. Schreibe pro Mitarbeiter EIN kurzes, konkretes Feedback (max. 20 Wörter, ein Satz), das die inhaltlichen Muster über die Notizen hinweg zusammenfasst - keine reine Wortliste, keine wörtliche Wiedergabe der Notizen. Sag klar, worauf es hinausläuft (z.B. eine wiederkehrende Schwäche, ein klarer Fortschritt, oder ein gemischtes Bild) und wenn möglich einen kurzen Hinweis fürs nächste Coaching. Antworte AUSSCHLIESSLICH mit einem validen JSON-Array, ohne Markdown-Codeblock, ohne weiteren Text, in genau diesem Format:
+  const systemPrompt = `Du bist Assistent eines Salescoaches bei der Telekom (Inbound Mobilfunk/Festnetz Privatkunden). Für jeden Mitarbeiter unten bekommst du seine letzten Coaching-Notizen (anliegen_im_call = Gesprächsanlass des Kunden). Beschreibt eine Notiz nur den Gesprächsanlass (z.B. Rechnung, Tarifwechsel, Störung), ist das Kontext – leite daraus kein Verhalten ab und fasse nicht die Anliegen zusammen, sondern nur Beobachtungen zum Mitarbeiter. Schreibe pro Mitarbeiter EIN kurzes, konkretes Feedback (max. 20 Wörter, ein Satz), das die inhaltlichen Muster über die Notizen hinweg zusammenfasst - keine reine Wortliste, keine wörtliche Wiedergabe der Notizen. Sag klar, worauf es hinausläuft (z.B. eine wiederkehrende Schwäche, ein klarer Fortschritt, oder ein gemischtes Bild) und wenn möglich einen kurzen Hinweis fürs nächste Coaching. Antworte AUSSCHLIESSLICH mit einem validen JSON-Array, ohne Markdown-Codeblock, ohne weiteren Text, in genau diesem Format:
 [{"name":"Vorname Nachname","feedback":"..."}]
 
 MITARBEITERDATEN:
@@ -6007,11 +6007,11 @@ function renderCoachVerlauf(){
           if(b.innerHTML) meta.appendChild(b);
         }
       }
-      if(entry.callAnliegen || entry.callAbschluss){
+      if(entry.callAnliegen || entry.callAbschluss || entry.callAnliegenText){
         const b = document.createElement('span');
         b.className = 'cv-meta-badge';
         b.style.cssText = 'background:#EEF1F4;color:var(--text);white-space:normal;';
-        b.textContent = '📞 ' + [entry.callAnliegen, entry.callAbschluss === 'ja' ? 'Abschluss' + ((entry.callProdukte||[]).length ? ': ' + entry.callProdukte.join(', ') : '') : entry.callAbschluss === 'nein' ? 'kein Abschluss' : ''].filter(Boolean).join(' · ');
+        b.textContent = '📞 ' + [[entry.callAnliegen, entry.callAnliegenText ? '„' + entry.callAnliegenText + '“' : ''].filter(Boolean).join(': '), entry.callAbschluss === 'ja' ? 'Abschluss' + ((entry.callProdukte||[]).length ? ': ' + entry.callProdukte.join(', ') : '') : entry.callAbschluss === 'nein' ? 'kein Abschluss' : ''].filter(Boolean).join(' · ');
         meta.appendChild(b);
       }
       if(entry.selbst){
@@ -6961,7 +6961,7 @@ function buildCoachingRecordForm(prefill){
   const fingerBew = Object.assign({}, prefill.fingerBewertung || {});
   const fingerNotes = {};
   const checklistState = {};
-  const callInfo = { anliegen:'', abschluss:'', produkte:[] };
+  const callInfo = { anliegen:'', anliegenText:'', abschluss:'', produkte:[] };
   const selbstInfo = { v:0 };
   let noteManuell = false, noteAuto = null, onNoteFn = null;
   const fingerSec = buildFingerSection({ bew: fingerBew, notes: fingerNotes, check: checklistState, call: callInfo, selbst: selbstInfo,
@@ -7112,6 +7112,7 @@ function buildCoachingRecordForm(prefill){
       performance: parseInt(slider.value),
       performanceAuto: !noteManuell && noteAuto !== null,
       callAnliegen: callInfo.anliegen || '',
+      callAnliegenText: String(callInfo.anliegenText || '').trim(),
       callAbschluss: callInfo.abschluss || '',
       callProdukte: callInfo.abschluss === 'ja' ? callInfo.produkte.slice() : [],
       selbst: selbstInfo.v || null,
@@ -12762,6 +12763,15 @@ function buildFingerSection(state0, onSuggestVereinbarung){
       w1.appendChild(b);
     });
     r1.appendChild(w1); callBox.appendChild(r1);
+    // v215: Anliegen im Detail (Freitext) – getrennt von den Notizen des Coaches
+    const r1b = document.createElement('div'); r1b.className = 'gp-call-row';
+    r1b.innerHTML = '<span class="gp-call-l">Details</span>';
+    const inp = document.createElement('input');
+    inp.type = 'text'; inp.className = 'fg-note gp-anl-text'; inp.maxLength = 300;
+    inp.placeholder = 'Anliegen im Detail – z. B. Kunde wollte Tarif wechseln, Frage zur letzten Rechnung';
+    inp.value = call.anliegenText || '';
+    inp.addEventListener('input', () => { call.anliegenText = inp.value; });
+    r1b.appendChild(inp); callBox.appendChild(r1b);
   };
   // v214: Ergebnis steht am Ende – nach der Beobachtung im 5-Finger-Pitch
   const ergBox = document.createElement('div');
@@ -13504,6 +13514,7 @@ function kiAgentData(agent, now, teamInfo){
     if(e.text && e.text !== '(Coaching ohne Notiz)') c.notiz = e.text.length > 500 ? e.text.slice(0, 500) + '…' : e.text;
     if(typeof e.performance === 'number') c.performance_note = e.performance + '/10';
     if(e.callAnliegen) c.anliegen_im_call = e.callAnliegen;
+    if(e.callAnliegenText) c.anliegen_detail = e.callAnliegenText;
     if(e.callAbschluss) c.ergebnis_call = e.callAbschluss === 'ja' ? 'Abschluss' + ((e.callProdukte||[]).length ? ' (' + e.callProdukte.join(', ') + ')' : '') : 'kein Abschluss';
     if(e.selbst) c.selbsteinschaetzung = e.selbst + '/5';
     const nok = Object.entries(e.checkliste || {}).filter(([k,v]) => v === 'nok').map(([k]) => k);
@@ -13608,6 +13619,8 @@ ${zielText}
 - monatsverlauf = abgeschlossene/archivierte Monate (für Trends)
 - coachings (neueste zuerst): fuenf_finger = Beobachtung nach dem 5-Finger-Pitch des Salescoaches (Daumen = Einstellung/Mut inkl. Anker nach der Legitimierung und Brückensatz, Zeigefinger = Produktwissen, Mittelfinger = Bedarfsanalyse, Ringfinger = Kundennutzen, Kleiner Finger = Abschluss/Einwände); hebel = schwächster Finger; vereinbarung.ergebnis = umgesetzt/teilweise/nicht/noch offen; vereinbarung.wirkung = Vorher/Nachher aus den Tageswerten
 - leitfaden_nicht_erfuellt = Schritte des Gesprächsleitfadens, die beim Coaching nicht erfüllt waren
+- anliegen_im_call / anliegen_detail = Gesprächsanlass des Kunden im beobachteten Call; ergebnis_call = Abschluss ja/nein. Nutze das, um Muster zu erkennen (z.B. bei welchen Anliegen kein Angebot oder kein Abschluss kommt).
+- notiz = Notizen des Salescoaches. Bei älteren Coachings steht dort oft nur der Gesprächsanlass des Kunden – das ist Kontext zum Call, kein Verhalten des Mitarbeiters.
 - haeufigste_5_finger_luecken = Team-Muster der letzten Coachings
 
 REGELN:
@@ -16319,6 +16332,8 @@ html[data-fx-theme="dark"] .tl-pill.st-bad{background:rgba(180,66,58,.25);color:
 .vl-orph-n b{font-size:13.5px;color:var(--text);}
 .vl-orph-n span{font-size:11.5px;color:var(--muted);}
 .vl-orph-sel{width:auto!important;min-width:180px;}
+
+.gp-anl-text{flex:1;min-width:0;margin:0!important;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
