@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 218;
+const BOARD_VERSION = 220;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -2620,7 +2620,7 @@ function mergeAgentsFromServer(serverAgents, serverDeletedAgentIds){
 // sich ebenfalls durchsetzen. Zeitstempel liegen in state._lww[bereich][pfad].
 // ============================================================
 // LWW_START
-const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele', 'coachReviews', 'maZiele', 'coachBogen'];
+const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele', 'coachReviews', 'maZiele', 'coachBogen', 'hofZiele'];
 // Bereiche, die als Liste gespeichert sind, werden für das Zusammenführen nach id aufgeschlüsselt
 const LWW_LIST_SECTIONS = { tagesziele: true };
 function lwwListToObj(arr){ const o = {}; (Array.isArray(arr) ? arr : []).forEach(e=>{ if(e && e.id) o[e.id] = e; }); return o; }
@@ -2640,7 +2640,7 @@ function lwwPutRoot(section, root){
   state[section] = order.map(id=>root[id]).filter(e => e && Object.keys(e).length && !del.has(e.id));
 }
 // Beim allerersten Laden einer Sitzung: Server-Stand ab dieser Tiefe übernehmen (wie bisher)
-const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1, coachReviews: 1, maZiele: 1, coachBogen: 1 };
+const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1, coachReviews: 1, maZiele: 1, coachBogen: 1, hofZiele: 1 };
 const LWW_KEEP_MS = 120 * 24 * 3600 * 1000; // Zeitstempel älter als ~4 Monate verwerfen
 let lwwBaseline = {};          // bereich → { pfad: JSON-Wert } - Stand beim letzten Abgleich
 let lwwLastMergeChanged = false;
@@ -5021,17 +5021,123 @@ function renderCoaching(){
   }
 }
 
+// v220: Eigene Hall-of-Fame-Ziele. Gespeichert in state.hofZiele.hist['JJJJ-MM'] (JSON) – gelten ab diesem
+// Monat; frühere Monate behalten ihre damaligen Regeln. Ohne Eintrag gelten die Vorgaben (Ziele-Editor).
+function hofZieleFuer(ym){
+  const h = state && state.hofZiele && state.hofZiele.hist;
+  if(!h || !ym) return null;
+  const k = Object.keys(h).filter(x => x <= ym && h[x]).sort().pop();
+  if(!k) return null;
+  try{ return JSON.parse(h[k]); }catch(e){ return null; }
+}
+function hofKandidaten(team){
+  const cfg = TEAM_CONFIGS[team]; if(!cfg) return [];
+  const alle = [...new Set([...(cfg.products || []), ...(hrProdukteVon(cfg) || []), ...teamExtraProducts(team)])];
+  return displayOrderProducts(alle, team);
+}
+// Vorgabe-Regeln (so wie die Hall of Fame ohne eigene Ziele prüft)
+function hofVorgabe(team){
+  const cfg = TEAM_CONFIGS[team]; if(!cfg) return null;
+  const kats = maKategorien().map(c => c.key);
+  const proKat = {}; kats.forEach(k => { proKat[k] = hofProdukte(team, k); });
+  const reg = proKat.regular || hofProdukte(team, 'regular');
+  return { nps: cfg.npsTarget, cr: cfg.crTarget, lq: cfg.lqTarget, lqAktiv: true, verfehlt: 1,
+    produkte: hofKandidaten(team).map(pk => {
+      const ziele = {};
+      kats.forEach(k => { const x = proKat[k]; const i = x.prods.indexOf(pk); ziele[k] = i >= 0 ? (x.targets[i] || 0) : 0; });
+      return { key: pk, zaehlt: reg.prods.includes(pk), ziele };
+    }) };
+}
+function hofRegeln(team, ym){
+  const z = hofZieleFuer(ym);
+  const t = z && z.teams && z.teams[team];
+  if(!t) return Object.assign(hofVorgabe(team) || {}, { eigen: false });
+  return Object.assign({}, t, { eigen: true });
+}
 // v217: Kriterien-Text aus den aktuell gültigen Zielen (nicht mehr fest eingetippt)
-// v218: Im MF-Team zählen HV und DA für die Hall of Fame nicht
-function hofZaehlt(team, p){
-  if(String(team) !== 'Trikala01') return true;
-  return !(p === 'VVM+BOJ' || p === 'DA' || ['HV','DA'].includes(productLabel(p, team)));
+// v219: Hall-of-Fame-Produkte. MF-Team: wie in der Hochrechnung MF, SU, BB, TV und DA (mit DA-Ziel) – HV zählt nicht.
+function hofProdukte(team, kat){
+  const cfg = TEAM_CONFIGS[team]; if(!cfg) return { prods: [], targets: [] };
+  if(String(team) === 'Trikala01'){
+    const prods = hrProdukteVon(cfg), targets = hrAgentTargets({ team, category: kat || 'regular' });
+    const keep = prods.map((p, i) => ({ p, z: targets[i] })).filter(x => !(x.p === 'VVM+BOJ' || productLabel(x.p, team) === 'HV'));
+    return { prods: keep.map(x => x.p), targets: keep.map(x => x.z) };
+  }
+  return { prods: cfg.products, targets: agentTargets({ team, category: kat || 'regular' }) };
 }
 function hofKriterienText(){
+  const ym = maYm(new Date());
   const teil = id => { const c = TEAM_CONFIGS[id]; if(!c) return '';
-    const t = c.targets.regular || [];
-    return `<strong>${c.label === 'Trikala01' ? 'MF' : 'FN'}:</strong> NPS ≥ ${c.npsTarget} % · CR ≥ ${c.crTarget} % · LQ ≥ ${c.lqTarget} % · ` + c.products.map((p, i) => hofZaehlt(id, p) ? `${productLabel(p, id)} ${t[i]}` : '').filter(Boolean).join(', ') + (id === 'Trikala01' ? ' (HV und DA zählen nicht)' : ''); };
-  return `<strong>Alle Bedingungen müssen erfüllt sein:</strong> NPS ≥ Ziel + CR ≥ Ziel + LQ ≥ Ziel (sobald eingetragen) + alle Produkte bis auf eines ≥ Ziel<br>${teil('Trikala01')}<br>${teil('Trikala06')}<br><span style="opacity:.75">Produktziele gelten für Standard-Mitarbeiter; 6-Stündler und Helpline haben eigene Ziele.</span>`;
+    const r = hofRegeln(id, ym);
+    const pr = (r.produkte || []).filter(x => x.zaehlt && (x.ziele.regular || 0) > 0);
+    const n = pr.length, brauch = Math.max(1, n - (r.verfehlt || 0));
+    return `<strong>${c.label === 'Trikala01' ? 'MF' : 'FN'}:</strong> NPS ≥ ${r.nps} % · CR ≥ ${r.cr} % · ${r.lqAktiv === false ? 'LQ zählt nicht' : 'LQ ≥ ' + r.lq + ' %'} · ${brauch} von ${n} Produkten: ` + pr.map(x => `${productLabel(x.key, id)} ${x.ziele.regular || 0}`).join(', ') + (r.eigen ? ' <em class="hof-eigen">eigene Ziele</em>' : ''); };
+  return `<strong>Alle Bedingungen müssen erfüllt sein</strong> (CR und LQ nur, sobald eingetragen)<br>${teil('Trikala01')}<br>${teil('Trikala06')}<br><span style="opacity:.75">Produktziele für Standard-Mitarbeiter; andere Kategorien haben eigene Werte (siehe „Ziele bearbeiten“).</span>`;
+}
+// v220: Editor für die Ziele der Hall of Fame
+function openHofZieleEditor(){
+  const ym = maYm(new Date());
+  const monatTxt = VL_MONATE[new Date().getMonth()] + ' ' + new Date().getFullYear();
+  const teams = Object.keys(TEAM_CONFIGS);
+  const kats = maKategorien();
+  const draft = {}; teams.forEach(t => { draft[t] = JSON.parse(JSON.stringify(hofRegeln(t, ym))); delete draft[t].eigen;
+    // neue Produkte/Kategorien ergänzen
+    hofKandidaten(t).forEach(k => { if(!draft[t].produkte.some(x => x.key === k)) draft[t].produkte.push({ key:k, zaehlt:false, ziele:{} }); });
+    draft[t].produkte.forEach(x => { x.ziele = x.ziele || {}; kats.forEach(c => { if(typeof x.ziele[c.key] !== 'number') x.ziele[c.key] = 0; }); });
+  });
+  const ov = document.createElement('div'); ov.className = 'chart-overlay cd-modal-overlay';
+  const box = document.createElement('div'); box.className = 'cd-modal hofz-modal';
+  ov.appendChild(box); document.body.appendChild(ov);
+  const close = () => ov.remove();
+  ov.addEventListener('mousedown', e => { if(e.target === ov) close(); });
+  const num = v => { const n = parseFloat(String(v).replace(',', '.')); return isNaN(n) ? 0 : n; };
+  function render(){
+    box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
+      <div class="be-title">Ziele der Hall of Fame</div>
+      <div class="be-hint">Diese Ziele gelten nur für die Hall of Fame und ab <b>${monatTxt}</b>. Frühere Monate behalten ihre damaligen Regeln. Die normalen Mitarbeiter-Ziele (Ziele-Editor) bleiben unverändert.</div>
+      ${teams.map(t => { const d = draft[t], c = TEAM_CONFIGS[t];
+        const n = d.produkte.filter(x => x.zaehlt && (x.ziele.regular || 0) > 0).length;
+        return `<div class="hofz-team" data-t="${t}">
+          <div class="hofz-th">${kiEsc(c.label)} · ${kiEsc(c.project)}</div>
+          <div class="hofz-kpis">
+            <label>NPS-Ziel %<input type="number" step="0.1" class="cp-form-input" data-f="nps" value="${d.nps}"></label>
+            <label>CR-Ziel %<input type="number" step="0.1" class="cp-form-input" data-f="cr" value="${d.cr}"></label>
+            <label>LQ-Ziel %<input type="number" step="0.1" class="cp-form-input" data-f="lq" value="${d.lq}" ${d.lqAktiv === false ? 'disabled' : ''}></label>
+            <label class="hofz-chk"><input type="checkbox" data-f="lqAktiv" ${d.lqAktiv === false ? '' : 'checked'}> LQ prüfen</label>
+            <label>Produkte dürfen fehlen<select class="cp-form-select" data-f="verfehlt">${[0,1,2].map(v => `<option value="${v}" ${(d.verfehlt||0) === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>
+          </div>
+          <div class="hofz-sum">Nötig: <b>${Math.max(1, n - (d.verfehlt||0))} von ${n}</b> Produkten im Ziel (Standard) · Ziel 0 = wird nicht geprüft</div>
+          <div class="hofz-tw"><table class="hofz-tab"><thead><tr><th>Produkt</th><th>Zählt</th>${kats.map(k => `<th>${kiEsc(k.label || k.key)}</th>`).join('')}</tr></thead><tbody>
+            ${d.produkte.map((x, i) => `<tr class="${x.zaehlt ? '' : 'off'}"><td><b>${kiEsc(productLabel(x.key, t))}</b></td><td><input type="checkbox" data-p="${i}" data-z="1" ${x.zaehlt ? 'checked' : ''}></td>${kats.map(k => `<td><input type="number" min="0" step="1" class="cp-form-input" data-p="${i}" data-k="${k.key}" value="${x.ziele[k.key] || 0}" ${x.zaehlt ? '' : 'disabled'}></td>`).join('')}</tr>`).join('')}
+          </tbody></table></div>
+          <button type="button" class="be-btn hofz-reset">Vorgaben übernehmen</button>
+        </div>`; }).join('')}
+      <div class="be-foot"><span style="flex:1"></span><button type="button" class="be-btn be-cancel">Abbrechen</button><button type="button" class="be-btn be-save">Speichern</button></div>`;
+    box.querySelector('.cd-modal-x').onclick = close;
+    box.querySelector('.be-cancel').onclick = close;
+    box.querySelectorAll('.hofz-team').forEach(el => {
+      const t = el.dataset.t, d = draft[t];
+      el.querySelectorAll('[data-f]').forEach(inp => inp.addEventListener('change', () => {
+        const f = inp.dataset.f;
+        if(f === 'lqAktiv') d.lqAktiv = inp.checked; else if(f === 'verfehlt') d.verfehlt = parseInt(inp.value) || 0; else d[f] = num(inp.value);
+        if(f === 'lqAktiv' || f === 'verfehlt') render();
+      }));
+      el.querySelectorAll('[data-p]').forEach(inp => inp.addEventListener('change', () => {
+        const x = d.produkte[+inp.dataset.p];
+        if(inp.dataset.z){ x.zaehlt = inp.checked; render(); } else { x.ziele[inp.dataset.k] = Math.max(0, num(inp.value)); if(inp.dataset.k === 'regular') render(); }
+      }));
+      el.querySelector('.hofz-reset').onclick = () => { const v = hofVorgabe(t); draft[t] = JSON.parse(JSON.stringify(v)); render(); };
+    });
+    box.querySelector('.be-save').onclick = () => {
+      if(!state.hofZiele || typeof state.hofZiele !== 'object') state.hofZiele = {};
+      if(!state.hofZiele.hist) state.hofZiele.hist = {};
+      state.hofZiele.hist[ym] = JSON.stringify({ teams: draft });
+      scheduleSave(); close();
+      if(typeof renderHallOfFame === 'function') renderHallOfFame();
+      if(window.fxToast) fxToast('Ziele der Hall of Fame gespeichert – gültig ab ' + monatTxt);
+    };
+  }
+  render();
 }
 function renderHallOfFame(){
   const container = document.getElementById('halloffame-container');
@@ -5044,11 +5150,13 @@ function renderHallOfFame(){
     <div class="hof-title">Hall of Fame</div>
     <div class="hof-sub">Mitarbeiter, die NPS, CR und LQ im Ziel haben UND alle Produktziele bis auf eines erfüllt haben.</div>
     <div class="hof-criteria">${hofKriterienText()}</div>
+    <button type="button" class="hof-edit-btn">✏️ Ziele der Hall of Fame bearbeiten</button>
     <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px;padding:8px 12px;background:#f8f9fa;border-radius:8px;display:inline-block;">
       💡 Aktueller Monat: Live-Daten. Vergangene Monate: NPS, LQ und CR aus dem Mitarbeiter-Verlauf, Stückzahlen aus den Tageswerten (falls erfasst) bzw. dem Verlauf.
     </div>
   `;
   container.appendChild(wrap);
+  wrap.querySelector('.hof-edit-btn').onclick = openHofZieleEditor;
 
   const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const MEDALS = ['🥇','🥈','🥉','🎖️','🎖️','🎖️','🎖️','🎖️','🎖️','🎖️'];
@@ -5143,28 +5251,37 @@ function renderHallOfFame(){
       'Trikala01': {'2026-Januar':67,'2026-Februar':67,'2026-März':67,'2026-April':67,'2026-Mai':68,'2026-Juni':68,'2026-Juli':69},
       'Trikala06': {'2026-Januar':66,'2026-Februar':66,'2026-März':66,'2026-April':66,'2026-Mai':67,'2026-Juni':67,'2026-Juli':63}
     };
-    const npsZielMonat = (NPS_ZIELE[agent.team] && NPS_ZIELE[agent.team][monatKey]) || cfg.npsTarget;
+    const regeln = hofRegeln(agent.team, maYmAusMonatKey(monatKey));
+    const npsZielMonat = regeln.eigen ? regeln.nps : ((NPS_ZIELE[agent.team] && NPS_ZIELE[agent.team][monatKey]) || cfg.npsTarget);
+    const crZ = regeln.eigen ? regeln.cr : cfg.crTarget, lqZ = regeln.eigen ? regeln.lq : cfg.lqTarget;
     items.push(md.nps
       ? { lbl:'NPS', ok: md.nps >= npsZielMonat, txt: `${f1(md.nps)} % (Ziel ${npsZielMonat} %)` }
       : { lbl:'NPS', ok:false, txt: md.aktuell ? 'für diesen Monat noch nicht eingetragen' : 'kein Monats-NPS im Verlauf' });
     const [monatJahr, monatName] = monatKey.split('-');
     const monatIdx = MONATE.indexOf(monatName);
     const abSept = parseInt(monatJahr) > 2026 || (parseInt(monatJahr) === 2026 && monatIdx >= 8);
-    if(abSept && md.lq > 0) items.push({ lbl:'LQ', ok: md.lq >= cfg.lqTarget, txt: `${f1(md.lq)} % (Ziel ${cfg.lqTarget} %)` });
+    if(regeln.lqAktiv === false) items.push({ lbl:'LQ', ok:true, neutral:true, txt:'zählt für die Hall of Fame nicht' });
+    else if(abSept && md.lq > 0) items.push({ lbl:'LQ', ok: md.lq >= lqZ, txt: `${f1(md.lq)} % (Ziel ${lqZ} %)` });
     else if(abSept) items.push({ lbl:'LQ', ok:true, neutral:true, txt:'nicht eingetragen – zählt nicht' });
-    if(md.cr > 0) items.push({ lbl:'CR', ok: md.cr >= cfg.crTarget, txt: `${f1(md.cr)} % (Ziel ${cfg.crTarget} %)${md.aktuell ? ` · ${f1(totalStk(agent))} Stk ÷ ${Math.round(md.calls)} Calls` : ''}` });
+    if(md.cr > 0) items.push({ lbl:'CR', ok: md.cr >= crZ, txt: `${f1(md.cr)} % (Ziel ${crZ} %)${md.aktuell ? ` · ${f1(totalStk(agent))} Stk ÷ ${Math.round(md.calls)} Calls` : ''}` });
     else items.push({ lbl:'CR', ok:true, neutral:true, txt: md.aktuell ? 'keine Calls eingetragen – zählt nicht' : 'keine CR im Verlauf – zählt nicht' });
-    const targets = agentTargets({team: agent.team, category: agent.category || 'regular'});
+    let hofProds, targets;
+    if(regeln.eigen){
+      const kat = agent.category || 'regular';
+      const pr = (regeln.produkte || []).filter(x => x.zaehlt);
+      hofProds = pr.map(x => x.key);
+      targets = pr.map(x => { const z = x.ziele || {}; return (typeof z[kat] === 'number') ? z[kat] : (z.regular || 0); });
+    } else ({ prods: hofProds, targets } = hofProdukte(agent.team, agent.category));
     let goalsHit = 0, goalsTotal = 0; const fehlt = [];
-    cfg.products.forEach((p, k) => {
-      if(!(targets[k] > 0) || !hofZaehlt(agent.team, p)) return;
+    hofProds.forEach((p, k) => {
+      if(!(targets[k] > 0)) return;
       goalsTotal++;
       const val = (md.sales && md.sales[p]) || 0;
       if(val >= targets[k]) goalsHit++; else fehlt.push(`${productLabel(p, agent.team)} ${Math.round(val)}/${targets[k]}`);
     });
-    const brauch = Math.max(1, goalsTotal - 1);
+    const brauch = Math.max(1, goalsTotal - (regeln.eigen ? (regeln.verfehlt || 0) : 1));
     items.push({ lbl:'Produkte', ok: goalsHit >= brauch, txt: `${goalsHit} von ${goalsTotal} im Ziel (nötig: ${brauch})${fehlt.length ? ' · fehlt: ' + fehlt.join(', ') : ''}` });
-    return { md, items, npsZielMonat, goalsHit, goalsTotal };
+    return { md, items, npsZielMonat, goalsHit, goalsTotal, crZ, lqZ };
   }
   // Prüfe ob ein MA die Hall of Fame Kriterien erfüllt
   function checkHOF(agent, monatKey){
@@ -5174,8 +5291,8 @@ function renderHallOfFame(){
     hofDatenProMonat[monatKey] = (hofDatenProMonat[monatKey] || 0) + 1;
     if(d.items.some(x => !x.ok)) return null;
     const cfg = TEAM_CONFIGS[agent.team];
-    return { name: agent.name, team: agent.team, nps: d.md.nps, lq: d.md.lq, npsTarget: d.npsZielMonat, lqTarget: cfg.lqTarget,
-             crTarget: cfg.crTarget, goalsHit: d.goalsHit, totalGoals: d.goalsTotal, cr: d.md.cr || 0 };
+    return { name: agent.name, team: agent.team, nps: d.md.nps, lq: d.md.lq, npsTarget: d.npsZielMonat, lqTarget: d.lqZ,
+             crTarget: d.crZ, goalsHit: d.goalsHit, totalGoals: d.goalsTotal, cr: d.md.cr || 0 };
   }
 
   // v217: „Warum ist jemand nicht dabei?“ – für den laufenden Monat
@@ -16369,6 +16486,26 @@ html[data-fx-theme="dark"] .tl-pill.st-bad{background:rgba(180,66,58,.25);color:
 .hof-diag-k div{display:flex;gap:10px;padding:3px 0;flex-wrap:wrap;}
 .hof-diag-k span{font-weight:600;min-width:180px;color:var(--text);}
 .hof-diag-k em{font-style:normal;color:#B4423A;}
+
+/* v220: Hall-of-Fame-Ziele */
+.hof-edit-btn{margin-top:10px;font:600 13px 'Inter',sans-serif;padding:8px 16px;border-radius:999px;border:1px solid var(--tmg,#E20074);background:transparent;color:var(--tmg,#E20074);cursor:pointer;}
+.hof-edit-btn:hover{background:var(--tmg-soft,#FDE7F2);}
+.hof-eigen{font-style:normal;font-size:10.5px;font-weight:700;background:var(--tmg-soft,#FDE7F2);color:var(--tmg,#E20074);padding:1px 7px;border-radius:999px;margin-left:4px;}
+.hofz-modal{width:min(820px,100%)!important;max-height:90vh;overflow-y:auto;}
+.hofz-team{border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-top:12px;font-family:'Inter',sans-serif;}
+.hofz-th{font-weight:700;font-size:14.5px;margin-bottom:8px;color:var(--text);}
+.hofz-kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;align-items:end;}
+.hofz-kpis label{display:flex;flex-direction:column;gap:3px;font-size:11.5px;font-weight:600;color:var(--muted);}
+.hofz-kpis .hofz-chk{flex-direction:row;align-items:center;gap:6px;font-size:13px;color:var(--text);padding-bottom:8px;}
+.hofz-sum{font-size:12.5px;color:var(--muted);margin:10px 0 6px;}
+.hofz-sum b{color:var(--text);}
+.hofz-tw{overflow-x:auto;}
+.hofz-tab{width:100%;border-collapse:collapse;font-size:13px;}
+.hofz-tab th{text-align:left;font-size:11px;color:var(--muted);font-weight:700;padding:5px 6px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.hofz-tab td{padding:4px 6px;border-bottom:1px solid var(--border);}
+.hofz-tab td input[type=number]{width:72px!important;padding:4px 6px!important;}
+.hofz-tab tr.off td{opacity:.5;}
+.hofz-reset{margin-top:10px;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
