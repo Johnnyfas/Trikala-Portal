@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 215;
+const BOARD_VERSION = 216;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -6968,6 +6968,7 @@ function buildCoachingRecordForm(prefill){
     getTeam: ()=>{ const a = state.agents.find(x => x.id === agentSel.value); return a ? a.team : null; },
     onNote: n => { noteAuto = n; if(onNoteFn) onNoteFn(); } }, v=>{
     verInput.value = v;
+    verDet.open = true;
     verInput.scrollIntoView({ behavior:'smooth', block:'center' });
     verInput.focus();
   });
@@ -7021,14 +7022,14 @@ function buildCoachingRecordForm(prefill){
   wrap.appendChild(evalRow);
 
   // ---- Vereinbarung & Nachkontrolle (erscheint bei Fälligkeit im "Fokus der Woche") ----
-  const verTitle = document.createElement('div');
-  verTitle.className = 'cf-section-title';
-  verTitle.textContent = '🤝 Vereinbarung & Nachkontrolle';
-  wrap.appendChild(verTitle);
+  // v216: Vereinbarung ist optional und zugeklappt (mehrere Coachings am Tag – nicht jedes braucht eine)
+  const verDet = document.createElement('details');
+  verDet.className = 'cf-ver-det';
+  verDet.innerHTML = '<summary><span class="cf-ver-plus">+</span> Vereinbarung festlegen <em>optional</em></summary>';
   const verHint = document.createElement('div');
   verHint.className = 'cf-ver-hint';
   verHint.textContent = 'Ein konkretes, beobachtbares Verhalten – z.B. „Brückensatz in jedem Servicegespräch nutzen“. Zum Überprüfungsdatum erinnert dich der Fokus der Woche und zeigt die Zahlen vorher/nachher.';
-  wrap.appendChild(verHint);
+  verDet.appendChild(verHint);
   const verInput = document.createElement('input');
   verInput.type = 'text';
   verInput.className = 'cp-form-input';
@@ -7055,7 +7056,8 @@ function buildCoachingRecordForm(prefill){
   verRow.appendChild(verField);
   verRow.appendChild(labeledField('Fokus-Produkt', fokusSel));
   verRow.appendChild(labeledField('Überprüfen am', pruefInput));
-  wrap.appendChild(verRow);
+  verDet.appendChild(verRow);
+  if(prefill.vereinbarung) verDet.open = true;
 
   const notesTitle = document.createElement('div');
   notesTitle.className = 'cf-section-title';
@@ -7063,8 +7065,9 @@ function buildCoachingRecordForm(prefill){
   wrap.appendChild(notesTitle);
   const notesArea = document.createElement('textarea');
   notesArea.className = 'cp-form-textarea';
-  notesArea.placeholder = 'Weitere Anmerkungen (optional) – das Wichtigste steht schon im Beobachtungsbogen und in der Vereinbarung.';
+  notesArea.placeholder = 'Deine Beobachtungen und Eindrücke zum Mitarbeiter (optional)';
   wrap.appendChild(notesArea);
+  wrap.appendChild(verDet);
 
   const nextBtn = document.createElement('button');
   nextBtn.type = 'button';
@@ -12253,7 +12256,7 @@ function renderFokus(){
   sec1.className = 'fk-section';
   sec1.innerHTML = `<div class="fk-sec-title">⏰ Fällige Überprüfungen <span>${faellig.length}</span></div>`;
   if(!faellig.length){
-    sec1.innerHTML += `<div class="fk-empty">Keine fälligen Vereinbarungen. Tipp: Beim Erfassen eines Coachings unter „🤝 Vereinbarung & Nachkontrolle“ ein konkretes Verhalten festhalten – dann erinnert dich das Board hier an die Überprüfung.</div>`;
+    sec1.innerHTML += `<div class="fk-empty">Keine fälligen Vereinbarungen. Tipp: Beim Erfassen eines Coachings unter den Notizen „Vereinbarung festlegen“ aufklappen und ein konkretes Verhalten festhalten – dann erinnert dich das Board hier an die Überprüfung.</div>`;
   }
   faellig.forEach(v=>{
     const card = document.createElement('div');
@@ -16334,6 +16337,16 @@ html[data-fx-theme="dark"] .tl-pill.st-bad{background:rgba(180,66,58,.25);color:
 .vl-orph-sel{width:auto!important;min-width:180px;}
 
 .gp-anl-text{flex:1;min-width:0;margin:0!important;}
+
+/* v216: Vereinbarung zugeklappt */
+.cf-ver-det{margin-top:12px;border:1px dashed var(--border);border-radius:12px;padding:10px 14px;background:var(--panel,#fff);}
+.cf-ver-det summary{cursor:pointer;list-style:none;font-family:'Inter',sans-serif;font-size:13.5px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;}
+.cf-ver-det summary::-webkit-details-marker{display:none;}
+.cf-ver-det summary em{font-style:normal;font-weight:500;font-size:11.5px;color:var(--muted);}
+.cf-ver-plus{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--tmg-soft,#FDE7F2);color:var(--tmg,#E20074);font-weight:800;font-size:14px;line-height:1;transition:transform .15s;}
+.cf-ver-det[open] .cf-ver-plus{transform:rotate(45deg);}
+.cf-ver-det[open]{border-style:solid;}
+.cf-ver-det[open] summary{margin-bottom:8px;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
