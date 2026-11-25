@@ -1612,7 +1612,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 220;
+const BOARD_VERSION = 221;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -5144,19 +5144,8 @@ function renderHallOfFame(){
   container.innerHTML = '';
 
   const wrap = document.createElement('div');
-  wrap.className = 'hof-wrap';
-  wrap.innerHTML = `
-    <div class="hof-trophy">🏆</div>
-    <div class="hof-title">Hall of Fame</div>
-    <div class="hof-sub">Mitarbeiter, die NPS, CR und LQ im Ziel haben UND alle Produktziele bis auf eines erfüllt haben.</div>
-    <div class="hof-criteria">${hofKriterienText()}</div>
-    <button type="button" class="hof-edit-btn">✏️ Ziele der Hall of Fame bearbeiten</button>
-    <div style="font-family:'Inter',sans-serif;font-size:12px;color:#888;margin-top:8px;padding:8px 12px;background:#f8f9fa;border-radius:8px;display:inline-block;">
-      💡 Aktueller Monat: Live-Daten. Vergangene Monate: NPS, LQ und CR aus dem Mitarbeiter-Verlauf, Stückzahlen aus den Tageswerten (falls erfasst) bzw. dem Verlauf.
-    </div>
-  `;
+  wrap.className = 'hof-wrap hof2';
   container.appendChild(wrap);
-  wrap.querySelector('.hof-edit-btn').onclick = openHofZieleEditor;
 
   const MONATE = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
   const MEDALS = ['🥇','🥈','🥉','🎖️','🎖️','🎖️','🎖️','🎖️','🎖️','🎖️'];
@@ -5295,119 +5284,123 @@ function renderHallOfFame(){
              crTarget: d.crZ, goalsHit: d.goalsHit, totalGoals: d.goalsTotal, cr: d.md.cr || 0 };
   }
 
-  // v217: „Warum ist jemand nicht dabei?“ – für den laufenden Monat
+  // ===== v221: Neues Layout =====
+  const RANG_SORT = (a, b) => {
+    const sc = w => (w.crTarget > 0 ? Math.min((w.cr / w.crTarget) * 100, 200) : 50) * 0.5
+                  + (w.totalGoals ? (w.goalsHit / w.totalGoals) * 100 : 0) * 0.3
+                  + (w.npsTarget > 0 ? (w.nps / w.npsTarget) * 100 : 0) * 0.2;
+    return sc(b) - sc(a);
+  };
+  const teamIds = Object.keys(TEAM_CONFIGS);
+  const teamKurz = id => id === 'Trikala01' ? 'Mobilfunk' : id === 'Trikala06' ? 'Festnetz' : (TEAM_CONFIGS[id] || {}).project || id;
+  const aktIdx = jetzt.getMonth();
+  const proMonat = {};
+  MONATE.forEach((monat, mi) => {
+    if(aktuellesJahr === 2026 && mi > aktIdx) return;
+    const periode = '2026-' + monat;
+    const w = {}; teamIds.forEach(t => w[t] = []);
+    state.agents.forEach(agent => { const r = checkHOF(agent, periode); if(r && w[agent.team]) w[agent.team].push(r); });
+    teamIds.forEach(t => w[t].sort(RANG_SORT));
+    proMonat[monat] = w;
+  });
+  const anzahl = w => teamIds.reduce((n, t) => n + (w[t] || []).length, 0);
+  const aktMonat = MONATE[aktIdx];
+  const aktW = proMonat[aktMonat] || {};
+  const jahresSumme = Object.values(proMonat).reduce((n, w) => n + anzahl(w), 0);
+  // Häufigste Gewinner im Jahr
+  const zaehler = {};
+  Object.values(proMonat).forEach(w => teamIds.forEach(t => (w[t] || []).forEach(x => { zaehler[x.name] = (zaehler[x.name] || 0) + 1; })));
+  const rekord = Object.entries(zaehler).sort((a, b) => b[1] - a[1])[0];
+  const f1 = n => (Math.round(n * 10) / 10).toLocaleString('de-DE');
+  const TROPHY = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg>`;
+  const rangKlasse = i => i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn';
+  const chips = w => `<span class="hof2-chip">NPS ${f1(w.nps)}</span>${w.cr > 0 ? `<span class="hof2-chip">CR ${f1(w.cr)} %</span>` : ''}<span class="hof2-chip">${w.goalsHit}/${w.totalGoals} Ziele</span>${w.lq > 0 ? `<span class="hof2-chip">LQ ${f1(w.lq)}</span>` : ''}`;
+
+  // --- Kopfbereich ---
+  const hero = document.createElement('section');
+  hero.className = 'hof2-hero';
+  hero.innerHTML = `<div class="hof2-hero-l"><div class="hof2-badge">${TROPHY}</div>
+      <div><div class="hof2-eye">Standort Trikala · ${aktuellesJahr}</div>
+      <div class="hof2-h1">Die Besten des Monats</div>
+      <div class="hof2-h2">Wer NPS, CR und LQ im Ziel hat und fast alle Produktziele erreicht, kommt in die Hall of Fame.</div></div></div>
+    <div class="hof2-stats">
+      <div><b>${anzahl(aktW)}</b><span>im ${aktMonat}</span></div>
+      <div><b>${jahresSumme}</b><span>Einträge ${aktuellesJahr}</span></div>
+      <div><b>${rekord ? rekord[1] + '×' : '–'}</b><span>${rekord ? kiEsc(rekord[0]) : 'Rekordhalter'}</span></div>
+    </div>`;
+  wrap.appendChild(hero);
+
+  // --- Laufender Monat mit Siegerpodest ---
+  const spot = document.createElement('section');
+  spot.className = 'hof2-spot';
+  const podest = (liste) => {
+    if(!liste.length) return `<div class="hof2-leer">Noch niemand erfüllt alle Bedingungen.<br><span>Siehe „Warum ist jemand nicht dabei?“ weiter unten.</span></div>`;
+    const top = liste.slice(0, 3);
+    const reihenfolge = [top[1], top[0], top[2]].map((w, k) => ({ w, rang: [1, 0, 2][k] })).filter(x => x.w);
+    const rest = liste.slice(3);
+    return `<div class="hof2-podium">${reihenfolge.map(x => `<div class="hof2-pod ${rangKlasse(x.rang)}">
+        <div class="hof2-pod-av">${cdAvatar(x.w.name)}<i>${x.rang + 1}</i></div>
+        <div class="hof2-pod-n">${kiEsc(x.w.name)}</div>
+        <div class="hof2-pod-c">${chips(x.w)}</div>
+        <div class="hof2-pod-s"><span>${x.rang + 1}</span></div></div>`).join('')}</div>
+      ${rest.length ? `<div class="hof2-rest">${rest.map((w, i) => `<div class="hof2-row"><span class="hof2-rk rn">${i + 4}</span>${cdAvatar(w.name)}<b>${kiEsc(w.name)}</b><span class="hof2-row-c">${chips(w)}</span></div>`).join('')}</div>` : ''}`;
+  };
+  spot.innerHTML = `<div class="hof2-sec-h"><div><span class="hof2-live">Live</span> ${aktMonat} ${aktuellesJahr}</div><span>laufender Monat · Live-Daten</span></div>
+    <div class="hof2-teams">${teamIds.map(t => `<div class="hof2-team"><div class="hof2-team-h"><b>${kiEsc(teamKurz(t))}</b><span>${kiEsc(TEAM_CONFIGS[t].label)} · ${(aktW[t] || []).length} ${(aktW[t] || []).length === 1 ? 'Eintrag' : 'Einträge'}</span></div>${podest(aktW[t] || [])}</div>`).join('')}</div>`;
+  wrap.appendChild(spot);
+
+  // --- Kriterien + Warum nicht dabei ---
+  const info = document.createElement('section');
+  info.className = 'hof2-info';
+  const ym = maYm(jetzt);
+  const regelKarte = t => { const r = hofRegeln(t, ym);
+    const pr = (r.produkte || []).filter(x => x.zaehlt && (x.ziele.regular || 0) > 0);
+    const brauch = Math.max(1, pr.length - (r.verfehlt || 0));
+    return `<div class="hof2-regel"><div class="hof2-regel-h">${kiEsc(teamKurz(t))}${r.eigen ? '<em>eigene Ziele</em>' : ''}</div>
+      <div class="hof2-kpi"><div><span>NPS</span><b>≥ ${f1(r.nps)} %</b></div><div><span>CR</span><b>≥ ${f1(r.cr)} %</b></div><div><span>LQ</span><b>${r.lqAktiv === false ? '–' : '≥ ' + f1(r.lq) + ' %'}</b></div><div><span>Produkte</span><b>${brauch} von ${pr.length}</b></div></div>
+      <div class="hof2-prods">${pr.map(x => `<span>${kiEsc(productLabel(x.key, t))} <b>${x.ziele.regular}</b></span>`).join('')}</div></div>`; };
+  info.innerHTML = `<div class="hof2-card"><div class="hof2-card-h"><b>Kriterien</b><button type="button" class="hof2-edit">Ziele bearbeiten</button></div>
+      <div class="hof2-card-sub">Alle Bedingungen müssen erfüllt sein. CR und LQ zählen, sobald sie eingetragen sind. Produktziele gelten für Standard-Mitarbeiter.</div>
+      ${teamIds.map(regelKarte).join('')}</div>`;
+  info.querySelector('.hof2-edit').onclick = openHofZieleEditor;
+  // Diagnose-Kasten
   (function(){
     const box = document.createElement('div');
-    box.className = 'hof-diag';
+    box.className = 'hof2-card hof-diag';
     const aktive = state.agents.filter(a => a && a.name && a.name.trim() && TEAM_CONFIGS[a.team] && a.category !== 'schulung');
     const pruef = aktive.map(a => ({ a, d: hofPruefung(a, aktuellerMonatKey) })).filter(x => x.d && !x.d.keineDaten);
     const knapp = pruef.map(x => ({ ...x, f: x.d.items.filter(i => !i.ok) })).filter(x => x.f.length === 1);
-    box.innerHTML = `<div class="hof-diag-h">🔍 Warum ist jemand nicht dabei? <span>${aktuellerMonatName} ${aktuellesJahr}</span></div>
-      <div class="hof-diag-row"><select class="cp-form-select hof-diag-sel"><option value="">Mitarbeiter wählen …</option>${aktive.map(a => `<option value="${a.id}">${kiEsc(a.name)}</option>`).join('')}</select></div>
+    box.innerHTML = `<div class="hof2-card-h"><b>Warum ist jemand nicht dabei?</b><span class="hof2-muted">${aktuellerMonatName}</span></div>
+      <div class="hof2-card-sub">Mitarbeiter wählen – du siehst jede Bedingung mit Wert und Ziel.</div>
+      <select class="cp-form-select hof-diag-sel"><option value="">Mitarbeiter wählen …</option>${aktive.map(a => `<option value="${a.id}">${kiEsc(a.name)}</option>`).join('')}</select>
       <div class="hof-diag-out"></div>
-      ${knapp.length ? `<div class="hof-diag-k"><b>Knapp verpasst – nur eine Bedingung fehlt:</b>${knapp.map(x => { const f = x.f[0]; return `<div><span>${kiEsc(x.a.name)}</span><em>${f.lbl}: ${kiEsc(f.txt)}</em></div>`; }).join('')}</div>` : ''}`;
+      ${knapp.length ? `<div class="hof-diag-k"><b>Knapp verpasst – nur eine Bedingung fehlt</b>${knapp.map(x => { const f = x.f[0]; return `<div><span>${kiEsc(x.a.name)}</span><em>${f.lbl}: ${kiEsc(f.txt)}</em></div>`; }).join('')}</div>` : ''}`;
     const out = box.querySelector('.hof-diag-out');
     box.querySelector('.hof-diag-sel').onchange = e => {
       const a = aktive.find(x => x.id === e.target.value);
       if(!a){ out.innerHTML = ''; return; }
       const d = hofPruefung(a, aktuellerMonatKey);
       const alleOk = d.items.every(i => i.ok);
-      out.innerHTML = `<div class="hof-diag-res ${alleOk ? 'ok' : 'nok'}">${alleOk ? '✅ Erfüllt alle Bedingungen – steht in der Hall of Fame.' : '❌ Nicht dabei, weil mindestens eine Bedingung fehlt:'}</div>` +
+      out.innerHTML = `<div class="hof-diag-res ${alleOk ? 'ok' : 'nok'}">${alleOk ? 'Erfüllt alle Bedingungen – steht in der Hall of Fame.' : 'Nicht dabei – mindestens eine Bedingung fehlt:'}</div>` +
         d.items.map(i => `<div class="hof-diag-i ${i.neutral ? 'neu' : i.ok ? 'ok' : 'nok'}"><b>${i.neutral ? '–' : i.ok ? '✓' : '✗'} ${i.lbl}</b><span>${kiEsc(i.txt)}</span></div>`).join('') +
         `<div class="hof-diag-cat">Kategorie: ${{regular:'Standard', '6h':'6-Stündler', helpline:'Helpline'}[a.category || 'regular'] || a.category} – danach richten sich die Produktziele.</div>`;
     };
-    wrap.appendChild(box);
+    info.appendChild(box);
   })();
+  wrap.appendChild(info);
 
-  const monthsWrap = document.createElement('div');
-  monthsWrap.className = 'hof-months';
+  // --- Archiv: vergangene Monate ---
+  const arch = document.createElement('section');
+  arch.className = 'hof2-arch';
+  const vergangen = MONATE.filter((m, mi) => !(aktuellesJahr === 2026 && mi >= aktIdx)).reverse();
+  arch.innerHTML = `<div class="hof2-sec-h"><div>Archiv ${aktuellesJahr}</div><span>abgeschlossene Monate · Werte aus dem Mitarbeiter Verlauf</span></div>
+    <div class="hof2-grid">${vergangen.filter(m => anzahl(proMonat[m] || {})).map(monat => { const w = proMonat[monat] || {}; const n = anzahl(w);
+      return `<div class="hof2-m"><div class="hof2-m-h"><b>${monat}</b><span>${n}</span></div>
+        ${teamIds.map(t => (w[t] || []).length ? `<div class="hof2-m-t">${kiEsc(teamKurz(t))}</div>${w[t].map((x, i) => `<div class="hof2-m-r"><span class="hof2-rk ${rangKlasse(i)}">${i + 1}</span><b>${kiEsc(x.name)}</b><em>NPS ${f1(x.nps)}${x.cr > 0 ? ' · CR ' + f1(x.cr) + ' %' : ''} · ${x.goalsHit}/${x.totalGoals}</em></div>`).join('')}` : '').join('')}</div>`; }).join('')}</div>`;
+  const ohne = vergangen.filter(m => !anzahl(proMonat[m] || {}));
+  if(ohne.length) arch.insertAdjacentHTML('beforeend', `<div class="hof2-ohne"><b>Ohne Einträge:</b> ${ohne.map(m => { const nD = hofDatenProMonat['2026-' + m] || 0; return `<span title="${nD ? nD + ' Mitarbeiter mit Daten – niemand hat alle Bedingungen erfüllt' : 'Keine Monatsdaten (NPS) im Verlauf'}">${m}${nD ? '' : '<i>keine Daten</i>'}</span>`; }).join('')}</div>`);
+  if(vergangen.length) wrap.appendChild(arch);
 
-  // Für jeden Monat eine Karte
-  MONATE.forEach(monat => {
-    const periode = '2026-' + monat;
-
-    // Prüfe alle MA
-    const winners = { Trikala01: [], Trikala06: [] };
-
-    state.agents.forEach(agent => {
-      const result = checkHOF(agent, periode);
-      if(result) winners[agent.team]?.push(result);
-    });
-
-    const hasAny = winners.Trikala01.length > 0 || winners.Trikala06.length > 0;
-
-    // Karte erstellen
-    const card = document.createElement('div');
-    card.className = 'hof-month-card';
-
-    const title = document.createElement('div');
-    title.className = 'hof-month-title';
-    title.innerHTML = `🗓️ ${monat} 2026`;
-    card.appendChild(title);
-
-    if(!hasAny){
-      const empty = document.createElement('div');
-      empty.className = 'hof-empty';
-      empty.textContent = 'Keine Einträge';
-      card.appendChild(empty);
-      const nDaten = hofDatenProMonat[periode] || 0;
-      const istZukunft = MONATE.indexOf(monat) > jetzt.getMonth() && aktuellesJahr === 2026;
-      const hint = document.createElement('div');
-      hint.style.cssText = "font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);margin-top:6px;";
-      if(istZukunft) hint.style.display = 'none';
-      hint.textContent = nDaten
-        ? `${nDaten} Mitarbeiter mit Monatsdaten – Kriterien nicht erfüllt`
-        : 'Keine Monatsdaten (NPS) gespeichert';
-      card.appendChild(hint);
-    } else {
-      Object.entries(winners).forEach(([teamId, list]) => {
-        if(!list.length) return;
-        const cfg = TEAM_CONFIGS[teamId];
-
-        const teamLbl = document.createElement('div');
-        teamLbl.className = 'hof-team-label';
-        teamLbl.textContent = cfg.label;
-        card.appendChild(teamLbl);
-
-        // Sortieren: 50% CR + 30% Stückzahl + 20% NPS
-        list.sort((a,b) => {
-          // Sales-Score: erreichte Ziele % (0-100)
-          const salesScoreA = (a.goalsHit / a.totalGoals) * 100;
-          const salesScoreB = (b.goalsHit / b.totalGoals) * 100;
-          // CR-Score: CR / CRZiel * 100 (max 200)
-          const crScoreA = a.crTarget > 0 ? Math.min((a.cr / a.crTarget) * 100, 200) : 50;
-          const crScoreB = b.crTarget > 0 ? Math.min((b.cr / b.crTarget) * 100, 200) : 50;
-          // NPS-Score: NPS / NPSZiel * 100
-          const npsScoreA = a.npsTarget > 0 ? (a.nps / a.npsTarget) * 100 : 0;
-          const npsScoreB = b.npsTarget > 0 ? (b.nps / b.npsTarget) * 100 : 0;
-          // Gesamtpunktzahl: 50% CR + 30% Stückzahl + 20% NPS
-          const totalA = crScoreA * 0.5 + salesScoreA * 0.3 + npsScoreA * 0.2;
-          const totalB = crScoreB * 0.5 + salesScoreB * 0.3 + npsScoreB * 0.2;
-          return totalB - totalA;
-        });
-
-        list.forEach((w, i) => {
-          const entry = document.createElement('div');
-          entry.className = 'hof-entry';
-          entry.innerHTML = `
-            <span class="hof-medal">${MEDALS[i]||'⭐'}</span>
-            <span class="hof-name">${w.name}</span>
-            <div class="hof-stats">
-              <span class="hof-stat good">NPS ${w.nps.toFixed(1)}%</span>
-              ${w.lq !== undefined && w.lq > 0 ? `<span class="hof-stat good">LQ ${w.lq.toFixed(1)}%</span>` : ''}
-              <span class="hof-stat good">${w.goalsHit}/${w.totalGoals} Ziele</span>
-              ${w.cr > 0 ? `<span class="hof-stat ok">CR ${w.cr.toFixed(2)}%</span>` : ''}
-            </div>
-          `;
-          card.appendChild(entry);
-        });
-      });
-    }
-
-    monthsWrap.appendChild(card);
-  });
-
-  wrap.appendChild(monthsWrap);
 }
 
 
@@ -16506,6 +16499,102 @@ html[data-fx-theme="dark"] .tl-pill.st-bad{background:rgba(180,66,58,.25);color:
 .hofz-tab td input[type=number]{width:72px!important;padding:4px 6px!important;}
 .hofz-tab tr.off td{opacity:.5;}
 .hofz-reset{margin-top:10px;}
+
+/* ===== v221: Hall of Fame – neues Layout ===== */
+.hof2{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:22px;font-family:'Inter',sans-serif;color:var(--text);}
+.hof2-hero{position:relative;overflow:hidden;display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;padding:28px 32px;border-radius:22px;color:#fff;
+  background:radial-gradient(120% 140% at 0% 0%,#7A1453 0%,#3B0A2B 55%,#1E0717 100%);box-shadow:0 18px 40px -24px rgba(60,0,40,.6);}
+.hof2-hero::after{content:'';position:absolute;right:-60px;top:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(232,182,76,.28),transparent 65%);pointer-events:none;}
+.hof2-hero-l{display:flex;align-items:center;gap:18px;min-width:0;flex:1 1 380px;position:relative;z-index:1;}
+.hof2-badge{flex:0 0 64px;width:64px;height:64px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,#F6D47A,#C9921E);color:#3B0A2B;box-shadow:0 8px 20px -8px rgba(232,182,76,.7);}
+.hof2-badge svg{width:34px;height:34px;}
+.hof2-eye{font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#F6D47A;}
+.hof2-h1{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;line-height:1.15;margin:4px 0 4px;text-wrap:balance;}
+.hof2-h2{font-size:13.5px;line-height:1.5;color:rgba(255,255,255,.78);max-width:56ch;}
+.hof2-stats{display:flex;gap:10px;position:relative;z-index:1;flex-wrap:wrap;}
+.hof2-stats > div{min-width:108px;padding:12px 16px;border-radius:14px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;flex-direction:column;}
+.hof2-stats b{font-family:'Space Grotesk',sans-serif;font-size:24px;font-variant-numeric:tabular-nums;color:#F6D47A;}
+.hof2-stats span{font-size:11.5px;color:rgba(255,255,255,.75);max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hof2-sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.hof2-sec-h > div{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.hof2-sec-h > span{font-size:12px;color:var(--muted);}
+.hof2-live{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--tmg,#E20074);padding:3px 8px;border-radius:999px;}
+.hof2-teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;}
+.hof2-team{background:var(--panel,#fff);border:1px solid var(--border);border-radius:18px;padding:16px 18px 18px;min-width:0;}
+.hof2-team-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:10px;}
+.hof2-team-h b{font-family:'Space Grotesk',sans-serif;font-size:16px;}
+.hof2-team-h span{font-size:11.5px;color:var(--muted);}
+.hof2-podium{display:grid;grid-template-columns:repeat(3,1fr);align-items:end;gap:10px;min-height:220px;}
+.hof2-pod{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;min-width:0;}
+.hof2-pod-av{position:relative;}
+.hof2-pod-av .cd-av{width:52px;height:52px;font-size:17px;border-radius:50%;display:grid;place-items:center;font-weight:700;}
+.hof2-pod.r1 .hof2-pod-av .cd-av{width:64px;height:64px;font-size:20px;box-shadow:0 0 0 3px #E8B64C;}
+.hof2-pod.r2 .hof2-pod-av .cd-av{box-shadow:0 0 0 3px #A9B2BD;}
+.hof2-pod.r3 .hof2-pod-av .cd-av{box-shadow:0 0 0 3px #C08457;}
+.hof2-pod-av i{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;color:#fff;border:2px solid var(--panel,#fff);}
+.hof2-pod.r1 i{background:#D4A017;}.hof2-pod.r2 i{background:#8E99A6;}.hof2-pod.r3 i{background:#B06A3A;}
+.hof2-pod-n{font-weight:700;font-size:13.5px;line-height:1.25;overflow-wrap:anywhere;}
+.hof2-pod-c{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;}
+.hof2-pod-s{width:100%;border-radius:12px 12px 4px 4px;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:20px;}
+.hof2-pod.r1 .hof2-pod-s{height:78px;background:linear-gradient(180deg,#F6E2A8,#EBCB6E);color:#7A5600;}
+.hof2-pod.r2 .hof2-pod-s{height:56px;background:linear-gradient(180deg,#E7EBF0,#CDD4DC);color:#4E5966;}
+.hof2-pod.r3 .hof2-pod-s{height:40px;background:linear-gradient(180deg,#F1DCCB,#DDB497);color:#7A4523;}
+.hof2-chip{font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:999px;background:var(--bg,#F3F4F6);color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.hof2-rest{margin-top:14px;border-top:1px solid var(--border);}
+.hof2-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);min-width:0;}
+.hof2-row:last-child{border-bottom:0;}
+.hof2-row .cd-av{width:30px;height:30px;font-size:11px;border-radius:50%;display:grid;place-items:center;font-weight:700;flex:0 0 auto;}
+.hof2-row b{font-size:13.5px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hof2-row-c{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;}
+.hof2-rk{flex:0 0 22px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:800;color:#fff;background:#B8C0CA;}
+.hof2-rk.r1{background:#D4A017;}.hof2-rk.r2{background:#8E99A6;}.hof2-rk.r3{background:#B06A3A;}
+.hof2-leer{padding:30px 12px;text-align:center;color:var(--muted);font-size:13.5px;line-height:1.6;}
+.hof2-leer span{font-size:12px;}
+.hof2-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;align-items:start;}
+.hof2-card{background:var(--panel,#fff);border:1px solid var(--border);border-radius:18px;padding:16px 18px;min-width:0;}
+.hof2 .hof-diag{max-width:none;margin:0;}
+.hof2-card-h{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.hof2-card-h b{font-family:'Space Grotesk',sans-serif;font-size:16px;}
+.hof2-muted{font-size:12px;color:var(--muted);}
+.hof2-card-sub{font-size:12px;color:var(--muted);margin:4px 0 12px;line-height:1.45;}
+.hof2-edit{font:600 12.5px 'Inter',sans-serif;padding:7px 14px;border-radius:999px;border:1px solid var(--tmg,#E20074);background:transparent;color:var(--tmg,#E20074);cursor:pointer;}
+.hof2-edit:hover{background:var(--tmg-soft,#FDE7F2);}
+.hof2-regel{border-top:1px solid var(--border);padding:12px 0 4px;}
+.hof2-regel-h{font-weight:700;font-size:13.5px;margin-bottom:8px;display:flex;gap:8px;align-items:center;}
+.hof2-regel-h em{font-style:normal;font-size:10.5px;font-weight:700;background:var(--tmg-soft,#FDE7F2);color:var(--tmg,#E20074);padding:1px 7px;border-radius:999px;}
+.hof2-kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.hof2-kpi > div{background:var(--bg,#F6F7F9);border-radius:10px;padding:7px 9px;display:flex;flex-direction:column;}
+.hof2-kpi span{font-size:10.5px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;}
+.hof2-kpi b{font-family:'Space Grotesk',sans-serif;font-size:15px;font-variant-numeric:tabular-nums;}
+.hof2-prods{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.hof2-prods span{font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:2px 9px;}
+.hof2-prods b{color:var(--text);}
+.hof2 .hof-diag-sel{max-width:none;width:100%!important;}
+.hof2-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:12px;align-items:start;}
+.hof2-ohne{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted);}
+.hof2-ohne b{margin-right:4px;}
+.hof2-ohne span{border:1px dashed var(--border);border-radius:999px;padding:3px 10px;color:var(--text);}
+.hof2-ohne i{font-style:normal;color:var(--muted);margin-left:5px;font-size:11px;}
+.hof2-m{background:var(--panel,#fff);border:1px solid var(--border);border-radius:16px;padding:14px 16px;min-width:0;}
+.hof2-m.leer{background:transparent;border-style:dashed;}
+.hof2-m-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.hof2-m-h b{font-family:'Space Grotesk',sans-serif;font-size:15px;}
+.hof2-m-h span{font-size:11.5px;font-weight:700;min-width:24px;height:24px;border-radius:999px;display:grid;place-items:center;padding:0 7px;background:#FFF3D6;color:#8A5A00;}
+.hof2-m.leer .hof2-m-h span{background:var(--bg,#F3F4F6);color:var(--muted);}
+.hof2-m-e{font-size:12px;color:var(--muted);line-height:1.45;}
+.hof2-m-t{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 4px;}
+.hof2-m-r{display:grid;grid-template-columns:22px 1fr;column-gap:8px;align-items:center;padding:4px 0;}
+.hof2-m-r b{font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hof2-m-r em{grid-column:2;font-style:normal;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;}
+@media (max-width:640px){
+  .hof2-hero{padding:20px;} .hof2-h1{font-size:22px;} .hof2-stats{width:100%;} .hof2-stats > div{min-width:0;flex:1;padding:10px 12px;} .hof2-stats span{white-space:normal;font-size:11px;line-height:1.3;} .hof2-stats b{font-size:20px;}
+  .hof2-podium{min-height:0;gap:6px;} .hof2-pod-c{display:none;} .hof2-kpi{grid-template-columns:repeat(2,1fr);}
+  .hof2-row-c{display:none;}
+}
+html[data-fx-theme="dark"] .hof2-m-h span{background:rgba(232,182,76,.18);color:#F6D47A;}
+html[data-fx-theme="dark"] .hof2-pod.r1 .hof2-pod-s{background:linear-gradient(180deg,rgba(232,182,76,.45),rgba(232,182,76,.25));color:#F6D47A;}
+html[data-fx-theme="dark"] .hof2-pod.r2 .hof2-pod-s{background:linear-gradient(180deg,rgba(169,178,189,.4),rgba(169,178,189,.2));color:#DDE3EA;}
+html[data-fx-theme="dark"] .hof2-pod.r3 .hof2-pod-s{background:linear-gradient(180deg,rgba(192,132,87,.45),rgba(192,132,87,.22));color:#F0C7A6;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
