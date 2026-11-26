@@ -1610,7 +1610,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 228;
+const BOARD_VERSION = 229;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -4286,182 +4286,156 @@ function setKIAppToken(token){
 
 
 function renderKIAnalyse(){
+  // v229: KI Analyse neu gestaltet – Gesprächsbereich links, Datenbasis & Schnellanalysen rechts
   const container = document.getElementById('kianalyse-container');
   container.innerHTML = '';
+  const ICON = {
+    spark:'<path d="M12 3l1.8 4.6L18 9.4l-4.2 1.8L12 16l-1.8-4.8L6 9.4l4.2-1.8z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+    send:'<path d="M4 12l16-8-6 16-2.5-6.5z"/><path d="M11.5 13.5L20 4"/>',
+    copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>',
+    users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/>',
+    cal:'<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    db:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
+    target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+    trend:'<path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/>',
+    chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    team:'<path d="M3 21h18M5 21V8l7-5 7 5v13"/>',
+    key:'<circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3M16 7l3 3"/>',
+    trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/>'
+  };
+  const ic = (n, cls) => `<svg class="${cls || 'ki2-ic'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[n]}</svg>`;
 
-  const wrap = document.createElement('div');
-  wrap.className = 'ki-wrap';
-
-  wrap.innerHTML = `
-    <div class="ki-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:5px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V5a3 3 0 0 1 6 0v3M9 14h.01M15 14h.01"/></svg>KI Analyse</div>
-    <div class="ki-sub">Stelle Fragen zu deinen Teams und Mitarbeitern — die KI analysiert deine echten Daten.</div>
-  `;
-
-  // Daten-Übersicht Badges
-  const badgeRow = document.createElement('div');
-  badgeRow.className = 'ki-badge-row';
+  // Datenbasis
   const t01 = state.agents.filter(a=>a.team==='Trikala01' && a.name && a.name.trim()).length;
   const t06 = state.agents.filter(a=>a.team==='Trikala06' && a.name && a.name.trim()).length;
   const alleMonate = new Set();
   state.agents.forEach(a=>{ if(a.name && a.name.trim()) kiAgentMonths(a).forEach(m=>alleMonate.add(m.monat)); });
   const mSort = [...alleMonate].sort((a,b)=>{ const o=k=>{ const [j,m]=k.split('-'); return parseInt(j)*100+VL_MONATE.indexOf(m); }; return o(a)-o(b); });
   const zeitraum = mSort.length ? `${mSort[0].replace('-', ' ').split(' ').reverse().join(' ')} – heute` : 'laufender Monat';
-  badgeRow.innerHTML = `
-    <span class="ki-badge">👥 ${t01} MF · ${t06} FN Mitarbeiter</span>
-    <span class="ki-badge">📅 ${zeitraum}</span>
-    <span class="ki-badge">📝 Coachings, 5-Finger, Vereinbarungen, Tageswerte & Hochrechnung</span>
-  `;
-  const scopeRow = document.createElement('div');
-  scopeRow.className = 'ki-scope';
-  scopeRow.innerHTML = '<span>Daten für die Frage:</span>';
-  const scopeOpts = [['alle','Alle Mitarbeiter']].concat(fkMyLeaderName() ? [['meine','Meine Mitarbeiter']] : []).concat(Object.keys(TEAM_CONFIGS).map(t=>[t, TEAM_CONFIGS[t].label]));
+  const scopeOpts = [['alle','Alle Mitarbeiter']].concat(fkMyLeaderName() ? [['meine','Meine Mitarbeiter']] : []).concat(Object.keys(TEAM_CONFIGS).map(t=>[t, TEAM_CONFIGS[t].project || TEAM_CONFIGS[t].label]));
   if(!scopeOpts.some(o=>o[0]===kiScope)) kiScope = 'alle';
-  scopeOpts.forEach(([v,l])=>{
-    const b = document.createElement('button');
-    b.className = 'fk-chip' + (kiScope === v ? ' active' : '');
-    b.textContent = l;
-    b.addEventListener('click', ()=>{ kiScope = v; renderKIAnalyse(); });
-    scopeRow.appendChild(b);
-  });
-  const scopeHint = document.createElement('em');
-  scopeHint.textContent = 'Nennst du in der Frage Namen, werden nur diese Mitarbeiter mitgeschickt.';
-  scopeRow.appendChild(scopeHint);
-  wrap.appendChild(badgeRow);
-  wrap.appendChild(scopeRow);
-
-  // Zugangs-Passwort (gemeinsam für alle Führungskräfte, kein echter API-Key)
-  const keyRow = document.createElement('div');
-  keyRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;';
   const savedToken = getKIAppToken();
-  keyRow.innerHTML = savedToken
-    ? `<span class="ki-badge" style="background:var(--teal-soft);color:var(--teal);">🔑 Zugang aktiv</span>
-       <button id="ki-key-change" style="background:none;border:1px solid var(--border);padding:5px 10px;border-radius:6px;font-size:11px;color:var(--muted);cursor:pointer;">Passwort ändern</button>`
-    : `<input id="ki-key-input" type="password" placeholder="Zugangs-Passwort eingeben" style="flex:1;min-width:240px;border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:'IBM Plex Mono',monospace;font-size:12px;outline:none;">
-       <button id="ki-key-save" style="background:var(--tmg);color:#fff;border:none;padding:7px 14px;border-radius:6px;font-weight:600;font-size:12px;cursor:pointer;">Speichern</button>`;
-  wrap.appendChild(keyRow);
-  if(!savedToken){
-    keyRow.querySelector('#ki-key-save').addEventListener('click', ()=>{
-      const val = keyRow.querySelector('#ki-key-input').value.trim();
-      if(val){ setKIAppToken(val); renderKIAnalyse(); }
-    });
-  } else {
-    keyRow.querySelector('#ki-key-change').addEventListener('click', ()=>{
-      setKIAppToken('');
-      renderKIAnalyse();
-    });
-  }
-
-  // Vorschläge
   const monatJetzt = new Date().toLocaleString('de-DE', {month:'long', year:'numeric'});
-  const suggestions = [
-    'Welche 5 Mitarbeiter brauchen am dringendsten Coaching – und mit welchem Fokus?',
-    'Wer ist laut Hochrechnung gefährdet, sein Monatsziel zu verfehlen?',
-    'Welche Vereinbarungen haben gewirkt und welche nicht?',
-    'Welcher Finger des 5-Finger-Pitch ist im Team der größte Engpass? Schlag einen Workshop vor.',
-    'Wer hat sich in den letzten Monaten am meisten verbessert?',
-    'Wer hat lange kein Coaching gehabt?',
-    'Vergleiche das MF- und das FN-Team',
-    `Zusammenfassung ${monatJetzt}`,
+  const gruppen = [
+    { t:'Coaching', i:'chat', q:[
+      'Welche 5 Mitarbeiter brauchen am dringendsten Coaching – und mit welchem Fokus?',
+      'Wer hat lange kein Coaching gehabt?',
+      'Welche Vereinbarungen haben gewirkt und welche nicht?' ] },
+    { t:'Ziele & Prognose', i:'target', q:[
+      'Wer ist laut Hochrechnung gefährdet, sein Monatsziel zu verfehlen?',
+      `Zusammenfassung ${monatJetzt}` ] },
+    { t:'Entwicklung', i:'trend', q:[
+      'Wer hat sich in den letzten Monaten am meisten verbessert?',
+      'Welcher Finger des 5-Finger-Pitch ist im Team der größte Engpass? Schlag einen Workshop vor.' ] },
+    { t:'Teams', i:'team', q:[ 'Vergleiche das MF- und das FN-Team' ] }
   ];
+  const start = [gruppen[0].q[0], gruppen[1].q[0], gruppen[2].q[1], gruppen[1].q[1]];
 
-  const chipWrap = document.createElement('div');
-  chipWrap.className = 'ki-suggestions';
-  suggestions.forEach(s=>{
-    const chip = document.createElement('button');
-    chip.className = 'ki-chip';
-    chip.textContent = s;
-    chip.addEventListener('click', ()=>{ inputEl.value=s; sendMessage(); });
-    chipWrap.appendChild(chip);
-  });
-  wrap.appendChild(chipWrap);
-
-  // Input
-  const inputRow = document.createElement('div');
-  inputRow.className = 'ki-input-row';
-  const inputEl = document.createElement('input');
-  inputEl.className = 'ki-input';
-  inputEl.type = 'text';
-  inputEl.placeholder = 'Frage stellen, z.B. "Welche Mitarbeiter brauchen Coaching?"';
-  const sendBtn = document.createElement('button');
-  sendBtn.className = 'ki-send';
-  sendBtn.textContent = 'Analysieren';
-  inputRow.appendChild(inputEl);
-  inputRow.appendChild(sendBtn);
-  wrap.appendChild(inputRow);
-
-  // Chat-Verlauf
-  const historyEl = document.createElement('div');
-  historyEl.className = 'ki-history';
-  wrap.appendChild(historyEl);
+  const wrap = document.createElement('div');
+  wrap.className = 'ki2';
+  wrap.innerHTML = `
+    <section class="ki2-main">
+      <div class="ki2-head"><div class="ki2-logo">${ic('spark')}</div><div><div class="ki2-h1">KI Analyse</div><div class="ki2-h2">Frag nach Mitarbeitern, Teams und Coachings – die Antwort basiert auf den echten Daten im Board.</div></div>
+        ${kiHistory.length ? `<button type="button" class="ki2-clear" title="Gespräch löschen">${ic('trash')}<span>Neues Gespräch</span></button>` : ''}</div>
+      <div class="ki2-log" aria-live="polite"></div>
+      <div class="ki2-composer">
+        <textarea class="ki2-input" rows="1" placeholder="Frage stellen, z. B. „Welche Mitarbeiter brauchen diese Woche Coaching?“"></textarea>
+        <button type="button" class="ki2-send" aria-label="Frage senden">${ic('send')}</button>
+      </div>
+      <div class="ki2-hint">Enter = senden · Shift+Enter = neue Zeile · Nennst du Namen, werden nur diese Mitarbeiter mitgeschickt.</div>
+    </section>
+    <aside class="ki2-side">
+      <div class="ki2-card">
+        <div class="ki2-card-h">${ic('db')}Datenbasis</div>
+        <div class="ki2-facts">
+          <div>${ic('users')}<span><b>${t01}</b> Mobilfunk · <b>${t06}</b> Festnetz</span></div>
+          <div>${ic('cal')}<span>${zeitraum}</span></div>
+        </div>
+        <div class="ki2-tags"><span>Kennzahlen</span><span>Tageswerte</span><span>Hochrechnung</span><span>Coachings</span><span>5-Finger</span><span>Vereinbarungen</span></div>
+        <div class="ki2-lbl">Mitarbeiter für die Frage</div>
+        <div class="ki2-seg">${scopeOpts.map(([v,l]) => `<button type="button" data-scope="${v}" class="${kiScope === v ? 'on' : ''}">${kiEsc(l)}</button>`).join('')}</div>
+      </div>
+      <div class="ki2-card">
+        <div class="ki2-card-h">${ic('spark')}Schnellanalysen</div>
+        ${gruppen.map(g => `<div class="ki2-grp"><div class="ki2-grp-t">${ic(g.i)}${g.t}</div>${g.q.map(q => `<button type="button" class="ki2-q" data-q="${kiEsc(q)}">${kiEsc(q)}</button>`).join('')}</div>`).join('')}
+      </div>
+      <div class="ki2-card ki2-zugang ${savedToken ? 'ok' : ''}">
+        ${savedToken ? `<div class="ki2-card-h">${ic('key')}Zugang aktiv</div><button type="button" class="ki2-link ki2-key-change">Passwort ändern</button>`
+          : `<div class="ki2-card-h">${ic('key')}Zugang</div><div class="ki2-keyrow"><input type="password" class="ki2-key" placeholder="Zugangs-Passwort"><button type="button" class="ki2-key-save">Speichern</button></div>`}
+      </div>
+    </aside>`;
   container.appendChild(wrap);
 
-  // Bestehende History anzeigen
-  kiHistory.forEach(msg=>addMsgBubble(msg.role, msg.content, historyEl));
+  const log = wrap.querySelector('.ki2-log');
+  const inputEl = wrap.querySelector('.ki2-input');
+  const sendBtn = wrap.querySelector('.ki2-send');
+  const autosize = () => { inputEl.style.height = 'auto'; inputEl.style.height = Math.min(160, inputEl.scrollHeight) + 'px'; };
+  inputEl.addEventListener('input', autosize);
 
-
-  function addMsgBubble(role, text, parent){
+  function leer(){
+    log.innerHTML = `<div class="ki2-empty"><div class="ki2-empty-ic">${ic('spark')}</div><div class="ki2-empty-t">Was möchtest du wissen?</div>
+      <div class="ki2-empty-s">Wähle einen Vorschlag oder stell deine eigene Frage.</div>
+      <div class="ki2-starts">${start.map(q => `<button type="button" class="ki2-start" data-q="${kiEsc(q)}">${kiEsc(q)}</button>`).join('')}</div></div>`;
+    log.querySelectorAll('.ki2-start').forEach(b => b.onclick = () => frage(b.dataset.q));
+  }
+  function bubble(role, text){
+    const empty = log.querySelector('.ki2-empty'); if(empty) empty.remove();
     const el = document.createElement('div');
-    el.className = 'ki-msg ' + role;
+    el.className = 'ki2-msg ' + role;
     if(role === 'assistant'){
-      el.innerHTML = kiRenderMarkdown(text);
+      el.innerHTML = `<div class="ki2-av">${ic('spark')}</div><div class="ki2-body"><div class="ki2-body-h"><b>KI-Analyse</b><button type="button" class="ki2-copy" title="Antwort kopieren">${ic('copy')}<span>Kopieren</span></button></div><div class="ki2-md">${kiRenderMarkdown(text)}</div></div>`;
+      el.querySelector('.ki2-copy').onclick = e => {
+        const btn = e.currentTarget; const t = el.querySelector('.ki2-md').innerText;
+        (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => { btn.querySelector('span').textContent = 'Kopiert'; setTimeout(() => { btn.querySelector('span').textContent = 'Kopieren'; }, 1600); }).catch(() => { if(window.fxToast) fxToast('Kopieren nicht möglich'); });
+      };
+    } else if(role === 'loading'){
+      el.innerHTML = `<div class="ki2-av">${ic('spark')}</div><div class="ki2-body ki2-load"><span></span><span></span><span></span><em>Analysiere deine Daten …</em></div>`;
     } else {
-      el.innerHTML = kiEsc(text).split(String.fromCharCode(10)).join('<br>');
+      el.innerHTML = `<div class="ki2-u">${kiEsc(text).split('\n').join('<br>')}</div>`;
     }
-    parent.appendChild(el);
-    el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    log.appendChild(el);
+    el.scrollIntoView({ behavior:'smooth', block:'nearest' });
     return el;
   }
+  if(kiHistory.length) kiHistory.forEach(m => bubble(m.role, m.content)); else leer();
 
-  async function sendMessage(){
-    const question = inputEl.value.trim();
-    if(!question) return;
-    inputEl.value = '';
-    sendBtn.disabled = true;
-    sendBtn.textContent = '⏳ Analysiere...';
-
+  async function frage(q){
+    const question = String(q != null ? q : inputEl.value).trim();
+    if(!question || sendBtn.disabled) return;
+    inputEl.value = ''; autosize();
     const appToken = getKIAppToken();
-    if(!appToken){
-      addMsgBubble('assistant', '⚠️ Bitte zuerst oben das Zugangs-Passwort eingeben.', historyEl);
-      sendBtn.disabled = false;
-      sendBtn.textContent = 'Analysieren';
-      return;
-    }
-
-    addMsgBubble('user', question, historyEl);
-    kiHistory.push({role:'user', content:question});
-
-    const loadingEl = addMsgBubble('loading', '🤔 Analysiere deine Daten...', historyEl);
-
-    // Datenbasis: genannte Mitarbeiter, sonst gewählter Umfang
+    if(!appToken){ bubble('assistant', '⚠️ Bitte zuerst rechts unter „Zugang“ das Zugangs-Passwort eingeben.'); return; }
+    sendBtn.disabled = true; wrap.classList.add('busy');
+    bubble('user', question);
+    kiHistory.push({ role:'user', content:question });
+    const loadingEl = bubble('loading', '');
     const sel = kiAgentsForQuestion(question);
     const ctx = buildKIContextFor(sel.agents);
     const systemPrompt = kiSystemPrompt(ctx, 'AUFGABE: Beantworte die Frage der Führungskraft auf Basis der Daten. Antworte so, dass die Antwort direkt als Grundlage für Coachings und Mitarbeitergespräche dienen kann – klar strukturiert (kurze Abschnitte, Aufzählungen oder Tabellen) statt Fließtext.');
-    try {
+    try{
       const answer = await kiCall(systemPrompt, kiHistory.slice(-6), 4000);
       loadingEl.remove();
-      const shown = answer + '\n\n*Datenbasis: ' + sel.grund + '*';
-      addMsgBubble('assistant', shown, historyEl);
-      kiHistory.push({role:'assistant', content:answer});
-    } catch(e){
-      loadingEl.className = 'ki-msg assistant';
-      loadingEl.textContent = 'Fehler bei der Analyse: ' + e.message;
+      bubble('assistant', answer + '\n\n*Datenbasis: ' + sel.grund + '*');
+      kiHistory.push({ role:'assistant', content:answer });
+      if(!wrap.querySelector('.ki2-clear')){
+        const head = wrap.querySelector('.ki2-head');
+        head.insertAdjacentHTML('beforeend', `<button type="button" class="ki2-clear" title="Gespräch löschen">${ic('trash')}<span>Neues Gespräch</span></button>`);
+        head.querySelector('.ki2-clear').onclick = () => { kiHistory = []; renderKIAnalyse(); };
+      }
+    }catch(e){
+      loadingEl.remove();
+      bubble('assistant', 'Fehler bei der Analyse: ' + (e && e.message ? e.message : e));
     }
-
-    sendBtn.disabled = false;
-    sendBtn.textContent = 'Analysieren';
+    sendBtn.disabled = false; wrap.classList.remove('busy');
+    inputEl.focus();
   }
-
-  sendBtn.addEventListener('click', sendMessage);
-  inputEl.addEventListener('keydown', e=>{ if(e.key==='Enter') sendMessage(); });
-
-  // Löschen-Button
-  if(kiHistory.length > 0){
-    const clearBtn = document.createElement('button');
-    clearBtn.style.cssText = 'background:none;border:1px solid var(--border);padding:6px 12px;border-radius:8px;font-size:12px;color:var(--muted);cursor:pointer;margin-top:8px;';
-    clearBtn.textContent = '🗑 Verlauf löschen';
-    clearBtn.addEventListener('click', ()=>{ kiHistory=[]; renderKIAnalyse(); });
-    wrap.appendChild(clearBtn);
-  }
+  sendBtn.onclick = () => frage();
+  inputEl.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); frage(); } });
+  wrap.querySelectorAll('.ki2-q').forEach(b => b.onclick = () => frage(b.dataset.q));
+  wrap.querySelectorAll('.ki2-seg button').forEach(b => b.onclick = () => { kiScope = b.dataset.scope; wrap.querySelectorAll('.ki2-seg button').forEach(x => x.classList.toggle('on', x === b)); });
+  const clr = wrap.querySelector('.ki2-clear'); if(clr) clr.onclick = () => { kiHistory = []; renderKIAnalyse(); };
+  const kc = wrap.querySelector('.ki2-key-change'); if(kc) kc.onclick = () => { setKIAppToken(''); renderKIAnalyse(); };
+  const ks = wrap.querySelector('.ki2-key-save'); if(ks) ks.onclick = () => { const v = wrap.querySelector('.ki2-key').value.trim(); if(v){ setKIAppToken(v); renderKIAnalyse(); } };
 }
 
 
@@ -14486,6 +14460,85 @@ html[data-fx-theme="dark"] .sc-prog-n b.bad,html[data-fx-theme="dark"] .sc-k.bad
 html[data-fx-theme="dark"] .c-K,html[data-fx-theme="dark"] .abw-c.c-K{background:rgba(180,66,58,.3);color:#F3AAA3;}
 html[data-fx-theme="dark"] .c-U,html[data-fx-theme="dark"] .abw-c.c-U{background:rgba(59,111,160,.35);color:#A9CCEB;}
 html[data-fx-theme="dark"] .c-F,html[data-fx-theme="dark"] .abw-c.c-F{background:rgba(255,255,255,.1);color:#C5CBD3;}
+
+/* ===== v229: KI Analyse – neues Layout ===== */
+.ki2{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:18px;align-items:start;font-family:'Inter',sans-serif;color:var(--text);max-width:1240px;margin:0 auto;}
+.ki2-main{background:var(--panel,#fff);border:1px solid var(--border);border-radius:20px;display:flex;flex-direction:column;min-height:min(78vh,820px);overflow:hidden;min-width:0;}
+.ki2-head{display:flex;align-items:center;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--tmg-soft,#FDE7F2),transparent 70%);}
+.ki2-logo{flex:0 0 44px;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;color:#fff;background:linear-gradient(145deg,#E20074,#7A1453);box-shadow:0 8px 18px -10px rgba(226,0,116,.8);}
+.ki2-logo svg{width:24px;height:24px;}
+.ki2-head > div:nth-child(2){flex:1;min-width:0;}
+.ki2-h1{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;}
+.ki2-h2{font-size:12.5px;color:var(--muted);line-height:1.45;}
+.ki2-clear{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--panel,#fff);color:var(--muted);border-radius:999px;padding:7px 12px;font:600 12px 'Inter',sans-serif;cursor:pointer;white-space:nowrap;}
+.ki2-clear:hover{color:var(--text);}
+.ki2-ic{width:16px;height:16px;flex:0 0 auto;}
+.ki2-clear .ki2-ic{width:14px;height:14px;}
+.ki2-log{flex:1;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;gap:16px;max-height:62vh;min-height:320px;}
+.ki2-empty{margin:auto;text-align:center;max-width:560px;padding:20px 0;}
+.ki2-empty-ic{width:56px;height:56px;margin:0 auto 12px;border-radius:18px;display:grid;place-items:center;background:var(--tmg-soft,#FDE7F2);color:var(--tmg,#E20074);}
+.ki2-empty-ic svg{width:28px;height:28px;}
+.ki2-empty-t{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;}
+.ki2-empty-s{font-size:13px;color:var(--muted);margin:4px 0 16px;}
+.ki2-starts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:10px;text-align:left;}
+.ki2-start{border:1px solid var(--border);background:var(--bg,#F6F7F9);border-radius:14px;padding:12px 14px;font:500 13px/1.45 'Inter',sans-serif;color:var(--text);cursor:pointer;text-align:left;transition:border-color .15s,transform .15s;}
+.ki2-start:hover{border-color:var(--tmg,#E20074);transform:translateY(-1px);}
+.ki2-msg{display:flex;gap:10px;max-width:100%;}
+.ki2-msg.user{justify-content:flex-end;}
+.ki2-u{max-width:78%;background:linear-gradient(135deg,#E20074,#B3005C);color:#fff;border-radius:18px 18px 4px 18px;padding:10px 15px;font-size:14px;line-height:1.5;}
+.ki2-av{flex:0 0 32px;width:32px;height:32px;border-radius:10px;display:grid;place-items:center;background:var(--tmg-soft,#FDE7F2);color:var(--tmg,#E20074);}
+.ki2-av svg{width:18px;height:18px;}
+.ki2-body{flex:1;min-width:0;background:var(--panel,#fff);border:1px solid var(--border);border-radius:4px 18px 18px 18px;padding:12px 16px;}
+.ki2-body-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.ki2-body-h b{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--tmg,#E20074);}
+.ki2-copy{display:inline-flex;align-items:center;gap:5px;border:0;background:transparent;color:var(--muted);font:600 11.5px 'Inter',sans-serif;cursor:pointer;padding:4px 6px;border-radius:8px;}
+.ki2-copy:hover{background:var(--bg);color:var(--text);}
+.ki2-copy .ki2-ic{width:14px;height:14px;}
+.ki2-md{font-size:14px;line-height:1.6;overflow-x:auto;}
+.ki2-md .ki-h{font-family:'Space Grotesk',sans-serif;font-size:15px;margin:12px 0 4px;}
+.ki2-md .ki-list{padding-left:20px;margin:4px 0 8px;}
+.ki2-md .ki-p{margin:4px 0;}
+.ki2-md .ki-table th{background:var(--bg,#F3F4F6);color:var(--muted);}
+.ki2-load{display:flex;align-items:center;gap:5px;}
+.ki2-load span{width:7px;height:7px;border-radius:50%;background:var(--tmg,#E20074);opacity:.3;animation:ki2Dot 1.2s infinite;}
+.ki2-load span:nth-child(2){animation-delay:.2s;}.ki2-load span:nth-child(3){animation-delay:.4s;}
+.ki2-load em{font-style:normal;font-size:13px;color:var(--muted);margin-left:8px;}
+@keyframes ki2Dot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.ki2-composer{display:flex;align-items:flex-end;gap:8px;margin:0 22px;padding:8px 8px 8px 16px;border:1.5px solid var(--border);border-radius:16px;background:var(--panel,#fff);transition:border-color .15s,box-shadow .15s;}
+.ki2-composer:focus-within{border-color:var(--tmg,#E20074);box-shadow:0 0 0 4px rgba(226,0,116,.1);}
+.ki2-input{flex:1;border:0;outline:0;resize:none;background:transparent;color:var(--text);font:14px/1.5 'Inter',sans-serif;padding:7px 0;max-height:160px;}
+.ki2-send{flex:0 0 40px;width:40px;height:40px;border-radius:12px;border:0;background:var(--tmg,#E20074);color:#fff;display:grid;place-items:center;cursor:pointer;}
+.ki2-send:disabled{opacity:.5;cursor:default;}
+.ki2-send svg{width:18px;height:18px;}
+.ki2-hint{font-size:11.5px;color:var(--muted);padding:8px 22px 16px;}
+.ki2-side{display:flex;flex-direction:column;gap:14px;position:sticky;top:90px;}
+.ki2-card{background:var(--panel,#fff);border:1px solid var(--border);border-radius:16px;padding:14px 16px;}
+.ki2-card-h{display:flex;align-items:center;gap:8px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;}
+.ki2-card-h .ki2-ic{color:var(--tmg,#E20074);}
+.ki2-facts{display:flex;flex-direction:column;gap:6px;font-size:13px;}
+.ki2-facts div{display:flex;align-items:center;gap:8px;}
+.ki2-facts .ki2-ic{color:var(--muted);}
+.ki2-tags{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 2px;}
+.ki2-tags span{font-size:11px;font-weight:600;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:2px 8px;}
+.ki2-lbl{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:12px 0 6px;}
+.ki2-seg{display:flex;flex-wrap:wrap;gap:6px;}
+.ki2-seg button{border:1px solid var(--border);background:var(--bg,#F6F7F9);color:var(--text);border-radius:999px;padding:6px 11px;font:600 12px 'Inter',sans-serif;cursor:pointer;}
+.ki2-seg button.on{background:var(--tmg,#E20074);border-color:var(--tmg,#E20074);color:#fff;}
+.ki2-grp + .ki2-grp{margin-top:10px;}
+.ki2-grp-t{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
+.ki2-grp-t .ki2-ic{width:13px;height:13px;}
+.ki2-q{display:block;width:100%;text-align:left;border:0;background:transparent;color:var(--text);font:500 13px/1.4 'Inter',sans-serif;padding:7px 9px;border-radius:9px;cursor:pointer;}
+.ki2-q:hover{background:var(--tmg-soft,#FDE7F2);color:var(--tmg,#E20074);}
+.ki2-zugang.ok .ki2-card-h{margin-bottom:4px;}
+.ki2-zugang.ok .ki2-card-h .ki2-ic{color:var(--teal,#0E7C7B);}
+.ki2-link{border:0;background:none;color:var(--muted);font:600 12px 'Inter',sans-serif;padding:0;cursor:pointer;text-decoration:underline;}
+.ki2-keyrow{display:flex;gap:6px;}
+.ki2-key{flex:1;min-width:0;border:1px solid var(--border);border-radius:9px;padding:7px 10px;background:var(--bg);color:var(--text);font:13px 'Inter',sans-serif;}
+.ki2-key-save{border:0;background:var(--tmg,#E20074);color:#fff;border-radius:9px;padding:7px 12px;font:600 12px 'Inter',sans-serif;cursor:pointer;}
+.ki2.busy .ki2-q,.ki2.busy .ki2-start{pointer-events:none;opacity:.6;}
+@media (max-width:980px){ .ki2{grid-template-columns:1fr;} .ki2-side{position:static;} }
+html[data-fx-theme="dark"] .ki2-input, .ki2 .ki2-input{background:transparent!important;border:0!important;box-shadow:none!important;}
+@media (max-width:640px){ .ki2-head,.ki2-log{padding-left:14px;padding-right:14px;} .ki2-composer{margin:0 12px;} .ki2-hint{padding:8px 14px 14px;} .ki2-clear span{display:none;} .ki2-u{max-width:90%;} }
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
