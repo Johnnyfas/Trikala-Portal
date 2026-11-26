@@ -1610,7 +1610,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 229;
+const BOARD_VERSION = 230;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -12144,14 +12144,20 @@ function renderOverviewInner(){
         return (target !== '' && target > 0) ? `${lbl} ${String(target).replace('.',',')}` : null;
       }).filter(Boolean).join(' · ') + (catKey==='regular' ? ` · CR ${String(cfg.crTarget).replace('.',',')}%` : '');
     };
+    // v230: neuer Team-Kopf mit Kennzahlen und Zielen als Chips
+    const farbeT = ['#E20074','#3B6FA0','#0E7C7B','#C2792B'][Object.keys(TEAM_CONFIGS).indexOf(teamId) % 4];
+    const crTeamOv = (()=>{ const ws = teamAgents.filter(a => a.calls > 0); const c = ws.reduce((x, a) => x + a.calls, 0); return c ? ws.reduce((x, a) => x + totalStk(a), 0) / c * 100 : null; })();
+    const zieleChips = (catKey) => { const targets = cfg.targets[catKey] || [];
+      return displayedProducts.map(p => { const oi = cfg.products.indexOf(p); const t = oi !== -1 ? targets[oi] : ''; return (t !== '' && t > 0) ? `<span class="ov2-zc"><em>${kiEsc(productLabel(p, teamId))}</em>${String(t).replace('.', ',')}</span>` : ''; }).join('') + (catKey === 'regular' ? `<span class="ov2-zc cr"><em>CR</em>${String(cfg.crTarget).replace('.', ',')} %</span>` : ''); };
+    teamDiv.style.setProperty('--tc', farbeT);
     teamDiv.innerHTML = `
-      <div class="ov-team-head">
-        <span class="name">${cfg.label} — ${cfg.project}</span>
-        <span class="ov-stand${ovMi.prev ? ' ov-stand-end' : ''}">${standTxt}</span>
+      <div class="ov-team-head ov2-head">
+        <div class="ov2-head-l"><span class="ov2-bar"></span><div><span class="name">${kiEsc(cfg.project)}</span><span class="ov2-sub">${kiEsc(cfg.label)} · ${teamAgents.length} Mitarbeiter</span></div></div>
+        <div class="ov2-head-r">${crTeamOv !== null ? `<span class="ov2-kpi ${crTeamOv >= cfg.crTarget ? 'ok' : 'bad'}"><em>Ø CR brutto</em>${crTeamOv.toFixed(1).replace('.', ',')} %</span>` : ''}<span class="ov-stand${ovMi.prev ? ' ov-stand-end' : ''}">${standTxt}</span></div>
       </div>
-      <div style="background:#F7F9FA;padding:14px 16px;border-bottom:1px solid var(--border);text-align:center;">
-        <div style="font-family:'Inter',-apple-system,sans-serif;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Ziele</div>
-        ${maKategorien().filter(c => (cfg.targets[c.key]||[]).some(v => v > 0)).map((c,ci)=>`<div class="line" style="font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:600;color:${MA_KAT_FARBE(c.key, ci)};margin-bottom:4px;">${c.label}: ${legendLine(c.key)}</div>`).join('')}
+      <div class="ov2-ziele">
+        <span class="ov2-zt">Ziele</span>
+        ${maKategorien().filter(c => (cfg.targets[c.key]||[]).some(v => v > 0)).map((c,ci)=>`<div class="ov2-zrow"><span class="ov2-zk" style="--kc:${MA_KAT_FARBE(c.key, ci)}">${kiEsc(c.label)}</span>${zieleChips(c.key)}</div>`).join('')}
       </div>`;
 
     const totalCols = 1 + 1 + 2 + cfg.products.length + 1 + 1;
@@ -12163,7 +12169,7 @@ function renderOverviewInner(){
     const measureCtx = measureCanvas.getContext('2d');
     measureCtx.font = nameFont;
     const longestNameWidth = teamAgents.reduce((max,a)=>Math.max(max, measureCtx.measureText(a.name||'').width), 30);
-    const nameColWidth = Math.ceil(longestNameWidth + 20 /* Zell-Padding links */ + 18 /* Pill-Padding */ + 4 /* Zell-Padding rechts */ + 6 /* Puffer */) + 'px';
+    const nameColWidth = Math.ceil(longestNameWidth * 1.1 + 20 /* Zell-Padding links */ + 36 /* Avatar */ + 30 /* Kategorie-Zeichen */ + 10 /* Puffer */) + 'px';
     // +2 = NPS + LQ, +1 = CR, +2 = Calls + CHT
     // v152: Mindestbreiten je Spaltenart, damit Produkt- und CR-Spalten nie zusammengedrückt werden
     const gridCols = `${nameColWidth} repeat(2, minmax(78px,1fr)) repeat(${displayedProducts.length}, minmax(46px,1fr)) minmax(70px,1fr) repeat(${hasWHT(teamId) ? 3 : 2}, minmax(78px,1fr))`;
@@ -12217,7 +12223,8 @@ function renderOverviewInner(){
                      (agent.category && !['regular','work','schulung'].includes(agent.category)) ? 'background:rgba(14,124,123,.14);color:var(--teal);' :
                      agent.category === 'work' ? 'background:rgba(102,187,106,.18);color:#2E7D32;' :
                      'background:rgba(252,211,77,.28);color:#8A6D00;';
-        let html = `<div class="ov-cell name-cell"><span class="ov-name-pill" style="${catBg}">${agent.name}</span></div>`;
+        const katTag = agent.category === '6h' ? '<i class="ov2-kat sixh">6h</i>' : agent.category === 'helpline' ? '<i class="ov2-kat help">HL</i>' : '';
+        let html = `<div class="ov-cell name-cell"><span class="ov2-name" data-kat="${kiEsc(agent.category || 'regular')}">${cdAvatar(agent.name)}<span class="ov2-nm">${kiEsc(agent.name)}</span>${katTag}</span></div>`;
         html += `<div class="ov-cell qual-cell"><span class="ov-badge ${npsClass}">${npsVal === null ? '–' : npsVal.toFixed(1)+'%'}</span></div>`;
         html += `<div class="ov-cell qual-cell"><span class="ov-badge ${lqClass}">${lqVal === null ? '–' : lqVal.toFixed(1)+'%'}</span></div>`;
         displayedProducts.forEach((p)=>{
@@ -12272,7 +12279,7 @@ function renderOverviewInner(){
   }
   const foot = document.createElement('div');
   foot.className = 'ov-foot';
-  foot.innerHTML = 'Grün = Ziel erreicht · Rot = unter Ziel &nbsp;·&nbsp; <span style="background:#E4ECF5;color:var(--sixh);padding:1px 6px;border-radius:4px;font-size:11px;">6-Stündler</span> &nbsp; <span style="background:#EFE9F7;color:var(--helpline);padding:1px 6px;border-radius:4px;font-size:11px;">Helpline</span>';
+  foot.innerHTML = '<span class="ov2-lg ok"></span>Ziel erreicht &nbsp; <span class="ov2-lg mid"></span>knapp &nbsp; <span class="ov2-lg bad"></span>unter Ziel &nbsp;·&nbsp; <i class="ov2-kat sixh">6h</i> 6-Stündler &nbsp; <i class="ov2-kat help">HL</i> Helpline';
   container.appendChild(foot);
 }
 
@@ -14539,6 +14546,51 @@ html[data-fx-theme="dark"] .c-F,html[data-fx-theme="dark"] .abw-c.c-F{background
 @media (max-width:980px){ .ki2{grid-template-columns:1fr;} .ki2-side{position:static;} }
 html[data-fx-theme="dark"] .ki2-input, .ki2 .ki2-input{background:transparent!important;border:0!important;box-shadow:none!important;}
 @media (max-width:640px){ .ki2-head,.ki2-log{padding-left:14px;padding-right:14px;} .ki2-composer{margin:0 12px;} .ki2-hint{padding:8px 14px 14px;} .ki2-clear span{display:none;} .ki2-u{max-width:90%;} }
+
+/* ===== v230: Mitarbeiter Ziele – Übersicht neu gestaltet ===== */
+.ov-team{border-radius:18px!important;border:1px solid var(--border)!important;background:var(--panel,#fff);}
+.ov2-head{background:var(--panel,#fff)!important;color:var(--text)!important;border-bottom:1px solid var(--border);padding:16px 20px!important;}
+.ov2-head-l{display:flex;align-items:center;gap:12px;}
+.ov2-bar{width:5px;height:40px;border-radius:4px;background:var(--tc);}
+.ov2-head .name{display:block;font-family:'Space Grotesk',sans-serif!important;font-size:19px!important;font-weight:700!important;color:var(--text);}
+.ov2-sub{display:block;font-size:12px;color:var(--muted);font-family:'Inter',sans-serif;}
+.ov2-head-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.ov2-head .ov-stand{background:var(--bg,#F3F4F6)!important;color:var(--muted)!important;border:0!important;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;}
+.ov2-kpi{display:inline-flex;align-items:baseline;gap:6px;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;padding:4px 12px;border-radius:999px;background:var(--bg,#F3F4F6);}
+.ov2-kpi em{font-style:normal;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--muted);}
+.ov2-kpi.ok{color:#0E7C7B;}.ov2-kpi.bad{color:#B4423A;}
+.ov2-ziele{display:flex;flex-direction:column;gap:6px;padding:12px 20px 14px;border-bottom:1px solid var(--border);background:var(--bg,#F7F8FA);font-family:'Inter',sans-serif;}
+.ov2-zt{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+.ov2-zrow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.ov2-zk{min-width:92px;font-size:12px;font-weight:700;color:var(--kc);display:inline-flex;align-items:center;gap:6px;}
+.ov2-zk::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--kc);}
+.ov2-zc{display:inline-flex;align-items:baseline;gap:5px;background:var(--panel,#fff);border:1px solid var(--border);border-radius:999px;padding:3px 10px;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;}
+.ov2-zc em{font-style:normal;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:var(--muted);}
+.ov2-zc.cr{border-color:#F2C46B;}
+.ov2-name{display:inline-flex;align-items:center;gap:9px;min-width:0;}
+.ov2-name .cd-av{width:28px;height:28px;font-size:10.5px;flex:0 0 28px;}
+.ov2-nm{font-size:13.5px;font-weight:600;color:var(--text);line-height:1.2;}
+.ov2-kat{font-style:normal;display:inline-grid;place-items:center;font-size:9.5px;font-weight:800;padding:2px 5px;border-radius:5px;letter-spacing:.02em;}
+.ov2-kat.sixh{background:#E4ECF5;color:var(--sixh,#3B6FA0);}
+.ov2-kat.help{background:#EEE8F8;color:var(--helpline,#7C5CBF);}
+.ov-cell.head{font-size:10.5px!important;font-weight:700!important;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)!important;}
+.ov-cell.head span{text-transform:none;letter-spacing:0;font-weight:500;}
+.ov-data-row:hover .ov-cell{background:rgba(226,0,116,.035)!important;}
+.ov-badge-glass{font-family:'Space Grotesk',sans-serif!important;font-size:16px!important;font-weight:700!important;font-variant-numeric:tabular-nums;}
+.ov-badge-glass.good{color:#0E7C7B!important;}.ov-badge-glass.mid{color:#C2792B!important;}.ov-badge-glass.zero{color:#B4423A!important;}
+.ov-cell.cr-cell .ov-badge{font-family:'Space Grotesk',sans-serif;font-size:14px!important;}
+.ov-foot{display:flex;align-items:center;flex-wrap:wrap;gap:4px;}
+.ov2-lg{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px;}
+/* Calls/CHT/WHT-Gruppe dezent statt dicker Rahmen */
+.ov-team .cht-group-start{border-left:1px solid var(--border)!important;}
+.ov-team .cht-group-end{border-right:0!important;}
+.ov-team .cht-group-first{border-top:0!important;}
+.ov-team .cht-group-last{border-bottom:0!important;}
+.ov-team .ov-cell.qual-cell.cht-group-start, .ov-team .cht-group-start ~ .ov-cell.qual-cell{background:var(--bg,#F7F8FA)!important;}
+.ov-team .ov-cell.name-cell.head{justify-content:center!important;align-items:flex-start!important;text-align:left;}
+.ov2-lg.ok{background:#0E7C7B;}.ov2-lg.mid{background:#C2792B;}.ov2-lg.bad{background:#B4423A;}
+html[data-fx-theme="dark"] .ov2-kat.sixh{background:rgba(59,111,160,.3);color:#A9CCEB;}
+html[data-fx-theme="dark"] .ov2-kat.help{background:rgba(124,92,191,.3);color:#CDB8F2;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
