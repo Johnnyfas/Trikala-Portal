@@ -1434,6 +1434,7 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
       <button class="tab-btn side-link" id="tab-verlauf" data-title="Mitarbeiter Verlauf"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/></svg><span>Mitarbeiter Verlauf</span></button>
       <button class="tab-btn side-link" id="tab-teamziele" data-title="Team Ziele"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg><span>Team Ziele</span></button>
       <button class="tab-btn side-link" id="tab-monatsabschluss" data-title="Monatsabschluss"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M9 15.5l2 2 4-4"/></svg><span>Monatsabschluss</span></button>
+      <button class="tab-btn side-link" id="tab-abwesenheit" data-title="Abwesenheiten"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M12 13v5M9.5 15.5h5"/></svg><span>Abwesenheiten</span></button>
       <button class="tab-btn side-link" id="tab-halloffame" data-title="Hall of Fame"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg><span>Hall of Fame</span></button>
     <div class="side-label">Coaching</div>
       <button class="tab-btn side-link" id="tab-coachdash" data-title="Coaching Dashboard"><svg class="nav-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="18" rx="2"/><path d="M9 4V2.5h6V4M9 11h6M9 15h4"/></svg><span>Coaching Dashboard</span></button>
@@ -1509,6 +1510,10 @@ h4.ki-h{font-size:13.5px;color:var(--text);}
 
   <div id="view-halloffame" style="display:none;">
     <div id="halloffame-container"></div>
+  </div>
+
+  <div id="view-abwesenheit" style="display:none;">
+    <div id="abwesenheit-container"></div>
   </div>
 
   <div id="view-kianalyse" style="display:none;">
@@ -1604,7 +1609,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 225;
+const BOARD_VERSION = 226;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -2164,7 +2169,7 @@ function mergeAgentsFromServer(serverAgents, serverDeletedAgentIds){
 // sich ebenfalls durchsetzen. Zeitstempel liegen in state._lww[bereich][pfad].
 // ============================================================
 // LWW_START
-const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele', 'coachReviews', 'maZiele', 'coachBogen', 'hofZiele', 'fotos'];
+const LWW_SECTIONS = ['teamziele', 'monatsabschluss', 'verlauf', 'fuehrungskraefte', 'tagesziele', 'coachReviews', 'maZiele', 'coachBogen', 'hofZiele', 'fotos', 'abwesenheit'];
 // Bereiche, die als Liste gespeichert sind, werden für das Zusammenführen nach id aufgeschlüsselt
 const LWW_LIST_SECTIONS = { tagesziele: true };
 function lwwListToObj(arr){ const o = {}; (Array.isArray(arr) ? arr : []).forEach(e=>{ if(e && e.id) o[e.id] = e; }); return o; }
@@ -2184,7 +2189,7 @@ function lwwPutRoot(section, root){
   state[section] = order.map(id=>root[id]).filter(e => e && Object.keys(e).length && !del.has(e.id));
 }
 // Beim allerersten Laden einer Sitzung: Server-Stand ab dieser Tiefe übernehmen (wie bisher)
-const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1, coachReviews: 1, maZiele: 1, coachBogen: 1, hofZiele: 1, fotos: 1 };
+const LWW_FIRSTLOAD_DEPTH = { teamziele: 2, monatsabschluss: 2, verlauf: 1, fuehrungskraefte: 1, tagesziele: 1, coachReviews: 1, maZiele: 1, coachBogen: 1, hofZiele: 1, fotos: 1, abwesenheit: 1 };
 const LWW_KEEP_MS = 120 * 24 * 3600 * 1000; // Zeitstempel älter als ~4 Monate verwerfen
 let lwwBaseline = {};          // bereich → { pfad: JSON-Wert } - Stand beim letzten Abgleich
 let lwwLastMergeChanged = false;
@@ -3056,6 +3061,8 @@ function switchTab(tab){
   document.getElementById('tab-overview').classList.toggle('active', tab==='overview');
   document.getElementById('tab-halloffame').classList.toggle('active', tab==='halloffame');
   document.getElementById('tab-kianalyse').classList.toggle('active', tab==='kianalyse');
+  document.getElementById('tab-abwesenheit').classList.toggle('active', tab==='abwesenheit');
+  document.getElementById('view-abwesenheit').style.display = tab==='abwesenheit' ? '' : 'none';
   document.getElementById('view-coaching').style.display = tab==='coaching' ? '' : 'none';
   document.getElementById('view-coachdash').style.display = tab==='coachdash' ? '' : 'none';
   document.getElementById('view-teamziele').style.display = tab==='teamziele' ? '' : 'none';
@@ -3134,6 +3141,156 @@ function hrSpruchHtml(text, mood){
 }
 // Beim Bild-Export Animationen anhalten (sonst landet ein Zwischenbild im PNG)
 function ggStill(doc){ try{ const st = doc.createElement('style'); st.textContent = '*,*::before,*::after{animation:none!important;transition:none!important}'; doc.head.appendChild(st); }catch(e){} }
+// =====================================================================
+// v226: ABWESENHEITEN – Krankheits- und Urlaubstage (trägt der Standortleiter ein)
+// state.abwesenheit = { ziel: Zahl|null, tage: { 'JJJJ-MM': { agentId: { Tag: 'K'|'U'|'F' } } } }
+// Krankheitsquote = Krankheitstage ÷ Soll-Arbeitstage. Soll = Tage mit Tageswerten (gearbeitet) + Krankheitstage;
+// ohne Tageswerte: Arbeitstage des Teams (Mo–Fr, plus Wochenende wenn das Team dann arbeitet) minus Urlaub/frei.
+// =====================================================================
+const ABW_ARTEN = { K:{ t:'Krank', kurz:'K' }, U:{ t:'Urlaub', kurz:'U' }, F:{ t:'Frei', kurz:'F' } };
+let abwMonatOffset = 0;
+function abwRoot(){ if(!state.abwesenheit || typeof state.abwesenheit !== 'object') state.abwesenheit = {}; if(!state.abwesenheit.tage || typeof state.abwesenheit.tage !== 'object') state.abwesenheit.tage = {}; return state.abwesenheit; }
+function abwMk(y, m){ return `${y}-${String(m + 1).padStart(2, '0')}`; }
+function abwTageVon(agentId, mk){ const t = state.abwesenheit && state.abwesenheit.tage && state.abwesenheit.tage[mk]; return (t && t[agentId]) || {}; }
+function abwSetzen(agentId, mk, tag, code){
+  const r = abwRoot();
+  if(code){ if(!r.tage[mk]) r.tage[mk] = {}; if(!r.tage[mk][agentId]) r.tage[mk][agentId] = {}; r.tage[mk][agentId][String(tag)] = code; }
+  else if(r.tage[mk] && r.tage[mk][agentId]){ delete r.tage[mk][agentId][String(tag)]; if(!Object.keys(r.tage[mk][agentId]).length) delete r.tage[mk][agentId]; }
+}
+function abwZiel(){ const z = state.abwesenheit && state.abwesenheit.ziel; return (typeof z === 'number' && z > 0) ? z : null; }
+// Arbeitstage-Muster eines Teams in einem Monat (wie die Hochrechnung)
+function abwTeamTage(teamId, y, m){
+  const mk = twMonthKey(new Date(y, m, 1));
+  const gearbeitet = new Set(), wd = new Set([1,2,3,4,5]);
+  state.agents.filter(a => String(a.team) === String(teamId)).forEach(a => {
+    const tw = a.tageswerte && a.tageswerte[mk]; if(!tw) return;
+    Object.keys(tw).forEach(d => { const dv = tw[d]; if(dv && dv.sales && Object.values(dv.sales).some(v => typeof v === 'number')){ gearbeitet.add(+d); wd.add(new Date(y, m, +d).getDay()); } });
+  });
+  return { istArbeit: d => wd.has(new Date(y, m, d).getDay()) || gearbeitet.has(d), mk };
+}
+function abwZaehlen(agent, y, m, bisTag){
+  const mk = abwMk(y, m);
+  const ab = abwTageVon(agent.id, mk);
+  const tt = abwTeamTage(agent.team, y, m);
+  const tw = (agent.tageswerte && agent.tageswerte[tt.mk]) || {};
+  let K = 0, U = 0, F = 0, anw = 0, sollTeam = 0;
+  for(let d = 1; d <= bisTag; d++){
+    const c = ab[String(d)];
+    if(c === 'K') K++; else if(c === 'U') U++; else if(c === 'F') F++;
+    const dv = tw[d]; const hat = dv && dv.sales && Object.values(dv.sales).some(v => typeof v === 'number');
+    if(!c && hat) anw++;
+    if(!c && tt.istArbeit(d)) sollTeam++;
+  }
+  const soll = anw ? anw + K : sollTeam + K;
+  return { K, U, F, soll, quote: soll ? K / soll : null };
+}
+function abwBisTag(y, m){ const n = new Date(); const dim = new Date(y, m + 1, 0).getDate(); if(y === n.getFullYear() && m === n.getMonth()) return n.getDate(); return (new Date(y, m, 1) > n) ? 0 : dim; }
+function abwTeamQuote(teamId, y, m, filterFn){
+  const bis = abwBisTag(y, m);
+  const ags = state.agents.filter(a => String(a.team) === String(teamId) && a.name && a.name.trim() && a.category !== 'schulung' && (!filterFn || filterFn(a)));
+  let K = 0, U = 0, soll = 0;
+  ags.forEach(a => { const z = abwZaehlen(a, y, m, bis); K += z.K; U += z.U; soll += z.soll; });
+  return { K, U, soll, quote: soll ? K / soll : null, n: ags.length };
+}
+function abwFmtQ(q){ return q === null ? '–' : (Math.round(q * 1000) / 10).toLocaleString('de-DE', { minimumFractionDigits:1, maximumFractionDigits:1 }) + ' %'; }
+function abwAmpel(q){ const z = abwZiel(); if(q === null || !z) return 'none'; const p = q * 100; return p <= z ? 'ok' : p <= z * 1.25 ? 'warn' : 'bad'; }
+
+function renderAbwesenheit(){
+  const host = document.getElementById('abwesenheit-container'); if(!host) return;
+  const n = new Date(); const d0 = new Date(n.getFullYear(), n.getMonth() + abwMonatOffset, 1);
+  const y = d0.getFullYear(), m = d0.getMonth(), mk = abwMk(y, m), dim = new Date(y, m + 1, 0).getDate();
+  const bis = abwBisTag(y, m);
+  const monat = VL_MONATE[m] + ' ' + y;
+  const heute = (y === n.getFullYear() && m === n.getMonth()) ? n.getDate() : 0;
+  const WT = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  const z = abwZiel();
+  const teams = Object.keys(TEAM_CONFIGS);
+  const standort = (()=>{ let K = 0, soll = 0, U = 0; teams.forEach(t => { const q = abwTeamQuote(t, y, m); K += q.K; soll += q.soll; U += q.U; }); return { K, U, soll, quote: soll ? K / soll : null }; })();
+  const kachel = (titel, q, sub) => `<div class="abw-k ${abwAmpel(q.quote)}"><span>${titel}</span><b>${abwFmtQ(q.quote)}</b><em>${q.K} Krankheitstage · ${q.U} Urlaubstage${sub ? ' · ' + sub : ''}</em></div>`;
+  // Verlauf der letzten 6 Monate
+  const verlauf = [];
+  for(let k = 5; k >= 0; k--){ const dd = new Date(y, m - k, 1); verlauf.push({ y: dd.getFullYear(), m: dd.getMonth() }); }
+  const tabelle = teamId => {
+    const cfg = TEAM_CONFIGS[teamId];
+    const ags = state.agents.filter(a => String(a.team) === String(teamId) && a.name && a.name.trim() && a.category !== 'schulung');
+    if(!ags.length) return '';
+    const tt = abwTeamTage(teamId, y, m);
+    const kopf = Array.from({ length: dim }, (_, i) => { const d = i + 1, w = new Date(y, m, d).getDay();
+      return `<th class="${tt.istArbeit(d) ? '' : 'we'}${d === heute ? ' heute' : ''}"><span>${WT[w]}</span>${d}</th>`; }).join('');
+    const zeilen = ags.map(a => {
+      const ab = abwTageVon(a.id, mk); const zz = abwZaehlen(a, y, m, bis);
+      const zellen = Array.from({ length: dim }, (_, i) => { const d = i + 1, c = ab[String(d)] || '';
+        return `<td class="${tt.istArbeit(d) ? '' : 'we'}${d === heute ? ' heute' : ''}"><button type="button" class="abw-c ${c ? 'c-' + c : ''}" data-a="${a.id}" data-d="${d}" title="${kiEsc(a.name)} · ${d}.${m + 1}. – klicken: krank → Urlaub → frei → leer">${c}</button></td>`; }).join('');
+      return `<tr><th class="abw-n">${cdAvatar(a.name)}<span>${kiEsc(a.name)}</span></th>${zellen}<td class="abw-s k">${zz.K || ''}</td><td class="abw-s u">${zz.U || ''}</td><td class="abw-s q ${abwAmpel(zz.quote)}">${zz.K ? abwFmtQ(zz.quote) : ''}</td></tr>`;
+    }).join('');
+    return `<div class="abw-team"><div class="abw-team-h"><b>${kiEsc(cfg.project)}</b><span>${kiEsc(cfg.label)} · Krankheitsquote ${abwFmtQ(abwTeamQuote(teamId, y, m).quote)}</span></div>
+      <div class="abw-tw"><table class="abw-tab"><thead><tr><th class="abw-n">Mitarbeiter</th>${kopf}<th class="abw-s">K</th><th class="abw-s">U</th><th class="abw-s">Quote</th></tr></thead><tbody>${zeilen}</tbody></table></div></div>`;
+  };
+  host.innerHTML = `<div class="abw">
+    <div class="abw-bar">
+      <div class="abw-nav"><button type="button" class="abw-prev" aria-label="Vormonat">‹</button><b>${monat}</b><button type="button" class="abw-next" aria-label="Nächster Monat">›</button>${abwMonatOffset ? '<button type="button" class="abw-heute">Heute</button>' : ''}</div>
+      <div class="abw-tools"><label class="abw-ziel">Ziel Krankheitsquote ≤ <input type="number" min="0" step="0.1" placeholder="–" value="${z ?? ''}"> %</label>
+        <button type="button" class="primary abw-zeitraum">+ Zeitraum eintragen</button></div>
+    </div>
+    <div class="abw-ks">${kachel('Standort', standort)}${teams.map(t => kachel(TEAM_CONFIGS[t].project, abwTeamQuote(t, y, m))).join('')}</div>
+    <div class="abw-leg"><span><i class="c-K">K</i>krank</span><span><i class="c-U">U</i>Urlaub</span><span><i class="c-F">F</i>frei</span><span>Klick auf ein Feld schaltet weiter: krank → Urlaub → frei → leer. Graue Spalten = kein Arbeitstag im Team.</span></div>
+    ${teams.map(tabelle).join('')}
+    <div class="abw-hist"><div class="abw-hist-h"><b>Krankheitsquote – letzte 6 Monate</b>${z ? `<span>Ziel ≤ ${String(z).replace('.', ',')} %</span>` : ''}</div>
+      <div class="abw-tw"><table class="abw-htab"><thead><tr><th></th>${verlauf.map(v => `<th>${VL_MONATE[v.m].slice(0, 3)}</th>`).join('')}</tr></thead><tbody>
+      ${[['Standort', null], ...teams.map(t => [TEAM_CONFIGS[t].project, t])].map(([lbl, t]) => `<tr><th>${kiEsc(lbl)}</th>${verlauf.map(v => { let q;
+        const erfasst = (v.y === n.getFullYear() && v.m === n.getMonth()) || Object.keys((state.abwesenheit && state.abwesenheit.tage && state.abwesenheit.tage[abwMk(v.y, v.m)]) || {}).length > 0;
+        if(!erfasst) return '<td class="none" title="Für diesen Monat ist nichts eingetragen">–</td>';
+        if(t) q = abwTeamQuote(t, v.y, v.m).quote; else { let K = 0, so = 0; teams.forEach(tt => { const x = abwTeamQuote(tt, v.y, v.m); K += x.K; so += x.soll; }); q = so ? K / so : null; }
+        return `<td class="${abwAmpel(q)}">${abwFmtQ(q)}</td>`; }).join('')}</tr>`).join('')}
+      </tbody></table></div>
+      <div class="abw-fn">Krankheitsquote = Krankheitstage ÷ Soll-Arbeitstage. Soll-Arbeitstage = Tage mit Tageswerten plus Krankheitstage (ohne Tageswerte: Arbeitstage des Teams abzüglich Urlaub und frei). Im laufenden Monat bis heute. Mitarbeiter in Schulung zählen nicht.</div></div>
+  </div>`;
+  host.querySelector('.abw-prev').onclick = () => { abwMonatOffset--; renderAbwesenheit(); };
+  host.querySelector('.abw-next').onclick = () => { abwMonatOffset++; renderAbwesenheit(); };
+  const hb = host.querySelector('.abw-heute'); if(hb) hb.onclick = () => { abwMonatOffset = 0; renderAbwesenheit(); };
+  host.querySelector('.abw-ziel input').onchange = e => { const v = parseFloat(String(e.target.value).replace(',', '.')); abwRoot().ziel = (v > 0) ? v : null; scheduleSave(); setTimeout(renderAbwesenheit, 0); };
+  host.querySelector('.abw-zeitraum').onclick = () => openAbwZeitraum(y, m);
+  host.querySelectorAll('.abw-c').forEach(b => b.onclick = () => {
+    const reihe = ['', 'K', 'U', 'F'];
+    const alt = b.textContent.trim(); const neu = reihe[(reihe.indexOf(alt) + 1) % reihe.length];
+    abwSetzen(b.dataset.a, mk, b.dataset.d, neu); scheduleSave();
+    const sx = host.querySelector('.abw-tw') ? null : null; // Scrollposition der Tabelle merken
+    const tws = [...host.querySelectorAll('.abw-tw')].map(w => w.scrollLeft);
+    renderAbwesenheit();
+    [...host.querySelectorAll('.abw-tw')].forEach((w, i) => { w.scrollLeft = tws[i] || 0; });
+  });
+}
+function openAbwZeitraum(y, m){
+  const ov = document.createElement('div'); ov.className = 'chart-overlay cd-modal-overlay';
+  const box = document.createElement('div'); box.className = 'cd-modal abw-modal';
+  const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const n = new Date(); const start = (y === n.getFullYear() && m === n.getMonth()) ? n : new Date(y, m, 1);
+  const opts = Object.keys(TEAM_CONFIGS).map(t => `<optgroup label="${kiEsc(TEAM_CONFIGS[t].project)}">${state.agents.filter(a => String(a.team) === String(t) && a.name && a.name.trim() && a.category !== 'schulung').map(a => `<option value="${a.id}">${kiEsc(a.name)}</option>`).join('')}</optgroup>`).join('');
+  box.innerHTML = `<button type="button" class="cd-modal-x" aria-label="Schließen">×</button>
+    <div class="be-title">Zeitraum eintragen</div>
+    <div class="be-hint">Für längere Krankheit oder Urlaub – alle Tage im Zeitraum werden gesetzt, auch über Monatsgrenzen.</div>
+    <label class="abw-l">Mitarbeiter</label><select class="cp-form-select abw-ma">${opts}</select>
+    <label class="abw-l">Art</label>
+    <div class="abw-arten">${['K','U','F',''].map((c, i) => `<label><input type="radio" name="abw-art" value="${c}" ${i === 0 ? 'checked' : ''}><span class="${c ? 'c-' + c : 'c-x'}">${c ? ABW_ARTEN[c].t : 'Einträge löschen'}</span></label>`).join('')}</div>
+    <div class="abw-dates"><label class="abw-l">Von<input type="date" class="cp-form-input abw-von" value="${iso(start)}"></label><label class="abw-l">Bis<input type="date" class="cp-form-input abw-bis" value="${iso(start)}"></label></div>
+    <div class="be-foot"><span style="flex:1"></span><button type="button" class="be-btn be-cancel">Abbrechen</button><button type="button" class="be-btn be-save">Eintragen</button></div>`;
+  ov.appendChild(box); document.body.appendChild(ov);
+  const close = () => ov.remove();
+  box.querySelector('.cd-modal-x').onclick = close; box.querySelector('.be-cancel').onclick = close;
+  ov.addEventListener('mousedown', e => { if(e.target === ov) close(); });
+  box.querySelector('.abw-von').onchange = e => { const b = box.querySelector('.abw-bis'); if(b.value < e.target.value) b.value = e.target.value; };
+  box.querySelector('.be-save').onclick = () => {
+    const id = box.querySelector('.abw-ma').value, code = box.querySelector('input[name=abw-art]:checked').value;
+    const v = box.querySelector('.abw-von').value, b = box.querySelector('.abw-bis').value;
+    if(!id || !v || !b || b < v){ if(window.fxToast) fxToast('Bitte Mitarbeiter und gültigen Zeitraum wählen'); return; }
+    const [vy, vm, vd] = v.split('-').map(Number), [by, bm, bd] = b.split('-').map(Number);
+    let d = new Date(vy, vm - 1, vd); const ende = new Date(by, bm - 1, bd); let n2 = 0;
+    while(d <= ende && n2 < 370){ abwSetzen(id, abwMk(d.getFullYear(), d.getMonth()), d.getDate(), code); d.setDate(d.getDate() + 1); n2++; }
+    scheduleSave(); close(); renderAbwesenheit();
+    if(window.fxToast) fxToast(`${n2} ${n2 === 1 ? 'Tag' : 'Tage'} ${code ? 'als ' + ABW_ARTEN[code].t + ' eingetragen' : 'gelöscht'}`);
+  };
+}
+
 const OVERVIEW_SUBS = {
   ziele:      { btn: 'sub-ovziele',      container: 'ov-ziele-container',      render: ()=>renderOverview() },
   tageswerte: { btn: 'sub-ovtageswerte', container: 'ov-tageswerte-container', render: ()=>renderTageswerte() },
@@ -3166,6 +3323,7 @@ document.getElementById('tab-monatsabschluss').addEventListener('click', ()=>swi
 document.getElementById('tab-verlauf').addEventListener('click', ()=>switchTab('verlauf'));
 document.getElementById('tab-overview').addEventListener('click', ()=>switchTab('overview'));
 document.getElementById('tab-halloffame').addEventListener('click', ()=>switchTab('halloffame'));
+document.getElementById('tab-abwesenheit').addEventListener('click', ()=>switchTab('abwesenheit'));
 document.getElementById('tab-kianalyse').addEventListener('click', ()=>switchTab('kianalyse'));
 
 
@@ -3197,6 +3355,7 @@ function renderAll(){
   else if(currentTab === 'monatsabschluss') renderMonatsabschluss();
   else if(currentTab === 'verlauf') renderVerlauf();
   else if(currentTab === 'halloffame') renderHallOfFame();
+  else if(currentTab === 'abwesenheit') renderAbwesenheit();
   else if(currentTab === 'kianalyse') renderKIAnalyse();
   else if(currentTab === 'overview'){
     const activeSub = Object.keys(OVERVIEW_SUBS).find(key=>{
@@ -9389,7 +9548,7 @@ function hrWorkdayInfo(teamAgents, now){
     if(d < today || (d === today && todayDone)) elapsed++;
     else remaining++;
   }
-  return { elapsed, remaining, total: elapsed + remaining, saturday: weekdays.has(6), sunday: weekdays.has(0), mk, hasData: workedDays.size > 0 };
+  return { elapsed, remaining, total: elapsed + remaining, saturday: weekdays.has(6), sunday: weekdays.has(0), mk, hasData: workedDays.size > 0, isWork: d => isWork(d) || workedDays.has(d), today, todayDone, y, m };
 }
 function hrAgentSums(agent, mk, products){
   const tw = (agent.tageswerte && agent.tageswerte[mk]) || {};
@@ -9414,12 +9573,20 @@ function hrBerechne(agent, cfg, info, anteil){
   const targets = hrAgentTargets(agent);
   const hrProds = hrProdukteVon(cfg);
   const ist = hrAgentSums(agent, info.mk, hrProds);
-  const restMA = info.remaining * anteil;
+  // v226: eingetragene Krank-/Urlaubstage zählen nicht als Arbeitstage dieses Mitarbeiters
+  let elapsedA = info.elapsed, remainingA = info.remaining;
+  if(info.isWork){
+    const ab = abwTageVon(agent.id, abwMk(info.y, info.m));
+    Object.keys(ab).forEach(k => { const d = +k, c = ab[k]; if(c !== 'K' && c !== 'U') return; if(!info.isWork(d)) return;
+      if(d < info.today || (d === info.today && info.todayDone)) elapsedA--; else remainingA--; });
+    elapsedA = Math.max(1, elapsedA); remainingA = Math.max(0, remainingA);
+  }
+  const restMA = remainingA * anteil;
   let onTrack = 0, pctSum = 0, n = 0;
   const cells = {};
   hrProds.forEach((p, i)=>{
     const ziel = targets[i] || 0;
-    const prog = ist[p] + (ist[p] / info.elapsed) * info.remaining;
+    const prog = ist[p] + (ist[p] / elapsedA) * remainingA;
     const pct = ziel > 0 ? prog / ziel : null;
     const perDay = (ziel > 0 && restMA > 0) ? Math.max(0, (ziel - ist[p]) / restMA) : 0;
     if(pct !== null){ n++; pctSum += Math.min(pct, 1.5); if(pct >= 1) onTrack++; }
@@ -10017,7 +10184,7 @@ function openAgentAkte(agentId){
       <div class="akte-sub">${esc(cfg.label)}${cfg.project ? ' — ' + esc(cfg.project) : ''} · ${esc(CATEGORY_LABELS[agent.category || 'regular'] || agent.category || '')}${fk}${agent.pylon ? ' · Pylon ' + esc(agent.pylon) : ''}</div></div>
       <div class="akte-actions"></div>
     </div>
-    <div class="akte-sec"><div class="akte-sec-t">Laufender Monat · ${VL_MONATE[now.getMonth()]}</div><div class="akte-kpis">${kpiHtml}</div><div class="akte-prods">${salesHtml}</div></div>
+    <div class="akte-sec"><div class="akte-sec-t">Laufender Monat · ${VL_MONATE[now.getMonth()]}</div><div class="akte-kpis">${kpiHtml}</div><div class="akte-prods">${salesHtml}</div>${(()=>{ const z = abwZaehlen(agent, now.getFullYear(), now.getMonth(), now.getDate()); return (z.K || z.U || z.F) ? `<div class="akte-abw">Abwesenheit: ${z.K ? `<b class="c-K">${z.K} ${z.K === 1 ? 'Tag' : 'Tage'} krank</b>` : ''}${z.U ? `<b class="c-U">${z.U} ${z.U === 1 ? 'Tag' : 'Tage'} Urlaub</b>` : ''}${z.F ? `<b class="c-F">${z.F} frei</b>` : ''}</div>` : ''; })()}</div>
     <div class="akte-grid">
       <div class="akte-sec"><div class="akte-sec-t">Verlauf</div>${rows.length ? `<table class="akte-tbl"><tr><th>Monat</th><th>CR</th><th>NPS</th><th>Calls</th><th>Stück</th></tr>${rows.join('')}</table>` : '<div class="akte-empty">Noch keine Monatsdaten.</div>'}</div>
       <div class="akte-sec akte-finger"><div class="akte-sec-t">5-Finger-Profil</div></div>
@@ -14220,7 +14387,7 @@ html[data-fx-theme="dark"] .hof2-pod.r3 .hof2-pod-s{background:linear-gradient(1
 .sc-bar-l{display:flex;gap:14px;margin-top:6px;font-size:11.5px;color:var(--muted);}
 .sc-bar-l i{display:inline-block;width:9px;height:9px;border-radius:3px;background:var(--tc);margin-right:4px;vertical-align:-1px;}
 .sc-bar-l i.p{opacity:.28;}
-.sc-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.sc-kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
 .sc-k{background:var(--bg,#F6F7F9);border-radius:12px;padding:9px 11px;display:flex;flex-direction:column;min-width:0;border-left:3px solid transparent;}
 .sc-k span{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;}
 .sc-k b{font-family:'Space Grotesk',sans-serif;font-size:21px;font-variant-numeric:tabular-nums;}
@@ -14245,6 +14412,7 @@ html[data-fx-theme="dark"] .hof2-pod.r3 .hof2-pod-s{background:linear-gradient(1
 .sc-cov{display:inline-block;width:70px;height:7px;border-radius:999px;background:var(--bg,#EEF0F3);overflow:hidden;vertical-align:middle;margin-right:6px;}
 .sc-cov i{display:block;height:100%;background:var(--teal,#0E7C7B);}
 .sc-cov-n{font-size:12px;color:var(--muted);}
+@media (max-width:900px){ .sc-kpis{grid-template-columns:repeat(3,1fr);} }
 @media (max-width:640px){ .sc-kpis{grid-template-columns:repeat(2,1fr);} .sc-prog-n b{font-size:32px;} }
 html[data-fx-theme="dark"] .sc-pill.ok{background:rgba(14,124,123,.25);color:#8FD8D2;}
 html[data-fx-theme="dark"] .sc-pill.warn{background:rgba(194,121,43,.2);color:#F0C48A;}
@@ -14252,6 +14420,71 @@ html[data-fx-theme="dark"] .sc-pill.bad{background:rgba(180,66,58,.25);color:#F3
 html[data-fx-theme="dark"] .sc-prog-n b.ok,html[data-fx-theme="dark"] .sc-k.ok b,html[data-fx-theme="dark"] .sc-tab td.ok{color:#5CC7BE;}
 html[data-fx-theme="dark"] .sc-prog-n b.warn,html[data-fx-theme="dark"] .sc-k.warn b{color:#F0B46A;}
 html[data-fx-theme="dark"] .sc-prog-n b.bad,html[data-fx-theme="dark"] .sc-k.bad b,html[data-fx-theme="dark"] .sc-tab td.bad{color:#F08A80;}
+
+/* ===== v226: Abwesenheiten ===== */
+.abw{display:flex;flex-direction:column;gap:16px;font-family:'Inter',sans-serif;color:var(--text);}
+.abw-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+.abw-nav{display:flex;align-items:center;gap:8px;}
+.abw-nav b{font-family:'Space Grotesk',sans-serif;font-size:20px;min-width:170px;text-align:center;}
+.abw-nav button{border:1px solid var(--border);background:var(--panel,#fff);color:var(--text);border-radius:10px;min-width:36px;height:36px;font-size:18px;cursor:pointer;padding:0 10px;}
+.abw-nav .abw-heute{font-size:12.5px;font-weight:600;}
+.abw-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.abw-ziel{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.abw-ziel input{width:70px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;background:var(--panel,#fff);color:var(--text);font:600 13px 'Inter',sans-serif;}
+.abw-ks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px;}
+.abw-k{background:var(--panel,#fff);border:1px solid var(--border);border-left:4px solid var(--border);border-radius:14px;padding:12px 16px;display:flex;flex-direction:column;}
+.abw-k span{font-size:11.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;}
+.abw-k b{font-family:'Space Grotesk',sans-serif;font-size:30px;font-variant-numeric:tabular-nums;}
+.abw-k em{font-style:normal;font-size:12px;color:var(--muted);}
+.abw-k.ok{border-left-color:#0E7C7B;}.abw-k.ok b{color:#0E7C7B;}.abw-k.warn{border-left-color:#C2792B;}.abw-k.warn b{color:#C2792B;}.abw-k.bad{border-left-color:#B4423A;}.abw-k.bad b{color:#B4423A;}
+.abw-leg{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:12px;color:var(--muted);}
+.abw-leg i{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;font-style:normal;font-weight:800;font-size:11px;margin-right:5px;vertical-align:middle;}
+.c-K{background:#FBE3E0;color:#9A2F27;}.c-U{background:#DDEEFB;color:#1F5E8C;}.c-F{background:#ECEEF1;color:#5B6470;}.c-x{background:transparent;color:var(--muted);}
+.abw-team{background:var(--panel,#fff);border:1px solid var(--border);border-radius:16px;padding:12px 0 6px;}
+.abw-team-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;padding:0 16px 8px;}
+.abw-team-h b{font-family:'Space Grotesk',sans-serif;font-size:16px;}
+.abw-team-h span{font-size:12px;color:var(--muted);}
+.abw-tw{overflow-x:auto;}
+.abw-tab{border-collapse:separate;border-spacing:0;font-size:12px;min-width:100%;}
+.abw-tab th,.abw-tab td{padding:2px 1px;text-align:center;border-bottom:1px solid var(--border);}
+.abw-tab thead th{font-size:11px;font-weight:700;color:var(--text);padding:4px 2px;white-space:nowrap;}
+.abw-tab thead th span{display:block;font-size:9.5px;font-weight:600;color:var(--muted);}
+.abw-tab th.we,.abw-tab td.we{background:var(--bg,#F3F4F6);}
+.abw-tab th.heute{color:var(--tmg,#E20074);}
+.abw-tab td.heute{background:var(--tmg-soft,#FDE7F2);}
+.abw-n{position:sticky;left:0;z-index:1;background:var(--panel,#fff);text-align:left!important;padding:4px 10px 4px 16px!important;white-space:nowrap;min-width:190px;font-weight:600;font-size:13px;}
+.abw-n .cd-av{width:24px;height:24px;font-size:9.5px;margin-right:8px;vertical-align:middle;}
+.abw-c{width:23px;height:24px;border-radius:7px;border:1px solid transparent;background:transparent;font:800 11px 'Inter',sans-serif;cursor:pointer;padding:0;color:inherit;}
+.abw-c:hover{border-color:var(--border);background:var(--panel,#fff);}
+.abw-c.c-K{background:#FBE3E0;color:#9A2F27;}.abw-c.c-U{background:#DDEEFB;color:#1F5E8C;}.abw-c.c-F{background:#ECEEF1;color:#5B6470;}
+.abw-s{font-weight:700;font-variant-numeric:tabular-nums;padding:2px 8px!important;white-space:nowrap;}
+.abw-s.k{color:#9A2F27;}.abw-s.u{color:#1F5E8C;}.abw-s.q.ok{color:#0E7C7B;}.abw-s.q.warn{color:#C2792B;}.abw-s.q.bad{color:#B4423A;}
+.abw-hist{background:var(--panel,#fff);border:1px solid var(--border);border-radius:16px;padding:14px 18px;}
+.abw-hist-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+.abw-hist-h b{font-family:'Space Grotesk',sans-serif;font-size:16px;}
+.abw-hist-h span{font-size:12px;color:var(--muted);}
+.abw-htab{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;}
+.abw-htab th,.abw-htab td{padding:7px 8px;border-bottom:1px solid var(--border);text-align:right;white-space:nowrap;}
+.abw-htab th:first-child{text-align:left;}
+.abw-htab thead th{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;}
+.abw-htab td.none{color:var(--muted);}
+.abw-htab td.ok{color:#0E7C7B;font-weight:700;}.abw-htab td.warn{color:#C2792B;font-weight:700;}.abw-htab td.bad{color:#B4423A;font-weight:700;}
+.abw-fn{font-size:11.5px;color:var(--muted);margin-top:10px;line-height:1.5;}
+.abw-modal{width:min(480px,100%)!important;display:flex;flex-direction:column;gap:6px;}
+.abw-l{font-size:12px;font-weight:700;color:var(--muted);margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+.abw-arten{display:flex;flex-wrap:wrap;gap:6px;}
+.abw-arten label{cursor:pointer;}
+.abw-arten input{position:absolute;opacity:0;pointer-events:none;}
+.abw-arten span{display:inline-block;padding:7px 12px;border-radius:999px;font-size:13px;font-weight:600;border:2px solid transparent;}
+.abw-arten input:checked + span{border-color:currentColor;}
+.abw-arten input:focus-visible + span{outline:2px solid var(--tmg,#E20074);outline-offset:2px;}
+.abw-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media (max-width:640px){ .abw-n{min-width:120px;padding-left:10px!important;font-size:12px;} .abw-n .cd-av{display:none;} .abw-nav b{min-width:0;font-size:17px;} }
+.akte-abw{margin-top:8px;font-size:12.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.akte-abw b{font-size:12px;padding:2px 8px;border-radius:999px;}
+html[data-fx-theme="dark"] .c-K,html[data-fx-theme="dark"] .abw-c.c-K{background:rgba(180,66,58,.3);color:#F3AAA3;}
+html[data-fx-theme="dark"] .c-U,html[data-fx-theme="dark"] .abw-c.c-U{background:rgba(59,111,160,.35);color:#A9CCEB;}
+html[data-fx-theme="dark"] .c-F,html[data-fx-theme="dark"] .abw-c.c-F{background:rgba(255,255,255,.1);color:#C5CBD3;}
 </style>
 <script>
 // Standort-Stammdaten: für einen anderen Standort nur diese Werte (und die Karten-Geometrie) anpassen
@@ -14317,7 +14550,8 @@ function renderStandortCockpit(){
         <div class="sc-prog-r"><div class="sc-bar"><i class="p" style="width:${wP}%"></i><i class="b" style="width:${wB}%"></i><s style="left:100%"></s></div>
         <div class="sc-bar-l"><span><i class="b"></i>bisher ${pc(g.bisher)}</span><span><i class="p"></i>Prognose ${pc(g.prog)}</span></div></div></div>
       <div class="sc-kpis">${kpi('CR', g.cr, cfg.crTarget, ' %')}${kpi('Ø NPS', g.nps, cfg.npsTarget, ' %')}${kpi('Ø LQ', g.lq, cfg.lqTarget, ' %')}
-        <div class="sc-k ${g.mitR ? (g.kurs / g.mitR >= .6 ? 'ok' : g.kurs / g.mitR >= .4 ? 'warn' : 'bad') : 'none'}"><span>Auf Kurs</span><b>${g.kurs}<small>/${g.mitR}</small></b><em>Mitarbeiter</em></div></div>
+        <div class="sc-k ${g.mitR ? (g.kurs / g.mitR >= .6 ? 'ok' : g.kurs / g.mitR >= .4 ? 'warn' : 'bad') : 'none'}"><span>Auf Kurs</span><b>${g.kurs}<small>/${g.mitR}</small></b><em>Mitarbeiter</em></div>
+        ${(()=>{ const q = abwTeamQuote(teamId, now.getFullYear(), now.getMonth()); const z = abwZiel(); return `<div class="sc-k ${abwAmpel(q.quote)}"><span>Krankheit</span><b>${abwFmtQ(q.quote)}</b><em>${z ? 'Ziel ≤ ' + String(z).replace('.', ',') + ' %' : q.K + ' Tage'}</em></div>`; })()}</div>
     </div>`;
   }).join('');
   // Teamleiter-Vergleich
@@ -14329,11 +14563,12 @@ function renderStandortCockpit(){
   zeilen.sort((a, b) => (b.g.prog || 0) - (a.g.prog || 0));
   const zelle = (v, ziel, suffix, inv) => v === null || v === undefined ? '<td class="none">–</td>' : `<td class="${!ziel ? '' : v >= ziel ? 'ok' : 'bad'}">${f1(v)}${suffix}</td>`;
   const tl = zeilen.length ? `<div class="sc-tl"><div class="sc-tl-h"><b>Vergleich der Teamleiter-Teams</b><span>sortiert nach Prognose · Ziele je Mitarbeiter-Team</span></div>
-    <div class="sc-tl-w"><table class="sc-tab"><thead><tr><th>Teamleiter</th><th>MA</th><th>Prognose</th><th>Auf Kurs</th><th>CR</th><th>Ø NPS</th><th>Ø LQ</th><th>Gecoacht ≤ 14 Tage</th></tr></thead><tbody>
+    <div class="sc-tl-w"><table class="sc-tab"><thead><tr><th>Teamleiter</th><th>MA</th><th>Prognose</th><th>Auf Kurs</th><th>CR</th><th>Ø NPS</th><th>Ø LQ</th><th>Krankheit</th><th>Gecoacht ≤ 14 Tage</th></tr></thead><tbody>
     ${zeilen.map(z => { const g = z.g, st = ampel(g.prog); const ziele = z.liste[0].cfg; const gemischt = new Set(z.liste.map(x => x.teamId)).size > 1;
       return `<tr${z.ohne ? ' class="ohne"' : ''}><td><b>${kiEsc(z.l.name)}</b>${gemischt ? '<em>MF + FN</em>' : `<em>${kiEsc(ziele.project)}</em>`}</td><td>${g.n}</td>
         <td><span class="sc-pill ${st}">${pc(g.prog)}</span></td><td>${g.kurs}/${g.mitR}</td>
         ${gemischt ? `<td>${g.cr === null ? '–' : f1(g.cr) + ' %'}</td><td>${g.nps === null ? '–' : f1(g.nps) + ' %'}</td><td>${g.lq === null ? '–' : f1(g.lq) + ' %'}</td>` : zelle(g.cr, ziele.crTarget, ' %') + zelle(g.nps, ziele.npsTarget, ' %') + zelle(g.lq, ziele.lqTarget, ' %')}
+        ${(()=>{ let K = 0, so = 0; Object.keys(TEAM_CONFIGS).forEach(t => { const q = abwTeamQuote(t, now.getFullYear(), now.getMonth(), a => fkMatchesLeader(a, z.ohne ? '__ohne' : z.l.name)); K += q.K; so += q.soll; }); const q = so ? K / so : null; return `<td class="${abwAmpel(q) === 'ok' ? 'ok' : abwAmpel(q) === 'bad' ? 'bad' : ''}">${abwFmtQ(q)}</td>`; })()}
         <td><div class="sc-cov"><i style="width:${g.n ? Math.round(g.gecoacht / g.n * 100) : 0}%"></i></div><span class="sc-cov-n">${g.gecoacht}/${g.n}</span></td></tr>`; }).join('')}
     </tbody></table></div></div>` : '';
   host.innerHTML = `<section class="sc-wrap"><div class="sc-h"><div><span class="sc-eye">Standort-Cockpit</span><b>${monat}</b></div><span>Stand heute · laufender Monat · ohne Mitarbeiter in Schulung</span></div>
