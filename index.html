@@ -1609,7 +1609,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 226;
+const BOARD_VERSION = 227;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -14521,6 +14521,16 @@ function scAggregat(liste, cfg){
     nps: avg(liste.map(x => x.nps).filter(v => typeof v === 'number' && v > 0)), lq: avg(liste.map(x => x.lq).filter(v => typeof v === 'number' && v > 0)),
     gecoacht: liste.filter(x => x.gecoacht).length };
 }
+// v227: Team-CR aus dem Reiter „Team Ziele“ (aktuelle Netto-CR, ohne HV/BOJ und DA) – wie dort angezeigt
+function tzTeamCr(teamId){
+  const key = String(teamId) === 'Trikala01' ? 'mf' : String(teamId) === 'Trikala06' ? 'fn' : null;
+  const tz = key && state.teamziele && state.teamziele[key];
+  if(!tz) return null;
+  const akt = tz.crAktuell || {};
+  const cr = ['BB','SU','VVM','TV','MF'].reduce((s, p) => s + (parseFloat(akt[p] || 0) || 0), 0);
+  const ziel = parseFloat(tz.crZiel || 0) || 0;
+  return cr > 0 ? { cr, ziel } : null;
+}
 function renderStandortCockpit(){
   const host = document.getElementById('standort-cockpit');
   if(!host) return;
@@ -14549,8 +14559,8 @@ function renderStandortCockpit(){
       <div class="sc-prog"><div class="sc-prog-n"><b class="${st}">${pc(g.prog)}</b><span>Prognose Zielerreichung<br>zum Monatsende</span></div>
         <div class="sc-prog-r"><div class="sc-bar"><i class="p" style="width:${wP}%"></i><i class="b" style="width:${wB}%"></i><s style="left:100%"></s></div>
         <div class="sc-bar-l"><span><i class="b"></i>bisher ${pc(g.bisher)}</span><span><i class="p"></i>Prognose ${pc(g.prog)}</span></div></div></div>
-      <div class="sc-kpis">${kpi('CR', g.cr, cfg.crTarget, ' %')}${kpi('Ø NPS', g.nps, cfg.npsTarget, ' %')}${kpi('Ø LQ', g.lq, cfg.lqTarget, ' %')}
-        <div class="sc-k ${g.mitR ? (g.kurs / g.mitR >= .6 ? 'ok' : g.kurs / g.mitR >= .4 ? 'warn' : 'bad') : 'none'}"><span>Auf Kurs</span><b>${g.kurs}<small>/${g.mitR}</small></b><em>Mitarbeiter</em></div>
+      <div class="sc-kpis">${(()=>{ const t = tzTeamCr(teamId); if(t){ const z = t.ziel || cfg.crTarget; const st = !z ? 'none' : t.cr >= z ? 'ok' : t.cr >= z * 0.85 ? 'warn' : 'bad'; return `<div class="sc-k ${st}" title="Aktuelle CR aus dem Reiter Team Ziele"><span>CR</span><b>${f1(t.cr)} %</b><em>Ziel ${f1(z)} % · Team Ziele</em></div>`; } return kpi('CR brutto', g.cr, cfg.crTarget, ' %'); })()}${kpi('Ø NPS', g.nps, cfg.npsTarget, ' %')}${kpi('Ø LQ', g.lq, cfg.lqTarget, ' %')}
+        <div class="sc-k ${g.mitR ? (g.kurs / g.mitR >= .6 ? 'ok' : g.kurs / g.mitR >= .4 ? 'warn' : 'bad') : 'none'}" title="Mitarbeiter, die laut Hochrechnung alle Produktziele bis auf höchstens eines zum Monatsende erreichen"><span>Auf Kurs</span><b>${g.kurs}<small>/${g.mitR}</small></b><em>MA, alle Ziele bis auf 1</em></div>
         ${(()=>{ const q = abwTeamQuote(teamId, now.getFullYear(), now.getMonth()); const z = abwZiel(); return `<div class="sc-k ${abwAmpel(q.quote)}"><span>Krankheit</span><b>${abwFmtQ(q.quote)}</b><em>${z ? 'Ziel ≤ ' + String(z).replace('.', ',') + ' %' : q.K + ' Tage'}</em></div>`; })()}</div>
     </div>`;
   }).join('');
@@ -14562,8 +14572,8 @@ function renderStandortCockpit(){
   zeilen.forEach(z => z.g = scAggregat(z.liste));
   zeilen.sort((a, b) => (b.g.prog || 0) - (a.g.prog || 0));
   const zelle = (v, ziel, suffix, inv) => v === null || v === undefined ? '<td class="none">–</td>' : `<td class="${!ziel ? '' : v >= ziel ? 'ok' : 'bad'}">${f1(v)}${suffix}</td>`;
-  const tl = zeilen.length ? `<div class="sc-tl"><div class="sc-tl-h"><b>Vergleich der Teamleiter-Teams</b><span>sortiert nach Prognose · Ziele je Mitarbeiter-Team</span></div>
-    <div class="sc-tl-w"><table class="sc-tab"><thead><tr><th>Teamleiter</th><th>MA</th><th>Prognose</th><th>Auf Kurs</th><th>CR</th><th>Ø NPS</th><th>Ø LQ</th><th>Krankheit</th><th>Gecoacht ≤ 14 Tage</th></tr></thead><tbody>
+  const tl = zeilen.length ? `<div class="sc-tl"><div class="sc-tl-h"><b>Vergleich der Teamleiter-Teams</b><span>sortiert nach Prognose · CR hier brutto aus den Mitarbeiterwerten (ohne Stornos)</span></div>
+    <div class="sc-tl-w"><table class="sc-tab"><thead><tr><th>Teamleiter</th><th>MA</th><th>Prognose</th><th title="Mitarbeiter, die laut Hochrechnung alle Produktziele bis auf höchstens eines erreichen">Auf Zielkurs</th><th title="Stückzahlen ÷ Calls der Mitarbeiter, ohne Stornos">CR brutto</th><th>Ø NPS</th><th>Ø LQ</th><th>Krankheit</th><th>Gecoacht ≤ 14 Tage</th></tr></thead><tbody>
     ${zeilen.map(z => { const g = z.g, st = ampel(g.prog); const ziele = z.liste[0].cfg; const gemischt = new Set(z.liste.map(x => x.teamId)).size > 1;
       return `<tr${z.ohne ? ' class="ohne"' : ''}><td><b>${kiEsc(z.l.name)}</b>${gemischt ? '<em>MF + FN</em>' : `<em>${kiEsc(ziele.project)}</em>`}</td><td>${g.n}</td>
         <td><span class="sc-pill ${st}">${pc(g.prog)}</span></td><td>${g.kurs}/${g.mitR}</td>
