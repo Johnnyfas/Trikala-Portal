@@ -1603,7 +1603,7 @@ let state = { agents: [], coachverlauf: {}, coachingPlan: [], todosByUser: {}, t
 // die Ursache dafür, dass Planmenge/NPS Ziel immer wieder auf alte Werte zurücksprangen: eine
 // ältere Fassung setzte diese Felder beim Laden auf die Code-Vorlage zurück und speicherte das
 // automatisch. Bei jeder inhaltlichen Änderung am Board hochzählen.
-const BOARD_VERSION = 222;
+const BOARD_VERSION = 223;
 try{ const bvl = document.getElementById('board-version-label'); if(bvl) bvl.textContent = 'Version ' + BOARD_VERSION; }catch(e){}
 
 // Historische CHT-Werte (Januar–Mai 2026) aus Helpsense-Report, per Pylon zugeordnet.
@@ -3129,7 +3129,7 @@ const GIAGIA_FOTO = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYE
 function hrSpruchHtml(text, mood){
   return `<div class="hrk-spruch gg gg-anim gg-foto"><div class="gg-figwrap"><img class="gg-img" src="${GIAGIA_FOTO}" alt="Giagia"></div>
     <div class="gg-bubble"><i class="gg-tail" aria-hidden="true"></i>
-      <div class="gg-lbl">Giagia sagt:</div><div class="hrk-spruch-t">${text}</div></div></div>`;
+      <div class="gg-lbl">Giagias Tipp für dich:</div><div class="hrk-spruch-t">${text}</div></div></div>`;
 }
 // Beim Bild-Export Animationen anhalten (sonst landet ein Zwischenbild im PNG)
 function ggStill(doc){ try{ const st = doc.createElement('style'); st.textContent = '*,*::before,*::after{animation:none!important;transition:none!important}'; doc.head.appendChild(st); }catch(e){} }
@@ -9546,62 +9546,6 @@ function renderHochrechnung(){
 
 
 
-// v207: Mitarbeiter in den ersten 3 Monaten (erkannt am Mitarbeiter Verlauf) bekommen allgemeine, ermutigende Sprüche
-// ohne Verkaufsdruck – sie sollen erst ankommen und lernen.
-const HR_NEU = {
-  "gut": [
-    "Für die ersten Wochen? Wahnsinn. Du bist wie eine frische Batzina: kaum aus dem Ofen und schon heiß begehrt.",
-    "Neu im Team und schon so stark – die alten Hasen schauen schon nervös über die Trennwand.",
-    "Du lernst schneller, als die Giagia „Iss noch was!“ sagen kann. Und das will was heißen.",
-    "Kaum da, schon richtig gut unterwegs. Du bist der Beweis, dass Talent kein Dienstalter braucht.",
-    "Die ersten Wochen, und du rollst schon wie ein Fahrrad am Lithaios – ganz ohne Stützräder.",
-    "Wenn das deine Einarbeitung ist, wollen wir gar nicht wissen, was passiert, wenn du erst richtig warm bist.",
-    "Neu, aber schon ein Naturtalent – wie eine Tostia: von Anfang an doppelt so gut.",
-    "Du machst das, als hättest du nie etwas anderes gemacht. Bitte verrat den anderen nicht, wie leicht es aussieht.",
-    "Starke erste Wochen! Die Meteora-Mönche haben länger gebraucht, um oben anzukommen.",
-    "Neu im Team, schon mittendrin. Willkommen in der Familie – hier gibt’s Frappé und Applaus."
-  ],
-  "lernen": [
-    "Willkommen im Team! Jeder Call ist gerade eine kleine Lernstunde – und du nimmst aus jedem etwas mit.",
-    "Die ersten Wochen sind wie die erste selbst gebackene Batzina: Sie wird vielleicht nicht perfekt, aber jede nächste wird besser.",
-    "Keine Sorge: Auch die Profis hier haben am Anfang die Warteschleife öfter gehört als den Kunden.",
-    "Erst ankommen, dann glänzen – auch zu den Meteora ist niemand in einem Satz hochgesprungen.",
-    "Du bist noch neu – und das ist super: Du darfst fragen, ausprobieren und dazulernen, so viel du willst.",
-    "Jedes Gespräch macht dich sicherer. Bald führst du sie so locker wie einen Plausch im Kafeneio.",
-    "Neue Systeme, neue Abläufe, neue Kollegen – und du mittendrin. Respekt, dass du so dranbleibst!",
-    "Die ersten Wochen sind zum Ankommen da. Die Zahlen kommen ganz von allein, wenn du dich sicher fühlst.",
-    "Du sammelst gerade Erfahrung wie die Giagia Rezepte: eins nach dem anderen, und keins geht verloren.",
-    "Fehler sind erlaubt – sie sind die kostenlose Nachhilfe des Callcenters.",
-    "Für eine Tostia braucht man zwei Pitas – und für einen guten Start ein bisschen Zeit. Gib sie dir.",
-    "Kopf hoch: Jeder Profi hier hatte mal seine ersten Wochen. Manche erzählen bis heute lustige Geschichten davon.",
-    "Schritt für Schritt, Bissen für Bissen – wer gut ankommt, kommt auch weit.",
-    "Das Wichtigste gerade: gut zuhören und freundlich bleiben. Der Rest ist Übung.",
-    "Du bist noch in der Aufwärmphase – und das ist genau richtig so. Das ganze Team steht hinter dir.",
-    "Jeder gute Call ist ein kleiner Sieg. Sammle sie wie Sticker im Panini-Album."
-  ]
-};
-const HR_NEU_SCHLUSS = [
-  "Frag ruhig nach, wenn etwas unklar ist – hier beißt niemand. Höchstens der Kaffeeautomat, wenn er schlechte Laune hat.",
-  "Tipp für die Startphase: Hör zu wie im Kafeneio – Kunden erzählen dir alles, was du wissen musst.",
-  "Und vergiss nicht: Ein freundliches Gespräch ist immer ein gutes Gespräch.",
-  "Dein Coach und deine Teamleitung sind für dich da – mit Rat, Tat und notfalls Frappé.",
-  "Merk dir aus jedem Call eine Sache, die gut lief. Nach ein paar Wochen hast du eine ganze Schatzkiste.",
-  "Kunden merken, wenn jemand mit Herz telefoniert – und das kannst du schon richtig gut.",
-  "Wichtig ist nicht, alles zu wissen, sondern zu wissen, wo es steht. Der Rest kommt mit der Zeit.",
-  "Lächeln hört man durchs Telefon – auch in den ersten Wochen.",
-  "Nach einem schwierigen Gespräch: Schluck Wasser, tief durchatmen, weiter geht’s. Das machen die Profis genauso.",
-  "Jede Woche wirst du ein bisschen sicherer. Das sieht man – versprochen.",
-  "Kleiner Reminder: Die Kollegen neben dir waren auch mal neu. Frag sie nach ihren besten Tricks.",
-  "Sicherheit kommt mit jedem Gespräch – wie bei der Giagia, die ihr Rezept irgendwann im Schlaf kann.",
-  "Der Leitfaden ist in den ersten Wochen dein bester Freund. Halt dich ruhig an ihm fest.",
-  "Mit Geduld und Freundlichkeit kommst du weiter als mit jeder Abkürzung.",
-  "Du musst nicht perfekt sein. Es reicht, jeden Tag ein kleines bisschen besser zu werden.",
-  "Wer freundlich zum Kunden ist, geht mit einem guten Gefühl nach Hause. Und das ist schon die halbe Miete.",
-  "Trikala wurde auch nicht an einem Tag gebaut. Obwohl – mit dem Fahrrad ist man dort schnell überall.",
-  "Gute Gespräche entstehen nicht durch Druck, sondern durch echtes Interesse. Und das hast du.",
-  "Du gehörst dazu – mit allem, was du schon kannst, und mit allem, was noch kommt.",
-  "Schreib dir deine Lieblingsformulierungen auf. Bald hast du deinen eigenen Leitfaden im Kopf."
-];
 // v212: „Neu“ wird aus dem Mitarbeiter Verlauf erkannt: kein Verlauf oder weniger als 3 abgeschlossene
 // Monate mit Werten vor dem betrachteten Monat → Mitarbeiter ist in seinen ersten 3 Monaten.
 function vlMonateMitWerten(agent, vor){
@@ -9625,511 +9569,65 @@ function istNeuImTeam(agent, now){
   now = now || new Date();
   return vlMonateMitWerten(agent, new Date(now.getFullYear(), now.getMonth(), 1)) < 3;
 }
-// v206: mehr griechische Sprüche (Trikala, Batzina, Tostia …). v193: Sprüche – große Auswahl; innerhalb eines Teams bekommt am selben Tag niemand denselben Spruch
-const HR_SPRUECHE = {
-  "alle": [
-    "Alle Ziele erreicht! In Trikala wird ab heute eine Pita nach dir benannt. Mit doppelt Fleisch.",
-    "Monat durchgespielt! Der Gyros-Mann legt dir ab sofort automatisch ein Extra-Stück drauf.",
-    "Alles erreicht – selbst der Glockenturm am Kastro hat kurz „Bravo“ geläutet.",
-    "Alle Ziele erreicht! Heute gibt’s Tostia statt Gyros Pita – du hast dir die XXL-Variante verdient.",
-    "Du hast den Monat gerockt. Die Uhr oben am Kastro von Trikala schlägt heute extra für dich.",
-    "Alles erreicht – in Manavika wird schon ein Tsipouro auf deinen Namen eingeschenkt. Mit Meze, versteht sich.",
-    "Ziele geknackt! Die Elfen vom Mylos ton Xotikon wollen dich als Chef-Elf einstellen.",
-    "Alles erreicht. Die Giagia backt dir eine Batzina so groß wie der Hauptplatz von Trikala.",
-    "Du hast alle Ziele erledigt. Der Lithaios fließt heute vor lauter Stolz rückwärts.",
-    "Alles im Sack! Wenn Ziele Loukoumades wären, hättest du die ganze Schüssel leergeputzt – samt Honig.",
-    "Glückwunsch! Beim nächsten Panigyri spielt die Band nur noch Lieder über dich.",
-    "Asklepios kam aus Trikala und konnte heilen. Du kommst aus Trikala und kannst verkaufen. Legenden unter sich.",
-    "Alle Ziele erreicht. Die Zielvorgabe hat Urlaub beantragt – sie braucht Abstand von dir.",
-    "Du hast alle Ziele geknackt. Selbst die Mönche oben auf den Meteora-Klöstern haben kurz applaudiert.",
-    "Monatsziel erledigt. Ab jetzt bist du offiziell schuld, wenn die Ziele nächstes Jahr höher werden.",
-    "Alles erreicht! Wenn das so weitergeht, verlangt dein Headset bald eine Gehaltserhöhung.",
-    "Du bist so erfolgreich, dass dein Frappé vor Ehrfurcht von ganz allein schäumt.",
-    "Alle Häkchen gesetzt. Deine To-do-Liste liegt jetzt arbeitslos am Strand und weiß nichts mit sich anzufangen.",
-    "Ziele erreicht! Deine Giagia würde sagen: „Hab ich doch immer gewusst“ – und dir drei Portionen auftun.",
-    "Glückwunsch! Excel hat deine Zahlen dreimal neu berechnet, weil es dachte, das sei ein Fehler.",
-    "Du hast den Monat durchgespielt. Bitte warte auf das nächste Level – es wird gerade noch programmiert.",
-    "Alles erreicht – du bist der einzige Mensch, für den sogar der Drucker freiwillig funktioniert.",
-    "Alle Ziele weg. Die Hall of Fame überlegt ernsthaft, für dich einen Anbau zu errichten.",
-    "Du bist so on fire, dass die Klimaanlage Überstunden machen muss.",
-    "Ziele erledigt. Wenn Abschlüsse Souvlaki wären, könntest du ganz Trikala satt machen.",
-    "Alle Ziele erreicht! Die Konkurrenz hat angerufen und gefragt, ob du eigentlich ein Roboter bist.",
-    "Monatsziel geknackt. Ab jetzt telefonierst du nur noch zum Spaß – und für den Ruhm.",
-    "Du hast alles erreicht. Die Warteschleifenmusik überlegt, sich nach dir zu benennen."
-  ],
-  "kurs": [
-    "Auf Kurs! Du bist so stabil wie die Meteora-Felsen – und die stehen seit Millionen Jahren.",
-    "Läuft bei dir wie Tsipouro in Manavika: von ganz allein und in bester Gesellschaft.",
-    "Du bist so gut im Rennen, dass die Fahrräder von Trikala dich um Tipps bitten.",
-    "Du bist so auf Kurs wie der selbstfahrende Bus von Trikala – kein Fahrer nötig, kein Umweg drin.",
-    "Läuft wie eine Radtour am Lithaios entlang: flach, flott, und keiner bremst dich.",
-    "Auf Kurs! Du bist wie eine gute Batzina: knusprig, goldbraun, und alle wollen ein Stück von dir.",
-    "Alles nach Plan – so zuverlässig wie die Schlange vor dem Gyros-Laden am Freitagabend.",
-    "Du drehst deine Runden so gleichmäßig wie der Spieß beim Kontosouvli – und genauso lecker.",
-    "Du bist so gut unterwegs, dass die Meteora-Felsen sich fragen, wer hier eigentlich hoch hinaus will.",
-    "Alles im Plan wie das Sonntagsessen bei der Giagia: pünktlich, reichlich, und keiner geht hungrig nach Hause.",
-    "Auf Kurs! Wenn das so weitergeht, bekommst du in jedem Souvlatzidiko von Trikala die Pommes gratis.",
-    "Du bist auf Kurs wie ein ICE … nur pünktlich. Ein echtes Wunder der Technik.",
-    "Alles nach Plan – du bist das Navi, das nie „Bitte wenden“ sagen muss.",
-    "Auf Kurs! Wenn das so weitergeht, schreibt dir die Hochrechnung bald Liebesbriefe.",
-    "Die Wettervorhersage für dich: 100 % Sonne, 0 % Regen, vereinzelt Konfetti.",
-    "Du läufst runder als ein Gyros-Spieß am Samstagabend.",
-    "Alles im grünen Bereich – grüner als ein Olivenhain im Frühling.",
-    "Dein Monat läuft so glatt, dass sogar die Kaffeemaschine neidisch blubbert.",
-    "Auf Kurs! Die Ziele haben schon angefangen, nervös an den Fingernägeln zu kauen.",
-    "Läuft bei dir! Wenn Abschlüsse ein Sport wären, hättest du längst einen Sponsorenvertrag.",
-    "Du bist so gut unterwegs, dass Google Maps dich als schnellste Route vorschlägt.",
-    "Alles auf Kurs – du bist das WLAN, das nie abbricht. Eine lebende Legende.",
-    "Deine Kurve zeigt nach oben wie die Laune freitags um 16:59 Uhr.",
-    "Auf Kurs! Bitte trotzdem nicht im Bürostuhl einschlafen – das Headset petzt.",
-    "Kurs gehalten wie ein Kapitän im Hafen von Piräus – entspannt und souverän.",
-    "Läuft wie geschnitten Brot. Mit Feta. Und Oliven. Und einem Schuss Olivenöl.",
-    "Wenn du so weitermachst, müssen wir für die Hall of Fame einen größeren Nagel kaufen."
-  ],
-  "ende": [
-    "Endspurt! Jetzt wird geackert wie die Giagia zwei Stunden vor dem Ostermahl.",
-    "Letzte Runde! Wie beim Lamm am Spieß an Ostern: Jetzt nochmal kräftig drehen.",
-    "Finale! Die Tostia ist fast aufgegessen – jetzt nicht schlappmachen, der beste Bissen kommt zum Schluss.",
-    "Endspurt! Jetzt gilt dasselbe wie beim letzten Stück Batzina auf dem Teller: schnell sein, bevor es ein anderer nimmt.",
-    "Letzte Tage! Jetzt ist Tostia-Zeit: groß denken, kräftig zubeißen.",
-    "Finale! Stell dir vor, hinter der Ziellinie wartet ein Galaktoboureko – noch warm.",
-    "Schlussspurt wie beim Panigyri um Mitternacht: Jetzt geht der Tanz erst richtig los.",
-    "Endspurt! Der Gyros-Spieß ist fast runter – jetzt kommen die knusprigsten Stücke.",
-    "Die letzten Meter – wie der Aufstieg zum Kastro: kurz steil, aber oben die beste Aussicht über Trikala.",
-    "Endspurt! Jetzt ist jeder Call wie das letzte Stück Baklava – unbedingt mitnehmen.",
-    "Letzte Runde! Stell dir vor, hinter der Ziellinie wartet ein Buffet und du hast seit Stunden nichts gegessen.",
-    "Das ist Elfmeterschießen in der Nachspielzeit – nur mit Headset statt Fußballschuhen.",
-    "Finale! Die Uhr tickt, aber du tickst schneller.",
-    "Countdown läuft – das ist der Moment im Film, in dem die Heldenmusik einsetzt.",
-    "Endspurt! Jetzt wird nicht mehr gezögert, jetzt wird abgeschlossen.",
-    "Last Call! Und zwar der gute – nicht der aus der Bar.",
-    "Letzte Meter! Jetzt nochmal alles geben – ausruhen kannst du am Ersten.",
-    "Schlussspurt! Selbst die Kaffeemaschine gibt heute Vollgas für dich.",
-    "Die letzten Tage sind wie die letzten Minuten vor Feierabend: Man schafft plötzlich unglaublich viel.",
-    "Endspurt-Modus aktiviert. Bitte anschnallen und das Headset gut festhalten.",
-    "Noch ein letzter Sprint – danach darfst du dich feiern lassen. Oder wenigstens einen Frappé trinken."
-  ],
-  "fast": [
-    "Fast perfekt – wie ein Choriatiki ohne Feta. Hol dir das letzte Stück, dann ist der Salat komplett.",
-    "Ein Produkt fehlt noch wie die Zitrone auf dem Souvlaki. Kleiner Spritzer, großer Unterschied.",
-    "Fast alles da – wie eine Gyros Pita ohne Zwiebeln. Gut, aber jeder merkt, dass was fehlt.",
-    "Ein Produkt fehlt noch wie die Pommes in der Gyros Pita. Geht auch ohne – aber ehrlich, wer will das?",
-    "Alle sitzen schon am Tisch in der Taverne – nur ein Produkt sucht noch einen Parkplatz in Trikala.",
-    "Fast komplett! Es fehlt nur noch das letzte Stück Batzina – und das schmeckt bekanntlich am besten.",
-    "Ein Produkt tanzt noch nicht mit im Tsamiko-Kreis. Nimm es an die Hand.",
-    "So nah dran wie Kalambaka an den Meteora. Ein paar Stufen noch, dann bist du oben.",
-    "Fast perfekt! Nur ein Produkt ziert sich noch wie eine Katze vor der Badewanne.",
-    "Ein Produkt schmollt in der Ecke, weil du alle anderen lieber hast. Zeit für eine Versöhnung.",
-    "Alle Produkte tanzen Sirtaki – nur eins steht noch schüchtern am Rand.",
-    "So nah dran! Es fehlt nur das eine Puzzleteil, das garantiert unter dem Sofa liegt.",
-    "Ein Produkt fehlt wie die eine Socke nach dem Waschen. Es ist da – irgendwo.",
-    "Fast-Jackpot: Nur eine Zahl fehlt noch auf deinem Lottoschein.",
-    "Ein Produkt hat den Wecker nicht gehört. Weck es sanft – mit einem Abschluss.",
-    "Fast alles im Kasten. Das letzte Produkt ist nur noch kurz Frappé holen.",
-    "Ein Produkt spielt noch schwer zu kriegen. Zeig ihm, wer hier der Chef ist.",
-    "Nur ein Produkt trödelt noch wie ein Kollege auf dem Weg zum Montagsmeeting.",
-    "Perfektion ist zum Greifen nah – es fehlt nur noch eine winzige Unterschrift.",
-    "Ein Gast fehlt noch auf deiner Party. Die Musik läuft schon, die Souvlaki sind warm.",
-    "Fast komplett! Das letzte Produkt wartet nur noch auf eine Einladung mit Goldrand.",
-    "So knapp vor dem perfekten Monat – wie ein Gyros ohne Tzatziki. Fast perfekt.",
-    "Ein Produkt versteckt sich noch wie das Ladekabel, wenn der Akku bei 2 % ist.",
-    "Das letzte Produkt hat angerufen: Es will auch mit aufs Siegerfoto."
-  ],
-  "start": [
-    "Neuer Monat – der Grill ist an, die Pita liegt bereit. Jetzt fehlt nur noch die Füllung.",
-    "Monatsstart wie der erste Schluck Frappé: Strohhalm rein, und los geht’s.",
-    "Neuer Monat – wie eine frische Bougatsa am Morgen: warm, knusprig, voller Möglichkeiten.",
-    "Monatsstart! Erst ein Freddo Espresso, dann die Welt erobern. In genau dieser Reihenfolge.",
-    "Der Monat ist wie ein frisch angeschnittener Gyros-Spieß: Alles ist noch da, alles ist noch drin.",
-    "Start frei! Die Fahrräder in Trikala stehen schon bereit – tritt kräftig in die Pedale.",
-    "Neuer Monat, leerer Teller. Zeit, ihn so vollzumachen wie die Giagia beim Sonntagsessen.",
-    "Der Monat ist noch so frisch wie der erste Frappé am Morgen.",
-    "Neuer Monat, neues Glück. Headset auf, Show an, Bühne frei!",
-    "Der Monat ist ein leeres Notizbuch – schreib einen Bestseller rein.",
-    "Frischer Start! Noch hat niemand Vorsprung. Außer dir – wenn du jetzt loslegst.",
-    "Der frühe Vogel fängt den Abschluss. Der späte Vogel fängt nur noch Wartemusik.",
-    "Startschuss gefallen – und du hast die schnellsten Laufschuhe im ganzen Gebäude.",
-    "Noch ist alles drin. Wirklich alles. Sogar der Jackpot und ein Platz in der Hall of Fame.",
-    "Monatsanfang: die perfekte Zeit, um alle Kollegen kurz sprachlos zu machen.",
-    "Aufwärmphase vorbei – jetzt wird gespielt. Und zwar in der Champions League.",
-    "Der Monat ist wie frisch gebackenes Brot – noch warm und voller Möglichkeiten.",
-    "Warmlaufen erlaubt, aber nicht zu lange – die Ziele sitzen schon mit gepackten Koffern da.",
-    "Neuer Monat – die Ziele ahnen noch nicht, was gleich auf sie zukommt."
-  ],
-  "haelfte": [
-    "Halbzeit wie bei einer Gyros-Platte für zwei: Die Hälfte ist weg, aber der Hunger ist noch da.",
-    "Die Hälfte läuft – wie ein Mezedes-Teller, auf dem nur noch die besten Stücke liegen.",
-    "Halber Monat, halbe Batzina. Und die zweite Hälfte ist immer die knusprigere.",
-    "Halbzeit! Deine Batzina ist schon halb gebacken – noch ein paar Minuten, dann wird sie goldbraun.",
-    "Die Hälfte sitzt. Du bist wie eine halb gegessene Tostia: Aufhören ist jetzt keine Option.",
-    "Halber Weg – wie mitten auf der Brücke über den Lithaios. Das andere Ufer winkt schon.",
-    "Ein paar Produkte sitzen noch im Kafeneio und spielen Tavli. Hol sie an den Arbeitsplatz.",
-    "Halb voll! Wie ein Tsipouro-Glas – und wir wissen alle: Das wird noch nachgefüllt.",
-    "Die Hälfte läuft wie geschmiert. Mit Olivenöl natürlich – wir sind ja in Thessalien.",
-    "Du bist wie eine Spanakopita in Arbeit: Die erste Lage Blätterteig liegt, jetzt kommt die Füllung.",
-    "Halbzeit-Stimmung: Die Hälfte läuft wie geschmiert, die andere Hälfte macht noch Mittagspause.",
-    "Dein Monat ist wie eine Pizza: halb belegt. Die Salami ist schon unterwegs.",
-    "Halb voll, nicht halb leer! Und der Nachschub ist bereits bestellt.",
-    "Akku bei 60 % – reicht für den Tag, aber 100 % fühlen sich einfach besser an.",
-    "Ein paar Produkte sitzen noch auf der Ersatzbank und warten sehnsüchtig auf die Einwechslung.",
-    "Die Hälfte sitzt – wie ein Puzzle, bei dem nur noch der blöde Himmel fehlt.",
-    "Solides Mittelfeld! Jetzt fehlen nur noch ein paar Traumtore.",
-    "Ein paar Produkte haben angerufen und gefragt, ob du sie vergessen hast. Sie sind ein bisschen eingeschnappt.",
-    "Ein paar Ziele haben sich versteckt. Zeit für Verstecken spielen – und gewinnen.",
-    "Die Richtung stimmt – jetzt fehlt nur noch der Turbo. Der Knopf ist in dir drin.",
-    "Halbzeitpfiff! In der Kabine gibt es heute nur ein Thema: die zweite Hälfte.",
-    "Du bist wie ein Souvlaki-Spieß: Die Hälfte ist schon gegrillt, der Rest brutzelt noch.",
-    "Die Hälfte ist im Sack. Die andere Hälfte sucht noch den Sack.",
-    "Läuft halbwegs – und „halbwegs“ ist nur ein Zwischenstopp auf dem Weg zu „läuft komplett“.",
-    "Die Basis steht wie die Meteora-Felsen. Jetzt fehlt nur noch das Kloster obendrauf.",
-    "Ein paar Ziele brauchen noch Liebe – wie die Zimmerpflanze, die du seit Wochen anschweigst."
-  ],
-  "wenig": [
-    "Noch nicht viel auf dem Teller? Die Giagia wäre empört. Also: nachlegen!",
-    "Auch der Weg zur Batzina beginnt mit Maismehl und Geduld. Rühr weiter – das wird was.",
-    "Die Zahlen schlafen noch Siesta. Weck sie mit einem starken Elliniko – und einem noch stärkeren Gespräch.",
-    "Deine Hochrechnung ist wie ein Souvlaki vor dem Grillen: roh, aber mit großem Potenzial.",
-    "Kein Stress: Auch eine Batzina wird nicht in fünf Minuten fertig. Aber wenn sie fertig ist – wow.",
-    "Die Kurve ist noch flach wie die Thessalische Ebene. Aber dahinter kommen bekanntlich die Meteora.",
-    "Deine Zahlen sind wie Kokoretsi auf dem Grill: Das dauert, aber das Ergebnis lohnt sich.",
-    "Auch der beste Gyros-Spieß war morgens mal roh. Jetzt wird gegrillt!",
-    "Die Ziele sitzen noch im Kafeneio und trinken einen Elliniko. Zeit, ihnen die Rechnung zu bringen.",
-    "Noch läuft’s wie der Verkehr in Trikala zur Mittagszeit. Gleich ist die Straße wieder frei.",
-    "Die Saison ist noch nicht vorbei – echte Champions kommen in der zweiten Halbzeit. Mit Snacks.",
-    "Kleiner Tipp: Die Ziele beißen nicht. Meistens.",
-    "Das ist die Stelle im Film, an der die Musik dramatisch wird. Und dann kommt die große Wende.",
-    "Rom wurde auch nicht an einem Tag erbaut. Aber Rom hatte auch kein Headset.",
-    "Deine Ziele haben Lampenfieber. Gib ihnen einen kleinen, liebevollen Schubs.",
-    "Der Motor läuft – jetzt nur noch den zweiten Gang finden. Er ist da, versprochen.",
-    "Noch viel Luft nach oben – und Luft ist zum Glück kostenlos.",
-    "Erst langsam, dann plötzlich – so laufen die besten Aufholjagden der Geschichte.",
-    "Die Abschlüsse warten wie ein Paket bei der Nachbarin – du musst nur klingeln.",
-    "Unterschätzt zu werden ist die beste Ausgangslage für eine richtig fette Überraschung.",
-    "Tief durchatmen, Headset richten, Frappé nachfüllen – jetzt kommt die zweite Luft.",
-    "Auch der Weg hoch nach Meteora beginnt mit der ersten Stufe. Und ein paar hundert weiteren.",
-    "Ab hier geht es nur noch nach oben. Und das Beste: Du kannst das.",
-    "Deine Zahlen machen gerade ein Nickerchen. Zeit, sie mit ein paar Abschlüssen wachzuküssen.",
-    "Comebacks sind die schönsten Geschichten. Und du schreibst gerade das erste Kapitel.",
-    "Das Navi sagt: Route wird neu berechnet – Ankunft als Gewinner."
-  ],
-  "null": [
-    "Noch {TAGE} Tage – das reicht für mehr Comebacks als eine griechische Serie Folgen hat.",
-    "Noch nichts auf Kurs? Selbst der selbstfahrende Bus von Trikala musste erst mal losrollen.",
-    "Null ist kein Ergebnis, sondern ein leerer Pita-Teller. Und der wird jetzt gefüllt.",
-    "Die Giagia sagt immer: „Wer nicht isst, wird nicht groß.“ Also – hol dir die ersten Abschlüsse.",
-    "Noch {TAGE} Tage – genug Zeit für eine Tostia, ein Comeback und einen Tsipouro zur Feier.",
-    "Von null auf Tostia: erst kleine Bissen, dann der ganz große Wurf.",
-    "Leerer Teller? Die Giagia sagt: Dann wird jetzt nachgelegt. Und der Giagia widerspricht man nicht.",
-    "Auch die Mönche von Meteora haben mit einem einzigen Stein angefangen. Und schau, wo sie heute wohnen.",
-    "Die Batzina ist noch Teig. Ofen an, Hitze rauf – noch {TAGE} Tage, bis sie goldbraun ist.",
-    "Noch {TAGE} Tage für das große Comeback – Hollywood liebt solche Geschichten.",
-    "Reset-Knopf gedrückt? Perfekt – von hier aus geht es nur nach oben. Die Physik ist auf deiner Seite.",
-    "Das ist kein Tief, das ist Anlauf nehmen. Und du nimmst gerade richtig viel Anlauf.",
-    "Plot-Twist gefällig? Gleich redet das ganze Team über dich – im allerbesten Sinne.",
-    "Null ist die großartigste Zahl – sie kann nur noch wachsen.",
-    "Jeder Rekord hat mal bei null angefangen. Sogar der von Usain Bolt.",
-    "Leeres Konto, volle Chancen. Ab jetzt wird aufgefüllt.",
-    "Das Beste kommt zum Schluss, sagt man. Wir sind sehr gespannt.",
-    "Heute ist ein perfekter Tag für den ersten Treffer. Und morgen für den zweiten.",
-    "Die Aufholjagd beginnt jetzt – und alle schauen zu. Das Popcorn ist bereit.",
-    "Auch Superman hat mal klein angefangen. Und der konnte nicht mal telefonieren.",
-    "Noch nichts auf Kurs? Dann ist jetzt der perfekte Zeitpunkt, alle zu überraschen.",
-    "Von ganz unten ist die Aussicht nach oben am schönsten. Los geht's!",
-    "Der Weg nach oben ist frei – kein Stau, nur Möglichkeiten."
-  ]
-};
-const HR_SCHLUSS = {
-  "gut": [
-    "CR und NPS sind so gut, dass dir die Giagia gleich eine zweite Portion Moussaka auftut.",
-    "CR und NPS im Ziel – wie Gyros und Tzatziki: gehören zusammen und machen alle glücklich.",
-    "CR top, NPS top – du bist die Tostia unter den Verkäufern: XXL und von allen geliebt.",
-    "CR und NPS sind so gut, dass in Manavika eine Runde Tsipouro auf dich ausgegeben wird.",
-    "Deine Kunden reden über dich wie über die beste Batzina von Trikala – mit leuchtenden Augen.",
-    "CR und NPS im grünen Bereich – grüner als die Platanen am Lithaios.",
-    "Und CR und NPS? Beide im grünen Bereich. Du bist quasi ein wandelndes Qualitätssiegel.",
-    "Die Kunden lieben dich, die CR liebt dich – das ist mehr Liebe als in jeder Telenovela.",
-    "CR und NPS singen im Duett – Eurovision-verdächtig.",
-    "Mit dieser CR und diesem NPS könntest du glatt Seminare geben. Mit Buffet.",
-    "Selbst die Kundenbefragung schreibt dir inzwischen Fanpost.",
-    "CR top, NPS top – du bist der Feta im griechischen Salat: unverzichtbar.",
-    "Kunden zufrieden, CR im Ziel – so sieht das Lehrbuch aus, das noch geschrieben werden muss.",
-    "Du verkaufst so charmant, dass sich die Kunden auch noch bei dir bedanken.",
-    "CR und NPS haben sich zum Feiern verabredet. Du bist Ehrengast.",
-    "Qualität check, Conversion check – du bist ein wandelndes Häkchen.",
-    "Dein NPS sagt: Die Kunden würden dich weiterempfehlen. Am liebsten an die ganze Verwandtschaft.",
-    "CR und NPS im Ziel – wie Sonne und Meer: die perfekte Kombination.",
-    "So geht Verkaufen mit Herz – die Zahlen klatschen Beifall.",
-    "CR und NPS im grünen Bereich. Die Qualitätsabteilung hätte gern ein Selfie mit dir."
-  ],
-  "cr_gut": [
-    "CR stark wie ein Tsipouro, NPS noch mild wie ein Frappé light. Etwas mehr Herz, dann passt die Mischung.",
-    "Die CR ist ein voller Gyros-Teller – jetzt noch ein Extra-Klecks Herzlichkeit für den NPS.",
-    "Deine CR ist schon beim Hauptgang, der NPS noch bei der Vorspeise. Etwas mehr Herz, und beide sitzen am selben Tisch.",
-    "CR stark, NPS noch blass – wie eine Batzina, die zwei Minuten mehr Ofen braucht. Mehr Wärme, dann wird sie goldbraun.",
-    "Deine CR feiert schon im Tsipouradiko. Lad den NPS ein – mit einem ehrlichen Lächeln am Ende jedes Gesprächs.",
-    "Deine CR glänzt! Jetzt noch ein extra Lächeln ins Headset – dann zieht der NPS nach.",
-    "Verkaufen kannst du wie ein Weltmeister. Jetzt die Kunden noch zum Schwärmen bringen – der NPS dankt.",
-    "CR im Ziel – der NPS wartet nur noch auf deinen Charme-Turbo.",
-    "Die Abschlüsse sitzen. Beim NPS darf es noch mehr Herzlichkeit sein – wie bei Tzatziki: einfach mehr davon.",
-    "Conversion top! Jetzt noch jedes Gespräch mit einem kleinen „Wow“ beenden.",
-    "Deine CR ist schon Profi, dein NPS macht noch das Praktikum.",
-    "Starke CR! Ein ehrliches „Kann ich sonst noch etwas für Sie tun?“ wirkt beim NPS Wunder.",
-    "CR? Läuft. NPS? Mit etwas mehr Kuschelfaktor bald auch.",
-    "Die CR jubelt, der NPS möchte mitjubeln – gib ihm einen Grund.",
-    "Verkaufen: Note 1. Begeistern: Note 1 ist in Reichweite.",
-    "Deine CR ist ein Rennpferd, dein NPS ein Pony – süß, aber das Pony braucht noch Training.",
-    "Starke Zahlen! Ein bisschen mehr Zeit fürs Zuhören, und der NPS zieht nach.",
-    "Die CR feiert schon. Lad den NPS mit ein – er bringt auch Kuchen mit.",
-    "Abschlussstark wie immer! Jetzt die Kunden noch so verabschieden, als wären sie Stammgäste in deiner Taverne."
-  ],
-  "nps_gut": [
-    "Die Kunden würden mit dir sofort einen Frappé trinken gehen. Frag sie doch beim nächsten Mal nach einem Angebot – die CR wartet schon.",
-    "Die Kunden lieben dich wie eine frische Bougatsa. Jetzt noch fragen, ob sie Puderzucker dazu wollen – die CR dankt.",
-    "Du bist so herzlich wie eine griechische Tante am Telefon. Jetzt noch so überzeugend wie sie – dann kommt die CR.",
-    "NPS top! Die Meze hast du schon serviert – jetzt noch den Hauptgang anbieten.",
-    "Kunden begeistert – fehlt nur noch die Frage „Darf’s ein bisschen mehr sein?“. Wie beim Gyros-Mann um die Ecke.",
-    "Die Kunden lieben dich – jetzt diese Liebe noch in Abschlüsse verwandeln.",
-    "Dein NPS ist top! Wer so gut ankommt, darf ruhig öfter etwas anbieten. Die Kunden mögen dich ja!",
-    "Sympathie-Weltmeister! Die CR wartet nur auf deine Frage nach dem Abschluss.",
-    "Deine Kunden würden dich weiterempfehlen – empfiehl ihnen ruhig auch mal was.",
-    "Beim NPS bist du ganz vorn. Die CR möchte gern mit aufs Siegerfoto.",
-    "Kundenliebling! Ein Anker nach der Legitimierung, und die CR kommt hinterhergerannt.",
-    "Herz hast du – jetzt noch den Mut zum Angebot, dann passt auch die CR.",
-    "Deine Gespräche sind Wellness für Kunden – jetzt noch das passende Produkt als Zugabe.",
-    "Kunden begeistert, CR noch schüchtern. Trau dich – die Kunden wollen es doch!",
-    "Der NPS feiert dich mit Konfetti. Die CR schaut noch von der Tribüne zu.",
-    "Freundlichkeit: Champions League. Abschlüsse: Aufstieg in Sicht.",
-    "Die Kunden würden dich am liebsten adoptieren. Frag sie doch, ob sie dazu ein neues Produkt möchten.",
-    "So viel Sympathie! Wenn du jetzt noch anbietest, sagen die Kunden aus reiner Dankbarkeit Ja.",
-    "Dein NPS ist ein Star. Gib der CR eine Nebenrolle – sie will auch auf die Bühne."
-  ],
-  "schwach": [
-    "CR und NPS sind wie ein Souvlaki ohne Zitrone – ein Spritzer Begeisterung, und beide schmecken sofort besser.",
-    "CR und NPS hängen noch in Kalambaka fest. Mit ein paar guten Gesprächen geht’s hoch zu den Meteora.",
-    "CR und NPS sind wie Pita, die noch auf den Grill muss: kurz Hitze geben, dann wird’s richtig gut.",
-    "CR und NPS brauchen gerade eine Extraportion – wie eine Tostia, wenn die Gyros Pita nicht satt gemacht hat.",
-    "CR und NPS sind noch wie Batzina-Teig: Mit etwas Hitze und Geduld wird daraus was Großartiges.",
-    "CR und NPS machen Pause im Kafeneio. Hol sie zurück – der Elliniko ist eh schon kalt.",
-    "Ein Lächeln wie beim Panigyri, eine Frage wie auf der Laiki – und CR und NPS kommen hinterher.",
-    "CR und NPS sind wie Kokoretsi: brauchen Zeit am Grill, aber dann sind sie das Highlight.",
-    "CR und NPS haben noch Luft nach oben – und Luft ist bekanntlich gratis.",
-    "CR und NPS warten auf dein Update. Kostenlos, sofort verfügbar, kein Neustart nötig.",
-    "Ein Lächeln mehr, eine Frage mehr – und CR und NPS kommen richtig in Fahrt.",
-    "CR und NPS sind wie Pflanzen – ein bisschen Pflege, und sie blühen auf.",
-    "Qualität ist ein Muskel – und deiner ist gerade im Aufbautraining. Bald Bodybuilder.",
-    "CR und NPS brauchen einen Trainer. Zum Glück bist du der Beste dafür.",
-    "Die gute Nachricht: Bei CR und NPS geht es nur nach oben. Wie ein Aufzug – nur ohne Fahrstuhlmusik.",
-    "Zuhören, Bedarf finden, mutig anbieten – und CR und NPS ziehen gemeinsam an.",
-    "Kleiner Hebel, große Wirkung: Ein starker Einstieg hilft CR und NPS gleichzeitig.",
-    "CR und NPS machen gerade Siesta. Weck sie mit einem richtig guten Gespräch.",
-    "Mehr Begeisterung im Gespräch – und CR und NPS tanzen bald Sirtaki.",
-    "CR und NPS sind noch im Aufwärmprogramm. Gleich geht es richtig los.",
-    "Jedes gute Gespräch zählt doppelt: für die CR und für den NPS. Zwei Fliegen, eine Klappe.",
-    "CR und NPS warten auf ihr Comeback. Die Hauptrolle hast du."
-  ],
-  "neutral": [
-    "CR und NPS lassen noch auf sich warten – wie der Kellner in der Taverne am Sonntagmittag.",
-    "Noch keine Werte. Die Statistik trinkt wohl noch ihren Freddo Espresso.",
-    "CR und NPS sind noch unterwegs – vermutlich mit dem Fahrrad über die Brücke am Lithaios.",
-    "Noch keine Werte – wie ein leerer Teller vor der Giagia. Das bleibt nicht lange so.",
-    "CR und NPS backen noch im Ofen wie eine Batzina. Bald duftet’s.",
-    "CR und NPS kommen bald – mach sie zu einer schönen Überraschung.",
-    "Noch keine CR- und NPS-Werte? Perfekt – dann schreib sie gleich richtig gut.",
-    "Die Qualitätszahlen sind noch unterwegs. Vermutlich stehen sie im Stau vor Trikala.",
-    "CR und NPS sind noch ein unbeschriebenes Blatt – und du hast den Stift.",
-    "Die Werte schlafen noch. Weck sie mit guten Gesprächen auf. Vorsichtig.",
-    "CR und NPS hängen noch in der Warteschleife. Du hast also Zeit, sie zu beeindrucken.",
-    "Noch keine CR, kein NPS – das Spiel ist offen, und du hast den Ball.",
-    "Die Statistik wartet auf dich. Gib ihr etwas zum Staunen.",
-    "Noch nichts gemessen – also ist noch alles möglich. Wirklich alles.",
-    "CR und NPS kommen erst noch. Am besten mit Applaus und Konfetti.",
-    "Leeres Blatt bei CR und NPS – mal es schön bunt an.",
-    "Die Qualitätswerte sind noch geheim. Wie das Rezept von Giagias Moussaka.",
-    "CR und NPS? Noch ein Überraschungsei. Mach was Schönes draus."
-  ]
-};
 
-const HR_SPRUECHE_ALLG = [
-  "Gute Laune am Telefon ist wie Oregano auf dem Souvlaki: Man sieht sie kaum, aber man schmeckt sie sofort.",
-  "Wusstest du? Eine Batzina braucht kaum Zutaten – nur gute Hände. Genau wie ein starker Call.",
-  "Wer in Trikala aufwächst, lernt früh: Fahrrad fahren, Tsipouro schätzen und niemals ohne Angebot auflegen.",
-  "Ein Gespräch ohne Bedarfsanalyse ist wie Gyros bestellen, ohne zu sagen, ob mit oder ohne Zwiebeln.",
-  "Lebensweisheit aus dem Kafeneio: Wer redet, verkauft. Wer zuhört, verkauft mehr.",
-  "Kunden sind wie die Giagia: Sie merken sofort, ob du es ernst meinst.",
-  "Heute ist ein guter Tag für einen Abschluss – und für eine Tostia in der Mittagspause.",
-  "Ein Lächeln am Telefon wirkt wie Honig auf Loukoumades: Alles wird ein bisschen süßer.",
-  "Wenn die Meteora-Mönche Headsets hätten, würden sie heute bei dir abschauen.",
-  "Kleine Erinnerung: Eine Tostia braucht zwei Pitas – und ein starkes Gespräch zwei Dinge: gut zuhören und mutig anbieten.",
-  "Fun Fact: Kein Mensch hat je eine Batzina abgelehnt. Mit einem guten Angebot ist es genauso.",
-  "Ein Call ist wie Tavli: Mit Glück allein gewinnt man nicht – mit Strategie schon.",
-  "Freundlichkeit ist die Feta in jedem Gespräch: Ohne sie fehlt einfach was.",
-  "Wer den Kunden wie einen Gast in der Taverne behandelt, bekommt am Ende das beste Trinkgeld: ein Ja.",
-  "Profis telefonieren wie die Giagia kocht: mit Gefühl, ohne Rezept und mit garantiert gutem Ergebnis.",
-  "Ein guter Einstieg ist wie der Duft vom Gyros-Grill: Er macht sofort Lust auf mehr.",
-  "Der Lithaios fließt jeden Tag weiter – genau wie deine Chancen auf den nächsten Abschluss.",
-  "Wenn du heute einen schweren Kunden hast: Denk an die Mönche, die Meteora zu Fuß hochgegangen sind. Du schaffst das.",
-  "Die drei Säulen von Trikala: Batzina, Tsipouro und starke Gespräche. Die dritte liegt an dir.",
-  "Ein Abschluss vor der Mittagspause macht die Gyros Pita gleich doppelt lecker.",
-  "Merke: Eine Tostia ist eine Gyros Pita mit doppelter Pita – und doppeltem Ehrgeiz. Sei wie die Tostia.",
-  "Fun Fact: Gyros Pita macht glücklich. Tostia macht doppelt glücklich. Abschlüsse machen am glücklichsten.",
-  "Ein guter Call ist wie eine Batzina: einfache Zutaten, viel Liebe – und am Ende wollen alle mehr.",
-  "Trikala hat als erste Stadt Griechenlands einen selbstfahrenden Bus getestet. Du testest heute selbstlaufende Abschlüsse.",
-  "Asklepios, der Gott der Heilkunst, stammt aus Trikala. Dein Talent offensichtlich auch.",
-  "Profi-Tipp aus Manavika: erst die Meze, dann der Tsipouro, dann der Abschluss. Oder so ähnlich.",
-  "Ein Call ohne Lächeln ist wie eine Gyros Pita ohne Pita – da fällt alles auseinander.",
-  "Wer zu den Meteora hochschaut, weiß: Hoch hinaus geht immer.",
-  "Bei der Giagia gibt es kein „Ich hab keinen Hunger“. Bei dir gibt es kein „Kein Bedarf“, ohne mal nachzufragen.",
-  "Im Advent leuchtet der Mylos ton Xotikon – dein Headset leuchtet das ganze Jahr.",
-  "Ein Freddo Espresso, ein Headset und gute Laune – mehr braucht ein echter Trikalinos nicht.",
-  "Gemütlich ist super beim Frappé-Trinken. Beim Anbieten darf’s ruhig zügiger gehen.",
-  "Kunden sind wie Gäste in der Taverne: Wer gut bedient wird, kommt wieder.",
-  "Fun Fact: Headsets funktionieren mit guter Laune nachweislich 37 % besser. Quelle: Vertrau uns.",
-  "Kaffee ist gut. Abschlüsse sind besser. Abschlüsse mit Kaffee sind unschlagbar.",
-  "Jeder Call ist eine Wundertüte – mal ist ein Abschluss drin, mal eine Oma, die sich verwählt hat.",
-  "Wenn Telefonieren olympisch wäre, hättest du mindestens schon die Trainingsjacke.",
-  "Lächeln hört man durchs Telefon – angeblich sogar bis Athen.",
-  "Die Statistik sagt: Gute Laune steigert die Abschlussquote. Wir glauben der Statistik blind.",
-  "Dein Headset hat heute schon gefragt, wann es wieder losgeht. Es vermisst dich.",
-  "Tipp vom Profi: Erst zuhören, dann begeistern, dann abschließen. Dann Frappé.",
-  "Jeder Kunde ist eine neue Folge – und du spielst die Hauptrolle. Oscar-verdächtig.",
-  "Wissenschaftlich bewiesen*: Ein guter Call wirkt stärker als drei Espresso. *von uns.",
-  "Profis erkennt man daran, dass sie beim zehnten „Moment, ich such mal die Kundennummer“ noch lächeln.",
-  "Gute Gespräche sind wie Pizza: Selbst mittelmäßige sind noch ziemlich gut.",
-  "Deine Stimme ist deine Superkraft. Umhang optional, Headset Pflicht.",
-  "Fokus, Freundlichkeit, Frage nach dem Abschluss – die drei F. Das vierte F heißt Feierabend.",
-  "Dein Bürostuhl ist heute dein Rennwagen. Bitte Gurt anlegen.",
-  "Kein Kunde hat sich je über zu viel Freundlichkeit beschwert. Zumindest nicht laut.",
-  "Ein guter Anker nach der Legitimierung ist wie ein Lesezeichen fürs Angebot.",
-  "Wer fragt, gewinnt. Wer nicht fragt, grübelt nachts darüber, was gewesen wäre.",
-  "Jedes „Nein“ bringt dich einem „Ja“ näher. Das ist keine Motivation, das ist Mathematik.",
-  "Du bist der Grund, warum Kunden nach dem Auflegen lächeln. Manche summen sogar.",
-  "Auch Superhelden haben mal mit dem ersten Call angefangen. Und bestimmt auch mal aus Versehen aufgelegt.",
-  "Ein Abschluss am Morgen vertreibt Kummer und Sorgen.",
-  "Wenn das Headset glüht, machst du alles richtig. Bitte trotzdem nicht anfassen.",
-  "Die Kunden wissen noch gar nicht, wie gut das Produkt ist – bis du es ihnen erzählst.",
-  "Deine Giagia wäre stolz auf dich. Und würde dir sofort etwas zu essen machen.",
-  "Gute Laune ist ansteckend. Am Telefon sogar über 2.000 Kilometer.",
-  "Das Geheimnis des Erfolgs: zuhören, nachfragen, lächeln. Und das Mikro nicht auf stumm vergessen.",
-  "Du telefonierst nicht, du zauberst. Dein Zauberstab ist nur zufällig ein Headset.",
-  "Die Kollegen fragen sich schon, was eigentlich in deinem Frappé ist.",
-  "Heute ist ein hervorragender Tag, um jemanden mit einem Angebot positiv zu überraschen.",
-  "Im Callcenter gibt es zwei Arten von Tagen: gute und sehr gute. Heute ist einer davon.",
-  "Wer mit Herz telefoniert, hat am Monatsende die Zahlen auf seiner Seite."
-];
-const HR_SCHLUSS_ALLG = [
-  "CR und NPS sind wie Tsipouro und Meze – zusammen am besten, einzeln nur halb so gut.",
-  "Merksatz aus der Taverne: Gute Bedienung bringt Stammgäste – und Stammgäste bringen CR und NPS.",
-  "CR und NPS sind wie Batzina und Feta: Wer das eine pflegt, bekommt das andere gleich mit.",
-  "Ein herzliches „Schönen Tag noch!“ am Ende des Gesprächs – und der NPS lächelt mit.",
-  "CR ist der Gyros, NPS das Tzatziki. Erst zusammen wird’s eine richtige Pita.",
-  "CR und NPS lieben es wie die Giagia: ehrlich, warmherzig und mit einem guten Angebot zum Schluss.",
-  "Wer anbietet wie auf der Laiki und zuhört wie im Kafeneio, hat CR und NPS auf seiner Seite.",
-  "CR und NPS sind wie die zwei Ufer des Lithaios – mit jedem guten Gespräch baust du eine Brücke dazwischen.",
-  "Gut verkaufen und gut beraten – das ist wie Pita und Füllung. Das eine hält, das andere schmeckt.",
-  "Kleiner Tipp aus Trikala: Ein Gespräch ist erst fertig, wenn der Kunde mit einem Lächeln auflegt – das liebt der NPS.",
-  "CR und NPS sind wie Pita und Gyros – das eine ohne das andere ist nur halb so lecker.",
-  "CR und NPS sind wie Meteora und Kalambaka – zusammen eine Weltattraktion.",
-  "Ein Tsipouro kommt nie allein, sondern immer mit Meze. Genauso CR und NPS: immer zusammen denken.",
-  "Kleiner Reminder aus Trikala: Gute Gespräche sind wie Batzina – mit Liebe gemacht schmeckt man den Unterschied.",
-  "Mutig anbieten wie ein Händler auf der Laiki, herzlich verabschieden wie die Giagia – CR und NPS sagen danke.",
-  "Und denk dran: CR und NPS sind ein Team – beide wollen gepflegt werden.",
-  "Gute Abschlüsse plus zufriedene Kunden – das ist die geheime Formel für CR und NPS.",
-  "CR und NPS freuen sich über jedes gute Gespräch. Wirklich über jedes.",
-  "Merksatz: Begeisterte Kunden kaufen lieber – gut für CR und NPS.",
-  "Jeder freundliche Call ist ein kleiner Bonus für den NPS.",
-  "Jede mutige Frage nach dem Abschluss ist ein kleiner Bonus für die CR.",
-  "CR und NPS sind wie Salz und Pfeffer – zusammen schmeckt es am besten.",
-  "Behalte CR und NPS im Blick – sie behalten dich nämlich auch im Blick.",
-  "Zuhören hilft dem NPS, Anbieten hilft der CR. Du kannst beides.",
-  "Qualität und Abschlüsse – zwei Seiten derselben Goldmedaille.",
-  "Ein gutes Gespräch zahlt auf CR und NPS gleichzeitig ein. Doppelt hält besser.",
-  "CR und NPS schauen dir heute besonders gespannt über die Schulter.",
-  "Ein Lächeln kostet nichts und bringt NPS-Punkte. Bestes Geschäft der Welt.",
-  "Mutig anbieten, herzlich verabschieden – CR und NPS sagen danke.",
-  "Die CR liebt Mut, der NPS liebt Herz. Bring einfach beides mit.",
-  "Jeder Call ist eine neue Chance für CR und NPS.",
-  "Beste Kombi für CR und NPS: klare Angebote und ehrliche Beratung.",
-  "Kunden merken sich, wie sich das Gespräch angefühlt hat – der NPS auch.",
-  "Zahlen sind wichtig, Menschen noch wichtiger – CR und NPS wissen das.",
-  "Einmal tief durchatmen – dann zeigen CR und NPS, was in dir steckt.",
-  "CR und NPS sind wie Olivenöl und Brot: Einzeln gut, zusammen unwiderstehlich.",
-  "Kleiner Reminder von CR und NPS: Wir sind Fans von dir."
-];
-function hrCrNpsGruppe(agent){
-  const cfgT = TEAM_CONFIGS[agent.team] || {};
-  const crS = agent.calls > 0 ? (totalCr(agent) >= (cfgT.crTarget || 0) ? 'gut' : 'schwach') : null;
-  let npsV = null; try{ const sn = liveMonthSnapshot(agent, new Date()); const sv = sn && (sn.snap || sn); if(sv && typeof sv.nps === 'number') npsV = sv.nps; }catch(e){}
-  const npsS = npsV === null ? null : (npsV >= (cfgT.npsTarget || 0) ? 'gut' : 'schwach');
-  return (crS === 'gut' && npsS === 'schwach') ? 'cr_gut' : (crS === 'schwach' && npsS === 'gut') ? 'nps_gut'
-    : (crS === 'schwach' || npsS === 'schwach') ? 'schwach' : (crS === 'gut' || npsS === 'gut') ? 'gut' : 'neutral';
-}
-// Weist jedem Mitarbeiter des Standorts (alle Teams, unabhängig vom Filter) einen eigenen Hauptspruch
-// und einen eigenen Schlusssatz zu: zuerst aus seiner Stufe/Gruppe, dann aus den allgemeinen Sätzen.
-// Täglich neu gemischt; am selben Tag immer gleich.
-function hrSpruchVerteilung(){
-  const jetzt = new Date();
-  const d = Math.floor((jetzt - new Date(jetzt.getFullYear(), 0, 0)) / 86400000);
-  const hash = str => { let h = 2166136261; for(const ch of String(str)) h = Math.imul(h ^ ch.codePointAt(0), 16777619) >>> 0; return h; };
-  const alle = [];
-  Object.keys(TEAM_CONFIGS).forEach(teamId=>{
-    const cfg = TEAM_CONFIGS[teamId];
-    const ags = state.agents.filter(a => String(a.team) === String(teamId) && a.name && a.name.trim() && a.category !== 'schulung' && a.category !== 'work');
-    if(!ags.length) return;
-    const info = hrWorkdayInfo(ags, jetzt);
-    if(!info.hasData || !info.elapsed) return;
-    const anteil = hrAnteilArbeitstage(info, jetzt);
-    const prods = displayOrderProducts(hrProdukteVon(cfg).slice(), teamId);
-    ags.forEach(a=>{
-      const r = hrBerechne(a, cfg, info, anteil);
-      alle.push({ id:a.id, stufe:hrStufe(r, prods, info), gruppe:hrCrNpsGruppe(a), neu:istNeuImTeam(a, jetzt), h:hash(a.id + '|' + a.name + '|' + d) });
-    });
-  });
-  alle.sort((x, y) => (x.stufe < y.stufe ? -1 : x.stufe > y.stufe ? 1 : 0) || x.h - y.h);
-  const benutztO = new Set(), benutztC = new Set();
-  const alleO = Object.values(HR_SPRUECHE).flat(), alleC = Object.values(HR_SCHLUSS).flat();
-  const nimm = (pools, benutzt, h) => {
-    for(const pool of pools){
-      if(!pool || !pool.length) continue;
-      const start = (h + d) % pool.length;
-      for(let j = 0; j < pool.length; j++){ const t = pool[(start + j) % pool.length]; if(!benutzt.has(t)){ benutzt.add(t); return t; } }
-    }
-    const pool = pools.find(p => p && p.length) || alleO; return pool[h % pool.length];
-  };
-  // v206: griechische Sprüche (Essen, Trikala, Meteora …) werden zuerst vergeben, die übrigen sind Reserve
-  const GR = /Gyros|Pita|Tostia|Batzina|Trikala|Meteora|Giagia|Tsipouro|Lithaios|Manavika|Kastro|Souvlaki|Frappé|Meze|Kafeneio|Panigyri|Taverne|Bougatsa|Kokoretsi|Thessal|Kalambaka|Sirtaki|Feta|Tzatziki|Olive|Laiki|Elliniko|Loukoumades|Baklava|Moussaka|Asklepios|Xotikon|Spanakopita|Galaktoboureko|Kontosouvli|Tsamiko|Freddo|Piräus|Athen|Trikalinos|Souvlatzidiko|Tavli|Choriatiki|Mezedes|Oregano|Ostermahl|Ostern/;
-  const gr = pool => (pool || []).filter(t => GR.test(t));
-  const out = {};
-  const neuAlle = [...HR_NEU.gut, ...HR_NEU.lernen];
-  alle.forEach(x=>{
-    if(x.neu){
-      const g = (x.stufe === 'alle' || x.stufe === 'kurs' || x.stufe === 'fast') ? 'gut' : 'lernen';
-      out[x.id] = { o: nimm([gr(HR_NEU[g]), HR_NEU[g], neuAlle, HR_SPRUECHE_ALLG], benutztO, x.h),
-                    c: nimm([gr(HR_NEU_SCHLUSS), HR_NEU_SCHLUSS, HR_SCHLUSS_ALLG], benutztC, x.h >>> 3), neu: true };
-      return;
-    }
-    out[x.id] = {
-      o: nimm([gr(HR_SPRUECHE[x.stufe]), gr(HR_SPRUECHE_ALLG), HR_SPRUECHE[x.stufe], HR_SPRUECHE_ALLG, alleO], benutztO, x.h),
-      c: nimm([gr(HR_SCHLUSS[x.gruppe]), gr(HR_SCHLUSS_ALLG), HR_SCHLUSS[x.gruppe], HR_SCHLUSS_ALLG, alleC], benutztC, x.h >>> 3)
-    };
-  });
-  return out;
-}
 
-function hrStufe(r, prods, info){
-  const mit = prods.map(p => r.cells[p]).filter(c => c && c.pct !== null);
-  if(!mit.length) return 'leer';
-  const erreicht = mit.filter(c => c.ist >= c.ziel).length, kurs = mit.filter(c => c.pct >= 1).length, total = mit.length;
-  if(erreicht === total) return 'alle';
-  if(kurs === total) return 'kurs';
-  if(info.remaining <= 2) return 'ende';
-  if(kurs === total - 1) return 'fast';
-  if(info.elapsed < 5) return 'start';
-  if(kurs >= Math.ceil(total / 2)) return 'haelfte';
-  if(kurs > 0) return 'wenig';
-  return 'null';
-}
 
 // Kopfzeile + Spruch der Einzelkarte – passend zum Stand des Mitarbeiters
+// v223: Persönlicher Zahlen-Tipp statt Witz – aus den eigenen Werten berechnet, sagt was als Nächstes zählt
+function hrTipp(r, prods, teamId, info){
+  const a = r.agent, cfg = TEAM_CONFIGS[a.team] || {};
+  const tage = Math.max(0, Math.round(r.restMA));
+  const f1 = v => v.toLocaleString('de-DE', { minimumFractionDigits:1, maximumFractionDigits:1 });
+  const mit = prods.map(p => Object.assign({ p, lbl: productLabel(p, teamId) }, r.cells[p])).filter(c => c.pct !== null);
+  if(!mit.length) return 'Für diesen Monat sind noch keine Produktziele hinterlegt.';
+  const offen = mit.filter(c => c.ist < c.ziel);
+  const proTag = c => {
+    const rest = Math.max(0, Math.ceil(c.ziel - c.ist));
+    if(!tage) return `<b>${rest}</b> Stück`;
+    if(c.perDay >= 1) return `<b>${hrFmtTag(c.perDay)} ${kiEsc(c.lbl)}</b> pro Tag`;
+    const alle = Math.max(2, Math.floor(1 / c.perDay));
+    return alle >= tage ? `<b>${rest} ${kiEsc(c.lbl)}</b> in ${tage} ${tage === 1 ? 'Tag' : 'Tagen'}` : `<b>1 ${kiEsc(c.lbl)}</b> alle ${alle} Tage`;
+  };
+  // CR / NPS-Zusatz
+  const calls = a.calls > 0 ? a.calls : 0;
+  const cr = calls ? totalCr(a) : null, crZ = cfg.crTarget || 0;
+  const crFehlt = (cr !== null && crZ && cr < crZ) ? Math.max(1, Math.ceil(crZ * calls / 100 - totalStk(a))) : 0;
+  let nps = null; try{ const sn = liveMonthSnapshot(a, new Date()); const sv = sn && (sn.snap || sn); if(sv && typeof sv.nps === 'number') nps = sv.nps; }catch(e){}
+  const npsZ = cfg.npsTarget || 0;
+  const pkt = v => f1(v) + (Math.abs(v - 1) < 0.05 ? ' Punkt' : ' Punkte');
+  const qualitaet = () => {
+    if(crFehlt) return `Für deine CR fehlen noch ca. <b>${crFehlt} ${crFehlt === 1 ? 'Abschluss' : 'Abschlüsse'}</b> bis ${f1(crZ)} %.`;
+    if(nps !== null && npsZ && nps < npsZ) return `Beim NPS fehlen dir noch <b>${pkt(npsZ - nps)}</b> bis ${npsZ} %.`;
+    if(cr !== null && crZ && cr >= crZ) return `Deine CR liegt <b>${f1(cr - crZ)} Punkte über Ziel</b>.`;
+    return '';
+  };
+  // Monat vorbei
+  if(!info.remaining){
+    const err = mit.length - offen.length;
+    return err === mit.length ? `Monat geschafft: <b>alle ${mit.length} Produktziele</b> erreicht. ${qualitaet()}`.trim()
+                              : `Monatsende: <b>${err} von ${mit.length}</b> Produktzielen erreicht. ${qualitaet()}`.trim();
+  }
+  // Alles erreicht (steht schon in der Überschrift – hier nur, was jetzt noch zählt)
+  if(!offen.length){
+    if(crFehlt) return `Letzter Schritt: deine CR – noch ca. <b>${crFehlt} ${crFehlt === 1 ? 'Abschluss' : 'Abschlüsse'}</b> bis ${f1(crZ)} %.`;
+    if(nps !== null && npsZ && nps < npsZ) return `Letzter Schritt: der NPS – noch <b>${pkt(npsZ - nps)}</b> bis ${npsZ} %.`;
+    const top = mit.slice().sort((x, y) => (y.ist / y.ziel) - (x.ist / x.ziel))[0];
+    const proz = Math.round(top.ist / top.ziel * 100);
+    return `Stark! Bei <b>${kiEsc(top.lbl)}</b> liegst du schon bei <b>${proz} %</b> vom Ziel.${cr !== null && crZ && cr >= crZ ? ` Deine CR liegt ${f1(cr - crZ)} Punkte über Ziel – halt das Tempo.` : ' Jetzt zählt jedes Stück extra.'}`;
+  }
+  // Größter Hebel = das Produkt, das am weitesten hinter der Prognose liegt
+  offen.sort((x, y) => x.pct - y.pct);
+  const h = offen[0];
+  const rest = Math.max(0, Math.ceil(h.ziel - h.ist));
+  let satz;
+  if(offen.length === 1) satz = `Nur noch <b>${kiEsc(h.lbl)}</b> fehlt: ${rest} Stück – mit ${proTag(h)} schaffst du es.`;
+  else if(h.pct >= 1) satz = `Du bist überall auf Kurs. Am knappsten ist <b>${kiEsc(h.lbl)}</b>: mit ${proTag(h)} bleibst du sicher drin.`;
+  else satz = `Dein größter Hebel: <b>${kiEsc(h.lbl)}</b>. Mit ${proTag(h)} knackst du dein Ziel (noch ${rest} Stück).`;
+  // Zweiter Satz: Qualität, sonst das nächste Produkt
+  let zweit = qualitaet();
+  if(!zweit && offen.length > 1 && offen[1].pct < 1) zweit = `Danach: <b>${kiEsc(offen[1].lbl)}</b> mit ${proTag(offen[1])}.`;
+  return (satz + ' ' + zweit).trim();
+}
 function hrSpruch(r, prods, teamId, info, standTxt, rows){
   const mit = prods.map(p => Object.assign({ p }, r.cells[p])).filter(c => c.pct !== null);
   const total = mit.length;
@@ -10149,11 +9647,7 @@ function hrSpruch(r, prods, teamId, info, standTxt, rows){
   if(istNeuImTeam(r.agent) && kurs < total && erreicht < total)
     titel = kurs === 0 ? 'Deine ersten Wochen im Team – hier siehst du, wie du dich Schritt für Schritt entwickelst.'
                        : `Deine ersten Wochen im Team – <b>${kurs} von ${total}</b> Produkten laufen schon auf Kurs.`;
-  // v200: Verteilung über den ganzen Standort – kein Satz kommt am selben Tag zweimal vor
-  const v = hrSpruchVerteilung()[r.agent.id];
-  const fuell = t => String(t).replace(/\{TAGE\}/g, tage);
-  const text = v ? fuell(v.o) + ' ' + fuell(v.c) : fuell((HR_SPRUECHE[hrStufe(r, prods, info)] || HR_SPRUECHE_ALLG)[0]);
-  return { titel, text };
+  return { titel, text: hrTipp(r, prods, teamId, info) };
 }
 
 // Einzelkarte je Mitarbeiter – bewusst feste, helle Farben, damit das Bild immer gleich aussieht
